@@ -1,88 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.200
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794176894;
-	b=kTHn35kAjz5Qs60nPEHp3RUSOMNFBm6OvWuqiaIebbzpNGbjr2g1PIEc5ipCZCEpc516
-	 QXAmtxioz8Xoea3caNWdheYl+OpNuWVhgEIIfkT1KXIgEHjpikxSqMUQhnpvxg2iP3/Hx
-	 hAPaqwR7WCxTYQ29xzkPtvECqRS7+XsP8SAjH1fR89GlotbFPwxs+Kj2y4c78USACFB+E
-	 2xVZ3Dp/D1BtQL5cGC89o1YtbPi+nZpaGC1yFPrCnZajzQPPu2BQ5y5NrRIQs/HDPqMHc
-	 Vu8KNfoPfanOcux8PvaGEh2AwCMmLYznY+KPFXGeGGWmTLUz3hxPN2HD3k4MrK2S3Ig==
+	t=1794177582;
+	b=mqGoVFrRJp74Bu5deOALIgNmHKZ4wI9WfktP6iH9Y7YnT7/rb2Q851/HZWKKfTknnTWQ
+	 GFqhI4LXXWwOlDtcTfQW2KG93dhNiGBaH3QueoZZSkU4kscGR5/ix/5qi2LpkxSAAUGym
+	 kNzr8Cw9M7WVyDiMRZbMPrqur594xWqJ+ANTXeuvt5mIpFdQO5NecCbw0VdwwvdFzDQjA
+	 IA1fafrpiBnDOJ+CALGM/f+7/tFEqneS8+scdnNo2gyqqxWyhdGRl6JfiomFkeAai+1Ok
+	 dyneH0gaWt/c4ZWiYKzrNeTzj1+tZIksiKzPBjhulZEv3gUc1otlVAixV+Xz+5fIucw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794176894;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=pj81Vpe15E9J2mfkC4FwE77+rCPuET8K1sw0XDw23Kw=;
-	b=uPBEZHljBT6rHza2t3K1rau9X0MjaGgwkig7U/5PZcC5HniI3gDYECKkizGhJJHlnqBE
-	 1WcUAEbT28unSb4EAPNzpFvBhTGraDxFts7cjHiaMQOJu1/Ltn9Xu2uDqbOh9sYHWQafc
-	 hU2qOKdJthPxGNdxekMIVotHZJlj0sW0rJhxBICtj3aR8Ro2MkBgpuiKao7/ni4h71tOA
-	 UdGCnnIAU/14HUZBuqGPXcxd2el/lCru+i9FOXQDbrOsYyJoWVocGGWz7haWuJtGV+81t
-	 M6Il+6LG8JCsvfwNP7ApmclBc2bpt4cA6XrUAbURNjZpmkT/973Q9nLf24/BiFvCU7Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794177582;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:Mime-Version:
+	 X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
+	bh=dh1tm53EjhTHyh6SV5ixAXTcy4PG9n9Z3Dkm6AKA6MM=;
+	b=LFzWyMd11Bh1uDpCUPuk/WEEmYt+ExAd82DSIykPyr1cpn093k9lNl/3/K/RFjdT174z
+	 vAvrv9/RQTiL3bPV41MupljHSHLFM72Bizbh6SOX29D7GEhyGUMSWbnH1/HfxHZpePTpS
+	 pURk9IPYaVWcLkVYW9+rlrUU85/1wJ5L5unzgBu4qOwR1xHAz6+UXiHQC/kexrlCFUIrN
+	 Gdpe0sAbCX2VqYAdquuro97q0TmeMc//tFYcfyfD+2PzlGCjD/v9XJBr+73pqx24v7RM9
+	 IKjBXW8lnzsA26OoKhu6I9f0sBnM6pLnV9kx/6IUhz7/pEiXu/B7YLoJPTTpOmGMIiw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="PCB/eK7J";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--irogers.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=ldVjID6l;
+	arc=none smtp.remote-ip=74.125.82.200
+Received: from mail-dy1-f200.google.com (mail-dy1-f200.google.com [74.125.82.200])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 8B7FD608361A;
-	Sun,  8 Nov 2026 22:28:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36850606A321
+	for <linux-s390@vger.kernel.org>; Sun,  8 Nov 2026 22:39:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36850606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PCB/eK7J
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id BCEBE1F00906;
-	Sun,  8 Nov 2026 22:28:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794176893;
-	bh=pj81Vpe15E9J2mfkC4FwE77+rCPuET8K1sw0XDw23Kw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=PCB/eK7JpNmZQpH4Vo+dq4kx0WgyftV/eISGW56gDVl0PH+UVr9RkWhPGNW+S7TVk
-	 CS/mNWbBmgNmq2sSydzQdNUs6wp4rAC/Xa9K7F5CVz3IsTN+sQ4Hp3ioCNTyKfGned
-	 4h5nZAiLclaX88fCWxfloYk+0sFyjbe5LdK4B52KSsWhIujlPesJxVzeRjIpjMmk5g
-	 Ptp7t38jyBdc5ufDerPm85Ju2ontd/s6dW1JKG06LRvrt+EbmoiRLNeHme4ii6Fejk
-	 9u9DQuZUIhL9FQn6Bf7Q1CUVPHJMbXGtWJBL718OCC2q7WJfRPdd0/3yhTto9X/uCe
-	 c4y/FCNHDrQsg==
-From: Jarkko Sakkinen <jarkko@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>,
-	keyrings@vger.kernel.org,
-	linux-afs@lists.infradead.org,
-	linux-cifs@vger.kernel.org,
-	linux-integrity@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	netdev@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Anna Schumaker <anna@kernel.org>,
-	Bharath SM <bharathsm@microsoft.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Biggers <ebiggers@kernel.org>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	James Morris <jmorris@namei.org>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Paulo Alcantara <pc@manguebit.org>,
-	Ronnie Sahlberg <ronniesahlberg@gmail.com>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Shyam Prasad N <sprasad@microsoft.com>,
-	Simon Horman <horms@kernel.org>,
-	Sumit Garg <sumit.garg@kernel.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tom Talpey <tom@talpey.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v5 12/12] KEYS: key_garbage_collector(): process in chunks
-Date: Mon,  9 Nov 2026 00:27:18 +0200
-Message-ID: <20261108222719.304712-13-jarkko@kernel.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261108222719.304712-1-jarkko@kernel.org>
-References: <20261108222719.304712-1-jarkko@kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=ldVjID6l
+Received: by mail-dy1-f200.google.com with SMTP id 5a478bee46e88-36de26cb4b3so346879eec.1
+        for <linux-s390@vger.kernel.org>; Sun, 08 Nov 2026 14:39:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1794177580; x=1794782380; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dh1tm53EjhTHyh6SV5ixAXTcy4PG9n9Z3Dkm6AKA6MM=;
+        b=ldVjID6loqmnPNFD/OaQ1ryvyuLqFJ8E4Rmks8oFWxH8wb56ZGhOTinJd6AgOSJN6X
+         eyQWYvinnqT6zEG01/RQdCnGd6x2V0Jftj7n4U/vmVkJUAhXm9rpFjoL01D6FYnKlWMB
+         Se/KJEsvGUwegaaKRjgstvqc+0E4NQMuqMIJdhVIGH4bcKeGAMpeJ2uStDl2Agul0sFQ
+         YSe6vinpwXu6tG+d9D+72/I67lvbThO1xg3qGRJUtBZaFA/7UJHqfOcZnShjW51+jr0M
+         Zgd8zjOIOlB2rBdIFJRuAFHSOb8t2TN7R5dw1AvU8DbOcav9gt8mQ58ntKfCqbONMFCX
+         d4zg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794177580; x=1794782380;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=dh1tm53EjhTHyh6SV5ixAXTcy4PG9n9Z3Dkm6AKA6MM=;
+        b=sUIoUUuaoisBpfiDRq4JHuEKNqEaV9jR9OCni128bW5wEeQOFKNlm6P1ltLjseGeMF
+         +ujlhUYGnmgm0QlbhEo/t6oxkbKvcLr1+ge7do2mRjLzydJb7zwGfyv56ztNxZv/xMQk
+         oDC7Jjtb51SF4FO4dvi13ti3dIBAk6BR8caQGg4ygVVu3QjNwsED4cJO5szOALMZqtK5
+         7VQTdAnx0+s68pVmO/WQIv5wlAl2n6E4x3t6l9kVqT1B6CRNlSqNbHFTVY7JcN/bdOmt
+         I6K/RwbMmTS0RylqlxOwffK1JnWIWW3sToDiSSx0A+e85YBD2543CUV8KZ+D4o+fIL5q
+         qQWA==
+X-Forwarded-Encrypted: i=1; AL+hErELQF3r2VicGfD+39QeEHCh6rcqmOcFyJyY8aRfwYDSMtBdj2PBBb6hQVkKveV7PkVa0TazFVOOHgGt@vger.kernel.org
+X-Gm-Message-State: APuU4Z9p7w1Km1BTzY1VycAlhTapzdaTf+7NuMeqOexOp0dt900QGYRw
+	HbZIcftLbxk/ncHNlIhClQL2WfE3huAB+LfOGAc2UsjwFpCkEvEEk08drwDdSUNNZ+pr5wQrI1Y
+	iifWDg0HkcA==
+X-Received: from dyba7.prod.google.com ([2002:a05:693c:63c7:b0:372:278c:c777])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:e5cb:b0:370:d6e4:e8aa
+ with SMTP id 5a478bee46e88-3725826f58cmr4715450eec.41.1794177579956; Sun, 08
+ Nov 2026 14:39:39 -0800 (PST)
+Date: Sun,  8 Nov 2026 14:39:04 -0800
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -91,406 +75,188 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.455.g6c5a503b38-goog
+Message-ID: <20261108223913.3624571-1-irogers@google.com>
+Subject: [PATCH v3 0/9] Add __must_init and require explicit kobj_type::release
+From: Ian Rogers <irogers@google.com>
+To: Danilo Krummrich <dakr@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Kees Cook <kees@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, 
+	"Rafael J . Wysocki" <rafael@kernel.org>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>, Nayna Jain <nayna@linux.ibm.com>, 
+	Srish Srinivasan <ssrish@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Juergen Gross <jgross@suse.com>, 
+	Stefano Stabellini <sstabellini@kernel.org>, 
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <ndesaulniers@google.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>, Alexander Aring <aahringo@redhat.com>, 
+	Felix Kuehling <felix.kuehling@amd.com>, 
+	"=?UTF-8?q?Christian=20K=C3=B6nig?=" <christian.koenig@amd.com>, Zhihao Cheng <chengzhihao1@huawei.com>, 
+	Sumanth Korikkar <sumanthk@linux.ibm.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, driver-core@lists.linux.dev, llvm@lists.linux.dev, 
+	linux-hardening@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, linux-acpi@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, gfs2@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, linux-mtd@lists.infradead.org, 
+	amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-kernel@vger.kernel.org, Ian Rogers <irogers@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-key_garbage_collector() has a design that is not resistant enough for
-workqueue lockups. The duration scales up relative to the number of items
-in the serial tree, which causes a reoccuring theme of being guilty of
-causing workqueue lockups.
+Clang supports the 'require_explicit_initialization' attribute on struct
+fields to enforce that the field is explicitly initialized when an
+aggregate object is constructed, emitting -Wuninitialized-explicit-init
+(enabled by default) if the field is omitted.
 
-Resolve the problem by processing in chunks:
+Following discussion at the Linux Plumbers Conference [1], patch 1 adds
+the attribute to include/linux/compiler_attributes.h as __must_init. In
+v1 it was called __require_explicit_initialization. Kees picked up that
+patch with a first seq_file user [2], and in that thread Greg suggested
+the shorter __must_init spelling, which Kees and Miguel agreed to. As
+the attribute did not land in the v7.4 merge window, Kees asked that
+this series carry the renamed attribute.
 
-1. Declare a static variable key_gc_work, which owns the garbage collection
-   in-flight state, and key_schedule_gc_work() for re-scheduling the work.
-2. Define KEY_GC_CHUNK_SIZE, set to 64 keys, as the bound for the number
-   of items scanned and destroyed.
-3. Define KEY_GC_DESTROYING to mark resume to destruction without repeating
-   the RCU grace period.
-4. Define KEY_GC_REAP_REQUESTED for preserving full-pass requests across
-   the continuations.
+As Documentation/core-api/kobject.rst notes:
+  "One important point cannot be overstated: every kobject must have a
+  release() method, and the kobject must persist (in a consistent state)
+  until that method is called. If these constraints are not met, the
+  code is flawed."
 
-keygcbench results without the patch:
+Annotating struct kobj_type::release caught struct kobj_type definitions
+across the tree that omitted .release:
+- Patches 2-8 fix struct kobj_type definitions where dynamically
+  allocated kobjects, ksets, or enclosing structures were either leaked
+  on kobject_put(), freed prematurely before kobject release, or missing
+  proper static initializers.
+- Patch 9 annotates struct kobj_type::release with __must_init and
+  explicitly sets .release = NULL (with explanatory comments prefixed
+  with "Pre-existing:") on the remaining legacy struct kobj_type
+  definitions whose kobjects are static, per-CPU, permanent firmware
+  structures, or embedded in devm- or parent-managed allocations.
 
-unused:   min=413.359 avg=1817.240 max=3221.120 var=1970880.024
-expired:  min=0.002 avg=1360.124 max=2481.990 var=1055093.994
-combined: min=0.002 avg=1542.970 max=3221.120 var=1471557.422
+Danilo Krummrich offered to route the series as a whole through the
+driver-core tree [3]. Subsystem maintainer Acked-by tags are still
+needed (and would be much appreciated!) for the following three patches:
+- Patch 2: powerpc/secvar: Add missing kobject release callback to secvar_ktype
+- Patch 3: sh: sq: Add missing kobject release callback to ktype_percpu_entry
+- Patch 6: xen/sys-hypervisor: Add release callback to hyp_sysfs_kobj_type
 
-keygcbench results with the patch:
+Note on tool use: An LLM coding assistant was used to help audit the
+compiler diagnostics across the tree, draft the fixes and changelog
+descriptions, and verify builds and review feedback.
 
-unused:   min=0.005 avg=0.126 max=54.173 var=0.946
-expired:  min=0.002 avg=0.210 max=216.470 var=7.894
-combined: min=0.002 avg=0.158 max=216.470 var=3.627
+Changes in v3:
+- Rebased on v7.4-rc1.
+- Note in cover letter that patches 2 (powerpc/secvar), 3 (sh: sq), and
+  6 (xen/sys-hypervisor) are still awaiting subsystem Acked-by tags for
+  merging through the driver-core tree, and CC those maintainers on the
+  cover letter.
+- Patch 1: Add Reviewed-by from Kees Cook; clarify that LLVM issue
+  #232483 affects Clang versions prior to its upstream fix (pointed out
+  by Nathan Chancellor).
+- Patch 4 (cpufreq): Drop obsolete reference to cpufreq_governor_dbs in
+  the commit message per Zhongqiu Han; add Reviewed-by from Zhongqiu Han
+  and Acked-by from Rafael J. Wysocki and Viresh Kumar.
+- Patch 5 (dlm): Add Acked-by from Alexander Aring.
+- Patch 8 (drm/amdkfd): Add Reviewed-by from Felix Kuehling.
+- Patch 9 (kobject): Fix omapfb manager-sysfs.c and overlay-sysfs.c
+  comments to describe managers[] and overlays[] as dynamically
+  allocated rather than static and note the CONFIG_DEBUG_KOBJECT_RELEASE
+  hazard, fix a struct-vs-member wording nit in usnic_ib_sysfs.c, and
+  generalize the commit message note on CONFIG_DEBUG_KOBJECT_RELEASE
+  (reported by Sashiko).
 
-These results translate to:
+Changes in v2:
+- Rebased on v7.3-16928-g83f32c773255 (v7.4 merge window).
+- Patch 1: Rename __require_explicit_initialization to __must_init per
+  Greg Kroah-Hartman; document the Clang >= 20 requirement per Miguel
+  Ojeda; note the Clang gap for file-scope objects without an
+  initializer reported by Kees Cook; add tags from v1 and from Kees's
+  posting.
+- Move LLM assistance attribution from Assisted-by tags to this cover
+  letter per commit 1e035297ffda ("docs: remove Assisted-by
+  references").
+- Patch 4 (cpufreq): Use "cpufreq: governor:" prefix, drop Fixes tag,
+  fix typo, and remove the redundant runtime assignment in
+  cpufreq_dbs_governor_init() per Zhongqiu Han.
+- Dropped v1 patch 5 (ACPI: CPPC), already fixed upstream by
+  commit 27954e29d7de ("ACPI: CPPC: Release CPC descriptors through
+  kobject").
+- Patch 5 (dlm): Call kobject_del() before dlm_recoverd_stop() in
+  release_lockspace() and the new_lockspace() error path, and wait on a
+  new ls_kobj_done completion before freeing the lockspace or dropping
+  the module reference, avoiding races with delayed kobject release.
+- Dropped v1 patch 8 (s390/sclp_mem) per Sumanth Korikkar: the
+  /sys/firmware/memory/memoryX kobjects are permanent, so sclp_mem.c is
+  folded into patch 9 with .release = NULL.
+- Patch 7 (ubifs): Add Tested-by and Reviewed-by from Zhihao Cheng.
+- Patch 8 (drm/amdkfd): Check q->kobj.state_in_sysfs before
+  kobject_del() in kfd_procfs_del_queue().
+- Patch 9 (kobject): Cover sclp_mem.c and the new amdgpu_ualink.c
+  ualink_xcp_info_ktype, fix the overlay-sysfs.c comment, and prefix
+  legacy .release = NULL comments with "Pre-existing:".
+- Patch 9 (kobject): The ioat, kunpeng_hccs and omapfb display comments
+  now say that the existing teardown can use-after-free under
+  CONFIG_DEBUG_KOBJECT_RELEASE (reported by Sashiko). Fixing those
+  drivers is left to follow-up patches.
 
-- >99.9% drop in the combined variance.
-- 3.0% increase in the total task time.
+v2: https://lore.kernel.org/all/20261027223847.652884-1-irogers@google.com/
+v1: https://lore.kernel.org/all/20261013223946.1836757-1-irogers@google.com/
+[1] https://lpc.events/event/20/contributions/2392/
+[2] https://lore.kernel.org/lkml/20261014225811.i.852-kees@kernel.org/
+[3] https://lore.kernel.org/all/DMLWX8NY1N1N.2OMQMQCIVRR18@kernel.org/
 
-The value 64 for KEY_GC_CHUNK_SIZE was cherry-picked from the set {1, 2,
-..., 1024} by running the benchmark for each chunk size three times.
+Ian Rogers (9):
+  Compiler Attributes: Add __must_init macro
+  powerpc/secvar: Add missing kobject release callback to secvar_ktype
+  sh: sq: Add missing kobject release callback to ktype_percpu_entry
+  cpufreq: governor: Initialize kobj_type release callback statically
+  dlm: Free dlm_ls in kobject release callback
+  xen/sys-hypervisor: Add release callback to hyp_sysfs_kobj_type
+  ubifs: sysfs: Use kset_create_and_add() for ubifs_kset
+  drm/amdkfd: Free queue in procfs_queue_type kobject release callback
+  kobject: Require explicit initialization of struct kobj_type::release
 
-At the far left variance is 97% lower but at the same time total time
-grows by 133%, when compared to the selected chunk size. The size was
-picked based on getting a reasonable variance with a minimal throughput
-decline.
+ Documentation/conf.py                         |  1 +
+ arch/arm64/kernel/cpuinfo.c                   |  5 ++++
+ arch/powerpc/kernel/secvar-sysfs.c            |  6 +++++
+ arch/sh/kernel/cpu/sh4/sq.c                   |  6 +++++
+ drivers/acpi/sysfs.c                          |  2 ++
+ drivers/cpufreq/cpufreq_conservative.c        |  5 +++-
+ drivers/cpufreq/cpufreq_governor.c            |  4 +--
+ drivers/cpufreq/cpufreq_governor.h            |  1 +
+ drivers/cpufreq/cpufreq_ondemand.c            |  5 +++-
+ drivers/dma/ioat/sysfs.c                      |  7 +++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ualink.c    |  5 ++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xcp.c       | 10 +++++++
+ drivers/gpu/drm/amd/amdkfd/kfd_process.c      | 12 ++++++---
+ drivers/gpu/drm/amd/amdkfd/kfd_queue.c        |  5 +++-
+ drivers/infiniband/hw/hfi1/sysfs.c            |  5 ++++
+ drivers/infiniband/hw/usnic/usnic_ib_sysfs.c  |  5 ++++
+ drivers/parisc/pdc_stable.c                   |  5 ++++
+ drivers/power/supply/ab8500_fg.c              |  5 ++++
+ drivers/s390/char/sclp_mem.c                  |  2 ++
+ drivers/soc/hisilicon/kunpeng_hccs.c          | 21 +++++++++++++++
+ .../fbdev/omap2/omapfb/dss/display-sysfs.c    |  7 +++++
+ .../fbdev/omap2/omapfb/dss/manager-sysfs.c    |  8 ++++++
+ .../fbdev/omap2/omapfb/dss/overlay-sysfs.c    |  8 ++++++
+ drivers/xen/sys-hypervisor.c                  |  6 +++++
+ fs/dlm/dlm_internal.h                         |  1 +
+ fs/dlm/lockspace.c                            | 26 ++++++++++++++-----
+ fs/erofs/sysfs.c                              | 10 +++++++
+ fs/f2fs/sysfs.c                               | 15 +++++++++++
+ fs/ocfs2/cluster/masklog.c                    |  5 ++++
+ fs/ubifs/sysfs.c                              | 24 +++++------------
+ include/linux/compiler_attributes.h           | 12 +++++++++
+ include/linux/kobject.h                       |  2 +-
+ scripts/checkpatch.pl                         |  1 +
+ tools/lib/python/kdoc/xforms_lists.py         |  1 +
+ 34 files changed, 211 insertions(+), 32 deletions(-)
 
-Fixes: 0c061b5707ab ("KEYS: Correctly destroy key payloads when their keytype is removed")
-Link: https://git.kernel.org/pub/scm/linux/kernel/git/jarkko/linux-tpmdd-test.git/tree/package/keygcbench
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
- security/keys/gc.c       | 166 ++++++++++++++++++++++++++-------------
- security/keys/internal.h |   3 +-
- security/keys/key.c      |   4 +-
- security/keys/keyring.c  |   2 +-
- 4 files changed, 116 insertions(+), 59 deletions(-)
 
-diff --git a/security/keys/gc.c b/security/keys/gc.c
-index 859f331549ce..704dcc401983 100644
---- a/security/keys/gc.c
-+++ b/security/keys/gc.c
-@@ -11,10 +11,7 @@
- #include <keys/keyring-type.h>
- #include "internal.h"
- 
--/*
-- * Delay between key revocation/expiry in seconds
-- */
--unsigned key_gc_delay = 5 * 60;
-+#define KEY_GC_CHUNK_SIZE 64
- 
- /*
-  * Reaper for unused keys.
-@@ -22,18 +19,22 @@ unsigned key_gc_delay = 5 * 60;
- static void key_garbage_collector(struct work_struct *work);
- 
- struct workqueue_struct *key_gc_wq __ro_after_init;
--DECLARE_WORK(key_gc_work, key_garbage_collector);
- 
--/**
-- * key_gc_flush - Drain the garbage collector RCU callbacks
-+static struct {
-+	time64_t start;			/* expiry range start */
-+	time64_t end;			/* expiry range end */
-+	struct rb_node *cursor;		/* serial tree position */
-+	u8 state;			/* state flags */
-+	atomic_t seq;
-+	struct work_struct work;	/* work item */
-+} key_gc_work = {
-+	.work = __WORK_INITIALIZER(key_gc_work.work, key_garbage_collector),
-+};
-+
-+/*
-+ * Delay between key revocation/expiry in seconds
-  */
--void key_gc_flush(void)
--{
--	do {
--		rcu_barrier();
--	} while (flush_work(&key_gc_work));
--}
--EXPORT_SYMBOL_GPL(key_gc_flush);
-+unsigned int key_gc_delay = 5 * 60;
- 
- /*
-  * Reaper for links from keyrings to dead keys.
-@@ -44,6 +45,42 @@ static DEFINE_TIMER(key_gc_timer, key_gc_timer_func);
- static time64_t key_gc_next_run = TIME64_MAX;
- static unsigned long key_gc_flags;
- #define KEY_GC_KEY_EXPIRED	0	/* A key expired and needs unlinking */
-+#define KEY_GC_REAP_REQUESTED	1	/* Another complete pass was requested */
-+
-+/*
-+ * Schedule a new GC pass or re-schedule an ongoing GC pass.
-+ */
-+void key_schedule_gc_work(bool expired)
-+{
-+	unsigned long flags = BIT(KEY_GC_REAP_REQUESTED);
-+
-+	if (expired)
-+		flags |= BIT(KEY_GC_KEY_EXPIRED);
-+
-+	/* Publish all request flags together, after the caller's updates. */
-+	set_mask_bits(&key_gc_flags, 0, flags);
-+	queue_work(key_gc_wq, &key_gc_work.work);
-+}
-+
-+/**
-+ * key_gc_flush - Drain the garbage collector RCU callbacks
-+ */
-+void key_gc_flush(void)
-+{
-+	int seq;
-+
-+	do {
-+		while (flush_work(&key_gc_work.work) ||
-+		       work_pending(&key_gc_work.work))
-+			cpu_relax();
-+		seq = atomic_read_acquire(&key_gc_work.seq);
-+		rcu_barrier();
-+	} while (flush_work(&key_gc_work.work) ||
-+		 work_pending(&key_gc_work.work) ||
-+		 atomic_read_acquire(&key_gc_work.seq) != seq);
-+}
-+EXPORT_SYMBOL_GPL(key_gc_flush);
-+
- /*
-  * Schedule a garbage collection run.
-  * - time precision isn't particularly important
-@@ -57,7 +94,8 @@ void key_schedule_gc(time64_t gc_at)
- 
- 	if (gc_at <= now) {
- 		kdebug("IMMEDIATE");
--		queue_work(key_gc_wq, &key_gc_work);
-+		/* Catch expirations that became due during the scan. */
-+		key_schedule_gc_work(true);
- 	} else if (gc_at < key_gc_next_run) {
- 		kdebug("DEFERRED");
- 		key_gc_next_run = gc_at;
-@@ -79,15 +117,6 @@ void key_set_expiry(struct key *key, time64_t expiry)
- 	}
- }
- 
--/*
-- * Schedule a dead links collection run.
-- */
--void key_schedule_gc_links(void)
--{
--	set_bit(KEY_GC_KEY_EXPIRED, &key_gc_flags);
--	queue_work(key_gc_wq, &key_gc_work);
--}
--
- /*
-  * Some key's cleanup time was met after it expired, so we need to get the
-  * reaper to go through a cycle finding expired keys.
-@@ -96,7 +125,7 @@ static void key_gc_timer_func(struct timer_list *unused)
- {
- 	kenter("");
- 	key_gc_next_run = TIME64_MAX;
--	key_schedule_gc_links();
-+	key_schedule_gc_work(true);
- }
- 
- /*
-@@ -104,7 +133,9 @@ static void key_gc_timer_func(struct timer_list *unused)
-  */
- static noinline void key_gc_unused_keys(struct list_head *keys)
- {
--	while (!list_empty(keys)) {
-+	unsigned int chunk = KEY_GC_CHUNK_SIZE;
-+
-+	while (!list_empty(keys) && chunk--) {
- 		struct key *key =
- 			list_entry(keys->next, struct key, graveyard_link);
- 		struct module *owner = key->type->owner;
-@@ -157,35 +188,46 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
- static void key_garbage_collector(struct work_struct *work)
- {
- 	static LIST_HEAD(graveyard);
--	u8 gc_state = 0;
-+	typeof(key_gc_work) *gc = &key_gc_work;
- #define KEY_GC_REAP_AGAIN	0x01	/* - Need another cycle */
- #define KEY_GC_REAPING_LINKS	0x02	/* - We need to reap links */
-+#define KEY_GC_DESTROYING	0x04	/* - We need to destroy keys */
- 
--	struct rb_node *cursor;
-+	unsigned int chunk = KEY_GC_CHUNK_SIZE;
-+	unsigned long flags;
- 	struct key *key;
--	time64_t new_timer, limit, expiry;
-+	time64_t expiry;
- 
--	kenter("[%lx]", key_gc_flags);
-+	kenter("[%lx,%x]", key_gc_flags, gc->state);
- 
--	limit = ktime_get_real_seconds();
-+	if (gc->state & KEY_GC_DESTROYING)
-+		goto destroy_keys;
-+	if (gc->cursor) {
-+		spin_lock(&key_serial_lock);
-+		goto continue_scanning;
-+	}
- 
--	if (test_and_clear_bit(KEY_GC_KEY_EXPIRED, &key_gc_flags))
--		gc_state |= KEY_GC_REAPING_LINKS;
--	kdebug("new pass %x", gc_state);
-+	flags = xchg(&key_gc_flags, 0);
-+	gc->start = ktime_get_real_seconds();
-+	gc->state = 0;
-+	if (flags & BIT(KEY_GC_KEY_EXPIRED))
-+		gc->state |= KEY_GC_REAPING_LINKS;
-+	kdebug("new pass %x", gc->state);
- 
--	new_timer = TIME64_MAX;
-+	gc->end = TIME64_MAX;
- 
- 	/* As only this function is permitted to remove things from the key
- 	 * serial tree, if cursor is non-NULL then it will always point to a
- 	 * valid node in the tree - even if lock got dropped.
- 	 */
- 	spin_lock(&key_serial_lock);
--	cursor = rb_first(&key_serial_tree);
-+	gc->cursor = rb_first(&key_serial_tree);
- 
- continue_scanning:
--	while (cursor) {
--		key = rb_entry(cursor, struct key, serial_node);
--		cursor = rb_next(cursor);
-+	while (gc->cursor && chunk) {
-+		key = rb_entry(gc->cursor, struct key, serial_node);
-+		gc->cursor = rb_next(gc->cursor);
-+		chunk--;
- 
- 		if (!test_bit_acquire(KEY_FLAG_USER_ALIVE, &key->flags)) {
- 			/* Clobber key->user after final put seen. */
-@@ -196,14 +238,14 @@ static void key_garbage_collector(struct work_struct *work)
- 		if (expiry != TIME64_MAX) {
- 			if (!(key->type->flags & KEY_TYPE_INSTANT_REAP))
- 				expiry += key_gc_delay;
--			if (expiry > limit && expiry < new_timer) {
-+			if (expiry > gc->start && expiry < gc->end) {
- 				kdebug("will expire %x in %lld",
--				       key_serial(key), key->expiry - limit);
--				new_timer = key->expiry;
-+				       key_serial(key), expiry - gc->start);
-+				gc->end = expiry;
- 			}
- 		}
- 
--		if ((gc_state & KEY_GC_REAPING_LINKS) &&
-+		if ((gc->state & KEY_GC_REAPING_LINKS) &&
- 		    key->type == &key_type_keyring)
- 			goto found_keyring;
- 
-@@ -215,7 +257,11 @@ static void key_garbage_collector(struct work_struct *work)
- 	spin_unlock(&key_serial_lock);
- 
- maybe_resched:
--	if (cursor) {
-+	if (gc->cursor) {
-+		if (!chunk) {
-+			queue_work(key_gc_wq, &key_gc_work.work);
-+			goto out;
-+		}
- 		cond_resched();
- 		spin_lock(&key_serial_lock);
- 		goto continue_scanning;
-@@ -227,10 +273,8 @@ static void key_garbage_collector(struct work_struct *work)
- 	 */
- 	kdebug("pass complete");
- 
--	if (new_timer != TIME64_MAX) {
--		new_timer += key_gc_delay;
--		key_schedule_gc(new_timer);
--	}
-+	if (gc->end != TIME64_MAX)
-+		key_schedule_gc(gc->end);
- 
- 	if (!list_empty(&graveyard)) {
- 		/* Make sure that all pending keyring payload destructions are
-@@ -240,13 +284,27 @@ static void key_garbage_collector(struct work_struct *work)
- 		 */
- 		kdebug("gc sync");
- 		synchronize_rcu();
-+	}
-+
-+	gc->state |= KEY_GC_DESTROYING;
-+
-+destroy_keys:
-+	if (!list_empty(&graveyard)) {
- 		kdebug("gc keys");
- 		key_gc_unused_keys(&graveyard);
-+		if (!list_empty(&graveyard)) {
-+			queue_work(key_gc_wq, &key_gc_work.work);
-+			goto out;
-+		}
- 	}
--
--	if (gc_state & KEY_GC_REAP_AGAIN)
--		queue_work(key_gc_wq, &key_gc_work);
--	kleave(" [end %x]", gc_state);
-+	gc->state &= ~KEY_GC_DESTROYING;
-+
-+	if ((gc->state & KEY_GC_REAP_AGAIN) ||
-+	    test_bit(KEY_GC_REAP_REQUESTED, &key_gc_flags))
-+		queue_work(key_gc_wq, &key_gc_work.work);
-+out:
-+	atomic_inc_return(&gc->seq);
-+	kleave(" [end %x]", gc->state);
- 	return;
- 
- 	/* We found an unreferenced key - once we've removed it from the tree,
-@@ -258,7 +316,7 @@ static void key_garbage_collector(struct work_struct *work)
- 	spin_unlock(&key_serial_lock);
- 
- 	list_add_tail(&key->graveyard_link, &graveyard);
--	gc_state |= KEY_GC_REAP_AGAIN;
-+	gc->state |= KEY_GC_REAP_AGAIN;
- 	goto maybe_resched;
- 
- 	/* We found a keyring and we need to check the payload for links to
-@@ -268,6 +326,6 @@ static void key_garbage_collector(struct work_struct *work)
- 	 */
- found_keyring:
- 	spin_unlock(&key_serial_lock);
--	keyring_gc(key, limit);
-+	keyring_gc(key, gc->start);
- 	goto maybe_resched;
- }
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index f8918b69dc77..6b5bb63b0e9e 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -161,13 +161,12 @@ extern bool lookup_user_key_possessed(const struct key *key,
- extern long join_session_keyring(const char *name);
- extern void key_change_session_keyring(struct callback_head *twork);
- 
--extern struct work_struct key_gc_work;
- extern unsigned key_gc_delay;
- extern struct workqueue_struct *key_gc_wq;
- extern void keyring_gc(struct key *keyring, time64_t limit);
- void key_set_expiry(struct key *key, time64_t expiry);
- extern void key_schedule_gc(time64_t gc_at);
--extern void key_schedule_gc_links(void);
-+void key_schedule_gc_work(bool expired);
- 
- extern int key_task_permission(const key_ref_t key_ref,
- 			       const struct cred *cred,
-diff --git a/security/keys/key.c b/security/keys/key.c
-index 80962c3ae12d..53106bee2d27 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -693,7 +693,7 @@ void key_put(struct key *key)
- 			}
- 			/* Mark key as safe for GC after key->user done. */
- 			clear_bit_unlock(KEY_FLAG_USER_ALIVE, &key->flags);
--			queue_work(key_gc_wq, &key_gc_work);
-+			key_schedule_gc_work(false);
- 		}
- 	}
- }
-@@ -1214,7 +1214,7 @@ void key_invalidate(struct key *key)
- 		down_write_nested(&key->sem, 1);
- 		if (!test_and_set_bit(KEY_FLAG_INVALIDATED, &key->flags)) {
- 			notify_key(key, NOTIFY_KEY_INVALIDATED, 0);
--			key_schedule_gc_links();
-+			key_schedule_gc_work(true);
- 		}
- 		up_write(&key->sem);
- 	}
-diff --git a/security/keys/keyring.c b/security/keys/keyring.c
-index b51abf698aa9..393e6d3fb4bd 100644
---- a/security/keys/keyring.c
-+++ b/security/keys/keyring.c
-@@ -266,7 +266,7 @@ void key_remove_domain(struct key_tag *domain_tag)
- {
- 	domain_tag->removed = true;
- 	if (!key_put_tag(domain_tag))
--		key_schedule_gc_links();
-+		key_schedule_gc_work(true);
- }
- 
- /*
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
 -- 
-2.47.3
+2.56.0.455.g6c5a503b38-goog
 
