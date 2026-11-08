@@ -1,70 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794143787;
-	b=TmOFrWWs+1rUGVWNVsvBpU9NCXhLKvWYLxJxB1WQAISfNwcsScdxxDLnNCHFm5V4Epq6
-	 U9JkI8DuW77o1axdim9LMObdv5Ql/SRfTci7FNitHB1CicFUZUiuKq5Ii9fdLXJ43DKiV
-	 XXBJwhqep1LMznzHzM8V1VIAvu1rhWCS65X9mOWy+q7CMrxMV1Vs/rAfZoaf6lG00vuTP
-	 5UblCZrbJwalDPGRBDyH7v3HCQCZtEJsAnY0I6ZAm+nDHrs/cGI14aNuuEXK2LFH4/Lae
-	 LBUEDzoqnBUBqVw79wuRINC70Y7M7HsMeaPwIz8wb5+NDwdFFCIurapea32bd9sWzaw==
+	t=1794143783;
+	b=uYcn4yTlnFOSvHZnO+a7iDUUDyh0SKh+NOs7736+BiS12RDAMxcUuSoRBxb/W46eH+Vq
+	 PvB9NslA1ATMPy0xT0wvCrnUY7IZpttFuASQwIsvhuL3XsoX/86vmMEzqUlFZtdvbGS/c
+	 /ZyBdL8JMzgLa4gt9f/nVTRUagC3JNA2TND/yQqSPqpn4k6pzrpHr3rxi4nTCjdtpQeyG
+	 1FyVrxZ/WmyNTfRLnZabWdWGMWrCCZdhf0mSn8tMd4XeoEdCAeX/CsTbuP8I3e0xQ2iZ/
+	 2x4XW8RfxmRqRE3JX/or4Fd4CxO1nKIAFTKlpMduorglkzgETMvw+fME8bFv7xFe17A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794143787;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794143783;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=v1GzT4Jwv27YBmtTQ/6R06I4yHOVV17RiLfotxX0g3Q=;
-	b=uGpNl0oCk3UnVYrdn7RJ/f3RZTuGS1b8FOKLMuGrzEKsx4G650T97tI1qib61VsjUkpM
-	 K7sOaDoMGFrgM4wFEC0ESVBqSQWcYzacgIhh4XxDRK4BAJR3+S1R+vJXz4C9DJds5P0Xn
-	 THaTuk91gT88ryBn9EL90bN/E2jSXpk5pJCQLTyVRv7ZIg+ogyqpNgRnsoC1h4Tqbeahm
-	 nCnhx31sUoAgMdfgX4ZGsxSEJzd8u6XxViJGMw4mBbw7GUcCglQld2XpBB2J2Au38mHhY
-	 pkEi6ZNNkbgKWUi3MAOsByjuCGt+hOrCbH9kgbPEv2IckS/szeqlQ7jb4l19BgXu3Bg==
+	bh=x0H73APANSkg4hK1fxmyKB5fSeWxT9y1OQF6z8NZOMw=;
+	b=aGohKQEyTQTjO8BQGCFdup13ktIRFXaT5xMEt30bDE3g0OBUBY8nx+p3JNCS1Ltf7d3K
+	 Sxybf7pmGQ2uOm13E/yNjehpdLfEv5RT/ov8ugiM1/U4OLBhYNiwuvA1MsfDBR6LCyl3n
+	 6PVpaleS2qtaqbWgTch4iPjKqF0HIf5+YiS/ZiOLmhoV9kgH7uJ3220AlgXYSFu8tbPGv
+	 cJ6wMVF/zkYEn/qE0M2stTsmFesDdpaFgVit162K4tFD+SgnHTmkTjYa1v+OX7HoE28u2
+	 xngdJnCgQcQEAJIp1o37Nq60XYrUeLA2zDEyC7zD2A4G9r21Qdw6T9SmUrWPhH7O5mw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AyQXwssZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oYdsMeX7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17C55606A322;
-	Sun,  8 Nov 2026 13:16:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F38C606A31C;
+	Sun,  8 Nov 2026 13:16:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AyQXwssZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9635C1F008A4;
-	Sun,  8 Nov 2026 13:16:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oYdsMeX7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 352DC1F008A1;
+	Sun,  8 Nov 2026 13:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794143786;
-	bh=v1GzT4Jwv27YBmtTQ/6R06I4yHOVV17RiLfotxX0g3Q=;
+	s=k20260515; t=1794143782;
+	bh=x0H73APANSkg4hK1fxmyKB5fSeWxT9y1OQF6z8NZOMw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AyQXwssZhAzvryQ9jTUVd+TlrywvhNcT5oSRt29xJTbssQtMtHwywYHq4mpNezELA
-	 oZDFYunezpPQeYlVn6yBKBU8wG5gbQ/R0Qma2pglquRERzAe/bz3gRIJWxGYG21io5
-	 QvC9DaU8QUGboWTgzVJbu8rbmrCF4lrq5iErfyZA+rJA/2lp4Fnh4m0aETOQyrrlgd
-	 9wLa8kt992gNUZkQJm7QpOgZBCWUVMLVPSXhtcmRtfV5Ee9AXlSn8HkDJpeXhIUdF0
-	 zkbGkDNk1fgfU/t9mJ3ooLr4YHRQE3y3DOHzNGT0tAV03YMjyXP06Td271UIycMjJH
-	 IhmQAg+7h3BuQ==
-Message-ID: <sashiko-outbox-203769@kernel.org>
+	b=oYdsMeX7mPMIBVFXjPvWKgCvpoDCFL1kBviYcBXL6c7N5VtNM69LfKMMdFMJIiGJS
+	 d4EXZ/UWszQ4L2JRHTQ3FjnrkGfZcmKYt9PjMEJrYb4o0EmqsPc6C8nChlhvtMIztv
+	 GrS/SBzC4qrE/Lq0olhe2JK1iFRAxuN6yI7v4TXMIoRUahU+/HYNGxI1S0FNmC2aT8
+	 tVWuXvRFizdYu+1cwZbZ8vmJpR1teX9ovYB8d30r3huCpspDlSDUWPAxqcl94QKTr7
+	 zgbZlWWalmQn/9IyugaJD2/XQ24N9eMjWnTcC/iwJXUQRhoXVgiTCwLJYyRBryKPk9
+	 3KIofszJgrjwA==
+Message-ID: <sashiko-outbox-203766@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 10/11] KEYS: Remove key_type_dead
+Subject: Re: [PATCH v4 07/11] KEYS: trusted: TEE: Synchronize session
+ lifetime
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jarkko Sakkinen" <jarkko@kernel.org>, "David Howells" <dhowells@redhat.com>
-Cc: keyrings@vger.kernel.org, linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Anna Schumaker" <anna@kernel.org>, "Bharath
- SM" <bharathsm@microsoft.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "David
- S. Miller" <davem@davemloft.net>, "Eric Biggers" <ebiggers@kernel.org>, "Eric
- Dumazet" <edumazet@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, "Jakub
- Kicinski" <kuba@kernel.org>, "James Bottomley" <James.Bottomley@HansenPartnership.com>, "James
- Morris" <jmorris@namei.org>, "Marc Dionne" <marc.dionne@auristor.com>, "Mimi
- Zohar" <zohar@linux.ibm.com>, "Namjae Jeon" <linkinjeon@kernel.org>, "Paolo
- Abeni" <pabeni@redhat.com>, "Paul Moore" <paul@paul-moore.com>, "Paulo
- Alcantara" <pc@manguebit.org>, "Ronnie Sahlberg" <ronniesahlberg@gmail.com>, "Serge
- E. Hallyn" <serge@hallyn.com>, "Shyam Prasad N" <sprasad@microsoft.com>, "Simon
- Horman" <horms@kernel.org>, "Sumit Garg" <sumit.garg@kernel.org>, "Sven
- Schnelle" <svens@linux.ibm.com>, "Tom Talpey" <tom@talpey.com>, "Trond
- Myklebust" <trondmy@kernel.org>, "Vasily Gorbik" <gor@linux.ibm.com>, "Chuck
- Lever" <cel@kernel.org>, "Jeff Layton" <jlayton@kernel.org>
-In-Reply-To: <20261107131512.3603168-11-jarkko@kernel.org>
+To: "Jarkko Sakkinen" <jarkko@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261107131512.3603168-8-jarkko@kernel.org>
 References: <20261107131512.3603168-1-jarkko@kernel.org>
- <20261107131512.3603168-11-jarkko@kernel.org>
+ <20261107131512.3603168-8-jarkko@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 13:16:25 +0000
+Date: Sun, 08 Nov 2026 13:16:21 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -74,85 +63,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found no new issues
-in this patch, but noticed 1 related pre-existing issue it does not
-introduce:
-- [Medium] keys: broken garbage collection timer calculation in
-  key_garbage_collector() [1]
---
+> While the sysfs bind attributes are now suppressed, the parent TEE device
+> can still remove the device while the instances keep trusted.ko loaded.
+>=20
+> Update the static calls before invoking backend init() and reset them in
+> the case of a failure.
+>=20
+> In the TEE backend, guard session context state with a mutex, publish
+> pvt_data.dev before registering key_type_trusted and sanitize pvt_data on
+> probe failure and removal.
+>=20
+> When an active TEE has not been bound, reject seal, unseal and get_random
+> with -ENODEV.
+>=20
+> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-commit 685cce051d4099c4b86015bc6b82bcd593f0652f
-Author: Jarkko Sakkinen <jarkko@kernel.org>
-
-KEYS: Remove key_type_dead
-
-This commit removes key_type_dead and its three-phase keytype reaping logic
-from the key garbage collector and unregister_key_type().
-
-> diff --git a/security/keys/gc.c b/security/keys/gc.c
-> index 7b2f32998f58b..859f331549cef 100644
-> --- a/security/keys/gc.c
-> +++ b/security/keys/gc.c
-
-[ ... ]
-
-> @@ -246,18 +192,6 @@ static void key_garbage_collector(struct work_struct=
- *work)
->  			goto found_unreferenced_key;
->  		}
-> =20
-> -		if (unlikely(gc_state & KEY_GC_REAPING_DEAD_1)) {
-> -			if (key->type =3D=3D key_gc_dead_keytype) {
-> -				gc_state |=3D KEY_GC_FOUND_DEAD_KEY;
-> -				set_bit(KEY_FLAG_DEAD, &key->flags);
-> -				key->perm =3D 0;
-> -				goto skip_dead_key;
-> -			} else if (key->type =3D=3D &key_type_keyring &&
-> -				   key->restrict_link) {
-> -				goto found_restricted_keyring;
-> -			}
-> -		}
-> -
->  		expiry =3D key->expiry;
->  		if (expiry !=3D TIME64_MAX) {
->  			if (!(key->type->flags & KEY_TYPE_INSTANT_REAP))
-
-[Severity: Medium]
-This problem wasn't introduced by this patch, but does the timer calculation
-in key_garbage_collector() mix delay-adjusted and unadjusted expiration
-timestamps [1]?
-
-security/keys/gc.c:key_garbage_collector() {
-	...
-		expiry =3D key->expiry;
-		if (expiry !=3D TIME64_MAX) {
-			if (!(key->type->flags & KEY_TYPE_INSTANT_REAP))
-				expiry +=3D key_gc_delay;
-			if (expiry > limit && expiry < new_timer) {
-				kdebug("will expire %x in %lld",
-				       key_serial(key), key->expiry - limit);
-				new_timer =3D key->expiry;
-			}
-		}
-	...
-	if (new_timer !=3D TIME64_MAX) {
-		new_timer +=3D key_gc_delay;
-		key_schedule_gc(new_timer);
-	}
-}
-
-When KEY_TYPE_INSTANT_REAP is not set, expiry has key_gc_delay added before
-it is compared against new_timer, but new_timer is then assigned the
-unadjusted key->expiry.  Subsequent keys whose adjusted expiry falls at or
-after a previously recorded unadjusted key->expiry fail the
-expiry < new_timer check even when their actual reap time is earlier.  After
-the tree scan finishes, key_gc_delay is also added unconditionally to
-new_timer even if new_timer came from a key with KEY_TYPE_INSTANT_REAP set,
-delaying background reaping of expired keys and dead keyring links by up to
-key_gc_delay.
-
-[1] https://sashiko.dev/#/bug/linux-327c9a06-109f-4001-9a3e-a6092c989462
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107131512.3603=
-168-1-jarkko@kernel.org?part=3D10
+168-1-jarkko@kernel.org?part=3D7
+
