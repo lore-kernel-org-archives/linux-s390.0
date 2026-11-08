@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794143777;
-	b=m37s1NsCj14cwGGIvtgei5gNB6f4E5aB0JYWvFUnwAHSWTt5lLONxVfO1PjL15gbCZbQ
-	 +YFYQ42lLjhnH1f0QFlJ8HWZtvwSI1rIlTZ4byPX49nCrvpUx95lyYFgoEf4OPivqzLf/
-	 3W3o/bTPSE+P4OQ86PHp+RfZ9A5Aa3ohuQ5KbxDhuFv3sc3Qog4qqu6wAvX1GlJLi0BFr
-	 vP6jR66zSzex22BvJGjcMXMZEvVIoik3aX4WH/WWP2Nitt2j1psn/DJpGbOhxzGgTP1Ha
-	 BK0Uwj2T4NbDdil39Gcigi42K9eTP45YXGOKUkwP8EmGNK39mChxn2nUgFmjB/O+Ivg==
+	b=kBpXy3W6FYtpEiFuEcmVWIojEOm6UXslGHr70GFcbC5/7tB43YNFYWMPJM91UolDuLXB
+	 6OyPNfOkyyyMFRzVRzAwY9YxxGCmG/0OYGLOTUXwDNEHeAR4UTi9wxBSb7RWYwREjw+E0
+	 hwJeDoX8L878wF/DoiTPzQCjc3IOen3gVy8z7uLwQVcq1CkNT4/wVqiEkc4ewT9Lys/8e
+	 EYz1gpsD8Lk1gHDMj3rImgRTO+PTzKVIf/70wvApD21AmJyBk1hEhCj/96CKPTXD582LR
+	 55t0r27ZY2j+0i3qM3rL0F5C5ciAF/7ztgydX516APB5PPefcja6xX4GqQKa7OI1zag==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794143777;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=WVi6pcWLaFPXAz7MfNuNS4PLykaN2VBCvv1vhVBnezA=;
-	b=fvn/E0oqGGd4AUt9hFNtwm0J45dsY5r6rEAR8BYYT29GQfW0m8XrhmYNjandEVmDqxLf
-	 aBuSHrigKmaU6SFJUhOQ2ZURqrILqcSt6FxWDQHe8L3QYS9K6SzsVT8270irnl+Yiqk24
-	 X7Si8E9+OS1XcdP0z+5dVWyJQy36AzCGGfKXYTP4CfGwgwB+LsPK4I63hPYgL94XpqZlZ
-	 9eF4jSbw8svxnVB3z7cOIbImUF5piL8hBPEAAK9sOKeo7U/ZUTK8j50hnSAdpohPYlLcJ
-	 sbRc/P0Ipdx5WXE0XL+vEAamx45Pby1IQYAJ/NXx86/7YbSaf2uAXtPQ8rSwEWR8RWA==
+	bh=c7fmsKxBEu9XSdetq44EUfIGsTDFd9S52O1w5xWtMjE=;
+	b=dCpZvBtGjrxhnWvkz7Lx+42doo69oeLiwD6PzHTlkB4WshH7LwSEMi5AM72auml6ze2J
+	 IfUFCKWbW+hXDCe9mOea6+X3U4zsYZXUfbU0xQAliEkxdUXcrRWdh4labhu0+9ee1Om6i
+	 sSeltTAAM5BdSnK9EfqyV6vVDWSjxz4rn+7eWeKl2hExyn8VXBb1pZV6QIhjPnp/9F14F
+	 I2ThvRIuTpUK2Bu+0DDAFUPWMkAN/5JSnxgXl46T+Sf7lUo2bD+SCHx1OtX1/pgml/R5/
+	 VFCU1BcwqkdcDJk7F/RfVt5428K4MQ0JW9y81g/+qsYkqdmUIZDMnDjPQGwoGPBgDSQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="c/yhGR+X";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EqI1p+M6;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2174606A322;
-	Sun,  8 Nov 2026 13:16:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B529606A330;
+	Sun,  8 Nov 2026 13:16:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c/yhGR+X
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11D191F008A2;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EqI1p+M6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD4801F0089F;
 	Sun,  8 Nov 2026 13:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794143776;
-	bh=WVi6pcWLaFPXAz7MfNuNS4PLykaN2VBCvv1vhVBnezA=;
+	s=k20260515; t=1794143777;
+	bh=c7fmsKxBEu9XSdetq44EUfIGsTDFd9S52O1w5xWtMjE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=c/yhGR+XtGbjknpvu/6jLqib/KQV+nxEYZKgWH6KXTI0Yv3e0Zl2fFrzlFsrSFJOy
-	 HUJfd9Vbdydb2TBdZTunPF8n0mHrZuXGhPMj9AMIGU9UiT/XwjsY5F+KDqZBw3WG3+
-	 cMLxQ0MbTtXS0gTI9cthpwMRlF4KIqP/wHyKDCsj1ueo0pLG+IDUcQPg7qBuopgs0t
-	 bZRbhnnYINyYYwQBbkRsGoD6hPf7FEcv3RhlOJb2BpdxAIT085fF7plrTwxEEoed7A
-	 DkSzaEXY6CbCFTe5bYuIALAz2R050VJ5GkJ/jxG17WhGwiXNRme3M0hK1zdjgmB2n6
-	 nSCj0b2kxDCLQ==
-Message-ID: <sashiko-outbox-203761@kernel.org>
+	b=EqI1p+M6SNeTdO5Q+O6BbYUzHc3PUP0YdiWcUWiRYg2n8TUVjgEH0qq3+ziLCipyh
+	 01qSof6GOD7QjawnDm2oPefQjjI8Zkb9jqel5O3k+N1vB19ANX+GbfxaT2AxNRe/1W
+	 TWvWcCcLuZKZlE8XfoSiCSB1YrtRPWp1p57dv0kLBGnmZo9aoFBfuaD6IKPrqaPTFy
+	 2uXxhTidoLdXb+uAE/IKAn1/q99Zcu+ashVZwbBzKzCcrrJeylWAfAVdjeYmS4sad3
+	 jHsBtqSa79fJ6PYCIezJwi+eJaBXLL21C9hMRvQ206EqK7g6WdHRv690HtI4uibE+8
+	 p/GiioXi+/P/g==
+Message-ID: <sashiko-outbox-203762@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 02/11] dns_resolver: Move the key type into a
- separate module
+Subject: Re: [PATCH v4 03/11] NFSv4: Clear idmap keyring cache when the last
+ client unloads
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jarkko Sakkinen" <jarkko@kernel.org>
 Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261107131512.3603168-3-jarkko@kernel.org>
+In-Reply-To: <20261107131512.3603168-4-jarkko@kernel.org>
 References: <20261107131512.3603168-1-jarkko@kernel.org>
- <20261107131512.3603168-3-jarkko@kernel.org>
+ <20261107131512.3603168-4-jarkko@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 13:16:15 +0000
+Date: Sun, 08 Nov 2026 13:16:16 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,14 +63,14 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Once keys pin to the kernel module of their key type, having the DNS key
-> type in the same modules as the resolver will introduce a circular
-> dependency preventing module_exit() from ever running.
+> id_resolver_cache->thread_keyring caches id_resolver_legacy keys up until
+> nfs_idmap_quit() tears down the keyring.
 >=20
-> Introduce dns_resolver_key.ko containing key_type_dns_resolver. On a modu=
-le
-> exit, drop the credentials and call key_gc_flush() in order the drain the
-> remaining RCU callbacks.
+> Once keys pin to the kernel module of their key type, the cached keys
+> prevent module_exit() from ever happening.
+>=20
+> Track the active idmap instances under a mutex and clear the idmap cache
+> keyring once the last client has been destroyed.
 >=20
 > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
@@ -78,5 +78,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107131512.3603=
-168-1-jarkko@kernel.org?part=3D2
+168-1-jarkko@kernel.org?part=3D3
 
