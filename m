@@ -1,44 +1,44 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794176878;
-	b=5sg4oBYPMNMrLvb990Vm/Umeen/ZiWOy+08hzH7zKvyvhEKEp9SBgNvz6jGlmYu9r4/o
-	 fyFgWKwU7f+mm83xqIHNmTk3To+rI4XGsMVlMu3dITeEzQINcVzTu+fXKA4vvmy937HA0
-	 jpm65MuNmS9djm/TSOeXXuQXuS93fqUrmANm+i0XJYBYoodmSN8Fw3zUphGpp2+FaJeEx
-	 88Dn/pPioNKRG7Yw18KdYbgXwOFIj97VlUtO/HjcGZ/6PGfppFnUVnphIg0KtPi1uPZ6w
-	 /oBGJcoapBwKythvfMu5dU9MSM6vIg9itqE3HSm6mZSUL6u3OvrjMiiH9IHAW2XrWgA==
+	t=1794176886;
+	b=xKg1bk1GCPHhtBNCSKzxLwAZMS+Ei7kg3og0r4p3BXQCkdKB+OlcSnCYZ9m0Vzi6bkcb
+	 YtYNxN584/1Y1Vr8478KFEkqZNEsLbK1C2IKVyMh4r94filfureTAh95xFElvCTsQ28Bu
+	 Fm6DOhR/l5kwZLBrv5VJhWCwt15KuYpzx26UqoZXrtUd8XvBN4cPzwO9cuDfvmdd64Ju5
+	 /EkEeZkfy6GIXRhKDOrpF6Gts6uAcPCOqsz1H1S/cxj+PuXHFtT+Zp2gEeh/g51kXbN4r
+	 bZatBBjv/Pv4W2meHWar5zKn5R1aB8AnGxbg/bHhvdhYiQ8I14kiIMCd3DOrBm56PMA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794176878;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794176886;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=4IKEyNNVMbtlH/YtAA2tKyWfWnOYgIJubMPziZyywq8=;
-	b=Ts4fw4imjA0TwARk1zLjWZ8olsZTAGOoRuYtZ4EGqHrK3g4HXbJ+0heMgfwF5hlDBgU7
-	 3mU5YpX4Vly73Nde4gIvlpobyg1FR/sEU9ZpHUHSKsba8u/QEM8mOQ9orUYEEckPh2CAw
-	 eRQHNy1rXaIvtnxprIX7iVw/71RaJFaMvZmPVyrmnMuRePr0szA35JdScEKz8twynqgqo
-	 VSpqj6VKohCQBdyQGX9wWAt8/lTdL73VKoMGbhXxnWBL3Cs7v9LuwDAbtHV3Uzh7Rq8SB
-	 Sde+2r5CbVvjifho8Iu9CAJgG2iCy9S3M+Eghv2TAVVAwfKlqgU2XI64lC4p7+ijSgg==
+	bh=pPJtaNXXVN6W3aSE9iN/Uh6en78jkh+qXfwU+6KoP0E=;
+	b=Tut27j8bphzXdJwz7V/Tsqwk1zc80EDJ1cP9UxKvR8UwHYo76oIzPl5eH1D8U5UVDdjC
+	 UnPQ9lvhgmlRYStvj27NZQNZMsEQL2Xgt6/2Li6ZndbQMOxo0gNU2jzAe78q+Pz19NSjU
+	 tZgmgxs0awp1kuh5N0mGwhYjizSvywXVYCyyhLzfZofVlG4zQj+2h967Ix+EbqoTy7MB9
+	 bZq2im2eW4ovzLzn7mP0kdgC98I3mk6JVcsFAqhTa9EGC3ygWVnxNq19PolJ9QUBkZMEE
+	 CQH/1WLF4bb3KkIVJwe1cdtEFCAISsS4Xgh6bMhkXiAQHoTokNQcDZl/7HGRf7Kz6MQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wdz8J4g0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e2hYSWFB;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 73F58606EE85;
-	Sun,  8 Nov 2026 22:27:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 53082606D819;
+	Sun,  8 Nov 2026 22:28:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wdz8J4g0
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 6053F1F008A7;
-	Sun,  8 Nov 2026 22:27:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e2hYSWFB
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 2CEF21F008A3;
+	Sun,  8 Nov 2026 22:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794176878;
-	bh=4IKEyNNVMbtlH/YtAA2tKyWfWnOYgIJubMPziZyywq8=;
+	s=k20260515; t=1794176885;
+	bh=pPJtaNXXVN6W3aSE9iN/Uh6en78jkh+qXfwU+6KoP0E=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Wdz8J4g0bCy5/NMiYmiXLZEcK/qa4mel5KA7dJrd8tffkLSNG4nTfsy+tUud6n96D
-	 Oep2KRKcpj2qhHBRybpakcdAxPYttSAgI+RlPRdXhaFNAzYbsUlBJ7aHjXRHxrQaPq
-	 up6TwtBpMMZez0cEPxlEdFLrSHXR1zcdaGa6edNOAhDbzIowLYX8zrsMalfCLnOdh0
-	 AV1Nz92M8PG5intxsbRTRhr/stS166lY/nk2sIISEV+xFww6Loh8GjmCTAlk9oTokV
-	 cv/29jRI3sBgpLmBie9AIk84wQ73VlQhxemKPq8HSOYy7Bcw/gMp5VcwDundLNG0/o
-	 UWGH3KuLDX/vg==
+	b=e2hYSWFB4Q86hiXFZvJKZYFc9sVaGrYGHg+uVGAQknBcn1oAKpOJd3Bj3RFztVztj
+	 ALLKsIB/GH3symVZgEpzP7WTpnZtsOxNWeloaoic86R/HLgK1cxZknX1loIHthECW6
+	 dcWKguSJ8LCBVepfcQX8mzlX3FlAOrmyXmt/fEbJ1DkJIm9izlPYRgxj4OqYjFnISD
+	 kaWZLma5jW1/1zr9RtgNEeECrqJMXZBDapDSkna8sFEg2kpAoqU32F9BlnkeZKRpBf
+	 b+n50R6ESr8BnP9eZz1U5GYGXOEDL4tKEsAWlUaOWyc4QuhRAV97nsl+J6h+G4sHda
+	 N5V0DLoXoRexQ==
 From: Jarkko Sakkinen <jarkko@kernel.org>
 To: David Howells <dhowells@redhat.com>
 Cc: Jarkko Sakkinen <jarkko@kernel.org>,
@@ -77,9 +77,9 @@ Cc: Jarkko Sakkinen <jarkko@kernel.org>,
 	Tom Talpey <tom@talpey.com>,
 	Trond Myklebust <trondmy@kernel.org>,
 	Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v5 08/12] rxrpc: Release conn->key when init_connection_security() fails
-Date: Mon,  9 Nov 2026 00:27:14 +0200
-Message-ID: <20261108222719.304712-9-jarkko@kernel.org>
+Subject: [PATCH v5 10/12] KEYS: Pin the backing kernel module for a key type
+Date: Mon,  9 Nov 2026 00:27:16 +0200
+Message-ID: <20261108222719.304712-11-jarkko@kernel.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261108222719.304712-1-jarkko@kernel.org>
 References: <20261108222719.304712-1-jarkko@kernel.org>
@@ -94,48 +94,313 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Clear conn->key before calling key_put() when init_connection_security()
-fails, and pair with READ_ONCE() in rxrpc_connection_seq_show().
+Add the owner field (populated with THIS_MODULE) to struct key_type.
 
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
+Pin the module in key_alloc() and keyring_restrict(), and release it in
+key_gc_unused_keys() and keyring_destroy(), which are wires to the keys
+and restrictions.
+
+Reject module owners still in MODULE_STATE_COMING so that the failed
+module_init() paths cannot leave behind referenced keys.
+
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 ---
- net/rxrpc/conn_event.c | 7 ++++++-
- net/rxrpc/proc.c       | 2 +-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ include/linux/key-type.h |  6 ++++-
+ security/keys/gc.c       | 14 ++++++++++--
+ security/keys/key.c      | 48 ++++++++++++++++++++++++++++++----------
+ security/keys/keyring.c  | 36 +++++++++++++++++++++++++-----
+ 4 files changed, 83 insertions(+), 21 deletions(-)
 
-diff --git a/net/rxrpc/conn_event.c b/net/rxrpc/conn_event.c
-index 611c790bc6d0..096807f13354 100644
---- a/net/rxrpc/conn_event.c
-+++ b/net/rxrpc/conn_event.c
-@@ -298,8 +298,13 @@ static int rxrpc_process_event(struct rxrpc_connection *conn,
+diff --git a/include/linux/key-type.h b/include/linux/key-type.h
+index c4f329b6ae3f..9ecec31ad571 100644
+--- a/include/linux/key-type.h
++++ b/include/linux/key-type.h
+@@ -10,9 +10,11 @@
  
- 		ret = conn->security->init_connection_security(
- 			conn, conn->key->payload.data[0]);
--		if (ret < 0)
-+		if (ret < 0) {
-+			struct key *key = conn->key;
-+
-+			WRITE_ONCE(conn->key, NULL);
-+			key_put(key);
- 			return ret;
+ #include <linux/key.h>
+ #include <linux/errno.h>
++#include <linux/init.h>
+ 
+ #ifdef CONFIG_KEYS
+ 
++struct module;
+ struct kernel_pkey_query;
+ struct kernel_pkey_params;
+ 
+@@ -161,6 +163,7 @@ struct key_type {
+ 				     const void *in, const void *in2);
+ 
+ 	/* internal fields */
++	struct module		*owner;
+ 	atomic64_t		index_id;	/* Opaque keyring index ID */
+ 	struct list_head	link;		/* link in types list */
+ 	struct lock_class_key	lock_class;	/* key->sem lock class */
+@@ -168,7 +171,8 @@ struct key_type {
+ 
+ extern struct key_type key_type_keyring;
+ 
+-extern int register_key_type(struct key_type *ktype);
++int __register_key_type(struct key_type *ktype, struct module *owner);
++#define register_key_type(ktype) __register_key_type(ktype, THIS_MODULE)
+ extern void unregister_key_type(struct key_type *ktype);
+ 
+ extern int key_payload_reserve(struct key *key, size_t datalen);
+diff --git a/security/keys/gc.c b/security/keys/gc.c
+index 9b625436d3b5..7b2f32998f58 100644
+--- a/security/keys/gc.c
++++ b/security/keys/gc.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <linux/slab.h>
++#include <linux/module.h>
+ #include <linux/security.h>
+ #include <keys/keyring-type.h>
+ #include "internal.h"
+@@ -150,6 +151,7 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
+ 	while (!list_empty(keys)) {
+ 		struct key *key =
+ 			list_entry(keys->next, struct key, graveyard_link);
++		struct module *owner = key->type->owner;
+ 		short state = key->state;
+ 
+ 		list_del(&key->graveyard_link);
+@@ -163,8 +165,15 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
+ #endif
+ 
+ 		/* Throw away the key data if the key is instantiated */
+-		if (state == KEY_IS_POSITIVE && key->type->destroy)
+-			key->type->destroy(key);
++		if (state == KEY_IS_POSITIVE) {
++			if (key->type->destroy)
++				key->type->destroy(key);
++		} else if (key->restrict_link) {
++			if (key->restrict_link->keytype)
++				module_put(key->restrict_link->keytype->owner);
++			key_put(key->restrict_link->key);
++			kfree(key->restrict_link);
 +		}
  
- 		spin_lock_irq(&conn->state_lock);
- 		if (conn->state == RXRPC_CONN_SERVICE_CHALLENGING) {
-diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
-index e9a27fa7b25d..2bf34b85c2f9 100644
---- a/net/rxrpc/proc.c
-+++ b/net/rxrpc/proc.c
-@@ -182,7 +182,7 @@ static int rxrpc_connection_seq_show(struct seq_file *seq, void *v)
- 		   refcount_read(&conn->ref),
- 		   atomic_read(&conn->active),
- 		   state,
--		   key_serial(conn->key),
-+		   key_serial(READ_ONCE(conn->key)),
- 		   conn->tx_serial,
- 		   conn->hi_serial,
- 		   conn->channels[0].call_id,
+ 		security_key_free(key);
+ 
+@@ -178,6 +187,7 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
+ 
+ 		memzero_explicit(key, sizeof(*key));
+ 		kmem_cache_free(key_jar, key);
++		module_put(owner);
+ 	}
+ }
+ 
+diff --git a/security/keys/key.c b/security/keys/key.c
+index 3e604d25d35e..be68d19f91d3 100644
+--- a/security/keys/key.c
++++ b/security/keys/key.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/export.h>
+ #include <linux/init.h>
++#include <linux/module.h>
+ #include <linux/poison.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+@@ -234,19 +235,34 @@ struct key *key_alloc(struct key_type *type, const char *desc,
+ 
+ 	key = ERR_PTR(-EINVAL);
+ 	if (!desc || !*desc)
+-		goto error;
++		goto out;
++
++	/* Failed module initialization ignores outstanding module references. */
++	if ((type->owner && module_is_coming(type->owner)) ||
++	    !try_module_get(type->owner)) {
++		key = ERR_PTR(-ENOENT);
++		goto out;
++	}
++
++	if (restrict_link && restrict_link->keytype &&
++	    ((restrict_link->keytype->owner &&
++	      module_is_coming(restrict_link->keytype->owner)) ||
++	     !try_module_get(restrict_link->keytype->owner))) {
++		key = ERR_PTR(-ENOENT);
++		goto out_put_module;
++	}
+ 
+ 	if (type->vet_description) {
+ 		ret = type->vet_description(desc);
+ 		if (ret < 0) {
+ 			key = ERR_PTR(ret);
+-			goto error;
++			goto out_put_restrict_module;
+ 		}
+ 	}
+ 
+ 	desclen = strlen(desc);
+ 	if (desclen >= KEY_MAX_DESC_SIZE)
+-		goto error;
++		goto out_put_restrict_module;
+ 	quotalen = desclen + 1 + type->def_datalen;
+ 
+ 	/* get hold of the key tracking for this user */
+@@ -323,8 +339,6 @@ struct key *key_alloc(struct key_type *type, const char *desc,
+ 	refcount_inc(&key->domain_tag->usage);
+ 	atomic_inc(&user->nkeys);
+ 	key_alloc_serial(key);
+-
+-error:
+ 	return key;
+ 
+ security_error:
+@@ -338,7 +352,7 @@ struct key *key_alloc(struct key_type *type, const char *desc,
+ 	}
+ 	key_user_put(user);
+ 	key = ERR_PTR(ret);
+-	goto error;
++	goto out_put_restrict_module;
+ 
+ no_memory_3:
+ 	kmem_cache_free(key_jar, key);
+@@ -352,13 +366,22 @@ struct key *key_alloc(struct key_type *type, const char *desc,
+ 	key_user_put(user);
+ no_memory_1:
+ 	key = ERR_PTR(-ENOMEM);
+-	goto error;
++	goto out_put_restrict_module;
+ 
+ no_quota:
+ 	spin_unlock_irqrestore(&user->lock, irqflags);
+ 	key_user_put(user);
+ 	key = ERR_PTR(-EDQUOT);
+-	goto error;
++
++out_put_restrict_module:
++	if (restrict_link && restrict_link->keytype)
++		module_put(restrict_link->keytype->owner);
++
++out_put_module:
++	module_put(type->owner);
++
++out:
++	return key;
+ }
+ EXPORT_SYMBOL(key_alloc);
+ 
+@@ -1231,19 +1254,20 @@ int generic_key_instantiate(struct key *key, struct key_preparsed_payload *prep)
+ EXPORT_SYMBOL(generic_key_instantiate);
+ 
+ /**
+- * register_key_type - Register a type of key.
++ * __register_key_type - Register a type of key.
+  * @ktype: The new key type.
++ * @owner: Module owning the key type.
+  *
+  * Register a new key type.
+  *
+  * Returns 0 on success or -EEXIST if a type of this name already exists.
+  */
+-int register_key_type(struct key_type *ktype)
++int __register_key_type(struct key_type *ktype, struct module *owner)
+ {
+ 	struct key_type *p;
+ 	int ret;
+ 
+-	memset(&ktype->lock_class, 0, sizeof(ktype->lock_class));
++	ktype->owner = owner;
+ 
+ 	ret = -EEXIST;
+ 	down_write(&key_types_sem);
+@@ -1264,7 +1288,7 @@ int register_key_type(struct key_type *ktype)
+ 	up_write(&key_types_sem);
+ 	return ret;
+ }
+-EXPORT_SYMBOL(register_key_type);
++EXPORT_SYMBOL(__register_key_type);
+ 
+ /**
+  * unregister_key_type - Unregister a type of key.
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 5281da9d5bf7..f90ab46ecfab 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -7,6 +7,7 @@
+ 
+ #include <linux/export.h>
+ #include <linux/init.h>
++#include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/security.h>
+@@ -436,6 +437,9 @@ static void keyring_destroy(struct key *keyring)
+ 	if (keyring->restrict_link) {
+ 		struct key_restriction *keyres = keyring->restrict_link;
+ 
++		if (keyres->keytype)
++			module_put(keyres->keytype->owner);
++
+ 		key_put(keyres->key);
+ 		kfree(keyres);
+ 	}
+@@ -540,6 +544,9 @@ struct key *keyring_alloc(const char *description, kuid_t uid, kgid_t gid,
+ 	if (!IS_ERR(keyring)) {
+ 		ret = key_instantiate_and_link(keyring, NULL, 0, dest, NULL);
+ 		if (ret < 0) {
++			if (restrict_link && restrict_link->keytype)
++				module_put(restrict_link->keytype->owner);
++			keyring->restrict_link = NULL;
+ 			key_put(keyring);
+ 			keyring = ERR_PTR(ret);
+ 		}
+@@ -1062,7 +1069,7 @@ int keyring_restrict(key_ref_t keyring_ref, const char *type,
+ 
+ 		if (!restrict_type->lookup_restriction) {
+ 			ret = -ENOENT;
+-			goto error;
++			goto out;
+ 		}
+ 
+ 		restrict_link = restrict_type->lookup_restriction(restriction);
+@@ -1070,7 +1077,15 @@ int keyring_restrict(key_ref_t keyring_ref, const char *type,
+ 
+ 	if (IS_ERR(restrict_link)) {
+ 		ret = PTR_ERR(restrict_link);
+-		goto error;
++		goto out;
++	}
++
++	if (restrict_link && restrict_link->keytype &&
++	    ((restrict_link->keytype->owner &&
++	      module_is_coming(restrict_link->keytype->owner)) ||
++	     !try_module_get(restrict_link->keytype->owner))) {
++		ret = -ENOENT;
++		goto out_free_restriction;
+ 	}
+ 
+ 	down_write(&keyring->sem);
+@@ -1088,12 +1103,21 @@ int keyring_restrict(key_ref_t keyring_ref, const char *type,
+ 	up_write(&keyring_serialise_restrict_sem);
+ 	up_write(&keyring->sem);
+ 
+-	if (ret < 0) {
++	if (ret < 0)
++		goto out_put_module;
++
++	goto out;
++
++out_put_module:
++	if (restrict_link && restrict_link->keytype)
++		module_put(restrict_link->keytype->owner);
++
++out_free_restriction:
++	if (restrict_link)
+ 		key_put(restrict_link->key);
+-		kfree(restrict_link);
+-	}
++	kfree(restrict_link);
+ 
+-error:
++out:
+ 	if (restrict_type)
+ 		key_type_put(restrict_type);
+ 
 -- 
 2.47.3
 
