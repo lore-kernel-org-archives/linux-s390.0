@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794128697;
-	b=nAwxD+wwqDbCybPosuMoHdJ2NCEuLnmPdjdL/iahuhhbuBdofpL0xWGABriv6VW5khjJ
-	 m8v3yNz1RWw4QY3WkvudgxOfiKlLSLHvvigG6HPyCBLlBlqFla/BGtpkiAix+7oHnW3Tx
-	 HKZu1VYS//Bbakzz7LNE4y4NMvvSjxab4qcPcT5+HZB5Z+Q6b9LHYKwyNU0pkar7n7+13
-	 bX/8itMxP4GaJ8ZYllmVvYSjzjoDMpBRxLhcNMmpXhhYtPYmzDnlPBpSiZZzh+KUcvZ4A
-	 OwaYBB9HJyRBBt1exZv5o3oF9SYMfV4k1CY+tNhXK4mX4Y83t4NyLp9OdaFwdQElvKw==
+	t=1794128688;
+	b=0FdIlf+6OBkeRC8DXzd385JSge+WHknOQRVWTbWQ6HOWOKPOstfXMkYAI3307x0p5639
+	 5Z0H57OlL9NarXRKmYmSzi/YnV2tmXsTfTbZB8tIaZ24FEX3IQx+VMeDlMnirJmaEvAHQ
+	 D0x0YAzCaB2ayKsWNm3tFwuIgJWQPvsCw6mQtaVlnRByoPFCv0CwOf5fqQZuqMCTHjuup
+	 BhHOMsAwwRM3rJR8SwfhBhRBY0rMf20BsNJb0QC4KyyIoDsZsvR+VPPaOZaKbV53KViax
+	 nUf5IH7d6Dut2xAuVaWloAJP09CmAfc/GVOcJ9AwvHUFn4y68eN/xcLH7x8mCfXzBSw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794128697;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794128688;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=5eT9qpycRrSs6FOiikbaYya5uDEBcnf4nUnejqd5/AQ=;
-	b=w4HzYyll2S1Gtyr76sJ+/VbDQFOxP6u91mjwFrcG/EicsXa2X7Qp/ahxbQUeyKS0gzuy
-	 91Y4d8XQQ9w5gOVOUHK97auoIbUBJ5QuGh247ywAyiwqV+YRm+ue4Trl0aXmux5tNBZgx
-	 1ttUs8aMwIXUwLSmKbJCbWuoT1yNcxphQCyeF/JRksaQZsthUEhfNfD8oXDW0wK4xz1Ob
-	 m3aPlCjA4nuB5sjKahhwz+3xxM3m1min6a/myLu4BDyotjW3v/I5m3rQs2lzEzKAjL7DA
-	 8sIntBmFlGMRyyJ0EPsZen+6JpSXFpopCPBrkfGLJGURyAzUb6ESJx+EMSY+7zb/guQ==
+	bh=eVjgamAGA0x/mZWw8oJ1JRlsWUIipJQvor5krq7d3j0=;
+	b=b80kZo3PW+PiKeuFwF+y3RwDl5xnos+ZTu9L4iWOCxYX7Vami3q5r226sS1COmWGlz1r
+	 4Kq863KdWINUy5TbZ1dPvTQIrhdvEu4ktgnVcfbS+gS5cEmOuHxBPIl0g1IdlfPi27KMs
+	 RPZXpOQAkYFJSe2BmrO2IEAgChq3ECRBHZb6CFYfQfxRVhRosZbHq4pfU/FGKtS8RxOIM
+	 1BJw6gfssxY09amFndF5KYF/Sw4mNoj8saN8KNY0nLknhFaYLhZsqu+PcassJYJOdk1yy
+	 7GSbbM2Dhy1SZvxAMKHgM1G69bp96PnBxhPV/tQu/lTFqtfo0Mp0jDPC93xgJWC9TRQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vy2SIHoW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P4DzYOfY;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E537606A31C;
-	Sun,  8 Nov 2026 09:04:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF658606A320;
+	Sun,  8 Nov 2026 09:04:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Vy2SIHoW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C841F008A1;
-	Sun,  8 Nov 2026 09:04:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P4DzYOfY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56F21F0089F;
+	Sun,  8 Nov 2026 09:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794128696;
-	bh=5eT9qpycRrSs6FOiikbaYya5uDEBcnf4nUnejqd5/AQ=;
+	s=k20260515; t=1794128687;
+	bh=eVjgamAGA0x/mZWw8oJ1JRlsWUIipJQvor5krq7d3j0=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Vy2SIHoWEqvLXlrOvgUlKYUdiU/lprj+MEj+iBun4RUrEeEei1b1ViYsmk1nY1rLG
-	 YR0v5xHaD1SQXy8mQeLvWwSrzER96+Knoe27hBnFxKx56Yno+DvLh9FvSyiWxy4PiM
-	 T6o5ZJnaLsITBJXSt0fSHpfOLzj6t9/VfmP/nAE9HiHC68K/6PXN43GgJ16BeEgVlK
-	 aGWExFWE8+Rq9l80IVVYjFBjmaUuE64+t2v6k7NzpBOfZYC0TPZwD2guYplp7BRxmK
-	 TafEHhR0/QmHfARx6R1Es17OvlkCnHHClX0l7mdfLQ/nWxCScpwcIae+DrT6vHRO+C
-	 hKDVkDKpryi/g==
+	b=P4DzYOfYNpRbO6T8CYFXNnq1IhQp48EHXievjIGpiy3BACYQFcvjL3KyJRZwqh+uA
+	 qhfQDqBKIIXyC1gG1kE++/BvsT76oNepBCCOx5K794qDV7i5N0VYf3ERP5ke20A5DO
+	 DpyGnDNQFh0imMrn5G1IglH7GaWZDQ4Yequm1tZnpheTKhvAMqSHFFNeoEPgnc47Hv
+	 WXudf89FviD0dDWOrBCJZITICnzXB2LC0Y+2l4Y9Ae/56mYkr6AzyoLgi5/lFeISGP
+	 92Ac7foROfQ68mlMcVcaCblVODN4QtF65d88cAwOcGqKeZAEZI86FunMvQ++t72NtU
+	 anWRlK+FfxxQQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Sun, 08 Nov 2026 10:58:42 +0200
-Subject: [PATCH 11/14] s390/sclp_cpi: Replace get_zeroed_page() with
- kzalloc()
+Date: Sun, 08 Nov 2026 10:58:39 +0200
+Subject: [PATCH 08/14] s390/sclp_sdias: Replace __get_free_page() with
+ kmalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261108-s390-sclp-ready-v1-11-3e7c90eb6676@kernel.org>
+Message-Id: <20261108-s390-sclp-ready-v1-8-3e7c90eb6676@kernel.org>
 References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
 In-Reply-To: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -67,8 +67,8 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-cpi_prepare_req() allocates the SCCB used to send the control program
-identification to the SCLP.
+sclp_sdias_init() allocates the SCCB used for the SCLP store dump
+information requests.
 
 This buffer can be allocated with kmalloc() as there's nothing special
 about it to go directly to the page allocator.
@@ -83,37 +83,45 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-Replace use of get_zeroed_page() with kzalloc() and free_page() with
+Replace use of __get_free_page() with kmalloc() and free_page() with
 kfree().
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/char/sclp_cpi_sys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/char/sclp_sdias.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/char/sclp_cpi_sys.c b/drivers/s390/char/sclp_cpi_sys.c
-index b80f73fa1e01b..8bca2cdb34c10 100644
---- a/drivers/s390/char/sclp_cpi_sys.c
-+++ b/drivers/s390/char/sclp_cpi_sys.c
-@@ -84,7 +84,7 @@ static struct sclp_req *cpi_prepare_req(void)
- 	req = kzalloc_obj(struct sclp_req);
- 	if (!req)
- 		return ERR_PTR(-ENOMEM);
--	sccb = (struct cpi_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	sccb = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 	if (!sccb) {
- 		kfree(req);
- 		return ERR_PTR(-ENOMEM);
-@@ -118,7 +118,7 @@ static struct sclp_req *cpi_prepare_req(void)
+diff --git a/drivers/s390/char/sclp_sdias.c b/drivers/s390/char/sclp_sdias.c
+index ab8f1b758a1a8..a1a17a9e4a910 100644
+--- a/drivers/s390/char/sclp_sdias.c
++++ b/drivers/s390/char/sclp_sdias.c
+@@ -10,6 +10,7 @@
  
- static void cpi_free_req(struct sclp_req *req)
+ #include <linux/completion.h>
+ #include <linux/sched.h>
++#include <linux/slab.h>
+ #include <asm/sclp.h>
+ #include <asm/debug.h>
+ #include <asm/ipl.h>
+@@ -258,7 +259,7 @@ int __init sclp_sdias_init(void)
  {
--	free_page((unsigned long) req->sccb);
-+	kfree(req->sccb);
- 	kfree(req);
- }
- 
+ 	if (!is_ipl_type_dump())
+ 		return 0;
+-	sclp_sdias_sccb = (void *) __get_free_page(GFP_KERNEL | GFP_DMA);
++	sclp_sdias_sccb = kmalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+ 	BUG_ON(!sclp_sdias_sccb);
+ 	sdias_dbf = debug_register("dump_sdias", 4, 1, 4 * sizeof(long));
+ 	debug_register_view(sdias_dbf, &debug_sprintf_view);
+@@ -268,7 +269,7 @@ int __init sclp_sdias_init(void)
+ 	if (sclp_sdias_init_async() == 0)
+ 		goto out;
+ 	TRACE("init failed\n");
+-	free_page((unsigned long) sclp_sdias_sccb);
++	kfree(sclp_sdias_sccb);
+ 	return -ENODEV;
+ out:
+ 	TRACE("init done\n");
 
 -- 
 2.53.0
