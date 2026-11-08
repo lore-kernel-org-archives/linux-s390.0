@@ -1,72 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794179445;
-	b=kppGAYfcQcf1PZ070t8EQVny4ricZ7GzZhmq145FKEgZzOh4ow5ZK+UZ6X/Af+X1/XJ5
-	 RKIA0Un30CZCoSL4N/Js1LYC8PwNYl+vZEVIxnSUW0phAnbvHZYMmD8Lh5/eSrAEIVO7U
-	 0UFceGze551YMSyTp4XeJmtRUtoQQII9q6x+i8bZBs5yX5ysa174ORhJsbRf9MOOs/830
-	 OEuEouUmwvZ+LDJkJHSlCalJ+rsbqVCsKxBOeMFcJ5IFpu3qBuh32hJKN2vGcLdqCXDRr
-	 OY1pOHrV7rUo9yS9rVNmNZJ3yppDbbjdMqXwkGx0kNSi9v+IdxjwotMklXc7gHVnvYQ==
+	t=1794179718;
+	b=O7vBCbryc3DiWfWvAsSZxIiaQSYlwKnbT9zkxn0yOQJr34g5OzLAonAj3eBHhgWmEbxU
+	 uVI5FWthL+n2JwS1cE9RyTgIXUQFF6mRegyyUWCkEHPZsVS3T0A8AEymlZaWxK4fd8/Aw
+	 7HkKCe11zhelnXr8bBbBhmvjF8p7seiz8Uj54k/xe5Q9zNSZaamGHsqa5U2Z2N3Vsd9ER
+	 ZvSHnCL5xjJKQY68R8iv8RVsEfwII4bfX0fcpUXfwt+MS+uCaeAKwmJqKAZi5Bp4bnurk
+	 1OmLIDvF7hbiD7OAJx9pW0uLSoSLAZTL9z0utkIsyTduI7RD4YQyoXF6KjHsNmvpQ0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794179445;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794179718;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=SJrTRZvefBM+D9+/dd7LygrzgO1jMHec9WFWbzhuafs=;
-	b=XLi6vQPENUwYIw4QXxeKze4XgSony1CVV9stnV4B1ZgCocjlf9WwyTX/eovT41lTjhwT
-	 qM5Hd+gyMJomRaVJls+io3aiH33Tg2UZZ6cj8LBl602UmMWWYc3bwZH8smf1+qHriBHCz
-	 3Duyrq07UegNtjpJOSp098baca1VQ/660b2nvqXeovKlRwXli9qG4TvoguO+2RSrqziz5
-	 +gtjIQiMraD6YY7gFVSzcI5rk6QKrqNWTXNxBki7lBbl130kRyTz+bI3v7AHrRFgmRUJX
-	 mV5VrRPRCeGKrOymPP4dOGf+l/TwAbFJxhF6TmUILDOSEEvVplbgpLKYRcQXfjlyUpQ==
+	bh=7/b3TFPlclLYtXcXdX7ZWXulHYFrWQ/YZ9zLq2/px5o=;
+	b=1Que2G9Q7nIX1vvoll1DEig/wmyp9AmPn87lMOnPQpfafCY/j5dxKZf7a2NtnCKRX7vM
+	 l+aTGp0dezIywy42ZmTvdLR0r8r50jUM0695VbvJQkyNVB9qYIM9q5cYFlhVNAvCVEHcd
+	 GWnM1fERcWk75B9ALA43UYUdQN4EgXoP0dY8H2RiSt9z6eYgL6jL6m3sTNOxQgHfyYheS
+	 E9OSwdVXoAvSqPfD/bd6u23vBQi2endI6JWTXhvNc3kjGe/cKBkFukfedTPXpsGSqKb5R
+	 3OEPjbGr6eM6z5sApGzNaJJWIV0sJKe+w0e3uA9pcUevmNxITAlLk4ErHS1NIoMWx5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UgbqD2XS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IOcKUE1T;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF16F606A31C
-	for <linux-s390@vger.kernel.org>; Sun,  8 Nov 2026 23:10:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7F8606A323
+	for <linux-s390@vger.kernel.org>; Sun,  8 Nov 2026 23:15:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UgbqD2XS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0561F0089F;
-	Sun,  8 Nov 2026 23:10:42 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IOcKUE1T
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 296BB1F0089F;
+	Sun,  8 Nov 2026 23:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794179444;
-	bh=SJrTRZvefBM+D9+/dd7LygrzgO1jMHec9WFWbzhuafs=;
+	s=k20260515; t=1794179717;
+	bh=7/b3TFPlclLYtXcXdX7ZWXulHYFrWQ/YZ9zLq2/px5o=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UgbqD2XSdyGktVJEJhI8+QvVyWG+cq/0XfiKL6PYXQjacoO71WmQpzpgK3T9NEgyL
-	 MCW+PU/nk2t29laNSG6YPzxo1waBrUXmR3iybjEjV7laQEBl1mK9n4vocFBccU1F8x
-	 j5tfv+nVhTD9ayYbH3pP9d7ml5VNKgv86aTSnvuVPM24VoRdKG/Sh9EV2xMnMzesbI
-	 Un8OivitWJrCoqvBYuaXCIeM+Q7+RExpdXNOupt3EphzCBK7sK1wOsnoAGf8P2Qkug
-	 oTppSKhkwSZAregyJkTePZWKDOFT/ho+EHYl2EIR7zmYMenPpJddSOjHCFBoz2qAfD
-	 McA00Yi8UNxNQ==
-Message-ID: <sashiko-outbox-204152@kernel.org>
+	b=IOcKUE1TF75+XpV14s+XAzy0n1J66QTa1C8IrfTCwQwT+vr248PLSy/2BMXdtj6XW
+	 i0j+dVLrUgubsw4R1ZYkfZfc2oZYq4W/HAQHr3Kf2fS17Sh4yOQwGsS9lU8LGM20tf
+	 Nk06qkWXukXwF6SNXGQTmXk31EYRqP/Ac8yaHdYfpZsqvaM1bhTVg8t4HwvOm2j8jd
+	 wrHh7oYGHKg5VfLzSNSUVCwiaFfR4DoEqrMVtMR4Nf2G2JAPa6JY1VvnpduKEgMNpq
+	 rDwrCwbhqF4pb2p1jNdpqkXhwHxzQBgxPWE8d2IJB41dvFAPrpaLSTFEYphrv/w4dl
+	 6PK2431TGLJuA==
+Message-ID: <sashiko-outbox-204154@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 7/9] ubifs: sysfs: Use kset_create_and_add() for
- ubifs_kset
+Subject: Re: [PATCH v3 8/9] drm/amdkfd: Free queue in procfs_queue_type
+ kobject release callback
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ian Rogers" <irogers@google.com>, "Danilo Krummrich" <dakr@kernel.org>, "Greg
- Kroah-Hartman" <gregkh@linuxfoundation.org>, "Kees Cook" <kees@kernel.org>, "Miguel
- Ojeda" <ojeda@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>
-Cc: "Madhavan Srinivasan" <maddy@linux.ibm.com>, "Michael Ellerman" <mpe@ellerman.id.au>, "Nicholas
- Piggin" <npiggin@gmail.com>, "Christophe Leroy" <chleroy@kernel.org>, "Nayna
- Jain" <nayna@linux.ibm.com>, "Srish Srinivasan" <ssrish@linux.ibm.com>, "Mimi
- Zohar" <zohar@linux.ibm.com>, "Yoshinori Sato" <ysato@users.sourceforge.jp>, "Rich
- Felker" <dalias@libc.org>, "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, "Juergen
- Gross" <jgross@suse.com>, "Stefano Stabellini" <sstabellini@kernel.org>, "Oleksandr
- Tyshchenko" <oleksandr_tyshchenko@epam.com>, "Nathan Chancellor" <nathan@kernel.org>, "Nick
- Desaulniers" <ndesaulniers@google.com>, "Viresh Kumar" <viresh.kumar@linaro.org>, "Zhongqiu
- Han" <zhongqiu.han@oss.qualcomm.com>, "Alexander Aring" <aahringo@redhat.com>, "Felix
- Kuehling" <felix.kuehling@amd.com>, =?utf-8?b?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, "Zhihao
- Cheng" <chengzhihao1@huawei.com>, "Sumanth Korikkar" <sumanthk@linux.ibm.com>, "Bill
- Wendling" <morbo@google.com>, "Justin Stitt" <justinstitt@google.com>, linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org, dri-devel@lists.freedesktop.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261108223913.3624571-8-irogers@google.com>
+To: "Ian Rogers" <irogers@google.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261108223913.3624571-9-irogers@google.com>
 References: <20261108223913.3624571-1-irogers@google.com>
- <20261108223913.3624571-8-irogers@google.com>
+ <20261108223913.3624571-9-irogers@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 08 Nov 2026 23:10:42 +0000
+Date: Sun, 08 Nov 2026 23:15:16 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -76,40 +63,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] ubifs: sysfs: inaccurate Fixes trailer in commit message
---
-
-commit 05ad573fa4719a7a6e36bb8dcf3c9060b5c194b0
-Author: Ian Rogers <irogers@google.com>
-
-> ubifs: sysfs: Use kset_create_and_add() for ubifs_kset
->
-> ubifs_kset was a static struct kset using a custom ubifs_ktype that
-> had no default_groups and no .release callback. With
-> CONFIG_DEBUG_KOBJECT_RELEASE=3Dy, unloading the ubifs module while delayed
-> kobject release is pending causes a use-after-free on the static kset.
->
-> Replace the static ubifs_kset and empty ubifs_ktype with a dynamically
-> allocated kset via kset_create_and_add().
->
-> Fixes: 203a55f04f66 ("ubifs: Fix memory leak in ubifs_sysfs_init()")
-> Tested-by: Zhihao Cheng <chengzhihao1@huawei.com>
-> Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+> struct queue embeds a struct kobject (q->kobj) for procfs entries, but
+> procfs_queue_type had no .release callback and uninit_queue() freed q
+> immediately after kfd_procfs_del_queue() called kobject_put(&q->kobj).
+> With CONFIG_DEBUG_KOBJECT_RELEASE=3Dy, this causes a use-after-free.
+>=20
+> Add kfd_procfs_queue_release() to free struct queue from the kobject
+> release callback, change kfd_procfs_del_queue() to only remove the
+> kobject from sysfs via kobject_del(), and drop the final reference in
+> uninit_queue() via kobject_put(). Check q->kobj.state_in_sysfs before
+> calling kobject_del() in kfd_procfs_del_queue() to avoid warnings if
+> sysfs creation previously failed.
+>=20
+> Fixes: 6d220a7e7971 ("drm/amdkfd: Add queue information to sysfs")
+> Reviewed-by: Felix Kuehling <felix.kuehling@amd.com>
 > Signed-off-by: Ian Rogers <irogers@google.com>
 
-[Severity: Low]
-203a55f04f66 ("ubifs: Fix memory leak in ubifs_sysfs_init()") only added
-an error-path kset_put() when kset_register() fails.  The static
-ubifs_kset, ubifs_ktype without a release callback, and kset_unregister()
-on module exit were introduced in 2e3cbf425804 ("ubifs: Export filesystem
-error counters").
-
-Should the Fixes tag instead be:
-
-  Fixes: 2e3cbf425804 ("ubifs: Export filesystem error counters")
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108223913.3624=
-571-1-irogers@google.com?part=3D7
+571-1-irogers@google.com?part=3D8
+
