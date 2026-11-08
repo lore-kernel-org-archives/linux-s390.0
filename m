@@ -1,49 +1,50 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794127762;
-	b=HHz7mTi/MO5UVSbHNL5KBApDdvcLd2jp4trdID4pdb7j6yEz6LdSUKPi30MNWmggyFRP
-	 SscJqNf1iYv9F00BWcHA/GVMe64j0EuT2JzvBRJD7XLxR3JEMs+a9Llb+VbWD0yoNddwt
-	 lgmk7drQLOnZcF/bWmERaY/bVguWkdMgdgwayE/E/nkTvAuT0pQLDQ4ILXjC6SGFi4Kkz
-	 aP5ZqQP2fkpsMPLelSUpdXP9Me7r3A/VaVrbpcyMiXcU4k4iJp/SKPg3IV3nN9DdFF38I
-	 X8NcfjhQ9JRX1LiOCMlTOt0ky45QpIQYN5sVhymucY3PPEljwFqyVuFiCUkzYxNgNWw==
+	t=1794128663;
+	b=Ijqf8r3h3ok+XGkZ8UXnccH0vo6ms4xwtZFrA9m0sIupxrIpeNHDHcxDQbs60IhBjA/B
+	 m8P+DAfsfhpSfS5UK+lRmEr2nv4ooXYo+3C4RGD/EW/MrwzJIk8eJidUfCKdtfWOxB3pn
+	 aqtRSGLjOIUNeqS5160weinHpRAqwDPXo4+JTdQr0Bwrwsph44VOtv1vNfdNex4F5AR3x
+	 UF/QIN2LjIgIAG9mWN2Jbgfe5zrcLhMAxpoc1gBldejlsMxypi3uPPZIrNEuuKxJcMdpZ
+	 aKoIFnR5uQYKYweKV1VgK6ALSZmQ6C6OHyHx5rW8r5SPTHSWz0tiMC+xsOiq3HxvHzw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794127762;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer;
-	bh=vGNfBHOfJEaTODk0UVMUPWh2+98FNaAkNc8rBZooR1k=;
-	b=UxrZq/8gB2o/W1YzgE5yq1VODkxuU0tsQfetadzSbOP0eA+f75U67rLhDOfXwrtJ4bvq
-	 iJHWXGyMtLiVFK6Gnrf6PxKd585ZNGdfTIKk7+hwzcMD+0ABFgkgLGQ3mOMntaKsKW133
-	 3RT/+lbT7IRfEbDTaZ3m2Qjn2MuKpQiWLoNFzn61vDey/SWePzU7+KxFlinlVqAz0VYtK
-	 gw+SIctYMSq2d/z64FjZUsumlJSNq66Eoxrh4AX77cBOQX6wcsxMtGp95RmHx/B+2kIeH
-	 U2c3e1s4a5F1FthExdHdGXFeqJ51SC1uOuzTlYk+Z1KqnHYF54yn0KYZs1Mcugbx5ug==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794128663;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer;
+	bh=RwkS9/FSU2e9I7Q0Tq42tC4QHg0DrVHP4W+u4uUUs60=;
+	b=dBoEjqM/xTbmhplbO1r6boS18eVQb0Lx4ogwo/yH4OiBXnxBDwVxt3yxMnln2hTtvDW7
+	 xztuLam4kGe9tKwEIDbimLhxTD179S4oTIXPCO1EAm2shJEjeYgVsfEOz7zYARBNopVXi
+	 7GYI8BwhPHkAQ2lTFE1KysRQ3ZCWQhVKvDhJnHMt5dboSGYM16Iw9beizc5c4spngiDR5
+	 yLfS/2k8RISMnYhFgrwlwH6pPYLeLzvgzDamNFi70kAMjnyPMAR8yJmHiDWUckC9+xSAk
+	 iEF9HU1FEdlKJ+k2yK5hHZTJCfXVNEAHSzQ/WfeIKQKNpGQtdoEaamJ32peew564u3g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TDvf+CZI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IQkTGoU0;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845C4606D806;
-	Sun,  8 Nov 2026 08:49:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17359606A31C;
+	Sun,  8 Nov 2026 09:04:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TDvf+CZI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 222971F008A1;
-	Sun,  8 Nov 2026 08:49:18 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IQkTGoU0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7F11F0089F;
+	Sun,  8 Nov 2026 09:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794127762;
-	bh=vGNfBHOfJEaTODk0UVMUPWh2+98FNaAkNc8rBZooR1k=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=TDvf+CZIwx7eB9ZyWvpd50vKyoNK51ivIdJam3KpGu4w9aEOJqt30YPL3qj0wK9MH
-	 t6bxnEphSPMLZzCBCY5eYKnsjh4kC8gLOGI/63rCnsIEufKQXeEbADEyrT3NxS1ArU
-	 +5NPvW7J3fTaVnhivnbq9uhOehuRHcj3TVdZv9D4lY0eIX2QafzffPmjTUw20js9bC
-	 LGFTCAO/mN3qJWxne8iLoOg0xdBrJghNr7ZD2NhvnrJ4HuJG5wAgwTR7iVU7ODO2ta
-	 Mms/cpMn55diPEThEBQqy08GpQ1P/KMm/lpxaS65wUzXHUcYMJQmtBuNVbXkXLbO1n
-	 mEPecjudyA7iw==
+	s=k20260515; t=1794128662;
+	bh=RwkS9/FSU2e9I7Q0Tq42tC4QHg0DrVHP4W+u4uUUs60=;
+	h=From:Subject:Date:To:Cc;
+	b=IQkTGoU02Fa9oi0HZxYWUC5uYQ5KKZOzVzWKEgd3cb5ufumpMEw36eL+fU6N0rgOh
+	 9ODviYrXPcUUIJUzlI2fBbZgLtNifNvnUYYBgdC/uzAA06RMOQ1AWkq01z68kGRnEu
+	 MmJi1O4yFtyPxadZ9VLQ4O1fEP1yh4P2PracC2DcMDaA4ExsNi2jumKry4q6nViDnP
+	 oHqnV7gUXkv3wLawvyVk+RM54F1Z8JRdPnmkwAkhKD0rW5VbQRf39Hm6AebU0byD/P
+	 EW7l4M8ImG5OjX1KX+lvmAQiHg/dH9UF7UB8iL+RBzT6tZ8R0OQIwNZFJkPxgKhnUU
+	 mI1q8hLDfIrmQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Sun, 08 Nov 2026 10:49:02 +0200
-Subject: [PATCH 5/5] s390/hmcdrv: Replace page allocator calls with
+Subject: [PATCH 00/14] s390/sclp: replace page allocator calls with
  k[mz]alloc()
+Date: Sun, 08 Nov 2026 10:58:31 +0200
+Message-Id: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,188 +56,99 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261108-s390-char-ready-v1-5-3db507722530@kernel.org>
-References: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
-In-Reply-To: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWM0Q6CMAxFf4X02caBQTN/xfDQjQo1OkiLRkP4d
+ zd9PDf3nBWMVdjgXK2g/BKTKWWodxXEkdLAKH1maFxzdN6d0A7eocX7jMrUf9C1HALVTC17yNa
+ sfJX3r3jp/mzPcOO4lEx5BDLGoJTiWKZJZZC0f5AtrLBtXznUonuTAAAA
+X-Change-ID: 20260907-s390-sclp-ready-05ebba1ea5e9
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
  Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
- Claudio Imbrenda <imbrenda@linux.ibm.com>, 
  David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
- Vlastimil Babka <vbabka@kernel.org>, linux-s390@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-mm@kvack.org
+ Sven Schnelle <svens@linux.ibm.com>, Vlastimil Babka <vbabka@kernel.org>, 
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-diag_ftp_cmd() allocates the DIAGNOSE 0x2C4 parameter list used for HMC
-file transfers under z/VM, hmcdrv_ftp_probe() and hmcdrv_ftp_cmd()
-allocate the data buffers used for the transfers and
-hmcdrv_cache_startup() allocates the buffer that caches the contents of
-the last file read from the HMC drive.
+This the next episode of conversion of page allocator calls to kmalloc
+family :)
 
-These buffers can be allocated with kmalloc() as there's nothing special
-about them to go directly to the page allocator.
+This series covers SCLP buffer allocations.
 
-kmalloc() provides a better API that does not require ugly casts and
-kfree() does not need to know the size of the freed object.
+= tl;dr cover letter copied from the previous posts:
 
-Performance difference between kmalloc() and __get_free_pages() is not
-measurable as both allocators take an object/page from a per-CPU list for
-fast path allocations.
+This is a (small) part of larger work of replacing page allocator calls
+with kmalloc.
 
-For the slow path the performance is anyway determined by the amount of
-reclaim involved rather than by what allocator is used.
+My initial intention a few month ago was to remove ugly casts [1], but then
+willy pointed out that Linus objected to something like this [2] and it
+looks like more than a decade old technical debt.
 
-Replace use of get_zeroed_page() and __get_free_pages() with kzalloc()
-and kmalloc() and free_page[s]() with kfree().
+Largely, anything that doesn't need struct page (or a memdesc in the
+future) should just use kmalloc() or kvmalloc() to allocate memory.
+kmalloc() guarantees alignment, physical contiguity and working
+virt_to_phys() and beside nicer API that returns void * on alloc and
+doesn't require to know the allocation size on free, kmalloc() provides
+better debugging capabilities than page allocator.
 
-Round transfer and cache buffers up to a page for the required 4K
-alignment, without rounding to a power-of-two number of pages. Reject
-unsupported sizes before rounding.
+Another thing is that touching these allocation sites gives the reviewers
+opportunity to see if a PAGE_SIZE buffer is actually needed or maybe
+another size is appropriate.
 
-Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
-Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+For larger allocations that don't need physically contiguous memory
+kvmalloc() can be a better option that __get_free_pages() because under
+memory pressure it's is easier to allocate several order-0 pages than a
+physically contiguous chunk with the same number of pages.
+
+And last, but not least, removing needless calls to page allocator should
+help with memdesc (aka project folio) conversion. There will be way less
+places to audit to see if the user was actually using struct page.
+
+The patches are deliberately kept small, so that every conversion can be
+reviewed, and if needed reverted, on its own.
+
+Also in git:
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-sclp
+
+[1] https://lore.kernel.org/all/20251018093002.3660549-1-rppt@kernel.org/
+[2] https://lore.kernel.org/all/CA+55aFwp4iy4rtX2gE2WjBGFL=NxMVnoFeHqYa2j1dYOMMGqxg@mail.gmail.com/
+
 ---
- drivers/s390/char/diag_ftp.c     |  5 +++--
- drivers/s390/char/hmcdrv_cache.c | 18 +++++++++---------
- drivers/s390/char/hmcdrv_ftp.c   | 14 +++++++-------
- 3 files changed, 19 insertions(+), 18 deletions(-)
+Mike Rapoport (Microsoft) (14):
+      s390/sclp_vt220: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_config: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_pci: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_ctl: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_con: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_tty: Replace get_zeroed_page() with kzalloc()
+      s390/sclp: Replace __get_free_page() with kmalloc()
+      s390/sclp_sdias: Replace __get_free_page() with kmalloc()
+      s390/sclp_sd: Replace __get_free_page() with kmalloc()
+      s390/sclp_cmd: Replace page allocator calls with kzalloc()
+      s390/sclp_cpi: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_ftp: Replace get_zeroed_page() with kzalloc()
+      s390/sclp_mem: Replace page allocator calls with k[mz]alloc()
+      s390/sclp_ap: Replace get_zeroed_page() with kzalloc()
 
-diff --git a/drivers/s390/char/diag_ftp.c b/drivers/s390/char/diag_ftp.c
-index 0a506559799eb..174c65a6e6052 100644
---- a/drivers/s390/char/diag_ftp.c
-+++ b/drivers/s390/char/diag_ftp.c
-@@ -10,6 +10,7 @@
- #define pr_fmt(fmt) "hmcdrv: " fmt
- 
- #include <linux/kernel.h>
-+#include <linux/slab.h>
- #include <linux/mm.h>
- #include <linux/irq.h>
- #include <linux/wait.h>
-@@ -152,7 +153,7 @@ ssize_t diag_ftp_cmd(const struct hmcdrv_ftp_cmdspec *ftp, size_t *fsize)
- #endif
- 	init_completion(&diag_ftp_rx_complete);
- 
--	ldfpl = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	ldfpl = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 	if (!ldfpl) {
- 		len = -ENOMEM;
- 		goto out;
-@@ -208,7 +209,7 @@ ssize_t diag_ftp_cmd(const struct hmcdrv_ftp_cmdspec *ftp, size_t *fsize)
- 	}
- 
- out_free:
--	free_page((unsigned long) ldfpl);
-+	kfree(ldfpl);
- out:
- 	return len;
- }
-diff --git a/drivers/s390/char/hmcdrv_cache.c b/drivers/s390/char/hmcdrv_cache.c
-index 85fb689594ca8..4857c543a2ef4 100644
---- a/drivers/s390/char/hmcdrv_cache.c
-+++ b/drivers/s390/char/hmcdrv_cache.c
-@@ -11,6 +11,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/mm.h>
-+#include <linux/slab.h>
- #include <linux/jiffies.h>
- 
- #include "hmcdrv_ftp.h"
-@@ -42,7 +43,6 @@ struct hmcdrv_cache_entry {
- 	size_t len;
- };
- 
--static int hmcdrv_cache_order; /* cache allocated page order */
- 
- static struct hmcdrv_cache_entry hmcdrv_cache_file = {
- 	.fsize = SIZE_MAX,
-@@ -214,11 +214,14 @@ ssize_t hmcdrv_cache_cmd(const struct hmcdrv_ftp_cmdspec *ftp,
-  */
- int hmcdrv_cache_startup(size_t cachesize)
- {
-+	if (cachesize > KMALLOC_MAX_SIZE)
-+		return -ENOMEM;
-+
- 	if (cachesize > 0) { /* perform caching ? */
--		hmcdrv_cache_order = get_order(cachesize);
-+		/* the buffer must be 4k aligned, hence round up to page size */
- 		hmcdrv_cache_file.content =
--			(void *) __get_free_pages(GFP_KERNEL | GFP_DMA,
--						  hmcdrv_cache_order);
-+			kmalloc(round_up(cachesize, PAGE_SIZE),
-+				GFP_KERNEL | GFP_DMA);
- 
- 		if (!hmcdrv_cache_file.content) {
- 			pr_err("Allocating the requested cache size of %zu bytes failed\n",
-@@ -239,11 +242,8 @@ int hmcdrv_cache_startup(size_t cachesize)
-  */
- void hmcdrv_cache_shutdown(void)
- {
--	if (hmcdrv_cache_file.content) {
--		free_pages((unsigned long) hmcdrv_cache_file.content,
--			   hmcdrv_cache_order);
--		hmcdrv_cache_file.content = NULL;
--	}
-+	kfree(hmcdrv_cache_file.content);
-+	hmcdrv_cache_file.content = NULL;
- 
- 	hmcdrv_cache_file.id = HMCDRV_FTP_NOOP;
- 	hmcdrv_cache_file.fsize = LLONG_MAX;
-diff --git a/drivers/s390/char/hmcdrv_ftp.c b/drivers/s390/char/hmcdrv_ftp.c
-index 3312b2ac00a9d..e22789b532de2 100644
---- a/drivers/s390/char/hmcdrv_ftp.c
-+++ b/drivers/s390/char/hmcdrv_ftp.c
-@@ -194,7 +194,7 @@ int hmcdrv_ftp_probe(void)
- 		.len = PAGE_SIZE
- 	};
- 
--	ftp.buf = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	ftp.buf = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 
- 	if (!ftp.buf)
- 		return -ENOMEM;
-@@ -218,7 +218,7 @@ int hmcdrv_ftp_probe(void)
- 		break;
- 	} /* switch */
- out:
--	free_page((unsigned long) ftp.buf);
-+	kfree(ftp.buf);
- 	return rc;
- }
- EXPORT_SYMBOL(hmcdrv_ftp_probe);
-@@ -238,16 +238,16 @@ EXPORT_SYMBOL(hmcdrv_ftp_probe);
- ssize_t hmcdrv_ftp_cmd(char __kernel *cmd, loff_t offset,
- 		       char __user *buf, size_t len)
- {
--	int order;
--
- 	struct hmcdrv_ftp_cmdspec ftp = {.len = len, .ofs = offset};
- 	ssize_t retlen = hmcdrv_ftp_parse(cmd, &ftp);
- 
- 	if (retlen)
- 		return retlen;
- 
--	order = get_order(ftp.len);
--	ftp.buf = (void *) __get_free_pages(GFP_KERNEL | GFP_DMA, order);
-+	if (!ftp.len || ftp.len > KMALLOC_MAX_SIZE)
-+		return -ENOMEM;
-+
-+	ftp.buf = kmalloc(round_up(ftp.len, PAGE_SIZE), GFP_KERNEL | GFP_DMA);
- 
- 	if (!ftp.buf)
- 		return -ENOMEM;
-@@ -280,7 +280,7 @@ ssize_t hmcdrv_ftp_cmd(char __kernel *cmd, loff_t offset,
- 		break;
- 	}
- 
--	free_pages((unsigned long) ftp.buf, order);
-+	kfree(ftp.buf);
- 	return retlen;
- }
- 
+ drivers/s390/char/sclp.c         |  9 +++++----
+ drivers/s390/char/sclp_ap.c      |  4 ++--
+ drivers/s390/char/sclp_cmd.c     | 12 ++++++------
+ drivers/s390/char/sclp_con.c     |  5 +++--
+ drivers/s390/char/sclp_config.c  |  4 ++--
+ drivers/s390/char/sclp_cpi_sys.c |  4 ++--
+ drivers/s390/char/sclp_ctl.c     |  5 +++--
+ drivers/s390/char/sclp_ftp.c     |  8 ++++----
+ drivers/s390/char/sclp_mem.c     | 12 ++++++------
+ drivers/s390/char/sclp_pci.c     |  8 ++++----
+ drivers/s390/char/sclp_sd.c      | 20 ++++++++++----------
+ drivers/s390/char/sclp_sdias.c   |  5 +++--
+ drivers/s390/char/sclp_tty.c     |  5 +++--
+ drivers/s390/char/sclp_vt220.c   |  4 ++--
+ 14 files changed, 55 insertions(+), 50 deletions(-)
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20260907-s390-sclp-ready-05ebba1ea5e9
 
--- 
-2.53.0
+--
+Sincerely yours,
+Mike.
 
