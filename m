@@ -1,49 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794128706;
-	b=O8LL2tyQD10/0IA8YbfhT7yKQ2zc2goLHxoBDqlSfJKl1JdExSbnGJVus/AhIxKzS4EQ
-	 ksvNr8xHUUQQicraMANVbhNH5o+ybFhls3hKOKbMN1LJl2e8WIcva23kxc8PZCBDJwFLy
-	 GivApzKY5Zni7Rph+nQr0hNSv79RV6po8D0MIPqrme7jU9jUv4KH/jGQ7D9UjUlVvsiWt
-	 YZHSJpBVr+jDh6xhAKegS/tL4sKZMVcrMCe+72KIq39ASooOQxQX37hmCoIouL2xTntFC
-	 ECbrKoo50bGkQga+le5d2lftHl+fkYoLwLcCTVt1zEzE0XpwVz4g1QHTSXdGhLqODpw==
+	t=1794143776;
+	b=Xa3LbmIK5B16G0YjYnv1qh6CeyPjYdsWQnHMot94vJ9/czg98IgLUuQGUVNk0cpSk7jx
+	 hHKwhndsEHykOwhgzkSNYPX9tcsx/1sUpmh8XbPdZOmRWD+Wp4TcyiRGlon2wYmPMFuC7
+	 56OuR4RC8dD2dnBWsWW96mryMelT08OSORpzcpVaJbfkEGpkJE+t/a43SbMDC2Gl0xl5n
+	 rY4OzzGtNrJ73hSYMY3xu0VpaD7tZm2TsHFRsGCW7p85jdGBriSculLz5a3q9j9P+7Kra
+	 pF9v9Wtrq/xWooy1Vdig1DHIK8ZcpInFRWqByOcEvRY+iMYwfGx7FMwzs81RdFV4Naw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794128706;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer;
-	bh=MlJKhaH/GHxHkRkI9LbPdsXIENTIT3s6EiTose+Eau4=;
-	b=IviN5MebJYNDJXX0NAqk3NH3DadBUlTSjJxFwGFtzdlav/EM7s94+s//Ok9wYWHG+IVG
-	 C/EquopS+6FtUFSU3ZvcYP2vanrUHsLkmmp94Fo0sDCab0vE/uza5EuwJYDXuTpHA8HwZ
-	 d2HKDUyYZxT4fEIFO5Rf6TtErRrqh08uC8WQih3I+GKezbiIOEQAqyppPK2rX4CXwrD0P
-	 c6KVZb2k9ZHqNwVPjtLZSI+4999ujzx7ZIiNxg3ceG3Y0D4BzZCDLDTf5XkIhJZqdTClR
-	 LcqyqY8Xf3pTuPkstdDpcXZ9sds1zs7JHly+CxjGELPWwSECTJYatfX//fii7K6zgGw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794143776;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=gTvqTd1BhOcSL5hkyBVkRaX1/I+nj+pjZV0NBI9DDYI=;
+	b=G+8edYIyXXKEYWMNnKoC3AUs3uqIF4JvEG8hIL3fAhouZEkGspsVLKxk670LiMW9OKPu
+	 HhtR78vFDarYtsUdQq/TPzg5AqHAWesQUhB+w1XnzH26gosXcFvOQbtctIxxpZg2iMDBN
+	 1dS+31pLxPj0O3k9QeIJAzKJqv8JieQuYdUVoWoFf8OuHSudFcsFvIQ1jOJPTJpgucGcC
+	 ojGPqQIbVOwOCF8rK7J96JDvbF1PY/IdJSc+2m8yysn+oTR4BTmhh3QCs/SmsPNtNoma5
+	 5KyUxOOjQokjEHqUQ+E0t2SiudTHF65YFEC1xNJtefJDF0DRZ4LrHcsLA0BfXHWyZVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCeeqjBD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UUBfMPh2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41899606A32A;
-	Sun,  8 Nov 2026 09:05:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10F12606A31C;
+	Sun,  8 Nov 2026 13:16:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCeeqjBD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E571F0089F;
-	Sun,  8 Nov 2026 09:05:03 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UUBfMPh2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43EF91F0089F;
+	Sun,  8 Nov 2026 13:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794128706;
-	bh=MlJKhaH/GHxHkRkI9LbPdsXIENTIT3s6EiTose+Eau4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=WCeeqjBDCKOlD2WXTKgnOb3VpGFbNofzjKQQMSQA8lCURuGfKJMVpLm3Y399NtvoP
-	 /2bRS2AKpG+kHPeu6o6S2+vo45ObhufmljPhW5PpClFL4p0kRQm7frPug4C9M85pIJ
-	 NS5+7DdLc6NcDQQJIyEehkXcr5lqQnbX2xa9PJdPoa1JKp9L/ksnGe/Ehh4uTnFEUV
-	 mdyWG0tRI374Aq/FB1Ze4D6i+FAJMdbIVs5+CgB4Qakn/SCkd+ULmH4NJa1cnbVSAR
-	 MGtSzMOKQraUfVtftuvtW3OWSNrW+rf+WO6xihRsp2GQShCv0Fa7Ok+qdvfgYsvw2o
-	 wQzW3D/4aSAxA==
-From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Sun, 08 Nov 2026 10:58:45 +0200
-Subject: [PATCH 14/14] s390/sclp_ap: Replace get_zeroed_page() with
- kzalloc()
+	s=k20260515; t=1794143775;
+	bh=gTvqTd1BhOcSL5hkyBVkRaX1/I+nj+pjZV0NBI9DDYI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UUBfMPh2rb20ZnUdnySiuxv2Q9lG1EkPshsDQZIo1XANC9aVapuReZuwW6GMU31rr
+	 ngJrg20nJ0v6GenViMfVc24c75E0ITnln4cE/oF/yAj7UP0twiLtIHQXx5p6ChjxIy
+	 zY4KxAUEABvNK9OvA7sewxjR8EaMQeu/OQbxjoh2NXDmhCX+ejRVHRgqIaKmMYReBE
+	 zdfGt9YezF+ZfYgIogrRSDdcBXvDPGeP7amLLu5WsNYZcZ0G5r7MsBhf8/nMIsfg0s
+	 eSe3Gd58qrn1+fgN3Aesnl1yUKdplQ37Q3MQe0CzmFGh+jfT7G+kmbZrlSt6Q+wopp
+	 NOfOjqrx5Itmw==
+Message-ID: <sashiko-outbox-203760@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 01/11] KEYS: Add key_gc_flush() for draining RCU
+ callbacks
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jarkko Sakkinen" <jarkko@kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261107131512.3603168-2-jarkko@kernel.org>
+References: <20261107131512.3603168-1-jarkko@kernel.org>
+ <20261107131512.3603168-2-jarkko@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 08 Nov 2026 13:16:14 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,69 +62,21 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261108-s390-sclp-ready-v1-14-3e7c90eb6676@kernel.org>
-References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
-In-Reply-To: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
- David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
- Sven Schnelle <svens@linux.ibm.com>, Vlastimil Babka <vbabka@kernel.org>, 
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-mm@kvack.org
-X-Mailer: b4 0.16.1-dev
 
-do_ap_configure() allocates the SCCB used to configure and deconfigure
-AP adapters.
+> keyring_clear() and key_invalidate() release keyring links via call_rcu(),
+> and key_put() defers final key destruction to key_gc_work.
+>=20
+> Once keys pin their type, callers that clear an internal cache before
+> module unload need a synchronous barrier so module references can be
+> dropped before delete_module() checks the refcount.
+>=20
+> Add key_gc_flush() for flushing the remaining key_gc_work passes.
+>=20
+> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-This buffer can be allocated with kmalloc() as there's nothing special
-about it to go directly to the page allocator.
+Sashiko has reviewed this patch and found no issues.
 
-kmalloc() provides a better API that does not require ugly casts and
-kfree() does not need to know the size of the freed object.
-
-Performance difference between kmalloc() and __get_free_pages() is not
-measurable as both allocators take an object/page from a per-CPU list for
-fast path allocations.
-
-For the slow path the performance is anyway determined by the amount of
-reclaim involved rather than by what allocator is used.
-
-Replace use of get_zeroed_page() with kzalloc() and free_page() with
-kfree().
-
-Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
-Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
----
- drivers/s390/char/sclp_ap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/char/sclp_ap.c b/drivers/s390/char/sclp_ap.c
-index 18bb018b4e0cd..15dff5dc0cac5 100644
---- a/drivers/s390/char/sclp_ap.c
-+++ b/drivers/s390/char/sclp_ap.c
-@@ -26,7 +26,7 @@ static int do_ap_configure(sclp_cmdw_t cmd, u32 apid)
- 	if (!SCLP_HAS_AP_RECONFIG)
- 		return -EOPNOTSUPP;
- 
--	sccb = (struct ap_cfg_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	sccb = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 	if (!sccb)
- 		return -ENOMEM;
- 
-@@ -45,7 +45,7 @@ static int do_ap_configure(sclp_cmdw_t cmd, u32 apid)
- 		break;
- 	}
- out:
--	free_page((unsigned long) sccb);
-+	kfree(sccb);
- 	return rc;
- }
- 
-
--- 
-2.53.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261107131512.3603=
+168-1-jarkko@kernel.org?part=3D1
 
