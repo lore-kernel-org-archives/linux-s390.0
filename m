@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794215123;
-	b=comwHAaWeDs1WJ8THinclSoHaaUviAP10867EWEsnKgbxuLmujtuD4wp1lXpRHCvNa39
-	 kJGeNqA1u3NMo68Fmsp6leuOG+ti+MTkPACEhqV6vM2SgbNVd9zQlAZ5cNDf5fMPrVTDR
-	 DLNLQ612wypR5gLrr1BH0Dsv+7bdPvyQir+lNNYiQGxsraJP1U+r9KCfHt2oueEHuvzBz
-	 IPC1YuCLslah4eJ2EMcRPhbGnSuxcumRTh4FB5ja+HZSsqbllEd5DN68FYrmQKvqdekCg
-	 gaJB6jX0iL2qLX5KipmE/mACPEkbFN6dNHfoL5iEab5OfzpQ6nKhZPOB/5cTT+qaIsA==
+	b=a94ATBub4IAv/agk3j6YJVt/6NYVH03sVlQ0SDtz5VwaepQxTjoVQcXeCxYyhcN52fsH
+	 x9OQ93DC49cLCWjj5MADQ1aRnCFez6lFcIBxpzVBPf2zff4F5bhzTm0Fn8QUN5fqLrY7F
+	 IOJuG2nHKU6jVZFv6nJNbr4YiSVztt1iEYU3Y6PhGHXb6DqHK56A03kQ7ICKWDojRzcCv
+	 7/P7IW8qp0obF/ykxQ3nSUC932FUD0SyIJZUPBzJtW+GBXt7OwD/XvvUVyov4naP3fbIv
+	 GRwvZdNCwE6oUwAbCRS5vEG3Jk51085SjlVx6a+SLH5+L8OaVYD7rB6f2KoCLK8OJAw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794215123;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=i0d4HzX99hDhJY6pM39vet5235zVAD2S6DVcckHDdZM=;
-	b=pwLMSzmIZf8G2qmvf05qRM5fbnSXU1N5IQsttRwabagxjsO04Gkm+OShdQgTgK7JWyQr
-	 zHy6IkKDwmcXpgjftMnQBgOILFREMCmwueuczta2509550TGQpAJ6XsbCTKoupAZJQ9DZ
-	 wwChQjpl9cPwRhxtow7BZTYRLL5GUlmwjG824nhh3d+fAq7m26Q5lgl3yt8E+STVXEHGT
-	 pPDUYAn+5azpqQ8WO7sT1CUR09ZMHwaGGJAUUG9C4H/2AUTsYq+C/CJsbtYjzGH66Ub/y
-	 iu3kZDGliMqVih/dKTZqDIIpC3A7yRfNFuDoZc8h3OIzzZllIKP4dvbXclJ+xQWSkog==
+	bh=H1p3YLpb/wk0/aNRUDabZKCgA1VJQWjgD/dPjUaWfwE=;
+	b=JMPdE33ikS4PWkzkkz2xHRbTv+LkCCZgULtNMisRcntk/GqXRi07SkHwTSVkO0V7p2z4
+	 GnY8iwxbW2DmdpfXdKXYOikaF1PJ49C0hNWZecluv6zFgns469tzDvN6aYkY8MNS46wXR
+	 pBbk60iy1F9REYxxS5eEsgaB4MtODTu63HiCljaWx+UY4VqbPE/3ja+BdhPkkSL46+oFT
+	 mKAcuuMowBdnIUH7JHz8Q0+eTIXD6609NhMLX84oJGgHr4t7O+CeeJjzaVNAsf91jH2Fe
+	 x4hd/lLgaT2RCB5L6TNih8JYbM91r9Bgs3LDYrCp/GQGnD0GDL05FbzSRBCvMQ6sFSw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NG7pLwPn;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WJ1g8AtP;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5DAE606A323
-	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 09:05:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E6D606A323
+	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 09:05:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NG7pLwPn
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21F8D1F008A2;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WJ1g8AtP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF05A1F0089F;
 	Mon,  9 Nov 2026 09:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794215122;
-	bh=i0d4HzX99hDhJY6pM39vet5235zVAD2S6DVcckHDdZM=;
+	s=k20260515; t=1794215123;
+	bh=H1p3YLpb/wk0/aNRUDabZKCgA1VJQWjgD/dPjUaWfwE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NG7pLwPnRfVlHTzcYjXpD9y0o/8uEc1vKwHJdDmKni/Ivu9WV9BXGMn/J8SdXvgD7
-	 rTRNMRhYl2si8jeLJHTlex6tBXQiaw2CsqT8KB5qxK+GVtbFGskCG/DpUcAZ0970wy
-	 BtOdUd409aXqueNAcxw0HAAx9/kQvkQv8KZZnlKNVVM3MmtG2R54rowWQRUyYcgGXi
-	 /5FXPv7KtVg7IzK1AZ/xaeBLOmxSO7jtkATgd6ZLFB87S6s9p3O6nFmSY3q4dB+pCR
-	 pHuccOuTF/dqLxFVMQl/ZaGt/RQDGoUMLdC0Zmhgyq9aI83GxcyIib3rN27FHORkpJ
-	 DyEydTAPi4CYA==
-Message-ID: <sashiko-outbox-204657@kernel.org>
+	b=WJ1g8AtPbJ3PH8c8v8zI//4z4b5X2NGK1BVVh+eOGZK/2DBr0eaY7xwweg/OGGiYG
+	 q2QnbFybul6lgtGqXlZekukf9Iydml6vM9wJ6xM5yIe2zHw4hRohyglZw8512WV+hK
+	 5j2bJz7o/PfQg5zS5ZlnJvEkrTnDVKUP504JNPJ08T8HwIDxy5DTFQa3jCY/PCdlkQ
+	 WuGyzSpzgcJkQ8eeBCwXXg+hlG332meu/IRh/OD/bkDbIq7EaDHmhb6OzbtNRbHhTB
+	 g4RPmjWzqgRfEELU2hgTyNzIDuPJHceDeqq9iGrbD3raenQOJgqfJLYy+LvwXyiW/V
+	 aIBkEu0JK1OUA==
+Message-ID: <sashiko-outbox-204658@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 05/14] s390/sclp_con: Replace get_zeroed_page() with
+Subject: Re: [PATCH 06/14] s390/sclp_tty: Replace get_zeroed_page() with
  kzalloc()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261108-s390-sclp-ready-v1-5-3e7c90eb6676@kernel.org>
+In-Reply-To: <20261108-s390-sclp-ready-v1-6-3e7c90eb6676@kernel.org>
 References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
- <20261108-s390-sclp-ready-v1-5-3e7c90eb6676@kernel.org>
+ <20261108-s390-sclp-ready-v1-6-3e7c90eb6676@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 09:05:21 +0000
+Date: Mon, 09 Nov 2026 09:05:22 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,8 +63,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> sclp_console_init() allocates the SCCBs that are used as the output
-> buffers of the SCLP line mode console.
+> sclp_tty_init() allocates the SCCBs that are used as the output buffers
+> of the SCLP line mode terminal.
 >=20
 > These buffers can be allocated with kmalloc() as there's nothing special
 > about them to go directly to the page allocator.
@@ -90,5 +90,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-s390-sclp-=
-ready-v1-0-3e7c90eb6676@kernel.org?part=3D5
+ready-v1-0-3e7c90eb6676@kernel.org?part=3D6
 
