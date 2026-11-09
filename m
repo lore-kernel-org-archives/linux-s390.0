@@ -1,54 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.24
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794195203;
-	b=lN7/tIw8qmgZkCN0F68+OaSvxLE9maHyOMUICxtUMAPaL/Fl8cH1IqYjbYR03X7eh6Uw
-	 lRSCrmyVLVfH00e0mxr3xxhFj/deG+6B35Nyd0GY7UKWir5CWy1g0KbJeEYjhq5FX+lPr
-	 WXa5MefL6k/soT5daSlNPVAZbvaVvss8Z9YjW4SL70+rWgBr0/NmS2c6rxB/KDwgbksAj
-	 PUliKcRqKeWVl0KvPqQY5uhRyS8Zib7SUYSSt7hNyLTIYpYfoIU7wyCrP59rVMzFanQna
-	 NOL+RWPwZOVutzesdSVUKdwqxRfkClsi5XvbuEXyjHjBe6e7BY7vi4ED8gIV6TPUliw==
+	t=1794198418;
+	b=qC4pZaIyykx+W5hr6kuZT6XGgq0PolkjJ7NbHLEQ9jd8evrNCYDgAHpIJ9r/Bow4CXJX
+	 NuzChVsMJ7fV1ESPqnxP1rzidXFW0Xi/BPM8JGdm2lMXuCezaMKffnmHP9Te2zXh4fSyW
+	 cnmOiaYHShbHXIvFab9KMXdh3gVzJat7SRhVohA8ZiIJxJ/q0yNyt1TM9dpZn3m81cwZW
+	 VHrEkcAUaydsE0zbhEESBi/VHMBzEhVIb1U7+aG+koyOAhB47LjqhhqfqJPiNCLcY0GBl
+	 QLUkETlnXF5ak2xFmoSV1mK5hROTx5UASogu1x0Z6bNpiP2fgFL2UnHIBEwI2uenlDg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794195203;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794198418;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:In-Reply-To:Content-Type:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=fSXkQFvYokTP7/zdJJbPcVi6eQ2VnCwRvk+/9wXmlm4=;
-	b=b3gC4Ndexk/mYzoqQdYzwYY6PSKToSsGJlcjb4d94GyJkcz8ih8ys60rbjgQ50NcGlFR
-	 BnhvdXvRG2YFf8oIVYUzZ00mJimhOtKh7d2RO6DOxMCsY9o5C4x5WdhwFNesRN+JZ1EgA
-	 o4k2kww7bXLJvFLa6R4IZ469Cgo1kwZcsUr4zhH5zQHfXIzJLAT6PpRv0840oC/L32aj+
-	 CrFVN2YYMbFi2ESVE4O+coVe4HnfOOo9WhxLHf6jzOqbCvj3+BJ3kP0AV1KRP9ewjGeTF
-	 MMyftPPk3sHiNbIbB8lROcZUwBXRcq5Gmcj3NgVTwR+UrdAEU4WPFkkhWBBgIhmNAag==
+	bh=0SVPjoU02fufplg6UCU1lm8OR+hTiBw+cX99Xog7iH4=;
+	b=JlXHxYIOxV4XU6TazsOUlud4AnoHTon9+JEhbci/iBQ5HdYEy2TJZbsnFg1SFnwKBjvC
+	 b3GkgKwAnY9J1I+RFRyKlQv7RMPwdZFs9O+UzpYrt00WPoRUFMBWvzqCnwM1CwSsrVgsc
+	 dI5cnHn1voWP6be4AarYVoCqb7AnAuscfhKipnt54Th9GuEPjbYDMwthjzsbegAdysMR4
+	 Y6098T2K37ZsaiCV73BMOlDb5Zfsr1eRzTXT2+1dC5qSsLZTcxis51p0RNhHadQf6lsak
+	 M76K8qSvQtDcpTc/TsSMmyBuoO7RujmsQzc7xmByRm9lxP7lGkfVUimaLo4f3QZHixw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=n2Ut93IM;
-	arc=none smtp.remote-ip=91.218.175.42
-Received: from mta0.migadu.com (out-42.mta0.migadu.com [91.218.175.42])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b="u/Gx8aBg";
+	arc=none smtp.remote-ip=95.215.58.24
+Received: from mta1.migadu.com (out-24.mta1.migadu.com [95.215.58.24])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39466606A33B
-	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 03:33:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39466606A33B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2017B606A322
+	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 04:26:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2017B606A322
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=n2Ut93IM
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=u/Gx8aBg
 X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=fSXkQFvYokTP7/zdJJbPcVi6eQ2VnCwRvk+/9wXmlm4=;
+DKIM-Signature: a=rsa-sha256; bh=0SVPjoU02fufplg6UCU1lm8OR+hTiBw+cX99Xog7iH4=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794195201; v=1; x=1794800001;
- b=n2Ut93IMk5wbYHQpCRpxNmGWhRns/ZPjp9DMBNrDWYFmhQP74+eMYgCdXzahxev+pTxZnazP
- xnQhboH/v4FuZZ8QVZCP0Z094K/Chq9zfsEgguqN+oS44UU12wB7FjiBxK6GQNAj0vk9FEdsAEB
- BoNJz6MIpRHleeX8plCJBxCU=
+ t=1794198415; v=1; x=1794803215;
+ b=u/Gx8aBgnHUkuXVi2+BQTYcTDxH8zFUmAR/TVFAy46WVUw8Lm9l8nbKAhmANIRo5EFy9lMew
+ uqhCIgOleT3njpCY3/Dv7cMDqi4bwx/iXr8FHzCyP+4xEO4rb2Uae+SFRzrmb+HNtjjXKcUWcSf
+ Benz8ZX3QBGriDvnxTFBIbfA=
 X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 1b12e287425c2338;
-	Mon, 09 Nov 2026 03:33:19 +0000
-X-Mizu-Trace-ID: 1b12e287425c2338
+Received: by smtp.migadu.com with ESMTPS id b6a087d0e32380d8;
+	Mon, 09 Nov 2026 04:26:54 +0000
+X-Mizu-Trace-ID: b6a087d0e32380d8
 X-Migadu-Flow: FLOW_OUT
-Message-ID: <dbdb9385-89cd-4e4f-bfb8-b72510e8801b@linux.dev>
-Date: Mon, 9 Nov 2026 11:33:09 +0800
+From: Lance Yang <lance.yang@linux.dev>
+To: songmuchun@bytedance.com
+Cc: david@kernel.org,
+	maddy@linux.ibm.com,
+	rppt@kernel.org,
+	akpm@linux-foundation.org,
+	lance.yang@linux.dev,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	chleroy@kernel.org,
+	ritesh.list@gmail.com,
+	sshegde@linux.ibm.com,
+	osalvador@suse.de,
+	qi.zheng@linux.dev,
+	muchun.song@linux.dev,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-riscv@lists.infradead.org,
+	x86@kernel.org,
+	loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 2/5] powerpc/mm: drop powerpc vmemmap_can_optimize()
+Date: Mon,  9 Nov 2026 12:26:47 +0800
+Message-ID: <20261109042647.37323-1-lance.yang@linux.dev>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20261107043122.25650-3-songmuchun@bytedance.com>
+References: <20261107043122.25650-3-songmuchun@bytedance.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -58,80 +87,23 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 00/14] net: annotate data-races around sysctl
- knobs
-To: Jason Xing <kerneljasonxing@gmail.com>
-Cc: netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>,
- Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
- Phil Sutter <phil@nwl.cc>, Nikolay Aleksandrov <razor@blackwall.org>,
- Paul Moore <paul@paul-moore.com>, Matthieu Baerts <matttbe@kernel.org>,
- Mat Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>,
- Julian Anastasov <ja@ssi.bg>, Allison Henderson <achender@kernel.org>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
- Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
- <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev,
- linux-security-module@vger.kernel.org, mptcp@lists.linux.dev,
- lvs-devel@vger.kernel.org, linux-rdma@vger.kernel.org,
- rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
- linux-s390@vger.kernel.org
-References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
- <CAL+tcoDvFNAZubOjw9+Z1eyaVeiBzt_Xg3KMNucY879bg-ZLow@mail.gmail.com>
-From: Jiayuan Chen <jiayuan.chen@linux.dev>
-In-Reply-To: <CAL+tcoDvFNAZubOjw9+Z1eyaVeiBzt_Xg3KMNucY879bg-ZLow@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 
-On 11/9/26 11:11 AM, Jason Xing wrote:
-> On Mon, Nov 9, 2026 at 10:55 AM Jiayuan Chen <jiayuan.chen@linux.dev> wrote:
->> While testing the recent sysctl range fixes I noticed that a lot of our
->> sysctl knobs are read with plain loads while the handlers update them
->> with WRITE_ONCE() and no lock, so KCSAN reports them as data races. I
->> then used an LLM to go through every ctl_table under net/ and list the
->> readers that were left behind. This series annotates them with
->> READ_ONCE(), and adds WRITE_ONCE() to a few custom handlers and netlink
->> paths that store to the same fields with plain writes. Most of it is a
->> plain READ_ONCE() at each read; where a function reads the same knob
->> twice to make one decision, it now reads it once into a local, so the
->> comparison and the value it acts on cannot come from two different
->> writes.
->>
->> There are no Fixes tags. Done one knob per patch this would be well over
->> a hundred commits, so I grouped them by subsystem and feature instead to
->> keep the review manageable. If maintainers prefer, I can split it up
->> further with a Fixes tag on each one, as several smaller series.
-> Over the last year, I've been thinking about the annotation stuff
-> especially around sysctls, which, I suppose, shouldn't actually affect
-> the real workload but does affect the outcome of the syzbot.
+On Sat, Nov 07, 2026 at 12:31:19PM +0800, Muchun Song wrote:
+>Whether the optimized mapping can be used is now decided in the
+>architecture-specific vmemmap_populate() path. When PowerPC has to fall
+>back, such as on Hash MMU, it can disable optimization for the populated
+>vmemmap range there.
 >
-> Out of sheer curiosity, my question would be what is the point of
-> trying to change all of them? Or what kind of benefits can we get from
-> the big series?
+>Add section_vmemmap_optimization_disable() to centralize this fallback,
+>use it in the Hash MMU path, and drop the radix-specific
+>vmemmap_can_optimize() override.
+>
+>Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+>---
 
+LGTM, feel free to add:
 
-Three things:
-
-1. A plain load may be emitted twice by the compiler. ip_error() compares
-peer->rate_tokens against ip_rt_error_cost and then subtracts it again;
-if the sysctl changes in between, the u32 wraps. A few readers have that
-shape and now read the knob once into a local.
-
-2. Tearing is not involved here, all the fields are at most word sized.
-
-3. The rest is the memory model: a lockless read of a field written with
-WRITE_ONCE() is a data race unless it is marked
-(tools/memory-model/Documentation/access-marking.txt). That is what KCSAN
-reports, and why most of the series is plain READ_ONCE().
-
-
-I think the benefit is doing it in one pass.
-
-
+Reviewed-by: Lance Yang <lance.yang@linux.dev>
