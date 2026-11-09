@@ -1,80 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794209284;
-	b=4B842iDKTT8mxjmohdaEhAppYqyzqlLmPDQ5hjHj0rX/C7pMQ3jA2Tt1v/DNRcgJ/iU2
-	 yk28XkQOHvJnuRTuY/bdmhl8cYaWYu6D/UvJTiUeZ/ch5Hgp8cNt5Z+rXse5+nXJfvPhe
-	 ZixteDBez5dLQQdKkv3/UyjCswFZFOza7UJo6jFQAdoukJsdeByKIAEIkbE8Zocm6vldF
-	 eagaMMhS4ertqrwwezkUNd1sLd5e/BdHzuapJRHLN97NzzdSkxJG2t6bN7uZ8ieFHQSxR
-	 7yHVk52omRy9vt9HGmLVCEodqkbeAt9v6jgmrFYYUk5L/EG9WJKUEy1jpytrQjvXVbw==
+	t=1794214445;
+	b=0eFTh8pBD6eYcn8A/EhttAeKkkbcGdT3mhL4OrD4aJ+ztkVGzFciLH1dIj+1/HXCiwkV
+	 OSz5Be1wjiIrC1ZH45/Jiug8hPaKrLAxlj8fXuK+gMQhkedFg4O3NHCivv+OSrCYY12GI
+	 a0q00t/bF/8DSAePTsDN+A/Nci4PMXF6beATkkqNf8J4qLm4X/Avze9I7SZTxXQCzRIxK
+	 /qWJwZkiBwCpGyv1/upICPiLwuwqzK/HT8ch8vsBm8YJIt8N99ctbtKSEIbR+pWJpnI9y
+	 ZxGeujj2ood6hbo2M0h2t4kNiOmOjPYVPo4SSEBWZfY9FWku8ie6qh+PNyeC8gsQ/mA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794209284;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=T5QgdGNgqnMVUbMTI60seCLCcrDZA8Ko+QKTakRy5p8=;
-	b=p0y3F3QYQ+7T+OS/giiXOeQrwj7pSQNyt8fZe+GDFKH47CWFzpOozV1Ur90RSgwRAiO/
-	 b8c01e63sWlyPtbUXk/Ckx4knlykX58cKMe45yzc6AZPvvo/HOiAKnAebWKfV4jO4lP0m
-	 enG+P2k+bBVNal96g3ryvMjBhATQRjlRLjwMfV0K0PR1q9L1Dj2sCiUA2Rp2ZniDvMMkJ
-	 jG088d5gE78F24wC38cqGQnk93o9Z+Ue/ycyioBlyQ34NWV4j0Tard02V5AzHCzJR6K9H
-	 Ah7z3wYeDa5fRBGkrgYKxuLmjPYnV0n3UCkxasVgiyxFKF9MeYaYXfhwGNwMa/611XQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794214445;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=xKA+QT7sKuu3wcjGhGcEDGKtJRYDa9jDBiRrZ3A9Iuk=;
+	b=jhJRyCR5bNtISGXbkRUgxJPAUVhCSyhHiCyZZpIDMPLt/BOjpo6GBfFpp3IitIhKTkrt
+	 iXRuGJm5bieHepCFwVBqmMG7cmexhiVH3oBaWTpvJSKbSN4CX8A0fPgagf3BadIErInvl
+	 5rCImshQX90hnazRIkip44h80Q+5rfeQWv95kxwXDrKqeTLTvDWzdapR5pGW0ty/+c9K5
+	 igGg+C41ol19GnjnBosOoZxfuE4TUmHTYMhA6+a+10WIjdXawFYo56O7f3QiLCDExDFXK
+	 SuS4826H8iHskbdLjcbvktxpahy1GnAi63kMFhai/ZayFOjEBEA5x+uRAZc1GZpyMOg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=foKZDl0J;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X8RwGctF;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 353F4606A31C;
-	Mon,  9 Nov 2026 07:28:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAD03606A321
+	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 08:54:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=foKZDl0J
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B711F008A3;
-	Mon,  9 Nov 2026 07:27:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X8RwGctF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702F71F0089F;
+	Mon,  9 Nov 2026 08:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794209283;
-	bh=T5QgdGNgqnMVUbMTI60seCLCcrDZA8Ko+QKTakRy5p8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=foKZDl0JS+GLSY7RALXTp0etUmcbkgEl0ar9X+SRbaTdHa8YE0iHdGvFzm6SeA/r1
-	 wvZ9cPLNXiNmGfiqlXOJ/lggnzSI7y+Yt/271JaptvzKD+K5OOp3A1fglQT3Bq5rGx
-	 NvR3jpFPpeSxFCvfgBCnkRgPfL2HtmjoU3FFyVNmDn7RdFBmZrzXh8JobfVZPnNqKa
-	 7GEjwVODoyk/Mbri9tCR/cSztZr9X+cSjg/FsjjrdXNhoEzjAcJpARwcmKIeSM+9a4
-	 qasdmnjKY2jmphh7AMkodKEFCArMimB+U1Opsd/btO0L5R0U6upXj9ZVGBN3OKjtfC
-	 EBc5InZvQFz0g==
-Date: Mon, 9 Nov 2026 12:57:49 +0530
-From: Sumit Garg <sumit.garg@kernel.org>
-To: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
-	linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
-	linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-nfs@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Anna Schumaker <anna@kernel.org>,
-	Bharath SM <bharathsm@microsoft.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Biggers <ebiggers@kernel.org>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	James Bottomley <James.Bottomley@hansenpartnership.com>,
-	James Morris <jmorris@namei.org>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>, Paul Moore <paul@paul-moore.com>,
-	Paulo Alcantara <pc@manguebit.org>,
-	Ronnie Sahlberg <ronniesahlberg@gmail.com>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Shyam Prasad N <sprasad@microsoft.com>,
-	Simon Horman <horms@kernel.org>, Sumit Garg <sumit.garg@kernel.org>,
-	Sven Schnelle <svens@linux.ibm.com>, Tom Talpey <tom@talpey.com>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH v5 07/12] KEYS: trusted: TEE: Disable sysfs bind
- attributes
-Message-ID: <avF19RckYZWu_3FD@sumit-xelite>
-References: <20261108222719.304712-1-jarkko@kernel.org>
- <20261108222719.304712-8-jarkko@kernel.org>
+	s=k20260515; t=1794214444;
+	bh=xKA+QT7sKuu3wcjGhGcEDGKtJRYDa9jDBiRrZ3A9Iuk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=X8RwGctFYNEMxvy5ABPEIxTBbRWa4c6uUU5fbY5bFBoIuoIRto1heVv0LdvP/wiwV
+	 Sgg689qfwQZxYPxTdkfOX+NaInX3cYiSBd6CHpw8XKcKJvyKmZ/6/5wRotBeGiq4RH
+	 QTPYmXRAtKGCR5akV8s/AHTn344uCnpCQy0IG4C9f6TaoZ+19qSMUKq0FgSV7MFa5J
+	 wt4GC9kp6ActK3Nsq4/TrAEGkGapysV+u0/FyPG0wj17jU8TaCL4RbwRxUP/ZFcN5K
+	 m7Bpodpk/CPD+e0JAFB6asbtgpYEeLRMtXrRdeboGJpF+GyggSKho5D9m/DnMlX39l
+	 FJ11w1Np55nZg==
+Message-ID: <sashiko-outbox-204629@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/5] s390/zcore: Replace __get_free_page() with
+ kmalloc()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261108-s390-char-ready-v1-1-3db507722530@kernel.org>
+References: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
+ <20261108-s390-char-ready-v1-1-3db507722530@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 09 Nov 2026 08:54:03 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -83,42 +62,33 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20261108222719.304712-8-jarkko@kernel.org>
 
-On Mon, 09 Nov 2026 at 00:27:13 +0200, Jarkko Sakkinen wrote:
->Suppress sysfs bind and unbind attributes on trusted_key_driver so that
->userspace cannot unbind the driver and unregister key_type_trusted while
->the trusted module remains loaded.
->
->Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
->---
-> security/keys/trusted-keys/trusted_tee.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
+> zcore_reipl_init() allocates buffers that keep a copy of the IPL block
+> and of the OS info structure of the crashed system.
+>=20
+> These buffers can be allocated with kmalloc() as there's nothing special
+> about them to go directly to the page allocator.
+>=20
+> kmalloc() provides a better API that does not require ugly casts and
+> kfree() does not need to know the size of the freed object.
+>=20
+> Performance difference between kmalloc() and __get_free_pages() is not
+> measurable as both allocators take an object/page from a per-CPU list for
+> fast path allocations.
+>=20
+> For the slow path the performance is anyway determined by the amount of
+> reclaim involved rather than by what allocator is used.
+>=20
+> Replace use of __get_free_page() with kmalloc() and free_page() with
+> kfree().
+>=20
+> Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@re=
+dhat.com
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
-Sounds reasonable to me, FWIW:
+Sashiko has reviewed this patch and found no issues.
 
-Reviewed-by: Sumit Garg <sumit.garg@oss.qualcomm.com>
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-s390-char-=
+ready-v1-0-3db507722530@kernel.org?part=3D1
 
--Sumit
-
->diff --git a/security/keys/trusted-keys/trusted_tee.c b/security/keys/trusted-keys/trusted_tee.c
->index ad9c7baddcef..87ea549f7f0b 100644
->--- a/security/keys/trusted-keys/trusted_tee.c
->+++ b/security/keys/trusted-keys/trusted_tee.c
->@@ -307,7 +307,8 @@ static struct tee_client_driver trusted_key_driver = {
-> 	.remove		= trusted_key_remove,
-> 	.id_table	= trusted_key_id_table,
-> 	.driver		= {
->-		.name		= DRIVER_NAME,
->+		.name			= DRIVER_NAME,
->+		.suppress_bind_attrs	= true,
-> 	},
-> };
->
->-- 
->2.47.3
->
