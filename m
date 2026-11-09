@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794215125;
-	b=3kCRYOgjj36Gic5T3PLkbgFJ9CUTN/wTnqnDFNLZOKE58px3lyKZ3OvRvFtYVp68RYg0
-	 ru2ZY+8xFfkOGojsZlhxRk+MgE2Yrc872e55tX4PLMtUxoTWF/vGs7SRBnklXb6QN7I8e
-	 OAN0Q6pP3UdkP1F2POLsg46rTTlQ+uXZPY3cwtOFVsx/tEHYRj0/4lqwE2ELDXO6ljJIW
-	 BcCnIMZbb1L0joNBFD/oCmpM2jPUBilx+Mj8KcjfojOpF3gBZXjihqFZddK34eF63361g
-	 he//9RH3htnwHOLy/RVzSwyBcAUlyg+Un4I9OVIIj47tTSlixKjpov4P5zewyvCZmwQ==
+	t=1794215126;
+	b=P2gJgVbYFFgFJwwMgHuWKtvcZs1MS/3h1jkwhnb9ZloOirA3QVddcZKroZ/zfxTWXAmJ
+	 zuu+kaqP7TweZzAMzCeFLZjKSctBg+2DRq97T1IfTV+Hru00213FOdkhhGd2AHcERbovG
+	 tzSJl8YZyRsx6ClMMqGKiTikBXCGUYTznkMDGcUoTByKB9wXH+KMBdYl+2Z7fZYrKedhX
+	 IcNIIcw5cL71Wr66UCMNjNiX0Kti+04fVu5ZUhlS4P+uVIkNQ1dPMqieR5MCa+kimYFLn
+	 zCndOvcA6gMCGWd2ripRTkiGB5YQmum3L5S1tJ6K5x16HPOL3pSoShhQgBYfEFe2THg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794215125;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794215126;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=6j0n3df2+z1F4vxOFUts8V3AIqPydv7xg2O2rkCo9wU=;
-	b=Y2AIxJ9J5elPt9aesT5tQiCbTH/nSUOlRIr+c3EZwHKUFm8Ibb7TbovE/+gSXYQcTK63
-	 XmuStvfV/nBc4zp363Ut731VUhSqiNOU39l39GaEtU7CziQ7ICZYBUqfoecTAhF4t0dJJ
-	 j4695f+focOu+XYNLznlIjCENQk9r4pnyQwFCH9SqKbvsEWzUiPx4SgHCE/RxYOM2SvZE
-	 ugyd2zuJb8fJNRIjeD72tYSLQP56TEhiXRKWSmj0249KHNLa8D2oVrmXnjuaN7/Z9vTw4
-	 hkWk666yF/VQKmcorq6XTU7IZ8zaQXj1zNq143kVVBXv9NL5G2I0rDnxVTRXpzCLonw==
+	bh=Ra6DTiScJw6E5kCvFj4UqA1hRiBTdueOo+qnMiv2TGU=;
+	b=lUrAcy4TvWq4QPZnLhi43a5Nt/1h3CWekjBA7aoD5AD1xCTTItjQjC4XK+MBXs9BIQzj
+	 oQkztlGX0S6AwRh1zdSRFf6FDGmAJf/DLI4CWYZIbfWeewCt7k8VJyQqlgniWUvJSKVve
+	 dG6bWPlCLKySplAwOKzp4joF/ErUbq9nkE8juphWa0uNdMyhb11kJzeAqA4JDfT46ULmF
+	 DW7wKLb0YXSPSHJOPgx7ZPsgbLHrcFirbAcMlBU89T4zbmeLBZ0IZs7O4Gd20ucJ1yk96
+	 XZUvEScA4h8cHhuXKbk9IgyfT3VAa0KHYIKZDZgji0kHjaN0rzQ/F28ID8K0HCuKL1g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oOa5CkPg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nuAJfPgR;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E01E9606A334
-	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 09:05:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C31606A339
+	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 09:05:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oOa5CkPg
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E1FA1F0089F;
-	Mon,  9 Nov 2026 09:05:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nuAJfPgR
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 425AB1F008A1;
+	Mon,  9 Nov 2026 09:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794215124;
-	bh=6j0n3df2+z1F4vxOFUts8V3AIqPydv7xg2O2rkCo9wU=;
+	s=k20260515; t=1794215125;
+	bh=Ra6DTiScJw6E5kCvFj4UqA1hRiBTdueOo+qnMiv2TGU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oOa5CkPgN/eHrxI1d3P0sLbYDjIZYVnHPl6LA60jyv47ZQSKW/WPKvMz6jmYJbre5
-	 vmoi8qLstcX/El3gKRmVn/m5MaoCWjrUa5lUFGmBONHuitoMZzA8zm3UsNs7xkhMhv
-	 GdjLiSennq/Jjpekapy0c0pDQ4OhOkO8+9bmdmf7gX2VeAHr/PvvH049pD22BBWPl0
-	 eYFynPdSe1fFEenn+7hNy8ixRKqMH8RmIk08703P76GA8SRudjW6/Hf6Wz8RV5weJI
-	 AiZaTgBbzkVyOPv+icxBeHrE6hKbi/3LP4VcB1oKqpsdMMn7kqyd6K03sVWlyIbIDJ
-	 X8tHscFtohkxQ==
-Message-ID: <sashiko-outbox-204660@kernel.org>
+	b=nuAJfPgRn0nMKxbvLhkSfVXQpMD7bnGL0HM6+LUrSmHJKKgqs7ZLMLVWzC47ER9X6
+	 sG8HswiOBNOeCx18W1G0ojvkquHHavaXOsBlFsVET6zQEuhw1KBpWJdiWTu0/VLuov
+	 x7jPj6/93oUIP7/BDB4Metr2Db/UzdYaP0tYfK/A6NKePwc3rvPJ0G8lCUQaQ2ygB6
+	 oAg2aHaJu7OIw9mlldGmagBrxu6J5FTVAna7u/jNAcHYmuLxktD7LTyLKULDK7fpec
+	 rKaGLRr+Stbjrwi2KiXTulMNqXMu3IBiN0ng6hlkYaoacGkiM1OC/ZTS/UW8pLU78k
+	 lCdl6Z6eclePg==
+Message-ID: <sashiko-outbox-204661@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 08/14] s390/sclp_sdias: Replace __get_free_page() with
+Subject: Re: [PATCH 09/14] s390/sclp_sd: Replace __get_free_page() with
  kmalloc()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261108-s390-sclp-ready-v1-8-3e7c90eb6676@kernel.org>
+In-Reply-To: <20261108-s390-sclp-ready-v1-9-3e7c90eb6676@kernel.org>
 References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
- <20261108-s390-sclp-ready-v1-8-3e7c90eb6676@kernel.org>
+ <20261108-s390-sclp-ready-v1-9-3e7c90eb6676@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Mon, 09 Nov 2026 09:05:24 +0000
@@ -63,8 +63,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> sclp_sdias_init() allocates the SCCB used for the SCLP store dump
-> information requests.
+> sclp_sd_store_data() allocates the SCCB used for the SCLP store data
+> requests.
 >=20
 > This buffer can be allocated with kmalloc() as there's nothing special
 > about it to go directly to the page allocator.
@@ -79,6 +79,9 @@ Precedence: list
 > For the slow path the performance is anyway determined by the amount of
 > reclaim involved rather than by what allocator is used.
 >=20
+> While on it, pass the SCCB to sclp_sd_sync() as a typed pointer instead
+> of an unsigned long.
+>=20
 > Replace use of __get_free_page() with kmalloc() and free_page() with
 > kfree().
 >=20
@@ -90,5 +93,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-s390-sclp-=
-ready-v1-0-3e7c90eb6676@kernel.org?part=3D8
+ready-v1-0-3e7c90eb6676@kernel.org?part=3D9
 
