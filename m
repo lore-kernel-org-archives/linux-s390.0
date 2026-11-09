@@ -1,59 +1,69 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794215130;
-	b=1vjhYZOFUf9MHyNJdEPYEiAwsOKO3Fv8Ngu7HGvo1uzX1hNkkRD9smN5Q6row6gBxFWg
-	 T15DQTg6/h0wATBCaXwSG/00b6A4edKyhWMec4/7bd/LZl/fhMU01bsPRwHyDc5ZnAii9
-	 jsg95nqZGMpcjxnuJNehdhJe1GpcyU37qFT+kTKjG1HwSGEwKlkoJqmSd2xOnJSGrPkrz
-	 Sx9kQgwvUiC49i29hDYuna5ebm3BtMXsHFghysPfKsoUBd4pgIrdaTrY5P/fJPJ+93fiB
-	 UzQEVSniDUzb12/5M8AIRetnCVLl0bGUy/fsXK7TrwrB2/8CQahCioMCM8XPZYvHQDA==
+	t=1794216050;
+	b=ACN6wMgTRUqaZgMD0DIju9LZgVScOQq8cYOguTMF6js1i7jm3whP7X6RQZBYb59yH0y+
+	 kunbSnfu/WnG6qmt2HTSy+55IulQZnmCn52R2xClAE3898HJtnRnN6pVNJh+PrpT9ji/n
+	 g0uFKmIaeVPAjOICineDgfaPazzbj24s9N6iHwnsFn7yGiHEdvfcG4GMZeb1iyiLk2iA5
+	 z+WXEFhMnYorce2Hzy8ldltpHtxgmVpngHj2wb0VnE77ccKFavwkPMuGLA5fQGwdaDCaL
+	 Pb/YpqUP2ibI3jm3gCmrtRwARoid/wREStyNL2JDK/Fw9mt3aCWugchp53al26DoW/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794215130;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=AdD/afv1wuT11RGTsHa49S9WhiY8LGOlYuD1/w3T5H0=;
-	b=cXBHlnm6spJS3QX0zzZnmlJnwJyct/v4B90Cphs2rZrfOCqc8hjuk+F35f7YSjBHnILD
-	 fZWRKDlhXlLK4QjvINjyRuXxh3ee/GjfPTRVrZcAnfAkl7lCZePEWoovMU1WyClX4LvIv
-	 LRoikz89rFO0eSv2TUaChzXhJSCLNSEjhX8+il9hTIhIaFNjfwUBcK0FOuy3M0lWOVE2x
-	 +ONn4No+8+jkiB6s0hjofiJakTNE7SbqSDajBD0JgjB0hrc8oVWchNq+nS/aLSXh6z7BC
-	 UJftiPzG91JA6MonhjD9rWWwHnIMKK3TRcm/T7wF17mWqW+gKFrJP6gVxuaXXOF6S9Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794216050;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=8h0PI3x5L84bxHJWgvhwyPcSqbxezc6i6wUfYwT0/gw=;
+	b=i7zICc73IzVshNmjwpyvSfCysv4BnfgdypM+QuMRpDNUJwV+ZxnTWl4m3ucs6cMscRDu
+	 5zMCt19nkbMlnoSb+4nkYWV+hmV5DBt3PcznKga8OKK/DvTnexHRY8N/8IJykpFXi42Oo
+	 MkUcOzEH96LKs65C6sKKgVvGBzHtDHXmHb0XAo4KujwlIDywMqKeZEOsedMy9nM6Tic/n
+	 5nZ/kjCQ09HHzQrpeRrhIUvaClGoh5AyHxdgyXcydpF2/716c9i6BNjXQ10GWtoi29x5b
+	 do9dbHWAtCtE1tCs+u36KGRHnun+oIrG2T1A3Y3vDigC4vvV6Oo8JullHJg6d8KvGiA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V+1Ze8sJ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PWMKq2ci;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6B1606A325
-	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 09:05:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE4E606A337;
+	Mon,  9 Nov 2026 09:20:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V+1Ze8sJ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 294841F008A1;
-	Mon,  9 Nov 2026 09:05:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PWMKq2ci
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B8531F008A2;
+	Mon,  9 Nov 2026 09:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794215129;
-	bh=AdD/afv1wuT11RGTsHa49S9WhiY8LGOlYuD1/w3T5H0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V+1Ze8sJ6EGGvF0RQl2Ik1DUe0QLxBFlgtu0uKC2QPYS45YlcIuEOC9JPa+Dv5ISy
-	 VLDmzVdOKU0wdLXcAJJ3ztAmf0cYJLK5uw9JH662ueShsJMkcnT4KzYtx3d7lzZMBW
-	 BXWaYIV62zYJCxSPMjYZffmCqnjrFOg3hZ0zPd8wzbrKngCfi+Fc1o4TMHdoe2anUg
-	 j2y0r3+URdFCFn5KvOYd70RjUopnEzbWxODy31zxDNKMq1bAIU3mO0lNy2xbKlJVu9
-	 +d60CDAhz/HBGP+nZZMBTnr4oUu9GPIoa48UsVxXpZ79nVuZK1Oy260TTGKXEXiYtY
-	 FkCAwyFwcfdCw==
-Message-ID: <sashiko-outbox-204666@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 14/14] s390/sclp_ap: Replace get_zeroed_page() with
- kzalloc()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261108-s390-sclp-ready-v1-14-3e7c90eb6676@kernel.org>
-References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
- <20261108-s390-sclp-ready-v1-14-3e7c90eb6676@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 09:05:28 +0000
+	s=k20260515; t=1794216049;
+	bh=8h0PI3x5L84bxHJWgvhwyPcSqbxezc6i6wUfYwT0/gw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=PWMKq2cik7On9nLBWZZo+q2yFr8sWXi/dqsHfAOWf5G8lTU47xEhSOhDJMI8XikaX
+	 5m07d7IVQvL4OmfmjXbpZC1xKhl0bnPIHFCc1+GnK9lePH1J9OXffOSC3rolXJf+DP
+	 k4ocKY24KRkrPS6q7WNJrkW/H6guwGWdd1Qlf00BWCHthyiEskC+lVYU1caVCSxDJ4
+	 8mr+TmUNdQsWrTcx+JFHlqbf5vM/T8amfu0IckZaVZKSK+i+YeSGHR/TccZjqYXArb
+	 yGxJbGTMk29VHdRtuVjfBsvlx9exyhCVwGps8u3eDDtXsofy9sTxR1LmMTyHZmh202
+	 /IyFsFh/XTSVw==
+Date: Mon, 9 Nov 2026 10:20:41 +0100
+From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
+To: Muchun Song <songmuchun@bytedance.com>
+Cc: David Hildenbrand <david@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lance Yang <lance.yang@linux.dev>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Ritesh Harjani <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Oscar Salvador <osalvador@suse.de>, Qi Zheng <qi.zheng@linux.dev>,
+	Muchun Song <muchun.song@linux.dev>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>, linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-riscv@lists.infradead.org, x86@kernel.org,
+	loongarch@lists.linux.dev, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 4/5] mm/sparse-vmemmap: drop vmemmap_can_optimize()
+Message-ID: <avGQadeXQU0ayFYv@localhost.localdomain>
+References: <20261107043122.25650-1-songmuchun@bytedance.com>
+ <20261107043122.25650-5-songmuchun@bytedance.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,33 +72,23 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261107043122.25650-5-songmuchun@bytedance.com>
 
-> do_ap_configure() allocates the SCCB used to configure and deconfigure
-> AP adapters.
->=20
-> This buffer can be allocated with kmalloc() as there's nothing special
-> about it to go directly to the page allocator.
->=20
-> kmalloc() provides a better API that does not require ugly casts and
-> kfree() does not need to know the size of the freed object.
->=20
-> Performance difference between kmalloc() and __get_free_pages() is not
-> measurable as both allocators take an object/page from a per-CPU list for
-> fast path allocations.
->=20
-> For the slow path the performance is anyway determined by the amount of
-> reclaim involved rather than by what allocator is used.
->=20
-> Replace use of get_zeroed_page() with kzalloc() and free_page() with
-> kfree().
->=20
-> Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@re=
-dhat.com
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+On Sat, Nov 07, 2026 at 12:31:21PM +0800, Muchun Song wrote:
+> section_vmemmap_optimizable() can already decide whether a section uses
+> vmemmap optimization based on the section compound order. The DAX-specific
+> vmemmap_can_optimize() helper duplicates that policy, so remove it to
+> simplify the code.
+> 
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
 
-Sashiko has reviewed this patch and found no issues.
+Reviewed-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-s390-sclp-=
-ready-v1-0-3e7c90eb6676@kernel.org?part=3D14
+ 
 
+-- 
+Oscar Salvador
+SUSE Labs
