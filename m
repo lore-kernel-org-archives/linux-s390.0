@@ -1,81 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794225760;
-	b=epVYwWYkMerjCxCYKgcNMjnp8NzSk9OQX8r3ZzB8hobQRw8WAynVwYzSxSS0KxC58I7F
-	 kKgQtE1BWTlWFnp+w3jWFEk63pRVynLM/E95/GV47dO6shWuDw384J1Q3Abna8QtLx+Tc
-	 pB/WIsebRGsyXckQU3BDW4dKPrkWKtgq8EYXmxsdzks2oTkzMyRh7H3rZQpYcvBB8sZEZ
-	 Q8Avdd6+JMnRzgK0lKJ1fFwSjxH06LCHG2DPd/N7iMowjnbB6ddp0eLY/1gl/WlCthKEX
-	 8khf+7o52eMp6cZmM6rQSvHVXBTBrUpIbnRm8KE7jag5wI4Il5VJm5WxQWwjFL0yFhw==
+	t=1794227933;
+	b=iu7rvftBaJtJt7GxltI5j+YTRaXBAJVkn4O/CR8Se+DmYjYkzhnkON2cAPRMExAnPsRj
+	 5nDDSDlAW+JY7Bg4Japw/fZAJ4fsuFqTNup6LxbvWNJhl+14u/8iszjmFOAS7cLvY55dL
+	 yFmdUDBH4ouO73vCVOeYSrkf3UW7Fz3M68iY3/UnLnLZqjjpxBbxUG8O+1Ae7imF0hBJE
+	 SlFIydhrDPwgT3sqUb4BbNqtzAboT5HmDgeb2v5L9N1JA/4Y4OM4H1E0E9yvpkr0Tkxph
+	 Fjq0j8ZcJadW70IO9p0gfyoekL9/9eDlGwv5OyB/V4eb52wNp3ILYvreNUQ/WGIJmDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794225760;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794227933;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=VOZzSzEpmNtfvzG2qO1eY0yK/YBvNo2Yl7ZJRUhzM/A=;
-	b=jJJZdCVu26okfRwPiHqhxbThCArrq7rM/BnVGR1Ax6G4VEHndcSP2ZOv6WjKFg30p4PM
-	 pNm/FYSGa4dccui5j/gDyhYhpk+IIsD0mBvVdfQLy4R4d0I/3J5NnoA5O352wtwmOeHic
-	 WeQuVMQrw9mRdiqmBmvzgUhDqN8vc2PmcCKEhh4sTC9BHNRyVJQSr30/dwO8UOjOBX3k0
-	 lJXm5WllPQDftjVCRHTIi3ehwh4UM5OBLJYR2L/7XPGUdTYGfnPNgDt2SU2y74UTJ7pqn
-	 JSs8aWKsQ4cHnImkkVRdDUbzF+BTXDU/kUnSN3n1E4kixcZfrWhMU2wRDHNGBvOHgrQ==
+	 X-Proofpoint-Reinject:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=uBmYvYbcHcho6XsbPQIL2RqnpsMy4oDpCQXMyiH5tSk=;
+	b=nRljNMvJem5LTQ89d4FBZN6Ynpbc9o85GI5jTSmVWwHUIp+/4Mkj6bQFDOUXk+dU7pcm
+	 FXSOeksEYoC0sJp3axSxOt0PzTDnxpQRT9u9id4e5gWv0Oi3lcDnFj0SZIXap5PgzOAgj
+	 Hzh7Q/60mK1JL5OEsjcXYFf/4Ed0TJi9ah8s9GFP1wAotgW3afRh2nRoPxsnI6XsPs0HE
+	 PEZeXs7Jug82KlcOU57FaOdAIZQkuw8NaF1pe7NcL5000ApefenWWDLwXmw2Nc102EiNE
+	 tLfhq3JeUL7h2I5026RMh8cAhboZR1v26Xc4OW/wN0LHSoPBmiLWX5u5teTdK0ppOpw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=CwNn6JMt;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=d9LiddVw;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77FFE606A31C;
-	Mon,  9 Nov 2026 12:02:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77FFE606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EC1C606A31C;
+	Mon,  9 Nov 2026 12:38:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9EC1C606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=CwNn6JMt
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A9AEYwV1481111;
-	Mon, 9 Nov 2026 12:02:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=d9LiddVw
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A9AEL4f1916083;
+	Mon, 9 Nov 2026 12:38:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=VOZzSz
-	EpmNtfvzG2qO1eY0yK/YBvNo2Yl7ZJRUhzM/A=; b=CwNn6JMt9uDpo2aSJAGA6o
-	1SH0e44+qfTsHn0Og7ZRCO5pyurjiIsgH1qGO6YsiyFeywx0rlzA1jp0sBSnuO11
-	8JJUud/omDsFNlev1o4r9Z62JRJ8O+jnhzSQuWl8MVdgaKQ/7O2wndAyQfY//YMy
-	rNC/C6vqM2/5/Xe2zyZNAlA9UJKZcJN27TejhNpsDP6tRCTXt8NE8ghRMYwGKt4q
-	LDEC6cKDb0qPTLVOLC2pHsa9deiR6lmIeNWxGv5EtXxQnQjr0uV6abV00VrnvZuY
-	L2HE1pHqjnvPyI3VdsJzCHjwfnr4+TVk3QPb//H3qtuKbblZcNxMb5rhdH/CSAuQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=uBmYvY
+	bcHcho6XsbPQIL2RqnpsMy4oDpCQXMyiH5tSk=; b=d9LiddVw6uqFuHz6FCnUPM
+	1s+vxZO3Z2/4ZY7hJTL0HdEcDjU8bJKLvhzwLZ3Sv69Sb4+5vmsBjghspw21lrI7
+	pI0sL5RzaxbkuYNS+1qSZdPuOMq5w3pDJMdDCG0bKigfFPWaKGeFgcg15rJDLzJA
+	pDffqht3syaxUnYO7NanFIMy76ofNpcTsnwipydEvBH31mY5icA324WoiJU9QDVD
+	6ZBlVFWb1HLICaPwiNxQ/IEw2h/8WrhRzk3iKzAL/i5Tw5FOUVLcIYESdYn6XTyp
+	n9HXexeJD/tAR1kQ3Tq3Rw7UU+DhRyCepGtEpXG/rB4joicYZQ2jIO5afVaa1YfA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsunsvxdk-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hstdfvx5n-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 09 Nov 2026 12:02:39 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A9A4tPc4140993;
-	Mon, 9 Nov 2026 12:02:38 GMT
+	Mon, 09 Nov 2026 12:38:49 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A9A4vo54004496;
+	Mon, 9 Nov 2026 12:38:48 GMT
 Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4htfthffj8-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4htfajyr0m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Nov 2026 12:02:38 +0000 (GMT)
+	Mon, 09 Nov 2026 12:38:48 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A9C2Yri47841558
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A9CciU532178486
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 9 Nov 2026 12:02:34 GMT
+	Mon, 9 Nov 2026 12:38:44 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8DD1F20043;
-	Mon,  9 Nov 2026 12:02:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A344720043;
+	Mon,  9 Nov 2026 12:38:44 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6BA2720040;
-	Mon,  9 Nov 2026 12:02:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 38FD520040;
+	Mon,  9 Nov 2026 12:38:44 +0000 (GMT)
 Received: from [9.68.16.159] (unknown [9.68.16.159])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  9 Nov 2026 12:02:34 +0000 (GMT)
-Message-ID: <50ea2597-15ba-471d-968b-546ce358d20d@linux.ibm.com>
-Date: Mon, 9 Nov 2026 13:02:34 +0100
+	Mon,  9 Nov 2026 12:38:44 +0000 (GMT)
+Message-ID: <4cb58287-4273-4518-8cac-aa3056dc28e2@linux.ibm.com>
+Date: Mon, 9 Nov 2026 13:38:44 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,110 +87,88 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390: Guard emitting assembler macros for
- insn-common-asm.h
-To: Steffen Eiden <seiden@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+Subject: Re: [PATCH v2] vfio/ccw: Flush notoper_work before returning from
+ reset
+To: Yuho Choi <oss.patchbox@gmail.com>, Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev
  <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andreas Grapentin <gra@linux.ibm.com>
-References: <20261105-insn-v2-1-ff27987aa212@linux.ibm.com>
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Alex Williamson <alex@shazbot.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20261106191029.469837-2-oss.patchbox@gmail.com>
 Content-Language: en-US
 From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105-insn-v2-1-ff27987aa212@linux.ibm.com>
+In-Reply-To: <20261106191029.469837-2-oss.patchbox@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA5MDA0NiBTYWx0ZWRfX/f53oy/ssrtj
- YRGMRyiwTPcw6WV0kwDKDVXkd3UIxlTVgVY5OZUG7ZTtfo1+AlIgAd7wI7/n7F6Ezd1LkLItEs6
- o0PmxFWEiANtxzjxJtjITW5olPkC/pw/D79zKrOpnQhwB+53u3XIL9cC8FhPW7JEu5U7LyaNWVh
- E55kywchmVbFeCfa6u8fIO4GWC5qd/CWaMHC3ClAd04ILVFF/8J2pytp4mOlXh8+VSNNceQo2wN
- 0G682PFlJEMZfeEUGBvAklLncIWOBpv48t3Jr4LGMMOlQHHgf6iiVDwF1IdyNre64mwvQXSAcqX
- yGBC+kYyrmdZ4VOtzribqxqzgLQQkq6SsWHA0bjURht/KrLW55ayOGgqRVJwsGHyXWiDRNlqsd+
- amOZ19WthXPxwHcB0Co0/h6OeyqLj0VxE8xxy8L1CjDT2wVlaJzdyGfY9MpTpbkyJtrlj6nOVEw
- zF6jJu1RGvIdAivSuvw==
-X-Proofpoint-ORIG-GUID: KN_9cFbh7Mn83eu_7q_B0fbCkfT6e5SD
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA5MDA0NiBTYWx0ZWRfX0FZDgQGO+LzU
- hxnOu2smSXT1qxFYSSnW2X7s1mm3RoMov52G+dNzw4SZLqkjpLFMoYM9hFn9BFrvEBtNYdEo813
- TNQeiXTP/vh79OMxC0uxmmzxb9nJlaM=
-X-Authority-Analysis: v=2.4 cv=euZKXYpX c=1 sm=1 tr=0 ts=6af1b65f cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=J+M/fwnS c=1 sm=1 tr=0 ts=6af1bed9 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=3WwxFDiQG7SU9cBGjFoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: KN_9cFbh7Mn83eu_7q_B0fbCkfT6e5SD
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=pGLkceISAAAA:8
+ a=MGMQWwHRxuE3iItJiNIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA5MDA0OCBTYWx0ZWRfX5BjHtSlLwIWk
+ VEjOYNO5uMgmvrdxkyVrvQJ7aDCRSOhbiN5CA5oKC0bpU2O+siO2aHy8hjsopmTEbCnLMPD5Otr
+ kgoqfPcm+e1QUg0yIpFTHInOIAjsDQOD6x9FfJcqkSl0bZI2IJAk2f3mEBissh2wt9uLcfZJHna
+ JvFja5C0UB8km5PZRREj0txU9M8rydZTrUi5zpvYVBD8dSTiZxeMNfzwX+jYmzXcoJKGCVYdKyt
+ tUrjcmzfSxO9pb25o8u28vMorw0olY/sqeUf2Y/U4tX8o2T3PCosxnIW2ZE/OTrAvoUIGX6o8Ur
+ 370uNunIftqRYkMxyq7PUliptwIFu3aJhbGUGQ/HA4lpPlAi9Z4tw/stDO0ekmZrZ87zXSWHZT+
+ yh37/rdRtZKyiCh0UWjDAKQRU9WPE/XAlUaWWDfFwaO0Vnx399LNiXkpHWMocQvvGuWKwgik3hf
+ VNUmYG4hpFaOkk1UAJQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA5MDA0OCBTYWx0ZWRfX9wRkrOhZw+yU
+ yD5VzBkW+s70LodyExEuv6RNKfHbNcBjgCjzOmsrLl9DYmeR609ZR/S9fuCclc95sMNrQJLwgVx
+ Eq4AWIrD2iMOW8yoC/6UDZfnNmvYey8=
+X-Proofpoint-GUID: 7PHhsw1CXkWbchPBwpBLaSAEodvwuPfj
+X-Proofpoint-ORIG-GUID: HbA3pKVglMtZK2G6Mk2_WubN5R9GxW8m
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-09_04,2026-11-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 clxscore=1015 suspectscore=0 spamscore=0 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 impostorscore=0 adultscore=0 malwarescore=0
+ lowpriorityscore=0 phishscore=0 bulkscore=0 adultscore=0 suspectscore=0
+ malwarescore=0 clxscore=1015 priorityscore=1501 impostorscore=0 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611090046
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611090048
 
-
-Am 05.11.26 um 14:46 schrieb Steffen Eiden:
-> The CPP include guard of insn-common-asm.h is ineffective when the file
-> is read via a gas-level .include from inline asm. The assembler ignores
-> all '#' lines, so every .include redefines GR_NUM/VX_NUM and fails with
-> "Macro was already defined" if a translation unit emits more than one
-> such include. This is not the case right now but may lead to future
-> build issues.
+Am 06.11.26 um 20:10 schrieb Yuho Choi:
+> vfio_ccw_dma_unmap() is the DMA invalidation callback, which must unpin
+> the pages covering the range before it returns.  It calls
+> vfio_ccw_mdev_reset(), which raises a CLOSE event.
 > 
-> Add a header 'asm/insn-common-asm-emit.h' that can be used by C/H files
-> which want to emit those macros. The header guards the GAS include to
-> prevent multiple includes in one compilation unit.
+> On the normal path fsm_close() calls cp_free() itself, so the pages are
+> unpinned synchronously.  But if the subchannel cannot be disabled or
+> quiesced, fsm_close() falls through to a NOT_OPER event.  Since commit
+> 0c11f61a876e ("s390/vfio_ccw: Move cp cleanup out of not operational"),
+> fsm_notoper() only queues notoper_work, which is where cp_free() then
+> runs.  That commit flushes the work in vfio_ccw_mdev_close_device() and
+> vfio_ccw_mdev_release_dev(), but nothing waits for it on the reset
+> path, so the callback returns with the pages still pinned.
 > 
-> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
-> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
-> Changes in v2:
-> - Use a separate -emit header and CPP Guards to guard the asm .include.
->    (Andreas)
-> - Link to v1: https://lore.kernel.org/r/20261102-insn-v1-1-df048a0be0d5@linux.ibm.com
+> Because notoper_work runs asynchronously, vfio_dma_do_unmap() can exhaust
+> its 10 retries before cp_free() completes, hitting BUG_ON(++retries > 10)
+> and taking the host down.  A further CLOSE cannot help either, as both
+> CLOSE and OPEN are fsm_nop in the NOT_OPER state.
+
+Does the the iommufd backend have the same problem?
+iopt_unmap_iova_range() keeps calling the unmap callback and gives up with
+WARN_ON(tries > 100) and -EDEADLOCK. So that path is also fixed, I guess.
+
+[..]
+
+> Fixes: 0c11f61a876e ("s390/vfio_ccw: Move cp cleanup out of not operational")
+cc stable ?
+
+> Signed-off-by: Yuho Choi <oss.patchbox@gmail.com>
 
 
-Thanks applied.
+Eric, Matt,
 
-As we need this for the 2nd series of the arm on s390 support I will take it via the kvms390
-tree and queue it for kvms390/next as the first patch on top of 7.4-rc2. So if we ever have a
-(unlikely) complex conflict we can create a topic branch pointing to that commit at any
-time.
+can you have a look?
 
-> ---
->   arch/s390/include/asm/fpu-insn.h             | 2 +-
->   arch/s390/include/asm/insn-common-asm-emit.h | 8 ++++++++
->   2 files changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/include/asm/fpu-insn.h b/arch/s390/include/asm/fpu-insn.h
-> index eeb0a233d5c7..aaf1faeb3dc5 100644
-> --- a/arch/s390/include/asm/fpu-insn.h
-> +++ b/arch/s390/include/asm/fpu-insn.h
-> @@ -14,8 +14,8 @@
->   #include <linux/instrumented.h>
->   #include <linux/kmsan.h>
->   #include <asm/asm-extable.h>
-> +#include <asm/insn-common-asm-emit.h>
->   
-> -asm(".include \"asm/insn-common-asm.h\"\n");
->   asm(".include \"asm/fpu-insn-asm.h\"\n");
->   
->   /*
-> diff --git a/arch/s390/include/asm/insn-common-asm-emit.h b/arch/s390/include/asm/insn-common-asm-emit.h
-> new file mode 100644
-> index 000000000000..26a31e8439bf
-> --- /dev/null
-> +++ b/arch/s390/include/asm/insn-common-asm-emit.h
-> @@ -0,0 +1,8 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +
-> +#ifndef __ASM_S390_INSN_COMMON_ASM_EMIT_H
-> +#define __ASM_S390_INSN_COMMON_ASM_EMIT_H
-> +
-> +asm(".include \"asm/insn-common-asm.h\"\n");
-> +
-> +#endif /* __ASM_S390_INSN_COMMON_ASM_EMIT_H */
-
+[..]
