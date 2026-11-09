@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794214446;
-	b=hSbHggpP5DFFLbHFWasoqwWsbDDPlOm3JupmaPHPEV1VEsToGMiSvv0jbED+Wgac7Ecc
-	 dgkQBt1lQjOl2QBCozceZb3vJypf415i2I2BN3O3ayxJX/RCkqomnHEG30KgMejfRExB4
-	 9KJ16HC7t0YjuJd069raEqpAPo4LAKZJzI1NaD7L1e80/MUOZj9ti/Aclw6dLkH5JzZxh
-	 P5+tmuEhumngGjCIMOci50YxMMGdPdiJ/IHvwAeel4MhuyiUhPhzlHKh9A1+AD0xjBe2d
-	 rEPizj5TGaRp9ilxhL/MrHtQ4JAU0ylLNuguXh7XbYYJG/hTm94V/Spb6cq+s7xOf8g==
+	t=1794214447;
+	b=gnE3Z1sjmq1s1ziftyQZRySQprVwok0n66SgGN4aMPnmHye+XJw17wIocHGxCqlLjgkW
+	 5NTaKNU1qsqc+gG988KLjWfFAswfwLI+0O94V9IMSlFFgMSP3LkgXfD1BIle5ejcPdcms
+	 H/ROQ6zN4hNAkQRGRkJ1st8lxmSyHnLjTFNM86nmcuC8dON3YueuLAomDBGrymdJjUJWp
+	 5JiZ+1+Zmy+Kt+1obbDpOp9a5xuQQFArBW0rrclmRQLRZLE95QgvivtfI1D6geoTJXFgr
+	 MPmUMCd9Eg58zt3DbCGFfzI0cz//hPdSkn/6wETraTJxQl3T6OBk5FAEuR77kaoE17Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794214446;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794214447;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=5ilYqjbK73ATK9r57YmCBChej/EWWUPoZ8N1XuP8aY0=;
-	b=3l46yHDUxJ7cUCF8YERMoTboYFIVXknmYR8ZKAUhClqP7j/3q/kNoJRI/YgrXs4AeVpD
-	 oyujMbAN+UaHKgCAHrtK1ZWbr5riGzFEyu2HFt4CXLA/E7oUuGdQDREVOK8P15+Sa/Eyx
-	 PJwNWHEDPkMX/g9jrdazHbD0Kh2FB4Nx+X3tN6VEKyj459RxN1BfGoaaEg1ROfQ+aeSoz
-	 L1PWKTMjHpioMjzoKX5XzdQR14eUbmLLwAUk2TwQGdM7knbFyjBde3qmAAdrwZjxK3dfm
-	 9Zgri0RfobXdszwlZC+bofeQUOzz42e3jC3nW1pZYJgmBpUPhJEDE5p0HT2OX4deNfA==
+	bh=vR1olQr3gx61I70QZnywwJX0hSxe3bJdkhC8AlNXxRk=;
+	b=wampVYOUkKsze4Jnh1RaME/vdokw3An83FpQ3u1FiUe1wym6Qi46QR4J3q8XCY+nZe1o
+	 vYj8BI24tYADb0/0BAJ4SR85h0vv53JYkP33rUI4U8GxzSJagWz1Kgl0ZG0t+Oa8ljGBo
+	 rXsT4LC1FgmJF2qs23bolU4QSP9QfE8pCMfSgp8lYkaG8Mb7OXS/WCSf7kdB/ORHqVEbA
+	 o1h0nvcxXX1HB/1Y2hbJbKH1FG6ckEEKPAn7d3vUwBSGdpoGgz+5vDR3MVnsm81LpB6eY
+	 0Vx//slW7CMe1MNUekVSTQWwQdB5rdJeUxp8xv9nHKhnlUfsF6AzD1v5Yri53fF/mNA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ffKfjFnP;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dvWzg1hL;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 981A9606A334
-	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 08:54:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE1A606D805
+	for <linux-s390@vger.kernel.org>; Mon,  9 Nov 2026 08:54:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ffKfjFnP
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE3801F0089F;
-	Mon,  9 Nov 2026 08:54:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dvWzg1hL
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33391F008A1;
+	Mon,  9 Nov 2026 08:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794214446;
-	bh=5ilYqjbK73ATK9r57YmCBChej/EWWUPoZ8N1XuP8aY0=;
+	s=k20260515; t=1794214447;
+	bh=vR1olQr3gx61I70QZnywwJX0hSxe3bJdkhC8AlNXxRk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ffKfjFnP6T8LzzVkfYShW8vE3gcuixYtQ/nsJDM2yXZUrPYarWye0O8u4r0tsI2By
-	 3CEpc1Zdr9DMpi80juUlB1eONVTjv3oI/XhDf/5NTreiOip/Az5jUJ+/RCHPbbUR29
-	 eNWRdLe02XCp65cuOhqXuMBjRT92je6Rq4HN7TgRVlVIE1LZoFU8UsM91BMhL3Nu91
-	 7IxpBDZyVG+9Oh448VUyTsLhgP7XIKp50Vm0gxkhc75Q2VlHKhDYZpNbkzJUobdhhw
-	 eko565aFOPHmo9Jf63vDC5P1tT+wgU9AkEn3M94zHbhP5USMAVKBtTqDwUl9/CegN4
-	 ynAwo671TjOuw==
-Message-ID: <sashiko-outbox-204631@kernel.org>
+	b=dvWzg1hL7BgKmuIJn1pXbzHA/oUxdazH9awH+f6Kq2rspr2DnmXI+vGdnbLWJqtqI
+	 4r2ckA1wP5XQzCv2WrUveEKlGCVLtXzj7mizbrrYfd1Z6TGjzR8E87hQHi89WR9Kq5
+	 tUapFwtiAJPkKX0hk83B/vzs6Ce/WK3tthUD0Poa5ScIgqCh6EsYHAy5hwQRlQjBEQ
+	 EZZDhqrtmfRxrxoxi/KJhYOEaKbG8BhJvdrkY3SFeORB9oUaGSxyBDFJgJeSEqBEZs
+	 cwC7VSlN02x7NlPHk7lNekOUwlxR+9wX24dBYOY1TM805TAvO+JTbOwf4jkCily2jd
+	 yPlXYiUiGEPYg==
+Message-ID: <sashiko-outbox-204632@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/5] s390/vmlogrdr: Replace get_zeroed_page() with
+Subject: Re: [PATCH 4/5] s390/uvdevice: Replace get_zeroed_page() with
  kzalloc()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261108-s390-char-ready-v1-3-3db507722530@kernel.org>
+In-Reply-To: <20261108-s390-char-ready-v1-4-3db507722530@kernel.org>
 References: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
- <20261108-s390-char-ready-v1-3-3db507722530@kernel.org>
+ <20261108-s390-char-ready-v1-4-3db507722530@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 09 Nov 2026 08:54:05 +0000
+Date: Mon, 09 Nov 2026 08:54:06 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,11 +63,11 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> vmlogrdr_init() allocates the buffers used to receive z/VM system
-> service records via IUCV.
+> uvio_list_secrets() allocates the buffer that receives the list of
+> secrets returned by the Ultravisor.
 >=20
-> These buffers can be allocated with kmalloc() as there's nothing special
-> about them to go directly to the page allocator.
+> This buffer can be allocated with kmalloc() as there's nothing special
+> about it to go directly to the page allocator.
 >=20
 > kmalloc() provides a better API that does not require ugly casts and
 > kfree() does not need to know the size of the freed object.
@@ -90,5 +90,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261108-s390-char-=
-ready-v1-0-3db507722530@kernel.org?part=3D3
+ready-v1-0-3db507722530@kernel.org?part=3D4
 
