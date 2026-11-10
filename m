@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794302384;
-	b=Q1HX1rX2nv/SRS1hrRZ8ePxHXR7iCcUNg6j4irydAM1zop4O7bkz18dyUrGbRT/oGPWq
-	 w9kwzfHYFaQ2UBBtaIo7bpOQA6CzH9cq89BTMYrTX5818kx+Kl/WlVJo2cNE8fE0BPn1u
-	 Mawm+Zl4ZHKpaLGnIIS51VlGogmKGHbQjfrekqxYNUE+ofixthvRPFeiAzIAAzYTSpbx3
-	 6Rox1CMcF8A9YmITkzL5OIniVrLHKbCGQWtXLYoolgEF3hOKiJ5t+yoMtHNXXRt1xQl8s
-	 9V+dES8yupV6N1tJgjp11CoKfyB35GSM2wCs/rhJQHWeFVeWGZFBCiAc7ekwRizR2yg==
+	t=1794302397;
+	b=UuCmnP1qjKwpPs+oV46MMbBbBFaojimi2zt3qX2+5V4KLen2M9rD6z6b0XbueOw1A8zT
+	 9/LutZ5J59UnqQNMTyZrwXQCO/y18f3zR6XiQ9mjE+M3Bp/gY4Zclg6qsxRY+5jND0Psa
+	 UWoSLytVmpSmqMudrFEkn5+wE+0ntjoRrAtaPjD7pHmX9k1Zk52FGLSWswLBvmp0NNSK6
+	 2CQC5yCNZMXcX/xKvhBdW2hU73KSX5eC/0FwTK04Vwj8i9Aa4fIiNXcV7tzYNwaIndSY4
+	 WSNBF7b0jXriarJ6/mz9+DE1gtQgf9oMD1BqzwQww/4d/rQb7bPE9U5fZ1pONezoZTQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794302384;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302397;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=XL0wpOwuozhlRhYNz0JipJ6kxKX4QenBWX0X6ItK/K0=;
-	b=G4lz9Z/g06jFQOA6o4jPhTZKKphi1279MzBfsL3xSdzuU03Fmex9PwQNFch6R/e+B9xa
-	 W3JgHtvxsNBL0r29uc0sXcdOkHSOQMsIi6iYjBLMO+stw+unjgzHHhVWe5EdZvyKphmJV
-	 kYJP2ov+akaeBI5isL9nVF60sJPJK8VOogqVPpX4q49oQN2yDOLPZAfmzBl3NBTJhv+3E
-	 4iLXolmI2Jts7H8Rj/4OQ3gXgmhKEY4bzJjc9edAp/QGTsYE7vqar51qwdqH57BYX6X1A
-	 NdeQEOrbokYlEKXTy6H5NS9HKf+6f/kF+altIwePEWlXNm+es/A/dG9W31ZRdLrNEGA==
+	bh=qJiFf9w4hToXcclP9ppmON8B46ZerQobJ1F8sM9X2a8=;
+	b=Un35AGctUTmNLtwz27i+LwRjeQIprcH0Qnm4/FSiZ/smd3gySMZY9ucAZCgoWaY/b59Q
+	 ue5zqdtsVaMEVeCmTgfzU5Ql4Ppj21qtAlfcHxSOATWJhENkToBAByfyREJd4gR5tHKjs
+	 nhwVOVtsQOxViupPUsDdA79ih/yNSwy9RapJjikmM+t4SRNmVj1ll/iPIm/JkDh5vcYMN
+	 GYct2xyHvo67qB4ynduSa/2/IvARcLoYPBgItu5rugLMWHAhplyeKUnrCfhsuWmYq1iJs
+	 a1982/0/nqkOB0Lr4iZofuUSfLgJ5eKtgwcUUVgZoOw/LPUvhhS7n6VCk/jgxLf/RAQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CT+iOXhf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YSj0RR1a;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE21F6079C26;
-	Tue, 10 Nov 2026 09:19:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E6DB607B02E;
+	Tue, 10 Nov 2026 09:19:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CT+iOXhf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E32A91F008A4;
-	Tue, 10 Nov 2026 09:19:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YSj0RR1a
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F39D1F008A1;
+	Tue, 10 Nov 2026 09:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302383;
-	bh=XL0wpOwuozhlRhYNz0JipJ6kxKX4QenBWX0X6ItK/K0=;
+	s=k20260515; t=1794302396;
+	bh=qJiFf9w4hToXcclP9ppmON8B46ZerQobJ1F8sM9X2a8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=CT+iOXhfdXS9EjWhCPxyMwbc6qpk2mfT/FYG65nH7AnMeSTgDu4gtnvPph9s+gyJQ
-	 ZvCsMu20agRk/DN1s3jOLTDIaiE9C33mbBH7UBmpmq1UA5VoUIzICSYA9Tg4ndMgTH
-	 NUHn4RW/Rt1Efr1DcrgvT2Czb0YSTQrx0YgABhREHnhLrge2ohMdRAEXc8ARjQ95GB
-	 N91PcDylNuNGgoO+A1oWCOdoVMTmydTR6bkBvDN7xjUC6o/rf57lsPcqiLH9lVYbog
-	 fqTRi61Xug5bUX+nw+zLWjcrBruwnR9lQKJTUUtPpS/C/b7PBRlfrij5xhG51EYia0
-	 M4TkDbL2tSeqg==
+	b=YSj0RR1aG6qNPyxHpaLvknjLVj91ILD+92zWFulNcS/9GzuRoaQHatZawU0nYbR8y
+	 wus7ohgAGQBai1txsuKrJnXmIbOHGPu8ofJJf/FVDtHI8ClyJKzU7qfsjBbW0aZ+ce
+	 zWv3AeSLtwvY+Mjd5A9NqJjMByywMDui/mH5eL6dgY9srHxtjNOSh4WuAXPTmUK3oc
+	 rj74FmSQAg97IU/fPvixOSTy1hGHbrW8yJHlHbDd2o5Lngy9Nmbmsk6Ah2dyvn2OaD
+	 xaVAA8ELW3uvaLp+l18HV1m2/38wuA8CuBANF9a3ezWOwggIRGtvqG3gki5e2MoaKT
+	 vZL834m+QNo/A==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:49 +0100
-Subject: [PATCH RFC 33/41] fs: add file_is_pseudo()
+Date: Tue, 10 Nov 2026 10:14:51 +0100
+Subject: [PATCH RFC 35/41] zloop: refuse zone files on pseudo filesystems
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-33-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-35-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -75,56 +75,40 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1523; i=brauner@kernel.org;
- h=from:subject:message-id; bh=fWtwbOqSVGrzkIOODqoKjdbZebK5p812wmLNWmDsq10=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9erDr3MIVGoy6T1c42Fn1zN66UCnoG5vsrbwj8gcLt
- 77hOtpb11HKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRhFRGhmevWgXzbBfJf9i+
- 0PPiiVlFPwKL+Fc/UFjp/vmC/tGfMw8y/FNqqr0U8TxATPOxjuYj+fU+8bu+/uDa1s7jnDCrjX2
- /FhMA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=822; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=li+gC8cc0Mt1bD1j4gMcmL8SOHESlN2++n5Uf9tP8Fo=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9erDHcu21pTOZuhx19nwxdyrrCmUMb3503015p6SPw
+ 76FMcqxHaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABN5bMvwv9AwrjaFoTvl5SXZ
+ U7d+5SbufCNqdW372nkxojHPVJnq7Rn+R03u+RT9ITNnZY8fx/JF32OmNseuuiD0fVMyz/+nq9X
+ nMAAA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Add a helper to check whether a file is a regular file on a pseudo
-filesystem. Only regular files count. Device nodes on pseudo filesystems
-such as devpts, binderfs or the block devices on bdevfs are what they
-are.
-
-Look at the inode that actually provides the data via d_real_inode().
-overlayfs accepts sysfs, cgroup2, debugfs, tracefs, configfs and
-securityfs as lower layers and reads of such an overlayfs file are
-served by the file on the pseudo filesystem. Checking the overlayfs
-inode would miss that.
-
-No functional changes.
+zloop opens its zone files by name below the base directory but a bind
+mount can put any file there, including a procfs or sysfs file. Refuse
+files on pseudo filesystems as zone files just like loop does.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- include/linux/fs.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/block/zloop.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 99caef43ff3c..407ffb6342ec 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2553,6 +2553,18 @@ static inline const struct inode *file_user_inode(const struct file *f)
- 	return file_inode(f);
- }
+diff --git a/drivers/block/zloop.c b/drivers/block/zloop.c
+index 65634a39b0bf..dcc06dd47b04 100644
+--- a/drivers/block/zloop.c
++++ b/drivers/block/zloop.c
+@@ -1137,6 +1137,11 @@ static int zloop_init_zone(struct zloop_device *zlo, struct zloop_options *opts,
+ 		goto out_fput;
+ 	}
  
-+/*
-+ * Regular files on pseudo filesystems are kernel interfaces and must not be
-+ * used as storage. Look through stacking filesystems at the inode that
-+ * provides the data.
-+ */
-+static inline bool file_is_pseudo(const struct file *file)
-+{
-+	const struct inode *inode = d_real_inode(file->f_path.dentry);
++	if (file_is_pseudo(zone->file)) {
++		ret = -EINVAL;
++		goto out_fput;
++	}
 +
-+	return S_ISREG(inode->i_mode) && (inode->i_sb->s_iflags & SB_I_PSEUDO);
-+}
-+
- static inline struct file *file_clone_open(struct file *file)
- {
- 	return dentry_open(&file->f_path, file->f_flags, file->f_cred);
+ 	if (zlo->block_size) {
+ 		ret = zloop_get_block_size(zlo, zone);
+ 		if (ret)
 
 -- 
 2.53.0
