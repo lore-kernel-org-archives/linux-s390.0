@@ -1,111 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794289195;
-	b=H+P3YbLktk7QT1ievK5F90kqDmdvItd5QTrkX7Wbw7LhOBuByQi5iLHYIAT7WgCR6p/E
-	 7sMIKho4C+iw5jyWeCFVUg8kxxjpGPlGDTCmDRJSFPjItQIKzfdFwTiBR9o2RhIOPmE6S
-	 ImyxXZM2pH6SY0V6rmQ1+uHcMSSFQ0UqUldfuuD0NNMnuuIlT9T397/RMu3p4VB0QKD8f
-	 5Z9i0ElC65zzkfdEBeSzk99Q0o09M/GLd7lgU/THHJ0fOmb7GND01YEpM6c9ZO80hpWoB
-	 WnpVDxmyF1jhX8ktjotB4QfHkjfBfx6KTKuiDedHkWipkzoKVWGd+N92mlqbHuNHs4g==
+	t=1794290000;
+	b=KKxBg+BwNx0M0ohQrO6dQb8xcsiPEy+WnGx1P58xzWrbS9rTpCv0IpWMiI7Xb/qtBl/O
+	 aex8ySMgJBfoKRwzco4xgxNaCRhnfV7x2tVVNCOOLzpw9PPoyeI/mq5RUB4DkShpgTwqq
+	 2wXIQQdWybTHl5NJA/HKnJtzMeV3EELcZHGAMTjDDM0smdG4JPaqDkS0ak7NCSZjktqAK
+	 petx8+iwx5eSIyaHdvBwa3G4KUrddmtJFEXK1PR7W7JUQh6GN8Ya88XDIj87ezvpm3Fb+
+	 Oz5zaFoyJTfCud03FYLS+1es11nFONjW0w+Pc2HDiic1YEi4M7nqpOyyHAkH6xMB0yg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794289195;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=Y4IpnFVFMm5fXSXAtzV8xsgRv9+hQP6OGl0+r2a9VT0=;
-	b=EJCfo4ZhmBKpdTjq3b2U/LJ08fJpFMBZnySN0OWHtgArvIQd3y0kJ9Rq4vx/caeCmoUN
-	 GPqmKjpZWjbFpeclSXh2RhDOnnRTWUDWLs42u+bXxqcHV9zhDQ1M/d/jY8xN+jzwtVfex
-	 YSn/0vtDY2RTGPxLMGtp30Cj8lbeQizo+C3g5EIP+NmeILyXLOJ9w84tl7x1i0IyfxkAw
-	 Wy+Y9E8Gl8Au+9oB9ggAeHyoUtPxuqoKdYDU35syH9t6zErT/Z56QNfF3YqzCGrnm42XG
-	 Bz/P1Rn/EsctL7l382H+CdvST+2Nt7OBYwEOSK/vPvXuiXQvbsaNIO+RTOrvu0ldUeQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794290000;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=Z89xSOnIYbQe/BnbwEDddihQE8DlZZ6KBDFpfIcDInE=;
+	b=E7UQK56IF1CRdYnM2A0egTNzONHiwrTEYb/J6XQh6yb2v1c21FpFqQOCJDCk2+8v3r+a
+	 FvKz52ZgaUti7bWWjlPDdPb+XgUGk4AK76Pb0HHzpWloyoy9O23yWSbA4IZ9FH3HoM/I9
+	 ozc+JlLeSySpIdK4OcjKMFzVrpM4CK19kR5OPA6rxvmFL+7hQiB0YQfi3Sc/6McOphzv9
+	 FEWjL6vDdjl66HfnMmkUE2oId1VlrDEtu7YNmgf7Gc6U2jSrUN/lWN8yr2JZk+tm5lYKB
+	 GSoRvT0VMQkdZp8rVJ9dewMn4elK2VtfmH05Qp9KyysnkbpKBv+RIadgnm53ZsMd57Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chromium.org;
-	spf=pass smtp.mailfrom=chromium.org;
-	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=nYCjfLCg;
-	arc=none smtp.remote-ip=209.85.216.42
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lyQ9UJ+R;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E79C4606A330
-	for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2026 05:39:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E79C4606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C70C2606A33D;
+	Tue, 10 Nov 2026 05:53:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=nYCjfLCg
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-3ad787e0593so924263a91.3
-        for <linux-s390@vger.kernel.org>; Mon, 09 Nov 2026 21:39:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1794289194; x=1794893994; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Y4IpnFVFMm5fXSXAtzV8xsgRv9+hQP6OGl0+r2a9VT0=;
-        b=nYCjfLCguMBjFt7Df/pwcAS/GPhBqgvi5e16XKr+oU3FTl4s7XEOa/w4lwVhENYNEy
-         6HUfXInt0Qich4WYX2Rx0OD0rQnYQrTfrGD4byFmAPHBXNocTXgLKiro4pJRUUMPvCHC
-         Ilr6Z8eXaJfgpRD2l9SSOO7VTdw3nLqZlt0Jw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794289194; x=1794893994;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Y4IpnFVFMm5fXSXAtzV8xsgRv9+hQP6OGl0+r2a9VT0=;
-        b=CZBCGQOpQLkVaLzjFe4h8Fx/rzK51NP1wwpWQBhe0XWJx37DhIScTL2+GCTpJwESlX
-         U1pBXDOWE7fEVm+j96DSwA/okMaAkJdlUTwakL3xlna/Sjjcn0vbsZm9xCCczFkFiG13
-         9kpJv3pZNL4ZrNovms4cGJ0FpskcrJCIr4S0CLBdrRLrmVdwYQUaaRRw9EKqChHb/2AP
-         mCa9hNiBCmaFntyu73qjVlOnypQYJwFxrABwmdYtbPQ1kw+zXIlfsA7sX7pXCeqnDeTW
-         VmEkr2C8svHr7Ahi+bJH4eQ6OshNopApf3TeM/P0daOTnYYkwy3SMU4VQop3yNrA2EO4
-         bqDQ==
-X-Forwarded-Encrypted: i=1; AL+hErH0i4TDkn2BmN34WGhJHrBGmYiH+57jqOK2kTt7bS9xhWJbwoL6e8xSWN3edccsZPb4KxDEz4xmFvy4@vger.kernel.org
-X-Gm-Message-State: APuU4Z9PqNeSMmmsulAvlyYr5ncfdgdxZdCBTBbIk1Dz6kIsVb0vuiUR
-	HgYcoU38W0qSerUQQScmMC2PkqLLf5fvMdSPmeE+IyCe/OCMaIEw7V17s/Ek7d1e3g==
-X-Gm-Gg: AYBFou0wlsbmakh8/etP1C2Y4s8BOhe3DBl6M9qSHm/SNOAokgkg9MgoCFI3qcskY55
-	m3VjlEPcVMppN046RsOLg+znwebAHYfZLULDQfpJewMR97pyBi5fv9q5++oNIg3u1op/pHS6/RW
-	SQ8zr8VAjbYndCNxqRBgJAon/ML9cLvwUGf/PTuN1ZlCQUWUqC3jg6oX6Hnxt42lnf71BUFb+xf
-	09kb11o/Fz+rk3JA374phv09wslfX/ulC0eAA+s+4j0X9F70bn4P8gj0iQ9l+4gOxB3Qx+KRPpR
-	E+KMsFZz98vy7F4yGQK3A2tfgG0ftZy1UrW4jSQ5KTcf9ppU/H+UFyTjtGwZvmA0tQB+wlkbVvW
-	LIskLAaaZhneAPrtVZHcOFavai7xXIVYgWvJSY4gO0uSK4KmoQGhNPFAWSrGQD+OzpIqU6/EsDY
-	Vt1zbd3nynxHYlnLnbrtF54RuizShDIb5W0BaXSy4U/Tlixz1Q59AcCgt/1qQfa1ZB4j70uzasG
-	9wZOaG90LjGHiPOKL36a1O0et6r+XjLEoaQfAoYcdcHnHIXwBG7IwX6YQqmaJHVApkpqoJqwkPB
-	XwGnn/C1vjqBBe8bMWjDOhllb5VdFYrjVSrIinXvKDsXyzk19uVY7KlULxcMhF+ozLV0ar3TSlC
-	EXCpGC4RR+GmHGJA=
-X-Received: by 2002:a17:90b:380f:b0:3ac:9599:a689 with SMTP id 98e67ed59e1d1-3b166d02addmr1882552a91.34.1794289194303;
-        Mon, 09 Nov 2026 21:39:54 -0800 (PST)
-Received: from google.com ([2a00:79e0:2031:6:e137:9384:7cd8:6e40])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b168ff86e7sm1041404a91.2.2026.11.09.21.39.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 21:39:53 -0800 (PST)
-Date: Tue, 10 Nov 2026 14:39:43 +0900
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Michal Wilczynski <m.wilczynski@samsung.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Minchan Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Jens Axboe <axboe@kernel.dk>, Andrew Morton <akpm@linux-foundation.org>, 
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, 
-	Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
-	Jaegeuk Kim <jaegeuk@kernel.org>, Eric Biggers <ebiggers@kernel.org>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, David Laight <david.laight.linux@gmail.com>, 
-	Sungguk <sungguk.na@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
-	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 13/15] lib/lz4: switch the decompressor to the
- vendored sources
-Message-ID: <avKtyCOOmK3AH0xy@google.com>
-References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
- <CGME20261106144310eucas1p1d60fe5c2e0170c49f38a3142bb1d8f94@eucas1p1.samsung.com>
- <20261106-lz4-vendor-upstream-v2-13-ee04c3f0d7dc@samsung.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lyQ9UJ+R
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FC11F008A1;
+	Tue, 10 Nov 2026 05:53:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794289999;
+	bh=Z89xSOnIYbQe/BnbwEDddihQE8DlZZ6KBDFpfIcDInE=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=lyQ9UJ+RnJfZYHoAs6Z6tYh7JPfwTK3ToP1JPzFXHVxRoGly7DdXrxmH8BkTgETl/
+	 Obeh0mUbgS/9wHFArLQHNJbDUBgCKXQSlvTaWY79Ji4XmGotyU05XuFkzwhC4WBCzj
+	 +9+UuLPufHMh9G0g5ohqhboSCWLSpUGD7a+jna9Fs/VkP+pzpv5mAlQUTLJJFd4I+q
+	 e8dDiUk75aoT2UJ9hFCSJWvRtlwGTmKa8naEaX8es02v59SLHeqnzJq9+z6rhjZ5wq
+	 k3Pv1LDYHv/WqQJZFk3Wj3opFF2+oCRjqFjIG4XzRUq5ucUrD7lUfqbJ+GtqEZNDS1
+	 wzIkaWWQN7pGw==
+Subject:
+ Re: [PATCH net-next 01/14] ipv4: annotate data-races around ip_rt_* sysctls
+From: netdev-bot+sashiko@kernel.org
+To: jiayuan.chen@linux.dev
+Cc: netdev@vger.kernel.org, dsahern@kernel.org, idosch@nvidia.com,
+ davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, pablo@netfilter.org, fw@strlen.de, phil@nwl.cc,
+ razor@blackwall.org, paul@paul-moore.com, matttbe@kernel.org,
+ martineau@kernel.org, geliang@kernel.org, ja@ssi.bg, achender@kernel.org,
+ marcelo.leitner@gmail.com, lucien.xin@gmail.com, alibuda@linux.alibaba.com,
+ dust.li@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev,
+ linux-security-module@vger.kernel.org, mptcp@lists.linux.dev,
+ lvs-devel@vger.kernel.org, linux-rdma@vger.kernel.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-s390@vger.kernel.org
+Date: Tue, 10 Nov 2026 05:53:17 +0000
+Message-ID: <179428999715.994134.14310277652030711794@kernel.org>
+In-Reply-To: <20261109025425.328445-2-jiayuan.chen@linux.dev>
+References: <20261109025425.328445-2-jiayuan.chen@linux.dev>
+X-sashiko-severity: Low
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -115,39 +74,90 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261106-lz4-vendor-upstream-v2-13-ee04c3f0d7dc@samsung.com>
 
-On (26/11/06 15:42), Michal Wilczynski wrote:
-[..]
-> diff --git a/drivers/block/zram/backend_lz4.c b/drivers/block/zram/backend_lz4.c
-> index 50265e3ce256490994cb6dae32a45da376e408e0..b9b8a5f678c155442fa3fd2c1984e45182e6fc38 100644
-> --- a/drivers/block/zram/backend_lz4.c
-> +++ b/drivers/block/zram/backend_lz4.c
-> @@ -84,7 +84,7 @@ static int lz4_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
->  		if (!zctx->mem)
->  			goto error;
->  	} else {
-> -		zctx->dstrm = kzalloc_obj(*zctx->dstrm);
-> +		zctx->dstrm = kzalloc(LZ4_MEM_DECOMPRESS, GFP_KERNEL);
->  		if (!zctx->dstrm)
->  			goto error;
+Thank you for your contribution! Sashiko AI review found more severe
+issue(s) in other patches of this series. This mail is only an FYI, in case
+you want to address the nit picks below when you respin.
+
+Low priority / nit picks for your consideration:
+
+- [Low] In __ip_rt_update_pmtu() (net/ipv4/route.c), the patch adds two
+  separate READ_ONCE() loads of net->ipv4.ip_rt_min_pmtu.
+
+--
+
+ipv4: annotate data-races around ip_rt_* sysctls
+
+This adds READ_ONCE() to the lockless readers of several ip_rt_* route
+sysctls in net/ipv4/route.c. Their sysctl handlers write them with
+WRITE_ONCE(). The change was prompted by a KCSAN report on
+net.ipv4.route.min_adv_mss in ipv4_default_advmss().
+
+> diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+> index d0a5f6d77094c..83f49b2d4c36a 100644
+> --- a/net/ipv4/route.c
+> +++ b/net/ipv4/route.c
+
+[ ... ]
+
+> @@ -1063,14 +1066,14 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
 >  
-> diff --git a/drivers/block/zram/backend_lz4hc.c b/drivers/block/zram/backend_lz4hc.c
-> index e7ee3740219852f079d1e0866da6b213a3f3a583..1e09c93016264259c149e2913b2819571b56fab6 100644
-> --- a/drivers/block/zram/backend_lz4hc.c
-> +++ b/drivers/block/zram/backend_lz4hc.c
-> @@ -65,7 +65,7 @@ static int lz4hc_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
->  		if (!zctx->mem)
->  			goto error;
->  	} else {
-> -		zctx->dstrm = kzalloc_obj(*zctx->dstrm);
-> +		zctx->dstrm = kzalloc(LZ4_MEM_DECOMPRESS, GFP_KERNEL);
->  		if (!zctx->dstrm)
->  			goto error;
+>  	rcu_read_lock();
+>  	net = dst_dev_net_rcu(dst);
+> -	if (mtu < net->ipv4.ip_rt_min_pmtu) {
+> +	if (mtu < READ_ONCE(net->ipv4.ip_rt_min_pmtu)) {
+>  		lock = true;
+> -		mtu = min(old_mtu, net->ipv4.ip_rt_min_pmtu);
+> +		mtu = min(old_mtu, READ_ONCE(net->ipv4.ip_rt_min_pmtu));
 
-Ditto, outdated zram code.
+[Severity: Low]
+READ_ONCE() is volatile, so __ip_rt_update_pmtu() now always does two
+separate loads of ip_rt_min_pmtu. If net.ipv4.route.min_pmtu is written
+between them, can the check and the clamp see different values?
 
-My ask would be to not squash zram changes with lz4 changes, when (iff)
-possible.
+For example, take old_mtu=1500 and an ICMP FRAG_NEEDED carrying mtu=300:
+
+  first load sees min_pmtu=552   -> lock = true
+  sysctl write sets min_pmtu=68  (accepted, extra1 is ip_min_valid_pmtu)
+  second load sees 68            -> mtu = min(1500, 68) = 68
+
+update_or_create_fnhe() would then store pmtu=68 with fnhe_mtu_locked set,
+and it stays that way for ip_rt_mtu_expires. The old setting would give
+552 locked, and the new setting would give 300 unlocked.
+
+Before this patch, the compiler could merge the two plain loads into one.
+Only a privileged writer can trigger this, because min_pmtu is not exported
+to netns owned by non-init user namespaces. Later patches in the series
+don't seem to change this.
+
+Could the value be read once into a local? This patch already does that
+in ip_error() with burst and cost.
+
+A smaller case of the same pattern affects ip_rt_mtu_expires in the same
+function. It is re-read for the freshness check:
+
+	    time_before(jiffies, READ_ONCE(dst->expires) -
+				 READ_ONCE(net->ipv4.ip_rt_mtu_expires) / 2))
+
+It is read again for each nexthop in the multipath loop, and once more for
+the single-path update_or_create_fnhe() call. Could nexthops updated in
+one call get different expiries?
+
+ip_rt_redirect_number is also read twice in ip_rt_send_redirect():
+
+	if (peer->n_redirects >= READ_ONCE(ip_rt_redirect_number)) {
+	...
+		    peer->n_redirects == READ_ONCE(ip_rt_redirect_number))
+
+The second read only gates the "ignores redirects" warning, so there the
+only effect is on logging. Should these be loaded into locals once as
+well?
+
+>  	}
+>  
+>  	if (rt->rt_pmtu == mtu && !lock &&
+
+[ ... ]
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261109025425.328445-1-jiayuan.chen%40linux.dev
