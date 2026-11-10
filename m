@@ -1,49 +1,84 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794334985;
-	b=f3qZ54GbB4hkrPNNhTtgrykZhzsyaUIjL93Sbe91SE2Lm7kFZjHiAt9oxdAKUbZQDBju
-	 d0fgqVvl2OrC8u1vwl1MR8lVDo2m3f0kZ1XiOLodxjK4SHxQohvVVFMlfpnw18CTjgnYg
-	 2OZMppfwfI8g0Jsuh1SlGykYYfdHuy6JH1cNk0R66PSBqDSZBiiozpkfbq5v7ajvFEUXl
-	 mKOQDEMoTIjfc1oD1yIea4k5SIjb4jNJFD14ZVB+PN/qVZJcsmACBgpIsw8/pxPqG9+zH
-	 ProUbfEkFDvG/b8qYVr079GTh/CpF6F1qJ+8O/FjAD8PGCX3NsWFLI1+BxglLCYbXkw==
+	t=1794343565;
+	b=HNsC/vjJBuB5u/YK1G2yiqB2RKoFSadg3+fEXWHpxKyVV+t3ZMJlnzs3cuBbSaVwbkFi
+	 /QUt6or7HXVdMYUwrMAUZmBIpy7q7xyR4+u3E/zreORvVooq+tQdV8OmGcMIOybHw7SkY
+	 mEkd1VNBxmJw66WC+0IkwA4LsSs+nMyZyLW59wEelZz5VTKD7uC2KALCBSuPU0MC94vlx
+	 jTmrQqrd2xg8AePF0QrE49nK3ufouENS3Usdy1iZn3hAHyJ1AHx+BOSLYfm5yXeYDL4pN
+	 2xX2SrSe58Pdm+uuRkZH1tKAssOPEN6XT6ijayhuSckHrwKT9QgohBCqQfqFFmBNtqQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794334985;
-	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
-	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc;
-	bh=Lf1UOrn/59SxIWJYDfgHXSK5KpB9ctjHjG/DWAiJt/Q=;
-	b=xZfFAQpdjmAioaXaZX55Je2lZKZHcZjvjE+EKLHDe+/GLptiLP2M4D6mK+EM5AsB5xFO
-	 f0TFUcL8UL+S+Z0eFWN3lEzfNIeOwGtOSuZBaHJoqM6wjkQt8Sn9xhNlyS424WpHXfWLW
-	 pUmE/jVSppJyuNoRpocFuLbEkH8+RtH3PEjzzr1kmZ0/sGIuCDXfq1kbmbDLTBM5p9nC8
-	 PygzR4iZAQa+VEeAjTwcXjzFmbx5FlCvzh2U0A4IY+IObJKdeshZW4Tvo5X3+OC4qrLN5
-	 JPYjoZ/7DZlYg4qxARQxclaxIgJhhO0RbXeTXuVsUeXSB3u58qGJf6FYjm88K5V/Vbg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794343565;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 Mail-Followup-To:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=rMRPONQOYjAF9HKKBayLjA2YuezRW4mL6HNg3dL1nlo=;
+	b=KVq5pWAZaN9ymIusfsctj4IF8fI8xdDg0PjE3VK/9sG5Wcm23Gc3dcn8FcRTXagiFayO
+	 kVJuNT6Q1MSw9YO4wWwTIrzSjEfFIdlFSOkvE2DPzPl6Fv4Z7BpDWj/k0ykNyktmZFpIU
+	 qQKJZBpnBknfsr687Y3S7sqB5QcURQhpFxC+Bj+VjIKK1bVqMsqDQ29LCEh3H19jbYTCJ
+	 IgQK67NjD+MbALDbGYFn7/n7Mwtkm9k4/8B1h42pi5npeqDd25xsiLhUI5W3cichSML6g
+	 W3ZPwzQ99nyaUR+991RrbE4tPHjiC9LRIcu47uRTMNLMR+hXmKpmFerdwgtf1sAyD7Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y8HhYK4z;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HzRYE13j;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 415DD606A334;
-	Tue, 10 Nov 2026 18:23:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 117BB60A2603;
+	Tue, 10 Nov 2026 20:46:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y8HhYK4z
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73CA1F0089F;
-	Tue, 10 Nov 2026 18:23:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HzRYE13j
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D441F008AB;
+	Tue, 10 Nov 2026 20:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794334984;
-	bh=Lf1UOrn/59SxIWJYDfgHXSK5KpB9ctjHjG/DWAiJt/Q=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=Y8HhYK4zDpEZDWObXQcT3KRsHZMvC+iJg/MpfZXcjo97qebaSWlos5oJDL1r97pDz
-	 XuJFS3vlR19fQY/LY1n434lXSsgK5kwwJWDsMDpz5H1p/+Xl6LP1+1TOfSxc7a0z7w
-	 XXorq9CX4+QOUQq0lVsvJjjsalPiMg2Ft/q7oLpBwkwCckM7lIARLsAQADmqWGEyEh
-	 Yv9MdKIugvILWvdHBkB+lYuT8i3qsoXSqPHOsVSwhEPwxM/9OqNBks+zBwk/DbL8ci
-	 d6ws9I5yLHHmTVNqJA9ZTY7G/0zrHrku48s02O+KX+WzhosuY1agNddpixc9nxj0tE
-	 RscaQygSLHb3w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 9B16B39D608B;
-	Tue, 10 Nov 2026 18:23:04 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1794343564;
+	bh=rMRPONQOYjAF9HKKBayLjA2YuezRW4mL6HNg3dL1nlo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=HzRYE13jB8RdQv3aSy711gVTQF5aN3kmny3Bm+Tqd6DGpMnW/UdmBhwvuV3tDKwWA
+	 qBQkdAe99fCfyY4HwhHW6vpWLb11tiX1rqZm0gqSH24JDOLS4Qw49hrn6RKPLTZ5tX
+	 8yK911/kTi5YKMv0Zeg0t9hinxeSS095ez81rveTvDj3lhZIp5MNrpZ0TzLVXjAROD
+	 H+8sIgKlcwqIAFUbaPlcIA/mKF9hJXlPwet/3tzJzqABID/FKMqpm7AOyUBYjWme3C
+	 0bNu78jINjA9S3ckBH6UNePnv8GkZJATc2s+TTg1AYJLjtNo7jNr7qgY8y7Qdi6pm5
+	 ugUx9cOxV5vJQ==
+Date: Tue, 10 Nov 2026 21:45:52 +0100
+From: Gao Xiang <xiang@kernel.org>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>,
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+	linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+	driver-core@lists.linux.dev, linux-mm@kvack.org,
+	bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, apparmor@lists.ubuntu.com,
+	linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
+	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org,
+	xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-usb@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC 40/41] erofs: refuse files on pseudo filesystems as
+ backing files
+Message-ID: <avOCgJPOwRdsIxgd@MacBookPro.fritz.box>
+Mail-Followup-To: Christian Brauner <brauner@kernel.org>,
+	linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>,
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+	linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+	driver-core@lists.linux.dev, linux-mm@kvack.org,
+	bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, apparmor@lists.ubuntu.com,
+	linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
+	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org,
+	xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-usb@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
+ <20261110-work-loop-pseudo-v1-40-4c998976c6c7@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -53,50 +88,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v15] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <179433498318.4118637.3265445978564570852.git-patchwork-notify@kernel.org>
-Date: Tue, 10 Nov 2026 18:23:03 +0000
-References: <20261102083122.1098393-1-mjambigi@linux.ibm.com>
-In-Reply-To: <20261102083122.1098393-1-mjambigi@linux.ibm.com>
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261110-work-loop-pseudo-v1-40-4c998976c6c7@kernel.org>
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Mon,  2 Nov 2026 09:31:22 +0100 you wrote:
-> The diag dump walks the socket hash table under a read_lock and
-> dereferences conn->lgr and conn->lnk. Several paths expose a window
-> where a hashed socket has freed or partially freed conn/lgr/lnk state.
+On Tue, Nov 10, 2026 at 10:14:56AM +0100, Christian Brauner wrote:
+> File-backed mounts take any regular file as the image and the same goes
+> for the extra devices of such a mount. erofs reads them with the
+> credentials of the mounter so this doesn't hand out anything the mounter
+> couldn't read anyway. But files on pseudo filesystems aren't images.
+> Refuse them just like loop does.
 > 
-> First, smc_conn_abort() calls smc_conn_free() during early handshake
-> aborts while the socket is still hashed in SMC_INIT, synchronously
-> freeing the lgr on the smc_lgr_cleanup_early() path without holding the
-> hash write_lock. A concurrent diag reader can load a non-NULL conn->lgr
-> and dereference it after the kfree. Skip the connection, link group and
-> DMB attributes in __smc_diag_dump() for sockets in SMC_INIT or
-> SMC_CLOSED or fallen back to TCP, and take diag_mode from an is_smcd
-> flag cached at connection creation.
-> 
-> [...]
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-Here is the summary with links:
-  - [net,v15] net/smc: fix lgr/lnk lifetime vs diag reader race
-    https://git.kernel.org/netdev/net/c/d7900fa51642
+Reviewed-by: Gao Xiang <xiang@kernel.org>
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Thanks,
+Gao Xiang
