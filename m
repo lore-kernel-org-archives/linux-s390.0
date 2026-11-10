@@ -1,48 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794302377;
-	b=XQewFAhyWEgmiPUlsPKFgB3qxxQthrOluwnTrQ2gjUWmkgkNRqAmC45p45ud2mxpmDKK
-	 x9dic9gi8U88xwhhm0XkZvng3fmMcJzYxcnNh1wwYMLeDMqkyqelgENc4SzxTxHz+cHle
-	 jQSVDemSeYZOm/Mq2nnJJnrGVGHJ2DcEFSEpLnXGPSY6rM0KdtakzLaoS7Gx+V7jYyjZP
-	 jKvObbLWFO6VdZvbqO7FvvYiwuap4WaBH3t/5gnSgJu03858rkzpBDTX9yokkLlR/mdDP
-	 15ANx70A+yI+Ygw7wnaZ9dsAEBvPyJvszVhV5b+u7NGwItL/EZ3ubJ/oGDImkmVRe1w==
+	t=1794302390;
+	b=G4KxU88QRxB5Y5CpweeGCXbJo7oyZoAZhTWAzq6lc2+OWCjfeT40PmoeI48DdoNwYSnS
+	 uL6bIxqrJP4MH3b7GfNc3OXiKYxoujkerzY8McpBh5J+4WE2X+3htVeaw/Pufwri9urw3
+	 rlOZ6TXIbZs+1dpvsPWCTIPDUC6aTTKuBAWORXJxtp0aXpVhu1sr/JR0L9fe5Lhq4vIUS
+	 ZAf1V3uJ3yQLzD2jrvSFzB65BNh2nY1zubsRmGOYRMgCpqeKA1AJppQjEywxWYOnHghA/
+	 oDyb4Ksr05Xp9Ovpr1ehMELRUTdNHFcoeEl2Wh4C8HrcsT1RHXNa4fgj4rtkj9TnKHw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794302377;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302390;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=6F6bixX9VLJl6u/N0LxDxdpy5DWNAw9MIo1FfuiWwlg=;
-	b=mbQhQCzwCgfrg3S0yMV3oxBB0FpTo5s9qmf4HA+0yCVwkqfOsPs8NjTAJoHLtSh8MFLc
-	 Rj/9dJM9ysvwLbGiYDcDfqkJ3WdWNwZy44vfrr2tVuHrmDNHUkwADgmUrLRUWfMREojrL
-	 vCKP5Tk8f6vyxGOtoTbnLnfUPvoXMxQlqSlNCgG01IPaGnjKg4OI2oxukgTgEwJb7fbeJ
-	 KiCj15z/WSPVhIc7FU7yUa4m9pXHdFgT/ULstrMJKT5eF1MWYEaXmDT8gkwPX5jC45EVB
-	 aJ6k6NofO/aXH+bcaQOlISyyRjb/pevquNbAZdx62SyCBR0uomGLgW0bDlvi5z7istQ==
+	bh=lnImahtJn5lfCdVuO4byE9DJbFXiWtZ50f1CyF0t2Q8=;
+	b=HPwask5QvCWvIR6GzDSNp3x9zLA6Fy5ccrih4VWdvbqUE1sbaZTWqxYRYy6YLAzww7wZ
+	 qw+RTUxRTeZNYJkXJuPV4w+Onps9UfH/Cpvz1f3yZt49Xi1lAElmjEYLUdCc9T2BiAY5K
+	 c1/UiKg40Kq3yfAX1BuGjsWNYFThZdhuj0IIbFZuMeUK3U+ON77b8/Z6T/ufb+ElnOo8G
+	 jd3kUqcOT46EhzPYpDe/CtI2gUOeIxTpnYbTez4w0unWznPS/mxp1I14DpSIVW1ZlcoU3
+	 IQJE2OANZS0BzKPc3b63VR7wU0WmAAcHhxCZai/Taoc31Xfu2w52l0C+U+JfJei3wag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bev5vsoQ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WqGsamIv;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033266078865;
-	Tue, 10 Nov 2026 09:19:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B944607A622;
+	Tue, 10 Nov 2026 09:19:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bev5vsoQ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F84A1F008A3;
-	Tue, 10 Nov 2026 09:19:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WqGsamIv
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3DA11F0089F;
+	Tue, 10 Nov 2026 09:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302376;
-	bh=6F6bixX9VLJl6u/N0LxDxdpy5DWNAw9MIo1FfuiWwlg=;
+	s=k20260515; t=1794302390;
+	bh=lnImahtJn5lfCdVuO4byE9DJbFXiWtZ50f1CyF0t2Q8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Bev5vsoQXMD/2z11W7fF7gnr2WOAFCcu91VLKw23i7E0hkqCe1dVrhYy0+KtPJYmF
-	 7SwxXGH2SnKEaJ3Gz1JJnuTNJfiSNXCHsVfu0NtJiKPNIwpXKj4acpNvaSgQsC1nOn
-	 v9D9W8uBh3avkK864v96nnYuhV8CQ/YD06yiqjObPD/ts1Fa3Yra+s2JNGu1CbzXmf
-	 lPoZDKOPKjIY0m0OaT8lZr1lUKx7GexmZFGHwmRV5+QIhPZ8mbIcDCb3vCEt/G7Jt7
-	 jjMDsVbCi3OviaEyzsMqCkhdh4WJddoN0LSF4ef8DVIGv0E0SDkQwiCi9hK2AdSt56
-	 Gfxo6evUdhVLw==
+	b=WqGsamIv3dtdaZQphHLu2DsjqE2y3/FcP3C64OYa+8HjMiTSq+RUo0e7SVbClrF0O
+	 Rn64RbDtjIQ3O+Vwx+jQosyxP133oDpbH9LaXZygD1MM6NsgOa8bfIBMBWinhY4voF
+	 I9LMB4dtUD9EnoSvdxBHOJx1kUnEZi+cO6zl0AnUxitmo0r0cS4AhTxoDqU/IE3/8N
+	 uJ4rAQbKeN2qr/1Nlrm7L9UeP+8U9vKXU8KBqCqhmY0R54patPnEALsIObSrmc3hKW
+	 Bz6GWE9fyD5MsVicN0uDrDB/5zSB2xN3jmDYfNnm8pkYJ/yFyaHVRy4YEgK/zJNLVt
+	 IxoVCfI/XEEcA==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:48 +0100
-Subject: [PATCH RFC 32/41] usb: gadget: gadgetfs: use fc_init_pseudo()
+Date: Tue, 10 Nov 2026 10:14:50 +0100
+Subject: [PATCH RFC 34/41] loop: refuse files on pseudo filesystems as
+ backing files
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-32-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-34-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -75,44 +76,72 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=980; i=brauner@kernel.org;
- h=from:subject:message-id; bh=HoqM8TovkVWXxEHW73GnjomtfEF10WO79IJ99ILFhZo=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9erDTyDeb75KLVcD+3CmXFA8amrwrV9AreTDj+7Lby
- 8T6ktIfdpSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAExkdS8jw7y61UWZSuzH/CUD
- K7cIZcU05XC2Bbk5/nEKXnZy8lbXBob/3nwJfl+n25nnXWg+epP78Jz1HcW8OwRzuVKbKsKnfvB
- hBAA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2497; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=chnbD225AeAwL2r22LyY9vS4RRPeXQFSJ1x6B/QmHi8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9erD71lG1GUFqk8J3zhE9HKjc6rfqomb6Dp9nHvd2b
+ viaPiNickcpC4MYF4OsmCKLQ7tJuNxynorNRpkaMHNYmUCGMHBxCsBE7v5lZPgek5sy6Z/MydVb
+ 5OSibJ/WcXMc/DFdcI1ZQY3Sv+l7b1ow/OHYs+VfAseimIV2yX857n1k8RKW83f7u2n9y0MtbJd
+ Ss1gB
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Initialize gadgetfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-also SB_I_NOEXEC and SB_I_NODEV. gadgetfs never holds executables or
-device nodes.
+Currently loop accepts any regular file that implements ->read_iter() as
+a backing file and any that also implements ->write_iter() as a writable
+one. That includes files on procfs, sysfs and other pseudo filesystems.
+For example, /proc/kcore attaches read-only as a loop device the size of
+the kernel's virtual address space, 64 PiB with 5-level paging. sysfs
+attributes attach read-write as 4096 byte loop devices. Writing a block
+to the loop device of /sys/kernel/mm/transparent_hugepage/enabled
+changes the THP setting.
+
+That's not just nonsensical, it can be abused. Loop calls ->read_iter()
+and ->write_iter() of the backing file directly from its worker which
+runs with kernel credentials. But pseudo files enforce part of their
+access rules at read and write time against current. Dozens of sysfs
+->show() and ->store() methods call capable(). Behind a loop device all
+of these checks are done against the loop worker instead of the task
+that opened the file. And setting up a loop device requires no
+capabilities, only access to the device nodes. So on v7.4-rc1:
+
+- uid 0 without any capabilities can't write to /sys/kernel/reboot/mode
+  as mode_store() requires CAP_SYS_BOOT. Writing "warm" through a loop
+  device works.
+
+- uid 0 without any capabilities can't read the files in
+  /sys/firmware/dmi/entries/*/ as dmi_sysfs_attr_show() requires
+  CAP_SYS_ADMIN. Reading them through a loop device works.
+
+- An unprivileged container that was handed a loop device can't change
+  gro_flush_timeout of its own network devices as
+  gro_flush_timeout_store() requires CAP_NET_ADMIN in the initial user
+  namespace. Writing it through a loop device works.
+
+The same goes for hard_offline_page, the md and sd attributes, rfkill
+and others.
+
+Refuse files on pseudo filesystems as loop backing files. Note that
+file_is_pseudo() looks through overlayfs so stacking overlayfs on top of
+sysfs doesn't get around this.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/usb/gadget/legacy/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/loop.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 7f6d8460152f..8490e5d0351e 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/fs.h>
- #include <linux/fs_context.h>
-+#include <linux/pseudo_fs.h>
- #include <linux/pagemap.h>
- #include <linux/uts.h>
- #include <linux/wait.h>
-@@ -2223,6 +2224,7 @@ static const struct fs_context_operations gadgetfs_context_ops = {
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index c96e35c3ef42..1482580a1979 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -537,6 +537,9 @@ static int loop_check_backing_file(struct file *file)
+ 	if ((file->f_mode & FMODE_WRITE) && !file->f_op->write_iter)
+ 		return -EINVAL;
  
- static int gadgetfs_init_fs_context(struct fs_context *fc)
- {
-+	fc_init_pseudo(fc);
- 	fc->ops = &gadgetfs_context_ops;
++	if (file_is_pseudo(file))
++		return -EINVAL;
++
  	return 0;
  }
+ 
 
 -- 
 2.53.0
