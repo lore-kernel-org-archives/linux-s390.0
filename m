@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794279690;
-	b=yg69AMGX7GKnqJgnwHoNYaStrPye53xcyqQDMAwg7/oonfdb8RCGg5kcQ8QcPkVCQ/7N
-	 P4VNfKH+/eN/ohw6H2L2GQUE/itda7XaJ1Yo9KDzG2nLwOQhFz24XCfGJ5+MLQ2O2ZmdX
-	 QkYxLCPBSZ7Uruv/g9fReSwtAa9EnHdTHRaL6E+KFEYqlBfo3UGc0cWsLrbS5188B18b/
-	 ZpzV8kFlAQeWHTaGHAT2ruxYG03AGMqnrE0f6VTw57zj54QxxtrjdBwJMqHgNQHvCH2r4
-	 7eHCGe0yO/BrYqEr9/kdfnq3W12R4CQvv87rY4w+A9eF1/zE9F45e4u9MrBVt+8B9Pg==
+	t=1794279691;
+	b=zxwslZiYYsMVkWe9sIDCbg2NSLVuhQsY295rblQcqlKVkbLbmBQ/TGoOgkDfYAgei63t
+	 DEKuuMmWPC5GewNXpoHyUOpa1xx6iggDCdTajhXJqFZH/yFD85kyR8iDNcF1/oqg6kRsD
+	 ONHun9j1cE8S5gNHQk9tiXuZoeqFqKK7D7B7JJOQ8I7w+ttw190k3NCnSD6tyORS7rRPn
+	 KaFjIGtiF7ge27rZ2Y2iVFNKJ5bqR1gP1TvT6PPk8uV/lTBupCRgrFPs3Qk2OzfYW1bxb
+	 uWgZSK3RBMo2uvAQRHSAwU0qKsIJCjFG0L0tMTsKPv+BMeVeqq2NpDaaXhSReNFINRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794279690;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794279691;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=6R8w0nk6faLgFIdeh7WY1sBT+J8k4u6RkLXT6k0/YC8=;
-	b=2waCKMB+yS59LoqKkEEz4C2mMGlcq4g3n/YiaxkARdRh36gYQ+FaRHksjTDyOxYFEZS+
-	 280Bwqr6j4gcvRhOiVsLc7/RqoV2qk1BVstR9JfWTeZinvrCqs3xrR+gvRJ6/Tg5otvM6
-	 xfCmyfdA3lbOn7BWV6Pds3TqApC6/jrxJ4h/VApFsHoLF8Vz6XckabDe5FemZYq2Q4f+R
-	 IVuUm9MB7nmQSnW8xULJkZhGuUBjZT0PlsZI11TfMHcXvFSwBW+0Fotq5jCP7qQlUW0Lb
-	 cWtIGpYJEHRwdjJ1daIfxpMp7upk55UQN61lLE05mPXbgZETB4+9Zjww/YFQPytu0Qw==
+	bh=LN4eJmPzpM6arQM2Dt13mkYV9BRLanjZZijwPfJh85M=;
+	b=D+QzvrKDpyo8qhStNd/ECuGPdrCR71p0v1J1XJx32SfSXYPaVWqVqtFp/Wa0FpWuQSPA
+	 ZlBQSPzDU9Jbxsm2e7yzMBcS9/BG1YRX5mqbgno1ekZpw7OU2RnehMgJVGgnSIfxmLXYI
+	 bTH3XoeuZcHKSxSSREPZ492tFm9w4yCBjR1tmoYa3QrDOYY0kymfgyRa/s+ew3Tsy4aa3
+	 erGPkDTYW4O9BpZY9TRPZbA1M3J05DXQqnMix25DwBjXJYrPrpkUYCO+IRkx/lJ7JIVTK
+	 Cvn5tfojXRs36ft+C4TuyooDnoe2D2eqXqCfsNXJ1Ba1M6ALroRj3gxNZivz/HnKB5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oq5HPD1y;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ZSDG/Ccd";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C0D760A2603;
-	Tue, 10 Nov 2026 03:01:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7292606A33F;
+	Tue, 10 Nov 2026 03:01:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oq5HPD1y
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A5691F0089F;
-	Tue, 10 Nov 2026 03:01:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZSDG/Ccd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31CCE1F008A2;
+	Tue, 10 Nov 2026 03:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794279689;
-	bh=6R8w0nk6faLgFIdeh7WY1sBT+J8k4u6RkLXT6k0/YC8=;
+	s=k20260515; t=1794279690;
+	bh=LN4eJmPzpM6arQM2Dt13mkYV9BRLanjZZijwPfJh85M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oq5HPD1yhjpUEV13rxXEtoLT0BwqwRMqnmWCHfUJeAojEOKvWr1a2rGwLtZvXRLis
-	 ALWBNYmol9krUB2j8f5hzuUsolM3Zs356MnrfEqONqqpv5hkupw0Bkyj0yYoYiq8Or
-	 IwfI7lwJZxNx6hiNJJMAOvLZx3mwEOTgkeea/Y9tgZorNn3U4scT1fUewTqeLn6lq3
-	 95dgf+0vMLIO2zvKU504I9YJF1YtulRt0gBYq6odwvyXaxkh8BD+/G2PzkvyJJZiR5
-	 KD/w+1jYBZCN+rDAnNOxdRz7qnl7aWKR8qiRVOM3LUPqzfrVOe0wx2uZN+Rdle26U9
-	 7Pb8LITus1mHg==
-Message-ID: <sashiko-outbox-206081@kernel.org>
+	b=ZSDG/Ccdulhu8pRffD8h9Nbcuw8fZeB8M2XuuiF/fliO/1DzLDUqY+6UfhlJh0GkD
+	 G8sg90J83S3vuXhP+jAU/SYuPlbquEVvgL3DlEIcvJJ0FhEI5PbYwYonaMkzfNkjCc
+	 gFDJwSjCVv3bidgEqPupHaWVspb3Qs/5jrOzoFcJthIc8M0t+AYRDVrvh9aBqGiiZI
+	 j3DE4aYU/CpYhnGaVHgHgXUsjEShEn1Ceg5r8zoBmD2d0EzEJWZLvwbMkToSKSv8Ns
+	 gJNsVG5cceUd6v5Wyv+CX79pR1KF/1UrpBmCsqnyGBBzXWgM7JABvwrTgJO9xITfwu
+	 8E1m2UVUtTXOA==
+Message-ID: <sashiko-outbox-206082@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next 08/14] rds: annotate data-races around core rds
- sysctls
+Subject: Re: [PATCH net-next 09/14] netfilter: conntrack: annotate
+ data-races around conntrack sysctls
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jiayuan Chen" <jiayuan.chen@linux.dev>
 Cc: linux-security-module@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261109025425.328445-9-jiayuan.chen@linux.dev>
+In-Reply-To: <20261109025425.328445-10-jiayuan.chen@linux.dev>
 References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
- <20261109025425.328445-9-jiayuan.chen@linux.dev>
+ <20261109025425.328445-10-jiayuan.chen@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Tue, 10 Nov 2026 03:01:29 +0000
@@ -63,10 +63,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> reconnect_min_delay_ms, reconnect_max_delay_ms, max_unacked_packets,
-> max_unacked_bytes and ping_enable are read without any lock while their
-> sysctl handlers update them with WRITE_ONCE(). Add READ_ONCE() to the
-> readers.
+> nf_conntrack_acct, nf_conntrack_events, nf_conntrack_timestamp,
+> nf_conntrack_checksum, nf_conntrack_log_invalid, nf_conntrack_max and
+> nf_conntrack_expect_max are read without any lock while their sysctl
+> handlers update them with WRITE_ONCE(), and nf_ct_set_acct() stores
+> sysctl_acct with a plain write. Add READ_ONCE() to the readers and
+> WRITE_ONCE() to nf_ct_set_acct().
+>=20
+> KCSAN reports it when nf_conntrack_checksum is changed while packets go
+> through conntrack:
+>=20
+>   BUG: KCSAN: data-race in nf_conntrack_icmpv4_error / proc_dou8vec_minmax
+>=20
+>   write (marked) to 0xffffffff8ee29b6d of 1 bytes by task 568 on cpu 0:
+>    proc_dou8vec_minmax+0x1ab/0x1f0
+>    proc_sys_call_handler+0x282/0x3a0
+> [ ... ]
+>    ...
+>=20
+>   value changed: 0x00 -> 0x01
 >=20
 > Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
 
@@ -74,5 +89,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109025425.3284=
-45-1-jiayuan.chen@linux.dev?part=3D8
+45-1-jiayuan.chen@linux.dev?part=3D9
 
