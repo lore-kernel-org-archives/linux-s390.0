@@ -1,64 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794303219;
-	b=lz2LudrXaEhAwu6pWkRpHGdbAEnqOzx0lu9y7S3Ubwb2il2kn8kGHFwIKTYCZpw4iOU1
-	 6tWKHqlQa6HtU2ICKQc1P08KqUWANVqBXZ57jVFd+QjRdp65S6hIU2fl3ZYABT6dIaglU
-	 JWSdudS/n0btwtMRMiWTR2/PIse/elspMGv9Z5E7BqLPirKcu2MuOZJumOJTQceuJNRW/
-	 Sf9Ur8tMB/L7uBVgAAugK6QdTv1W0TEKyOUJWEZ145++snvZLVTbt9dE3JhwcroMJvNre
-	 RXIF8v9LnAK6jT6t40nI56Diqfl6mjQxa/2K3YkFXEHoAPj6ym8FXobQtUpY22hNU5Q==
+	t=1794303225;
+	b=kIGvX0C+xcOmk/tMrhUlFK7rOw7aIXjIbBaZwNmUSIm3D3yc4ro+to0l09jotJ3xb2Uw
+	 IfrlGN3mBGkXsxCmQb+6DwPMChjS5MrwrYOt9liNtSrobRu5P1vYM8UQ1Bz05V6vK9DCN
+	 g4czNRuyhvaal6qlbEuQnnn4+KZ7LoewUcb+rL7Ad4Ac1FXAYQEExj3fp7DOUw+qmyJzP
+	 fUYW4UVdM2CIrJF3bwrAewvlCYKNzKRJDbMGG7o1n3O5M3xL50dYmDIumSfYpzLX57yq7
+	 wm44I2k78Voy5UheYOGuaPeOkAEGBJvDo8e4RvALx0KmW44pDgI6TywfRyr4/ZDn3ng==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794303219;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794303225;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=bww7nw5bSwEPBt04rDt0/bI4su6VmPuV17HzMgP1WVA=;
-	b=ltL4WKrt49/hCCK3gEwnsnziY1AcbzXchj0RZww+NtMqb1DduRvgG32s+FCioJGbW3YH
-	 eLCTlqghn1WVg5m91d8i3rzDzITn+4QlZqn3NI8TKiQdfmSK5eEkpbSVuPpfxMagiTEpa
-	 LzP1r/C7bGpsUE6P4Y8N5JCfu1FFnR5Hwir7gRM7p6sDJpO/rNoShMP0OthoOdGBqnTf7
-	 Hx2nAJ1Yacu2i0mUGBwPt/YdoYWoZ1i573/NOp5ZF3yKX88YFPIej+Ul4AuzKL2IfPGZb
-	 fffB03rRJgkw4nJibaQ3apuEI6p5D0SfHOpous9/CCThrAC0YVqW6H6TyGrXbmXfi9g==
+	bh=agNgpb4e4UuLbuJ1ugF2+0E0Gw1FDddfWhPWliXw9Kw=;
+	b=J0dDiTHCVVx8k4S7pKphOmkB2wFE63crDIap2tMtzVsiRH+aVq/opWnugB+iN4af+ZqA
+	 i80oKJV8AEZCtG4bg9+XoUVU4B7vOmhp+aUu0EWmBaPfRMc/3SjDSJUx7MeGc0CzG6+VO
+	 cEyDqhCip9PV7cBHKTWrtpfcdgK5SxOhegb6ynk7S+PQklqLs3QnL0YcVTfboQRRjkn80
+	 e5DGWf4VNSENbvW0/GgSL6u3Fsycr3zjhg36nVyJqvayI05Mq4LtHP9R1GqlJ5ADQMW3n
+	 UkwirHXwSXEv30pPTRrIp/CY0OCH2d+kfIZ8g9Azyxes8GfrNng01NEnpwcljkij3Jg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IKmf+e1g;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="AC/pEV8q";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0A0B606C65F;
-	Tue, 10 Nov 2026 09:33:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A15A606D5A1;
+	Tue, 10 Nov 2026 09:33:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IKmf+e1g
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70C081F0089F;
-	Tue, 10 Nov 2026 09:33:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AC/pEV8q
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 026FD1F008A1;
+	Tue, 10 Nov 2026 09:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794303218;
-	bh=bww7nw5bSwEPBt04rDt0/bI4su6VmPuV17HzMgP1WVA=;
+	s=k20260515; t=1794303224;
+	bh=agNgpb4e4UuLbuJ1ugF2+0E0Gw1FDddfWhPWliXw9Kw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IKmf+e1gFKkj418fSwF/WvpYdm5kRAazs7jwnCLr8UBX0mWUP8DQEFBBBEZlbkXZ1
-	 XI4prTk7TROigxS8fxK3H7nyiNmObFLtBmkCA0ke0HXW7pt9dEt/aaSRLKtzC4egpf
-	 OEHRA7RgND8FIgqLmipqQVPz2GNvvRJE2PgE7T/NOFf640AwOp8vZiaRQth92bBap0
-	 HKEfy9pnSL5/wTdbiAfkWabIrGIRQRAr+uE+2HXR6t6FbfBJFofcbxlw42H4vOVzXk
-	 w77kmjm4jAJg1fdzTMQ0RDczx8gBsj6Uaq5LnRuUkl/WYcX9JduP6Rs8JOjO15ilQh
-	 USFa7wOu4MpQw==
-Message-ID: <sashiko-outbox-206765@kernel.org>
+	b=AC/pEV8qEPc1ipUbIOS7g0ZLC/EFFMYU/XrWJAtpc/iFQLEps8rLJXYDwhSogk35R
+	 jlv/08IGDrVAXGcU9Dr8j/Z60vi1gUB7xdg2F1D2KMCJR/rXLrqrHn7F2oVfQIg9AJ
+	 RnoCc1zniGJnvui1S33U/kvidSwLAV1ZRWmH9ounQ0QjqRM9wGX+238sg+8P2vDzXa
+	 SxXfX0lComjyZzmdm6Q8uEVw4hRn64zUZpqoqVVgR/UqwNPkE5HS/j/ZVM+uvO7otJ
+	 0NC9FTDYwyK9R+PVvXsLmZzJrrCEMVhYaP5ybsnTEBf+upDoZ2ruxofaRsKMR2sX5p
+	 9jEeq03Ym+X1g==
+Message-ID: <sashiko-outbox-206766@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 37/41] target: fileio: refuse files on pseudo
- filesystems as backing files
+Subject: Re: [PATCH RFC 34/41] loop: refuse files on pseudo filesystems as
+ backing files
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
-Cc: "Jann Horn" <jannh@google.com>, "Chris Mason" <mason@kernel.org>, "Josef
- Bacik" <josef@toxicpanda.com>, "Christoph Hellwig" <hch@lst.de>, linux-nvme@lists.infradead.org, "Alexander
- Viro" <viro@zeniv.linux.org.uk>, "Jan Kara" <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux-mm@kvack.org, bpf@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, linux-efi@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Amir
- Goldstein" <amir73il@gmail.com>, "Chuck Lever" <cel@kernel.org>, "Jeff
- Layton" <jlayton@kernel.org>, "Anna Schumaker" <anna@kernel.org>, "Heiko
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261110-work-loop-pseudo-v1-37-4c998976c6c7@kernel.org>
+In-Reply-To: <20261110-work-loop-pseudo-v1-34-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
- <20261110-work-loop-pseudo-v1-37-4c998976c6c7@kernel.org>
+ <20261110-work-loop-pseudo-v1-34-4c998976c6c7@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 09:33:35 +0000
+Date: Tue, 10 Nov 2026 09:33:43 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -68,46 +64,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] target: fileio: missing file_is_pseudo() check in
-  fd_init_prot()
---
+> Currently loop accepts any regular file that implements ->read_iter() as
+> a backing file and any that also implements ->write_iter() as a writable
+> one. That includes files on procfs, sysfs and other pseudo filesystems.
+> For example, /proc/kcore attaches read-only as a loop device the size of
+> the kernel's virtual address space, 64 PiB with 5-level paging. sysfs
+> attributes attach read-write as 4096 byte loop devices. Writing a block
+> to the loop device of /sys/kernel/mm/transparent_hugepage/enabled
+> changes the THP setting.
+>=20
+> That's not just nonsensical, it can be abused. Loop calls ->read_iter()
+> and ->write_iter() of the backing file directly from its worker which
+> runs with kernel credentials. But pseudo files enforce part of their
+> access rules at read and write time against current. Dozens of sysfs
+> ->show() and ->store() methods call capable(). Behind a loop device all
+> of these checks are done against the loop worker instead of the task
+> [ ... ]
+> Refuse files on pseudo filesystems as loop backing files. Note that
+> file_is_pseudo() looks through overlayfs so stacking overlayfs on top of
+> sysfs doesn't get around this.
+>=20
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-commit 4e15db58376b542897dd4203d7acdfd99df1aec4
-Author: Christian Brauner <brauner@kernel.org>
-
-target: fileio: refuse files on pseudo filesystems as backing files
-
-This commit rejects files on pseudo filesystems in fd_configure_device() so
-that SCSI initiators cannot read or write kernel interfaces such as procfs
-or sysfs with kernel credentials.
-
-> diff --git a/drivers/target/target_core_file.c b/drivers/target/target_co=
-re_file.c
-> index a5391e57e9aa5..7a3cf63dc979b 100644
-> --- a/drivers/target/target_core_file.c
-> +++ b/drivers/target/target_core_file.c
-> @@ -152,6 +152,13 @@ static int fd_configure_device(struct se_device *dev)
->  		goto fail;
->  	}
-> =20
-> +	if (file_is_pseudo(file)) {
-> +		pr_err("FILEIO: %s is on a pseudo filesystem\n",
-> +		       fd_dev->fd_dev_name);
-> +		ret =3D -EINVAL;
-> +		goto fail;
-> +	}
-
-[Severity: Medium]
-Should fd_init_prot() also check file_is_pseudo() (and ->read_iter /
-->write_iter) when opening fd_dev->fd_prot_file?
-
-When DIF protection is enabled via pi_prot_type_store(), fd_init_prot()
-opens "%s.protection" by pathname without these checks.  If that path is a
-symlink or bind mount to a procfs or sysfs file, fd_execute_rw_buffered() ->
-fd_do_rw() will still read and write it with kernel worker credentials.
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110-work-loop-=
-pseudo-v1-0-4c998976c6c7@kernel.org?part=3D37
+pseudo-v1-0-4c998976c6c7@kernel.org?part=3D34
+
