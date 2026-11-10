@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794279695;
-	b=WG3rYS893QEHh1UJeokP2UvYVdm47oxtLZ9am3hZwoWhuo3ElswKCURliX5wXd9gJXGF
-	 VKFXh4t/mOJzAWn+qGunNN0hHkVl9rMkGDdJESRcktuAJcC4Z2HJt8AMbY7cuqxb1ksIX
-	 IJqGhmRpVTQFa2HAQLJkL+PJL5u/+wlEEUPCh195qVjqg3zUwA4OlOfZ0rbFo9QpbzTZn
-	 m0QkoyiUxWeC/ZopQ+eWdm7GQfvq9VUEaYGXzFGX6g6stnetYYvHWCfpWL/+6XdKfiNEx
-	 txYLAFFg421fWkzgNbTl+wF9vwYm4YGSc90Im/hLik5AdcqB6pIDvQJOtLS8g6jkmZQ==
+	t=1794279693;
+	b=DlCfTk8MHo3WdtHFr6akR3EqSS38o5Zj6GPhZqqCDU9UZT9lv51jRsDX91tYETKmQuBY
+	 /Qt2W8i1on25GJRd4INXM2bgPF+dEmil4nNQOJ2ueWGREV8FUnjppP4FoeJmuWtX0ObRD
+	 5oTyAwXgdOHsZ4I048sTjSGYt2rnlX9P3YMc+x2m5uEevVpGwAyb6Fi8e3O1fUXPO+x7r
+	 9EN30C1P9KR9L3w0iSwxK7dcS3BQcIC7S1aT4F24Ud0N6tddewMvl1kbpb7EUfBu8w31F
+	 5jXSlVpVZev0q2oETeSwF9sDtCbCjOwYm/1AcMG8aneL2xTjMHsgZOfZh29rVlf0sOQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794279695;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794279693;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ze9768C3Ns7E/ppv0tDyoghZUfTObLOblA8hTJfwWDk=;
-	b=pPTBxY3zVjrdmZDwNKvcycimPgZtAUT/a/Vlp6s4f8CrGvbF+kq/E5hFlHuVyR/rASJg
-	 yxXkv7GOi9Ih6Ld1G7JjagH2FYUP+g5Txi+BLK2q9qBwo2y6HUKJ7oqp7tWiPAuwTU0XY
-	 9ypijBD0ecMMuIXpq/2Cbrg07Z9x69eXEClk71JjDjohoEmyQ1T2Hhk413WJelHNQ3r7M
-	 yvkLTlYG/RD2ffLMqlUsISOeRgUSPSXkZWSMAxgnsTRPw9qVvOdC1pXS92Rp1vRgBbma4
-	 /cw/EjnlEH8LM44Fj5pO1cLB39v+OFa1euVFLllXG9acMfjYV5ck2E2GAMmCI/GFJ/w==
+	bh=pRrDHox4qDE3kdQ+Gin0j5v4oZ6MkdO3ZPBBtDeZtaQ=;
+	b=AuTXthapyeWxmOukuBIktKrUcj7TQ/ZS+8ysdVcFfcEAxJrzmjs/oQPnw7PzWSWTfc1H
+	 gkubiqwQ1r/8N99tEAYW20JRqhpaU5+niBNyMtFzznpxmHzsQoSHpsABMiofRbmRZarPx
+	 7wooHImRRJD+sl6mOX0g7KXLoLRydokDIjxxQv+P8aVEZFcylZ9aV/HveLAZnu+8tIaZC
+	 Or8JGmlPw35GZU4YM9yfIW3OQHEtLuCv+RRBZnIYjtGz/x+1RiXR7U97PtrLLWJQYMslD
+	 diHkzHmJ7mIsQQfcyJtSfnUxJDtLR4sFLyghj/qlJySdERV4VnLQZ72uXR1zwJLMseA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QUHKLbQa;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bp+vcue0;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21827606A33F;
-	Tue, 10 Nov 2026 03:01:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 893A6606A326;
+	Tue, 10 Nov 2026 03:01:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QUHKLbQa
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989531F0089F;
-	Tue, 10 Nov 2026 03:01:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bp+vcue0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B92CC1F0089F;
+	Tue, 10 Nov 2026 03:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794279695;
-	bh=ze9768C3Ns7E/ppv0tDyoghZUfTObLOblA8hTJfwWDk=;
+	s=k20260515; t=1794279693;
+	bh=pRrDHox4qDE3kdQ+Gin0j5v4oZ6MkdO3ZPBBtDeZtaQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QUHKLbQaREX7g443hbroqn2ixLk8lJ/6i0zdY/4L5dRsgd10YNM6HlM/NjDHuCkb6
-	 bEen+BeyBBSlgjdmyK7RgsJOD2bqzddyb+AlJ0PoUDjOADuuMNW+Z5HiKbRI+zB3AD
-	 5KInVpZhttIxc1dcKGLSUT146zjJM/GTGKZBJTnkzm9fg1TnI8rp3/2b9IQp7iauqx
-	 0eMM0FzLwrUYqoSAQYvFTSu908K/JXL38OUalFWEibXyE7eLwJbOAFwj3y0DzPM4M9
-	 it/CrF13X39t0G9cA4RQcapBFjTvpHBGOvDaNT6ZLHkFoKdRPNBuVyPNf3j8oIT2yH
-	 9qJio9pll5baA==
-Message-ID: <sashiko-outbox-206087@kernel.org>
+	b=bp+vcue0KmOwFLkpqKRpEvKNAkn4dnpj0Qi+I938zEYaQrHriHbTMYQdfuc/0jUKk
+	 Ha4kIkOgPpXcPVCUWw+XD84d3mbA+HxwheequHrybXh/vyTNOmUTgmJnU6sSURJp+X
+	 S4HXjAzif7+qtd6znbybPswBMquoeNR84ODWlN0kskDFaiGHSJwIU8HcXQQqSgnuTy
+	 FCShdD7woWAGMbrE4XaBK/B5a+dVlDd3iNQAY8JNjYbhFAtpf6nmehZfPk8Oa7hMv2
+	 rtLhGExOR9wd14nlm2xn7PMjdIqvk48hCHbnOuJB+vUzgAR5rFTgkLVWH874wasP9B
+	 AM3E7BAIKscQA==
+Message-ID: <sashiko-outbox-206085@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next 14/14] netfilter: cttimeout: annotate
- data-races around the default timeouts
+Subject: Re: [PATCH net-next 12/14] net/smc: annotate data-races around smc
+ sysctls
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jiayuan Chen" <jiayuan.chen@linux.dev>
 Cc: linux-security-module@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261109025425.328445-15-jiayuan.chen@linux.dev>
+In-Reply-To: <20261109025425.328445-13-jiayuan.chen@linux.dev>
 References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
- <20261109025425.328445-15-jiayuan.chen@linux.dev>
+ <20261109025425.328445-13-jiayuan.chen@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 03:01:34 +0000
+Date: Tue, 10 Nov 2026 03:01:32 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,26 +63,11 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> cttimeout_default_set() and cttimeout_default_get() hand the per-netns
-> default timeout arrays to the l4proto nlattr_to_obj() and obj_to_nlattr()
-> callbacks, which write and read them with plain accesses while the
-> nf_conntrack_*_timeout* sysctl handlers update the same fields with
-> WRITE_ONCE(). Use WRITE_ONCE() and READ_ONCE() in the callbacks.
->=20
-> KCSAN reports both sides when the UDP default timeouts are set over
-> nfnetlink while UDP traffic goes through conntrack, or while the sysctl
-> is written:
->=20
->   BUG: KCSAN: data-race in nf_conntrack_udp_packet / udp_timeout_nlattr_t=
-o_obj
->=20
->   write to 0xffffffffb0829bc4 of 4 bytes by task 457 on cpu 1:
->    udp_timeout_nlattr_to_obj+0x3b/0xf0
->    ctnl_timeout_parse_policy+0xc0/0x100
-> [ ... ]
->    ...
->=20
->   value changed: 0x00001d4c -> 0x00001e46
+> autocorking_size, smcr_buf_type, smcr_max_links_per_lgr,
+> smcr_max_conns_per_lgr and limit_smc_hs are read without any lock while
+> their sysctl handlers update them with WRITE_ONCE(), and the SMC netlink
+> handlers toggle limit_smc_hs with plain writes. Add READ_ONCE() to the
+> readers and WRITE_ONCE() to those handlers.
 >=20
 > Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
 
@@ -90,5 +75,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261109025425.3284=
-45-1-jiayuan.chen@linux.dev?part=3D14
+45-1-jiayuan.chen@linux.dev?part=3D12
 
