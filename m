@@ -1,73 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794322550;
-	b=dsDblc8maMhUxWkIHBpiqZeo5+8IGtg0MoWm+ZIP5+Z+XlFpIhldJvamKbl9ZKYBaRWL
-	 ToNBSXUlQGRokO0hgzUgy3EsX8EC6EQ9kIF/LH1sp2sfsX59nlhCgUhzG3oVyMc3SL5tj
-	 n2S/id8K8YLv/zSLnYTAMnRs5YequrcX0ugiiIou37/s/3bUaqRFIJ8gkOCAbJWIBQSX0
-	 YTeEdJ09FCK0sQgwu3aOFkvmen0Rj7F5MKhz1X5UTe+Q4wfGAgadvG7f9LJ6BK87bA7Nt
-	 ucYJYVmWodKY91oVuYcTaZd36aj/kzKALSfM6a78YcAMKMyDP8cyddjgTFJ5GUEcCcA==
+	t=1794323278;
+	b=Ex3fBqECtz9uOPfvO4M7Wi5d5GBMTgP5Bw2ovam1cRKaB/Ofljf0MZsxHEiol+dzxvuA
+	 EhgAITjoQ+hWCFapKNSliyj70i5LLtQVhAEzOy5ifoZwguz6/gtDPr1ZMqhcsH/CbkufZ
+	 B8U4A4ziYkkyEydsRD/bUZbNXcFRuZ8YBRd2xS0YALiVmNE5nJz8veGa5SRexSemrXJNr
+	 yeG6j1TbQblkk/LWcGJuOnhByz4jp9mjEuoTNKlYTiQkRwo4UPfzl9Lqw/MbGvOAVvMia
+	 b9yjjP7UcxY7I6mXhC7PMiFdlhiE5Gx4Xgl0//7LAR8OOichzOj8hUQ5Fmpbr1vuw/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794322550;
-	h=Received:DKIM-Signature:Received:Received:X-ME-Sender:
-	 X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=zSjXnOetE5oKa5v8S9LBrUhcmgizc8ch93AeD/W6gEI=;
-	b=sjS33hfS4+h+r28VKZdEwQbpSJqKu7nqrcUjvTo7k13tbqBXXDkMwcB9Lhi+Gnqt6lXl
-	 NdHzbCU+5mdYY6Ki6cI16KmUVjJ7QAgIuXLKpJqq0tumLjM0RmlEJaRG6paQPpCjRYeRf
-	 BS3Nl0udRY8OE/8GrjvZ9Y9/E3h77nJq9Mu1RfVtq0xmEKb6oMYC47Y3tWo9Iywzgusaw
-	 xD5VK4dOvXaHNJIwI+ncTJQ0IjauO5AULXxZbeLT8Cog5PcYU1rO4sWJiv27NEj3iDZ7D
-	 9VTJM4drB8h7jOinhSYG93VVnG+2dN2TSwNZUKqcNeWvPk6PmiCuWE6sgHNmQU9soUQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794323278;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=JtM9UtzYhAWCxTCfoBKbcmHIR3U4Wq7tzdw7gboBY64=;
+	b=s/PnfCyqNC+r2PhFJdb4FLwWh5od5Hm+1wKDhkqToq6skeMEq5KvUW3V/BsSX08AqDHn
+	 FJVTpJwLV5cuxuaObtnc2uZJt6gg+E04nMl5mK2tBXKtL2NBJiznvmGMACO2z0xXQ1TBU
+	 XI41WJQepayOOP4TToclI6t/fXrstPEUqjJVgepCbKv1ivapi9AzI7+JLM009FWuhVZIG
+	 CPjmQgs7jzBuV18CVNm5N+GNgna+zuB/zxsRb8SS330FXgU+tqhl2HdmvvbdpFwCgxyhk
+	 TgHxb0y9m9CzeyHT6OmJEYsxO2uGyFgtXjtSjq2gvojnqMsXIItioa2ZXvAYlVvIbVQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Tcwd7Q8/";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LHozpx7Z;
+	arc=none smtp.remote-ip=209.85.214.173
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B32DB606A326;
-	Tue, 10 Nov 2026 14:55:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 375A160A262E
+	for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2026 15:07:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 375A160A262E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tcwd7Q8/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D8D71F008A2;
-	Tue, 10 Nov 2026 14:55:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794322549;
-	bh=zSjXnOetE5oKa5v8S9LBrUhcmgizc8ch93AeD/W6gEI=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=Tcwd7Q8/BgCZr0AJA+q53XtkaEXHNBQAptcCIoE3INOkDT8T++JPLwFgnijhu6LIp
-	 QoJCfJqeBNhK26M7LL9xd4MzXxKVISVDOEW1cYrYEyBiFKRmR2hdLsioEex6m+2Rc5
-	 2AgfVzjCsuMDtAVvAKOrFX1qXAfAYeUYjVl2rownrESZ29DXkmWTHYRM7alPMZLQ6M
-	 DZH727vPlYTYzZb+oco6o/Bkhlk4m5LBSezhlvCb0bhHHiXIMbUlIMDObU3PIfYN46
-	 k7napT6YlagBuXnh78UDBF3WtFBwiJfcd2zG9H8WTZ7Zkc62YNaLopDBhwYuzfc472
-	 iPuH2WgxnRVeQ==
-Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
-	by mailfauth.phl.internal (Postfix) with ESMTP id B2761F40069;
-	Tue, 10 Nov 2026 09:55:47 -0500 (EST)
-Received: from phl-imap-15 ([10.202.2.104])
-  by phl-compute-10.internal (MEProxy); Tue, 10 Nov 2026 09:55:47 -0500
-X-ME-Sender: <xms:czDzahOxHA_IGoa_FJdwV0BFPQw-nSdKO6kKGUN5puCfrxj2G2sK_w>
-    <xme:czDzauxKYck9zKSqhpZaTHxPL9lIOi42MPCnrNTR7eaQqnpkmbe8dEx0PuhUogQkg
-    tb2W38kOzksOJlDJ4uTGR7-rkbiwtctKuF5oVtOm556TqS1yjjUw9U>
-X-ME-Proxy-Cause: dmFkZTE8jIcOTzT9axQiHwEjJScKTRkNH3ZVhgYbwXrBMnGwr/PZk5kUfGxy+RC0ezRM03
-    2Axgl1A3kstcvJQqQJ+tEirxS634eXBQm2b+wwk+7byJnMoEdYYw7Lfb7185Bnwoliq1Mt
-    XZ8lliUhOZ8AACZwbl4T2Tc7NYRy4GvnOujvSweRGBGAD4OQXGjTipshhA5n2cB6RQlk4p
-    zmTRFZMOMjoY8cueG7e24ndoN2R/gq/lSNUbCVZu/PUOrAg9f6aovYYa9SSKBBYGtgXYMN
-    0qbpFOi4S4kwXDcxuFcZlmK43Jt2p3+0W9uSzX8U3QJynW/odwma6a1hhpAbc8zEaSnbtk
-    CFI/IAk8YwHJ0hyg7qaH8oiiVC3V/1ZiobIhoPO231VrqQk5oaP4jl+jS7yMnBbNxynDhF
-    /tTsfxMaF/A9xwJBu4sKm+3lzwzMEEbqt79mE4Lq/VAgowI2/Z3gVdFMTE48DIB1KcUvAe
-    gGFx1Bx/tQmWXfeE09uUSkiQ2KYN+OrlgTMnrepjVRxO73rY2t7sodPh2AhJIAG1ZYT5ga
-    3nwb3G0mQrnmFOm4Qa4C2JwbajMdJBWMeam4uZKQraajbqcBHzCXvMtQm1fQbm3S2rexTo
-    KA6wW/vDabSoXlut9Nm5uKTSjp20eGQ9lpLOxOz31c8eLm8Mlp10sjOYDNZA
-X-ME-Proxy: <xmx:czDzaoanLMdLTFqhzMhrxv5H09chgFe3GMMhc1XBCkfiMJQ_ckta8Q>
-    <xmx:czDzauzWTK7EYc76X_4JSXvP7e9Yqejr2yggz6O-tuvCpsEWBQGUaQ>
-    <xmx:czDzasWQEDY8T3p3eaJhPzKDKFxYGPCQnFb1-n-prg7tBs3f0gJpWA>
-    <xmx:czDzaqbpJaYjvNkk5zy3xoww5EsXMA5_awnvU25FYCgSdhgQQ41Hfg>
-    <xmx:czDzavOKwCwywHfR1JNgdmNe33GAeUXrw31wmu_3YBRbMsucyl2ChD_t>
-Feedback-ID: ifa6e4810:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 7D2B9780070; Tue, 10 Nov 2026 09:55:47 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LHozpx7Z
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2e977109392so12284665ad.0
+        for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2026 07:07:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794323277; x=1794928077; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JtM9UtzYhAWCxTCfoBKbcmHIR3U4Wq7tzdw7gboBY64=;
+        b=LHozpx7ZkQyIUBsAkv4C311vzxfheFN2pzrL9Y/FTHkEXQzaVUkMAz9U9wFUejAOr8
+         YATASi40x9WcOvyF4dkS6SJQ2bBJHO0yE68WsOT8oewufPXMhMYT6O7d4/5H33a+EMHR
+         jjCu1KqktdAA/9c8ZIpbjFjA/3BLyNbgEZc3fS3F9+PTZ5y3jCgkJQ9rhGft5ONP+cJO
+         aTEF5vn9sQP8UWqDXO8UszNcV0yZFTKvtrsUk25y1Sz/3h5njQt9uj1PBQLO+FuWPgpB
+         LsGoLTWDE/iFYFuKD+GJLya2PXFipxPXM8zYDthkWkjgd0549O004Xgoom3qc/ylK84T
+         vykg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794323277; x=1794928077;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=JtM9UtzYhAWCxTCfoBKbcmHIR3U4Wq7tzdw7gboBY64=;
+        b=2aTBhhKrrUlF5SADGcMzlPgG9teQh3ZOqdJYP2MzvnKIgBTJwaQKgCM7xgdcTXPmrV
+         ZYMt3C++q/9LNP8svD1cXDb9eSxCDyEKA/wylYc4GQ2HDznxpY2aUtQrispD4nV3zDyi
+         plqJRweLmqoyNDP4Uu9W/gTr4lbyBd8yq/lSkkgyavDQWSu2/qvGkfo77MZ16Hgavs7v
+         sWwy2z+lU0tT81kQM4XgTSAFQJM7G3qpklVk4O+Ofv045vAN0O0t15jsCdAz5c60E0lT
+         tUhZ6RPFOhenPTG6H50RfTtuFzaWxTGhrWqoT/FnGo5Uml+5Coz7OCc/MVl8a/KOr6Zg
+         sFnA==
+X-Forwarded-Encrypted: i=1; AL+hErFGDnizxIi65rxT9fhQGAPiVrj7FahSn+YK3kGved4N+Epu73j4m4A1Y8dCYGbn/TQ1jLW5IJSadoht@vger.kernel.org
+X-Gm-Message-State: APuU4Z8gqfVF+31GzbXInPH6c+ApET7grjSIW4wV9zDVGLTm5wsyKJUU
+	crNC8OtaA5PyxW/tdUayFvGwSN8VIt5lTPCwaCFsIISbBj1YpY4FfIvJ
+X-Gm-Gg: AYBFou1R4vtFKuZ2aQ/4aLETEcgVKRcU0uNLyEwmOoESu/GqFlkMTx4r5y15v+mbezG
+	UsPn6bIoOEWz+2Z9+Y8wNUQP05OvZ5j8QNfREScs83GZlBSliUAzmYEEbuQaSBV9lK+eRFFKNtg
+	bxtQT9Cehwo7ZMU+pGvCwaJ3r2UCCK5gHoocHVh8tKmbVSaux9ab+1c+4dZHmJrnIv7vi82jlWJ
+	6bcUk/pr/Rcc+Pn4rfpdJzfCl5uIRxMgSAcRbvC3K+3cUhEHMlHqn2LMsGrCx6vRaeD9ZycBDew
+	7CjIElJog891tCKpdtq8BvEkT4wEyrSoNY6lPcQtXDbMGZWJZwEQegk7cX1PNnAna/FnMavfm2i
+	HkA3hPwdHx+HfTR9JtXNag9iV1p7mpin+FLc615QYgcU/zaaHwy7tyxojGNu4+2+Py8nuUCBDnW
+	zY71gjnbKxCiPwaZVWrmuROLcrzS+pv+/npjUbbn4CLkH1i2Oyyr9gKsxrqn6koFahbY+i/xTsp
+	pi7DNZJboZ4mk44FWOyWPD1avwBXdOWhZHZV8Zw/24OzJLgMUYioT0RG6q9LQdbMnUL68vq2c2n
+	byJT1UOe5MWP8kIpmitGbmaXawQ7wldsjiK8+AxOis4f8z2z/JOiaebPEQSI038QKfeRv5IYaou
+	8iMcIXNN/MC0=
+X-Received: by 2002:a17:902:d481:b0:2ed:1ef3:9ec with SMTP id d9443c01a7336-2edb9172a2dmr26826345ad.14.1794323276968;
+        Tue, 10 Nov 2026 07:07:56 -0800 (PST)
+Received: from [192.168.2.6] ([27.75.101.24])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2edb6d78dbcsm10397575ad.27.2026.11.10.07.07.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Nov 2026 07:07:56 -0800 (PST)
+Message-ID: <71f76e5e-ce24-4a71-863a-169ad262c510@gmail.com>
+Date: Tue, 10 Nov 2026 22:07:46 +0700
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -77,71 +93,66 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AKCAcWHxcB8B
-Date: Tue, 10 Nov 2026 09:55:27 -0500
-From: "Chuck Lever" <cel@kernel.org>
-To: "Christian Brauner" <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: "Jann Horn" <jannh@google.com>, "Chris Mason" <mason@kernel.org>,
- "Josef Bacik" <josef@toxicpanda.com>, "Christoph Hellwig" <hch@lst.de>,
- "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
- linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
- "Alexander Viro" <viro@zeniv.linux.org.uk>, "Jan Kara" <jack@suse.cz>,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 36/41] nvmet: refuse files on pseudo filesystems as
+ namespace backing files
+To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
+Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
+ Josef Bacik <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>,
+ linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org,
  target-devel@vger.kernel.org, driver-core@lists.linux.dev,
  linux-mm@kvack.org, bpf@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
- fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org,
- xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev,
- linux-s390@vger.kernel.org, "Linuxppc Dev" <linuxppc-dev@lists.ozlabs.org>,
- linux-usb@vger.kernel.org, "Amir Goldstein" <amir73il@gmail.com>,
- linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
-Message-Id: <47b8b8cb-aadb-4f84-aa5c-c5a74d73fac1@app.fastmail.com>
-In-Reply-To: <20261110-work-loop-pseudo-v1-21-4c998976c6c7@kernel.org>
+ apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org,
+ netdev@vger.kernel.org, fuse-devel@lists.linux.dev,
+ linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org,
+ ocfs2-devel@lists.linux.dev, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org,
+ Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org,
+ linux-kselftest@vger.kernel.org
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
- <20261110-work-loop-pseudo-v1-21-4c998976c6c7@kernel.org>
-Subject: Re: [PATCH RFC 21/41] nfsd: use fc_init_pseudo()
-Content-Type: text/plain
+ <20261110-work-loop-pseudo-v1-36-4c998976c6c7@kernel.org>
+Content-Language: en-US
+From: Bui Nguyen Nhu Quynh <kaylovefoss@gmail.com>
+In-Reply-To: <20261110-work-loop-pseudo-v1-36-4c998976c6c7@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-
-
-On Tue, Nov 10, 2026, at 4:14 AM, Christian Brauner wrote:
-> Initialize the nfsd filesystem as a pseudo filesystem. This raises
-> SB_I_PSEUDO and also SB_I_NOEXEC and SB_I_NODEV. It never holds
-> executables or device nodes.
->
+On 11/10/2026 4:14 PM, Christian Brauner wrote:
+> The file backend takes any path that isn't a block device. With
+> buffered_io=1 that includes files on procfs or sysfs which then get read
+> and written by a kernel worker on behalf of the host. Refuse files on
+> pseudo filesystems just like loop does.
+> 
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 > ---
->  fs/nfsd/nfsctl.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-> index f32311f2d7cf..ce2666deddbd 100644
-> --- a/fs/nfsd/nfsctl.c
-> +++ b/fs/nfsd/nfsctl.c
-> @@ -9,6 +9,7 @@
->  #include <linux/namei.h>
->  #include <linux/ctype.h>
->  #include <linux/fs_context.h>
-> +#include <linux/pseudo_fs.h>
+>  drivers/nvme/target/io-cmd-file.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
->  #include <linux/sunrpc/cache.h>
->  #include <linux/sunrpc/svcsock.h>
-> @@ -1375,6 +1376,7 @@ static int nfsd_init_fs_context(struct fs_context *fc)
->  {
->  	put_user_ns(fc->user_ns);
->  	fc->user_ns = get_user_ns(fc->net_ns->user_ns);
-> +	fc_init_pseudo(fc);
->  	fc->ops = &nfsd_fs_context_ops;
->  	return 0;
->  }
->
-> -- 
-> 2.53.0
+> diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+> index dfa8aa46188c..71c69bac5394 100644
+> --- a/drivers/nvme/target/io-cmd-file.c
+> +++ b/drivers/nvme/target/io-cmd-file.c
+> @@ -52,6 +52,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+>  		goto err;
+>  	}
+>  
+> +	if (file_is_pseudo(ns->file)) {
+> +		ret = -EINVAL;
+> +		goto err;
+> +	}
+> +
+>  	nvmet_file_ns_revalidate(ns);
+>  
+>  	/*
+> 
 
-Acked-by: Chuck Lever <cel@kernel.org>
+I noticed patch 41/41 doesn't include a test for nvmet. Would it make
+sense to add one with buffered_io=1? The test would need a pseudo file
+that can be opened with O_RDWR and supports both read_iter and
+write_iter. Otherwise, it could pass without ever reaching the new
+file_is_pseudo() check.
 
-
--- 
-Chuck Lever (Come to NFS bake-a-thon! https://nfsv4bat.org)
+Thanks.
