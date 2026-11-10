@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794302737;
-	b=KlAOsJibreqiuZvP0x9ZZQxvG2aF+5jEyzWKoifFSmDXLGgPvclPXxja9fIBdARNr//4
-	 H6+9N+r19dSEuJMcMRZ0QQHM4W76c11pS7qvMkUkqSkJEr+wMrpBVnFpY9uFyqcIekCe6
-	 tGl8At9JXVE/VSEHA8nnA1l1rk+ghDr1qMPBoA7zxSh1Lu+Mh+tdFPmCRb9EzrX+B/2tC
-	 AArRs1c4XXm+Uq9JWDVBznLx4j1c0bngXgvf7NaQ5ajjfG0RmfgQ8E4egYIJpIvw3Kgho
-	 ENBwgQ4Vbp6wt9Ib5jq3WDGFTty44/SbTpJhWovtBlQS+lRW2ZSFiu7W1YhxI9LyiZA==
+	t=1794302761;
+	b=BP+2+B1KNa08N0AQRDaTZAtgEBPXHTVk1lPbN2FXjNYZHwpz7aQJ3fwwH368D/lCDurh
+	 AUZhTVOAzY6oNimjZ5h/G2l1AaNUg4scHlsdxtAU8M/3iL6kivMC91C5+CJ5mZL6b9s3H
+	 cyB4gmEFQi1rDS26v5sLTPTELDtN8kzA4dqNxfqOyrkR/gWC6suRoSePTDTSGf5MfWQLF
+	 X7NKgfwIDcNtRrsblnRohKGu7uFmRfbMWwtiSzWrWRNoeOjWon/79bh/3lf50WlsLHz1H
+	 MxPALiIL8LQftZjppNBYIHIjexmgZuNGO8A9jVT2icMPOGBVaLxTSBy7+5OA0K7aLEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794302737;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302761;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ei0Nac/7OpJT3HJNSHolBFGJUc5DhDgjuYGi2QWDpFk=;
-	b=lt/lmdHD42D/GBiWI1EY7sPB1R3FjRqgSZJu7QwdHWDiPX7cPQjZXfXC008ZSuN+w3oi
-	 KqCRyB3KjxmozGbMFTD7SlBXS32tFV0FXTneM/aIMf8kH4Qw5dp4N307agFYZZTUMXcBs
-	 WgVs/5Hzs49sxAO2XehwcqeAFuKGQwB//nJ7I7GmCzvoHjJgVp9ts5R9NqOOQ0yeLzov/
-	 iiJgQpGQCr3HgQys9N3e1nhyrUCvjea3XHWP4b8a35ZWduKIvMUvNzGD+r7P2DMfnhcBR
-	 8uUrZqrlytMwGEk6FRV60hR5pOn0xuy5gRv3XfRY6PSZfaMQaqtWMEhlYBLwC56Yl9A==
+	bh=Z4I5lGKfPPdPtzV+5DSo7bwm6NSc60XbHGA8+q551Zs=;
+	b=0RNytI520w3pPagBO5IgH3HW1uteZg7Rd45sJ4C0ID3pJt/nj+SVplJUo1mPKPlI82Ze
+	 69gtZzMjAEPMb/CJ8O3jwXgcubFvZ+xCZVuDv0bqkBUdWi3bD5k8DGhvr5vNCXA/ARGja
+	 sCZcqj7rGbYwWYllY6mU2haMkutUOY2H+V69uzTARlt7serlH4Fjn66uva2CzMbZuC/yp
+	 lKdDyHbMoJ1iVhM3mA+M1KOeLz4fYu0tz+XjA/Y9XSb/GxaIUF8Rj6Y5J1e57dkMescYO
+	 YAaWR3T+dPJDpwn7zG5CWJvBh0+gTQJYsGydtrfzDbaD2BEwQppvL2zwDhoap704cPA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gea06Cjd;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HIPHCLhk;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23D02606B2D9;
-	Tue, 10 Nov 2026 09:25:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58A0C606B15E;
+	Tue, 10 Nov 2026 09:26:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gea06Cjd
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 203701F0089F;
-	Tue, 10 Nov 2026 09:25:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HIPHCLhk
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C8B51F008A1;
+	Tue, 10 Nov 2026 09:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302736;
-	bh=ei0Nac/7OpJT3HJNSHolBFGJUc5DhDgjuYGi2QWDpFk=;
+	s=k20260515; t=1794302761;
+	bh=Z4I5lGKfPPdPtzV+5DSo7bwm6NSc60XbHGA8+q551Zs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Gea06CjdTAbxuMqRBOPp/hV/PWBhpS9/lyqAiI5MvEu692F7RzBsOa9iw7KS7hmX5
-	 7OjNbIXVMo1H8rLmvc0EPzFrQLWLznVfMQQw6G7KPogUM7Pz1rKysCT0VkUnSnNAy4
-	 1pibEqJ1JvnBVmRQU4sR8QHf1BZRCviCBlAEm+8gi7bdND08RnCiXt8x58DbIgnCoF
-	 Y0+3YYCB4RoMLIOYAZnqUJd3zq+HYO+jrhGm4PZKPO1TRtOcNj8PWFd8/01t2qZ2df
-	 d1qykVQm6NOByLn0mby6mF0wgvScRUO32CRR7vI9JySxianyW4b96aqDjM7+1skKF7
-	 vlgvsrRmM0gqQ==
-Message-ID: <sashiko-outbox-206740@kernel.org>
+	b=HIPHCLhkJ9RYW5tI7KAw193Ci4N57Q5HLW2pohTiIIhL9ex5Rxp/yb/Y44SzWSViZ
+	 9mXStRJ3HJjaGkWNmJ9gMpW7CIVEnPhubQliCHrIUvHiFGNg4ikKUqxgVl+5/Q7kx4
+	 HO3qfVLR5n1RZuO61anzZpc4JYHcHhYXUmwPqP/6bc02l6YuqwKjGQQrhxkMQnPQox
+	 b8G6d56AI4eUI2LcPW2He/OwPPdgW25DStBXzEv0xOj8pUMNWc4CPPI6CVzg0WMd3I
+	 nyQhD2jJVKX3Hw/kLNmNKzjEJ9Ot7fpTixbtlsfRQTxQ95qnt2nz+5q17HKJlJzK64
+	 QqBIr2QXsP/Vw==
+Message-ID: <sashiko-outbox-206742@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 24/41] efivarfs: use fc_init_pseudo()
+Subject: Re: [PATCH RFC 22/41] sunrpc: use fc_init_pseudo() for rpc_pipefs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261110-work-loop-pseudo-v1-24-4c998976c6c7@kernel.org>
+In-Reply-To: <20261110-work-loop-pseudo-v1-22-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
- <20261110-work-loop-pseudo-v1-24-4c998976c6c7@kernel.org>
+ <20261110-work-loop-pseudo-v1-22-4c998976c6c7@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 09:25:35 +0000
+Date: Tue, 10 Nov 2026 09:25:58 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,8 +63,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Initialize efivarfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> also SB_I_NOEXEC and SB_I_NODEV. efivarfs never holds executables or
+> Initialize rpc_pipefs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. rpc_pipefs never holds executables or
 > device nodes.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
@@ -73,5 +73,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110-work-loop-=
-pseudo-v1-0-4c998976c6c7@kernel.org?part=3D24
+pseudo-v1-0-4c998976c6c7@kernel.org?part=3D22
 
