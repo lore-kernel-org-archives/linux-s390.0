@@ -1,60 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794303418;
-	b=PseFyzynMT50Dq/P0CV+238GYa3hHn6KsvU4udrNvt0zgElrcPCAeHIj2N9197pFcCXY
-	 wS+Y0fLp/uG/Ps0eKGVxhib4gmvlwHitJ0M+WJBsNbaImKVZiYYS4+fWvvK44uulCbaAH
-	 6NfSepqWWVjFVz4av8T96NQzR8yh5GdGNbet3Zyuc5ttOrsFi+LnyfbkyZ7CxcQ8Xgvww
-	 C+mAKskHf/Jp8z9f69GpIWapIEoXvxZJDlIb48e3gqsOroxZZbYFWry3wlYBh8++pxP6p
-	 mO3mK9S59mYH/BcmZkaNxPrAB7fxn3Ekd3UMBdp4ZZTMbNQC/qInSD4u9f5H/G9skUA==
+	t=1794305679;
+	b=QadZ97goys5iA3F07E9XAVM3n4Vk9euPcOTtdm0FqFVN+EM3IPeZPzvK5VoyrAVPTxJa
+	 pttYKfyVhXo038mPr66XX8BBT4QyAmKEPjLr4vqI3RpGgIAIpKK6+fWYsnEHbiPKRnbkh
+	 NG+xvbTFPvLoptK+HuNrZh3Fw/sGJsgO2BQ1aSXk28cF1j0y5kaGqaIp8ppry2XSXQn5U
+	 IL6+DBdUD2D+MLZmn/s7d2+OST5k2HfR0EUNCbFj2K7XXXSMK0+QAM7zBvRQ997mkhIEz
+	 omu+72eD5k5q7oXuyRg2qdsqbTbTEv4a3Nz3RHHFW6Qp7AwB8so/sEJuNfPSgebGVPg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794303418;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=jmISzwnri3fuvNL+fVrm7rCOzRIqMFYgsnVDWUvmGvs=;
-	b=5A9hEq5EaZbw/yI9JE6dMMnkyNRZJQpZ9ltUf4SfxQ2WVK18MD/FPiZcNXFPuUrCdhWs
-	 +IpBciBWVwa51a83KdOJz0+1ZpNas+84oeBwchSYIfACOYWSzLLdkzMIaRHNDDCc/d9lX
-	 zW7UFC90iHFfMHZCbaJ4Q3RF2aQZTHuFZu601MEBECjOF4B9nXt7yWeyZ1r3R1m7OPqqi
-	 pagWxmbTUGE9b6fryg/V7p1Xtlwk+QvIVw2fMHDG19ig0GikwvKdTbQz5mAGgNyrKfnaV
-	 QcohGNZb1zxiCy5wc3+CZohHR56nMoqV7qaMoIqFjSbOmCAC9oglKr5l/x5TZmR/09w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794305679;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=9WFltYRvNkpM0HMxRLJxGiCTEiP83WtKPHu+oXy3KTg=;
+	b=LPNqNqY67CdSFk38cXzV4SojFXGoYxWrHsY9HumeK0LLl6IuUSB/BxSstGKx6JiIk8mz
+	 RwdRcPKa6RAuHDutPI7YOZZgqzcwiVjYmPpqL4/HVlxCjFBEsLwtdYFSjj02rMbVx/EZp
+	 fJWLGi/dSCxUZg4hMXjm1SzRjUxjSX2qaTfMn2p7B58xYfPbsJddS356Q4viiWIFkYKro
+	 ARnIty+uTWz8wgWNOAoVElM8Iv26lqaJ4RQ5ISPyFsyPU7z99Nz/F+PPHN+BjRthgJ6qv
+	 p7jo80GkyYznhQuFochjBgv7nC7AVqR5rj6r27XD+P0m3rHeWm+MtP2g+3ePm3zSSYQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U01oBIVX;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DrlQYRb4;
+	arc=none smtp.remote-ip=209.85.218.45
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98CDF606DAAE;
-	Tue, 10 Nov 2026 09:36:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89A22606AA41
+	for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2026 10:14:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 89A22606AA41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U01oBIVX
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D55351F008A1;
-	Tue, 10 Nov 2026 09:36:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794303418;
-	bh=jmISzwnri3fuvNL+fVrm7rCOzRIqMFYgsnVDWUvmGvs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=U01oBIVXIS6618sYQFfMdHaL5FgNwbsT/bDU5+7/RNEXMvt/NX5UkwStHhS3lnpg5
-	 l4PF25GqlNVf3nEssvMgknnnprh0PogyiBI7ols2gEqlldy6yfWaisP28uGQzKSZwz
-	 obOYQfyjAN3xdHkExnW1kCCkhsGTZX5fIdDgnevMaH01GR7e25yLITjdgXabzQwpVe
-	 lfAL6OjDKel3BTQx6uILgk5PnRGJxsYCD5bVrPofFpw7xSTwtVZxkX4AGEmDjgdMzB
-	 KhXApNuxmYP5EA9a5PsxBKECdQNBFj7POx9wFAOVR3N48aBlS5YTlsZcf5MIrg2sfc
-	 5ljJ1TD3Hnmyg==
-Message-ID: <sashiko-outbox-206771@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 35/41] zloop: refuse zone files on pseudo
- filesystems
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Brauner" <brauner@kernel.org>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
- Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261110-work-loop-pseudo-v1-35-4c998976c6c7@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=DrlQYRb4
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c3f04e0e65fso266947266b.2
+        for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2026 02:14:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794305678; x=1794910478; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=9WFltYRvNkpM0HMxRLJxGiCTEiP83WtKPHu+oXy3KTg=;
+        b=DrlQYRb4d+FJBQLFk4gip1vdMb9pZcbFm0QRoW/O9nsnnIGk5B/dcI7komCKzkv/uM
+         Uz0TTkL3EB0XOLA2v0TTxwYvqDOvah1wiwbB4uUsiRRXfj1OcdvtnHWnMQS6yfKTNN5Y
+         2S+sbZpFj/oUd6OIfB1K+t4luOgmpm8MRta8dNUBz+XdEb16ui6jztHrAySR2QYDDBtW
+         UcH7ksMk3kyTCuhLg24n4RSbgP43bR1MD63YWBBHbNHKba+s6Adtgd3r0iiTavTYgvkx
+         vCBmyxhjfzRfUpjuhY0K7x1CK/3uUIf/0FzbTbFW5bHu/k5G1xko0Cr6O3LrrObY61iA
+         y+ww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794305678; x=1794910478;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9WFltYRvNkpM0HMxRLJxGiCTEiP83WtKPHu+oXy3KTg=;
+        b=LxMH/pRtv/M9UUacO+Mw/STozRCIHHX8naD1Cc67meU7RnSc2IckGGNHcMfFeuDLXU
+         SYqIQeXLfFDT0iD2sQyLvls5mh97fFQqQob10If7MV/IyFKZlofCewSsebt7ALqSl3LJ
+         jiSoGO0VHScPkKdeBHMcuE/EMq0D+4zQIEEvceGdB5qqCZIdxRJ34LMqftmAonbvbOkW
+         NSUW0fG3A59K0yT51QF15W9fR4xsZBxm0V4oM5CV3PE6hUxbwYvINUmRx2CpFDuvELCM
+         RvjP1JpKeDOSurJ452jWMPhgg+tUkjZifnvf8NNhlfT3CCjmc3JPKWh9/yrfmhRpNg6e
+         Z6CQ==
+X-Forwarded-Encrypted: i=1; AL+hErHED0IOmu8W/Hjkf/DErKzkOGDN1H/KnAW57SZs1zZNbp2I2S4FAfTv7ofwQXbFNSd6Y2kDdLnW9wYV@vger.kernel.org
+X-Gm-Message-State: APuU4Z9jVmclM1HURaT6sxTExX1FydEKVE8mhgyON8CNKlJ4kbUXe/4c
+	Xo823nAzgiVcl88DpkuXNqCeF1ZyI4koGQdHopxFhI0xVsKoLDGb5rZW
+X-Gm-Gg: AYBFou28oBZBLDfKc6m5ks/+kj6ebeItpMsfqBIKEfJEbvzmPGq3K3biJxp+39vjidP
+	s0tA7QrAh8d02hIRHrQSwDSgYHIqii8Y8R+pqDWD+1zeVp96B8l4s18GqFcuOdOKsXlD/IFeUDX
+	Nhr1YTm3iWQyWCnRj1XvxROvxDAcSukV5TcE7icbXiO8Q8sDgDpzJ5o8RP6zR/RdUv5ttKtHolU
+	xBYAbI+nt9HkdsAZLLmg6o/l0/anOqzeHMi9GH0sWTLqKwXSxBcbfivSTRWP6mZBfE+wtw50yfW
+	5ztF/F+AquS8KYlLcxHbNGsUurN0ogZPf3bDF0QSq+2T77Dtv4ktK8cM/zRZO7PUVwfapT/ra7M
+	olYNtyPKJ/7FetQGUA7x4TddgPbfz2P8pt3z4+Eb/Q9sNXCZZuM1gkvD/UVNZ/wDbitQfsO5Q5/
+	teA31MasRrnCYaSLApSA35Xhj56Z4vlO7Nb76u9HKC+1Qf64bX/DfvgBGJ9ZclzBlDyq+c4WzAe
+	2Z1P/YhsGZVq8M85Q0weDICRIWxpLW2AjwmaqbJUHXBmdMtjYSdccAhWcIswFmvXYk7fu0AdXpl
+	jFrucpG2vfopfKAf3iHRrt/663rHdAlWHp/dS5lHUvH5Xo/s/aFAtctVDAm0/LCimVcpIeaSzZY
+	z06OiXexZ1TGx
+X-Received: by 2002:a17:907:944d:b0:c41:4c20:5a80 with SMTP id a640c23a62f3a-c504963ce05mr189793966b.44.1794305677695;
+        Tue, 10 Nov 2026 02:14:37 -0800 (PST)
+Received: from localhost (178-84-201-199.dynamic.upc.nl. [178.84.201.199])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c504a593eacsm90433466b.36.2026.11.10.02.14.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Nov 2026 02:14:36 -0800 (PST)
+Date: Tue, 10 Nov 2026 11:14:35 +0100
+From: Amir Goldstein <amir73il@gmail.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>,
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+	linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+	driver-core@lists.linux.dev, linux-mm@kvack.org,
+	bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, apparmor@lists.ubuntu.com,
+	linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
+	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org,
+	xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-usb@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC 38/41] fuse: refuse files on pseudo filesystems as
+ passthrough backing files
+Message-ID: <avLui6Mpf8GbKbtc@amir-ThinkPad-T480>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
- <20261110-work-loop-pseudo-v1-35-4c998976c6c7@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 10 Nov 2026 09:36:57 +0000
+ <20261110-work-loop-pseudo-v1-38-4c998976c6c7@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,16 +111,42 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261110-work-loop-pseudo-v1-38-4c998976c6c7@kernel.org>
 
-> zloop opens its zone files by name below the base directory but a bind
-> mount can put any file there, including a procfs or sysfs file. Refuse
-> files on pseudo filesystems as zone files just like loop does.
->=20
+On Tue, Nov 10, 2026 at 10:14:54AM +0100, Christian Brauner wrote:
+> The fuse server can register any regular file as a backing file. procfs
+> and binfmt_misc files are already refused by the stacking depth check as
+> both set s_stack_depth to FILESYSTEM_MAX_STACK_DEPTH. sysfs and the
+> other pseudo filesystems aren't. Reads and writes of the fuse file would
+> then be done on the pseudo file with the fuse server's credentials.
+> Refuse files on pseudo filesystems just like loop does.
+> 
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> ---
+>  fs/fuse/backing.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/fs/fuse/backing.c b/fs/fuse/backing.c
+> index 8c21a8a74efb..4e4fb810ddaa 100644
+> --- a/fs/fuse/backing.c
+> +++ b/fs/fuse/backing.c
+> @@ -147,6 +147,9 @@ static int fuse_backing_open_file(struct fuse_conn *fc, struct fuse_backing *fb,
+>  		if (inode->i_sb->s_stack_depth >= fc->max_stack_depth)
+>  			return -ELOOP;
+>  
+> +		if (file_is_pseudo(file))
+> +			return -EINVAL;
+> +
+>  		fb->type = FUSE_BACKING_PATH;
+>  		fb->path = file->f_path;
+>  		path_get(&fb->path);
+> 
+> -- 
+> 2.53.0
+> 
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261110-work-loop-=
-pseudo-v1-0-4c998976c6c7@kernel.org?part=3D35
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 
