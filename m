@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794428249;
-	b=kpn1onZTLXq9U1qGJVaAF2bbrB/XzGURVUCMHhqRpHSvrWGWIY5vrFnNSwSe/WN8LYRB
-	 AZ+xSqlqJGRr3cysCcqSulwcYrxaViXNEPar8ARGG7ACi+7onm/3W2VpvMs3XqIPn7X/a
-	 WI4BIJYVNpEB3bbS7g950Om3uv84kkwZlAGzOPPWv5+/lvva+XfR0rbYBS2fq/ELC8mQe
-	 LckyrTbukZ6Na8sem4I4fHfTuhyqQga1Gc0uLsWFP4WNYre43DOgbRDWDKUSkhEBCFZIS
-	 Ra1OlHSWuhLAuJTD8m8Vk+DkKNHzonZInaK/iB0ncnpV4XSKostO8K86r747a+og+aA==
+	t=1794428316;
+	b=GQQMzGvZ0ml/znMsRwfVbDiyJZ2No0+baLYUiYZONMwDDaBLPkU6AtdMZPfI4cEpsUzJ
+	 lPhWJlprG7igPLdcSBJ1dqmtcqN6fD2ZN2iQCacX7zJXwq2DZ8HkNY6+OUd3TwnJclYul
+	 6zCx03IxtPE6SJg7xSlSrJL2bjSTExsaq7060ar60KmzbWJi3Q3VipV4iS4q9f87j0xzc
+	 VkpA1xAKM+vl3DpjwbBDoCLFV1ZNpaVepVVlXOXncV7xmL+bnG3cPuWl+JNX8Lc+XUTjM
+	 pZS8ZLnuPhaO665ZyaUnlXoCawIJr/IIeVlKNakw1XLKFVqwVh8QCNHpE8H1yLeWMog==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794428249;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794428316;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=F7qrX3L0M7ok1LN+UCzsb1jHIcmPgoN82+5an1saUsM=;
-	b=JRoIxsKKCJXZxqsC7uKDP6hPhlLqtOjirxN6SkqUDRuZJZgNyC6y4UBZPvOzkloH5Skf
-	 4itRvLpYgmO1eUx5UEcDJEYzEfczL25D9K1tPHPCLotO0tuF8QPHCrbR+M73sQzG3EMic
-	 3piki2YgWzRJUH22dbmCu8AmP3KCYt7dkDcT8I9us0OOZb96hGeBwEpvgFYzFr8qI0hnP
-	 z/PkhPxOit5pHTkHhwHzqZbsyaptR4s2R5p/4ZLb/+KbpSlRsEGgexyxcgQWpMsu0udC3
-	 cNb5ivdkk3N4geOuUeOG0dlbYA6wL9HEOOKSpYVmqTzn6Ae1XDUhLtXeqDuyesmF4ng==
+	bh=K/XZMu6gVpzasejJZfIOiXxn6PQnwL6RTPVyXLRCab0=;
+	b=HUlqhLdpxykcw2JYrqhmcWsFf4yFILE6OOq1yxtO+UvAiChR86ryCZH+UrlJNj52XuEG
+	 BqXiNkHXj0I/ib1H1EljphNJzmy15ivam9/fzFssok5kEvF0WwNBZEATwKtk9bU681f0p
+	 kTlulIrth1rmaDv2ByvbjSrKiNvlV8xsEZHaasjpj9XavXttfIC06EnjdcZTsXI+q/Dyi
+	 YyYs9Ihh8d6RIN3K/WuLgWraHcikTm5t53bgtFm/flxJ92NzwpkNC62o+QunTyA/sI+Ks
+	 mFBgJcIjzcWUrbl9mKZSLqmwJHx3qJUjDrj5Ov85glLd11WkKN3FYWre7HUANe6778A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DxYMSAlm;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LdWfgVE3;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B140606A333
-	for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2026 20:17:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09C85606A31C
+	for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2026 20:18:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DxYMSAlm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 903EA1F00A05;
-	Wed, 11 Nov 2026 20:17:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LdWfgVE3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A5D1F00A05;
+	Wed, 11 Nov 2026 20:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794428249;
-	bh=F7qrX3L0M7ok1LN+UCzsb1jHIcmPgoN82+5an1saUsM=;
+	s=k20260515; t=1794428315;
+	bh=K/XZMu6gVpzasejJZfIOiXxn6PQnwL6RTPVyXLRCab0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DxYMSAlmePUFXWP81dcjrzClABlSudZFGkwDQ9nDorTjd/Pyi5rYKoj4o5RdVN/Fn
-	 goKERlofe12kj7BL+h3TdNUHIgLJTcKVpypjqU+E5t4oQHIwVJKWZ30KJKE3l3Gw6L
-	 4QR2vmh8ai5WhWhClYSg5a/3/XNFgI39M/p1WoLeY93XtqMorjpZScen30HqAMUK38
-	 QgYMiPbq8L+/iPb9LSOk7BM2j48WeAVepiXklJeI3KaoaSusP1MntTOKxY6RgS/vVr
-	 GUDMbb7cYbLJszRLFQa6IvHzAPEqFZs+hEls7yU+yyo/bHZVV4eAWOqXc4yZwcIggg
-	 Exln1sOibC5Zw==
-Message-ID: <sashiko-outbox-209631@kernel.org>
+	b=LdWfgVE3Ku6OgNut5Xv/vg+XysLy9WKhHK+Gp3QiAhmyogIUqJxAHMpGz9f2tlrZY
+	 CfZSin7xbzc8k/lz8RH/3gTHWk0ywnWawxaDVRBWv3m736lVwORV1poll5lIyMw0Qo
+	 t4stoQsVsiBiCX9t4/sK0C16KoSFErGrY0JOcWfs99vEUYQXSmhj9UBml+oYcgM0Kp
+	 gC7kLuwSA0JlpA97mXastC5GZm4tiBEiQ5xaPxQfVIQSPtPIppC6mtUBKHTab3Y1Dt
+	 +MvR3YDX14gWWVt0EZg5Pe8AXFsusImhFzHC1IDwsKx7jEO8gbMrA9ozMJWA5wNmUz
+	 ep6jXBRZxHEeQ==
+Message-ID: <sashiko-outbox-209632@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 08/14] s390/vfio-ap: Transition device migration
- state from STOP to RESUMING
+Subject: Re: [PATCH v13 10/14] s390/vfio-ap: Transition device migration
+ state to from/to STOP
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261111192308.2585984-9-akrowiak@linux.ibm.com>
+In-Reply-To: <20261111192308.2585984-11-akrowiak@linux.ibm.com>
 References: <20261111192308.2585984-1-akrowiak@linux.ibm.com>
- <20261111192308.2585984-9-akrowiak@linux.ibm.com>
+ <20261111192308.2585984-11-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 11 Nov 2026 20:17:25 +0000
+Date: Wed, 11 Nov 2026 20:18:34 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,20 +62,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Transitioning from VFIO_DEVICE_STATE_STOP to VFIO_DEVICE_STATE_RESUMING
-> starts a process of restoring the device state of the vfio device on the
-> target system. To prepare for restoring the device state, open a file
-> stream to receive the guest's AP configuration saved when the device state
-> on the source system transitioned from VFIO_DEVICE_STATE_STOP to
-> VFIO_DEVICE_STATE_STOP_COPY.
+> VFIO_DEVICE_STATE_RESUMING to VFIO_DEVICE_STATE_STOP
+> VFIO_DEVICE_STATE_STOP_COPY to VFIO_DEVICE_STATE_STOP
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Terminates the data transfer session of the vfio-ap device state
+> between the source and target hosts. Release the migration file
+> state (ap_config buffers and file pointers) so that a subsequent
+> migration captures a fresh AP configuration rather than serving
+> stale data. Since the vfio-ap device does not virtualize a DMA
+> device, there is no internal device state to incorporate into the
+> vfio-ap device on the target, so return NULL since no file stream
+> is needed in the STOP state.
 >=20
-> Note:
-> This commit introduces the file operations structure for migration state
-> files with a stub implementation of the write operation. The complete
-> implementation is provided in the subsequent commit.
+> VFIO_DEVICE_STATE_STOP to VFIO_DEVICE_STATE_RUNNING
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Migration has been cancelled. Release the migration file state so
+> that a subsequent migration captures a fresh AP configuration
+> rather than serving stale data.
 >=20
-> This incremental approach allows for easier review of the migration
-> infrastructure setup separate from the actual implementation logic.
+> VFIO_DEVICE_STATE_RUNNING to VFIO_DEVICE_STATE_STOP
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Migration has not yet been initiated. No migration file state
+> exists to release, so just return NULL.
 >=20
 > Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 
@@ -83,5 +91,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261111192308.2585=
-984-1-akrowiak@linux.ibm.com?part=3D8
+984-1-akrowiak@linux.ibm.com?part=3D10
 
