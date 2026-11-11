@@ -1,86 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794400927;
-	b=w4pqtFKf3Ng83G8jY+LwkWA5llEkii4Uuyv/VzYGjkVY/u83FnmG4fAyJoAIJrYQz0S+
-	 7hGH6dwzFuzLuk4AhZIcBXD/K5Y8BeOklnUHTrxeimIcQ1zolEKcFUL0qf9VoIS+yQZI7
-	 jZWWobi9y3jflI8ZRxep5coSAK6AxaT50wvnyhEcfk3XcThYFwAw4/kqKZrOh+s/Yrrs+
-	 q8cbiZrdU8sQaMftI6GZ3ieQ2bvg8/MqllHRQgW3okWzhdwpuopDRZBRX04I28TNBdNzR
-	 YEyiuqtl99XzdrSYnT/zzwZeAf+zvVLvrTGJbMZ7W/8yRtcRfLix7h77Dm/eTdkrARw==
+	t=1794401036;
+	b=1YdXARM7Paydfh8Yf3j6zWt/kKywUz6B3C5xWb3XnODXjC9xQO+SXXR1bObNZuIrQ93I
+	 kKjbCcnqXMTouhZWNhzr2utvaACPOeebPbzk0IeLSFvRh3h4as5ZkRLaI8HEwSsl2OUeG
+	 tPMzK1yQByaNwsKxxs9tS78xNhaCh03VP1MgV2DgE8hjd1kMAOKBJx5quQTA0xlZXYr9i
+	 0/fg+ftUVxim0aPKPGSjH6ORMunwcm8ySexexjmIR/l6HawpfCplU2X21hyD7Ww0V7ihg
+	 0dj0EB40hhE9Qjr/D4aMJnA8Z9qu9DuOTYO2TW3YF5CfdJpThtCJTNw6/jWa3pkR7KQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794400927;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer;
-	bh=OQ16sdEJf1gdJkohVqyloM5KBnz2C1+nxajXYYSElQA=;
-	b=Jk5rWw49YJuzWnQh34pTXTLY2uf64EFBj4JCLqIiL4VQuOTmQZ8yoWmKECOVLQHW5yWM
-	 natWJPgPwcYfxnzPTuzQcrRapEmfy44Nwhby0XpjVB/TOhyOD1hKusNMeW2uXbQ7/Vr1+
-	 YUE3X+aGF7NejF8B9c7fXqDlHKM29EA70L+xpbrbI8UTf4Me96eUGJEumz8Hew1ba+xtJ
-	 NiOuU0D+ZyaVyQfzN/Yi57Lur5ZGUMqn6Rajbt1TLALNkhG2rWCfq6zx+ekBW7YGYa/RI
-	 yhsB3OH7Brf9tc5RKl3NiyjPveTABudhQrkKH7fixhKRXphMW18+L//pnhONUKm3t0Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794401036;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-Reinject:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=qYmz3GqjaSkvnipcM4i+09arVtFA8YFo71Bfz4OiDvc=;
+	b=5i2rEgaiSqgjtt03gWHQVw2Q8MWIInG/aJ6ap6rbAh9iR5noa19BygVOhUUzG2tQasa8
+	 zVtcyHCt7s376TbfmFMwjfFMJopvNfpQ8LcM58MSzlmAfguCsywmS+QA0ou7qKFB9+koB
+	 QyUfVIjXfq9Lq4B+NJP8QAWmQSYWKMtHIdi5tZidN+UvztW5YFVguZwuWncvCJZGU+fD4
+	 NzC92a+GlP/SlA+s09MXmzBIekrudjuJrI54UftIYi2ZOC2HqL1aanP3T3WVKYp4F/IIO
+	 N/PjSFsIehDt/nFD7k36IvstxEAgr/+ebDJmJBG0YwAs/Xo6p8MOkLEkRnYOszCPOAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0Pou1PQP;
-	arc=none smtp.remote-ip=74.125.82.181
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gekFgyps;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE111606A333
-	for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2026 12:42:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CE111606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBED5606A31C;
+	Wed, 11 Nov 2026 12:43:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DBED5606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0Pou1PQP
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-37605faade6so58836eec.3
-        for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2026 04:42:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794400926; x=1795005726; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=OQ16sdEJf1gdJkohVqyloM5KBnz2C1+nxajXYYSElQA=;
-        b=0Pou1PQPAuvbVRhRj9+hhQ5LLYq2V5/nMuKx/UUTnGe6vVRdZBQ2wGseEP21of/KFn
-         sJMYUNBub5q7J0KLDM5gpc1xQr7ppK5Y2bfQ4x8RF2WXVzAXErxUQk15lKkh5RIS5/zo
-         I1EWB5zWqPe4LF2NV0i0t+uOnP46AcBgB0GZFloQViZ5RVIIYIgPKymoYOVgAgA5++JF
-         teVuAbHRYpk5ZBwsyKP+FqUapvJbBC7nurVSgwxcM8jaIJwpU1W18t2iINsQOEh9i9o2
-         ZHdroZI9LkfOtvZn562cwN/2UHOLRODFi1ZxOOZ1/xU/SaoVwl5PSyA52RsShLlFjEaH
-         twXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794400926; x=1795005726;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=OQ16sdEJf1gdJkohVqyloM5KBnz2C1+nxajXYYSElQA=;
-        b=vgqTBMe7AYywJ8OMlML71BVDt2xm20oT/XNU8jcz0ED52fEslZbGR0llFe7bHOOIft
-         9IksWuU8jeaYKytwbPhY8bo0fyRSNEp2bPjXMB+ss2kFGbgaeg0UZgwI+Sb0ksCEzdWQ
-         ry9bXfvqpb+ETThvWP9LqUGZR7U48W3Qs0YrUavMHjNcsIqaNi+gxsH+edRi1nbEPUM1
-         EdJIORr6OZtf1I4KKME12c3FkGagaiSe5nh/7FqZ0xkZ1poVEhcsdUfE4RheW5d5vnaj
-         CwxCfkUSM4vLdThMMFmVt0QhKqEuE81hTeM00FVCK5p75ngICQjCoxHqMHlyjKssi5TF
-         uYYQ==
-X-Forwarded-Encrypted: i=1; AL+hErG+43JbmpgjXQUL3Nwzj6h7yyO2WfurvXZXknvzCLblTIO5AWMd+huySKcXWueqjFHSMJVG5K1rdhBE@vger.kernel.org
-X-Gm-Message-State: APuU4Z9lCHLvGwCIdaU1qRXHe9ZhE8WL6jbvlqZkttEcfi72z/zEtsZK
-	CmlIZoUZ5+gFL5IJPLtOe61PoNJa66AhusWM/eVMvFzjZI+DL/9Bz5GX
-X-Gm-Gg: AYBFou3oqGtft0R0Vl4+u1rOAfkWgusRatqxxU5b5D5+M2GHVl5AvmQPqVpdvBClE7B
-	dXq2w6si/SqMeppgSKKfX4jVdBFIlxHiiPR286kTlksYQCZxDR9W7IT2K1n17eAZZDq9vdOj+Wt
-	8/HJRcNjBuk90mniZG5rGrOCjiU6Ua4dE0xKNzDrdt1fH0k3iMvxxxthtXojOMlCxubUGGhd3K7
-	WpKVo/pUksjbOXj8OEiG6Q06dVAioMkKB6rhJe4bqA1FyrFTAt33utBHpD3mSqSmBvoCDCwHyy6
-	3Xm9edsMhqVc/7NZzXS8ZfD8zw0/1Ds9DQy2Bj1U37XiU+CBMWxHtmEsB3wjfp76DFBKWZPXuoX
-	aAtN6OxgfCD21NvZS/fuNyxr580uECbkUfYP2SemEYcQxKdiMCNpqORrIKdEe8mDMU8CG5d/o9M
-	Ah8niBWxONnHpfK1PuzkpC4QmXlJgxiU+5O+rNw0wcD4b+Gfe3vwzNH+/A5P5a16+f6zqRSIqyp
-	13ttvNeQbRnegoXkbjtSPOOCG5hiJN4JNBMXvDeV1d5VfLyurYXt71IDH55WIU3Ov4e12a+nOYl
-	M1GtzEdlxCPlyKmJ1DhbPMUIC6Sh5MnwlWOZ2iQz4jLTdsDzLqM9sD/MqsT3EId3J78=
-X-Received: by 2002:a05:7022:3a86:b0:143:5c2a:e45f with SMTP id a92af1059eb24-1b3c01600d4mr3616454c88.0.1794400925446;
-        Wed, 11 Nov 2026 04:42:05 -0800 (PST)
-Received: from o6.lan ([2602:fce1:44f:115e::])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b4efc2sm13462032c88.15.2026.11.11.04.41.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 04:42:04 -0800 (PST)
-From: Xueyuan Chen <xueyuan.chen21@gmail.com>
-Date: Wed, 11 Nov 2026 20:41:26 +0800
-Subject: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gekFgyps
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AB5isfI3261993;
+	Wed, 11 Nov 2026 12:43:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=qYmz3GqjaSkvnipcM4i+09arVtFA8Y
+	Fo71Bfz4OiDvc=; b=gekFgyps+6BXMV2e0xzxTGfWuXeeX+C/k7LecAnE+KOyv1
+	R8rp2Pia5MuDdRIjbbwQ2IUdbuCcfPmFfU1WaGYxjwCuQUi9BFcrk6uhgUbBcwQT
+	afmwRcLda6sekLhCjy6+/b6ekIMw2g6OlGthF/vJtnfIzyTfyAIuynTLUJzvpLI5
+	L7f2Jekcv4lkD8/obmk2pSrgNDE5Kf4ad2MGdwKA/yj2cEEK9Rib6BNHEaZ+IpXE
+	u4CW81iVBH6xFxrVhf1n0gZpTQ+NUUAtOIaRYWGH8KRD25wdzPzi4pJipTvXiLJc
+	K6zXPJmlFjKIbJWGZgY5q3oMsFs3gDTLwNH6RgXA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hstdg9h43-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 11 Nov 2026 12:43:35 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ABCYtVV3286275;
+	Wed, 11 Nov 2026 12:43:34 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hv3324f04-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Nov 2026 12:43:34 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ABChUs928508500
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 11 Nov 2026 12:43:30 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5C3752004B;
+	Wed, 11 Nov 2026 12:43:30 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F41E620043;
+	Wed, 11 Nov 2026 12:43:29 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.68.17.117])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 11 Nov 2026 12:43:29 +0000 (GMT)
+Date: Wed, 11 Nov 2026 13:43:28 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>, Arnd Bergmann <arnd@arndb.de>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Steffen Eiden <seiden@linux.ibm.com>,
+        Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>,
+        Finn Thain <fthain@linux-m68k.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] [RFC] instrumented.h: mark instrument_write non-const
+Message-ID: <9e0db1c6-a637-4fb1-b6ad-db22fd3ddbc9-agordeev@linux.ibm.com>
+References: <20261111092231.2027735-1-arnd@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -90,279 +107,126 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAHVi9GoC/3WO2wrCMBBEf6Xk2dUmxlZ98j9EZJNs20jbSFKLF
- /rvNhWhCD7OMOcwLxbIWwpsn7yYp94G69oxrBcJ0xW2JYE1Y2YiFRnnaQbP0GBdO30OHXZAY2u
- k0VzkGRuZq6fC3iff8fTJ4aYupLsoiQuFgUB5bHUVKyUhNquvFox3V4juOK5s6Jx/TO96HqX/j
- vQcOKhNLguZc4mmOJQN2nqpXcPikV7M6d0vLSAFjUSSZ1uJCuf0MAxvI0pZ6ycBAAA=
-X-Change-ID: 20261106-zsmalloc_stat-e261d4dc1276
-To: Minchan Kim <minchan@kernel.org>, 
- Sergey Senozhatsky <senozhatsky@chromium.org>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, Alex Shi <alexs@kernel.org>, 
- Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Helen Koike <helen.fornazier@gmail.com>, 
- Vignesh Raman <vignesh.raman@collabora.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
-Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
- dri-devel@lists.freedesktop.org, Nhat Pham <nphamcs@gmail.com>, 
- Xueyuan Chen <xueyuan.chen21@gmail.com>
-X-Mailer: b4 0.16.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261111092231.2027735-1-arnd@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=J+M/fwnS c=1 sm=1 tr=0 ts=6af462f7 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=h2GPdUkYvjar_X7b29IA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTExMDA0OCBTYWx0ZWRfX0upqQ5ce/Pm+
+ wTrum7/HgBFv8XhZO3BP3hLfar++ZFblLByUZG8stu7JQmxBSr8RAaMRh+1ifcAwH/1gjI0z/F+
+ 6g8bdmY4uCwkrxpHgulA002qcNWKnD/PgEv0b8NWqGRYlp+YVwsyeKk6VFJ25PqEMQ9UhKIXymM
+ CK74sVW4BPyMIVgTOjsdkaY/7/i6kcwfR6uxwgS5CCNEmkKVPNyFOsPHySE2uZHOInES1veLb63
+ F4DybHIQPr1rTL9ksbRHAY7NOvZBMYqBKE4QiSxp2kZkMGfQddxvOHglGmXWSFjqOmMUwWe3Tv4
+ 2H3Ka9+xY9U9WqTkJyHCwdhcjkTojnh46V33YlHL4mbUEbtGvJ4ez7hc29kfgTMUXuDWXB4kYQj
+ 9KXUJacbJ+gUb4TLf2laayvHLO2i2Fg3anUxlHigxd93V3dRTDYLbkdiY/9hf46gNnicg/louNy
+ g9gecn/t13QG+cmfkcw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTExMDA0OCBTYWx0ZWRfX852uAGi5PYiZ
+ nsPkzATZy9mjHgTD4CjcAlWKU+nL19wJFYMIf81nhtsi7v18sJRwh1HwAnjLRLdR1x/vvoLQnpk
+ 8L1ITUuw8OvS3WicjbnkiBAysNXEnVs=
+X-Proofpoint-GUID: ceIP_O8HdMhCYCYezPPo4tpjndDBOFMa
+X-Proofpoint-ORIG-GUID: FUoKXVp3UpAvUAi1zykgiJVGwuylwcXF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-11_02,2026-11-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 phishscore=0 bulkscore=0 adultscore=0 suspectscore=0
+ malwarescore=0 clxscore=1011 priorityscore=1501 impostorscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611110048
 
-CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
-counters are updated regardless of this option.
+On Wed, Nov 11, 2026 at 10:21:31AM +0100, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> I got another instance of a -Wmaybe-uninitialized in ntfs, as this is
+> the only place that enables the warning:
+> 
+> In file included from include/asm-generic/rwonce.h:26,
+>                  from fs/ntfs3/file.c:10:
+> In function 'instrument_copy_from_user_before',
+>     inlined from '_inline_copy_from_user' at include/linux/uaccess.h:184:2,
+>     inlined from 'copy_from_user' at include/linux/uaccess.h:222:9,
+>     inlined from 'ntfs_ioctl_fitrim' at fs/ntfs3/file.c:78:6,
+>     inlined from 'ntfs_ioctl' at fs/ntfs3/file.c:246:10:
+> include/linux/kasan-checks.h:38:27: error: 'range' may be used uninitialized [-Werror=maybe-uninitialized]
+>    38 | #define kasan_check_write __kasan_check_write
+> include/linux/instrumented.h:146:9: note: in expansion of macro 'kasan_check_write'
+>   146 |         kasan_check_write(to, n);
+>       |         ^~~~~~~~~~~~~~~~~
+> include/linux/kasan-checks.h: In function 'ntfs_ioctl':
+> include/linux/kasan-checks.h:20:6: note: by argument 1 of type 'const volatile void *' to '__kasan_check_write' declared here
+>    20 | bool __kasan_check_write(const volatile void *p, unsigned int size);
+>       |      ^~~~~~~~~~~~~~~~~~~
+> fs/ntfs3/file.c:66:29: note: 'range' declared here
+>    66 |         struct fstrim_range range;
+>       |                             ^~~~~
+> 
+> The problem here is that copy_from_user() is called on an uninitialized
+> object, but the instrumentation passes the pointer into a function that
+> takes a const object. gcc deduces that any access to that object is
+> undefined behavior and warns about it.
+> 
+> The only workaround I could come up with is to remove the 'const' keyword
+> from these annotations, which of course is not great either, as the
+> functions do not actually access the data at all.
+> 
+> This also found incorrect 'const' annotations in
+> arch/s390/include/asm/fpu-insn.h, which writes to those pointers.
+> 
+> Any ideas?
+> 
+> Fixes: 33b75c1d884e ("instrumented.h: allow instrumenting both sides of copy_from_user()")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/s390/include/asm/fpu-insn.h |  8 ++++----
+>  include/linux/instrumented.h     | 10 +++++-----
+>  include/linux/kasan-checks.h     |  6 +++---
+>  mm/kasan/shadow.c                |  2 +-
+>  4 files changed, 13 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/fpu-insn.h b/arch/s390/include/asm/fpu-insn.h
+> index aaf1faeb3dc5..7cd6e9f30485 100644
+> --- a/arch/s390/include/asm/fpu-insn.h
+> +++ b/arch/s390/include/asm/fpu-insn.h
+> @@ -359,7 +359,7 @@ static __always_inline void fpu_vsrlb(u8 v1, u8 v2, u8 v3)
+>  
+>  #ifdef CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS
+>  
+> -static __always_inline void fpu_vst(u8 v1, const void *vxr)
+> +static __always_inline void fpu_vst(u8 v1, void *vxr)
+>  {
+>  	instrument_write(vxr, sizeof(__vector128));
+>  	asm volatile("VST	%[v1],%O[vxr],,%R[vxr]"
+> @@ -370,7 +370,7 @@ static __always_inline void fpu_vst(u8 v1, const void *vxr)
+>  
+>  #else /* CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS */
+>  
+> -static __always_inline void fpu_vst(u8 v1, const void *vxr)
+> +static __always_inline void fpu_vst(u8 v1, void *vxr)
+>  {
+>  	instrument_write(vxr, sizeof(__vector128));
+>  	asm volatile(
+> @@ -385,7 +385,7 @@ static __always_inline void fpu_vst(u8 v1, const void *vxr)
+>  
+>  #ifdef CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS
+>  
+> -static __always_inline void fpu_vstl(u8 v1, u32 index, const void *vxr)
+> +static __always_inline void fpu_vstl(u8 v1, u32 index, void *vxr)
+>  {
+>  	unsigned int size;
+>  
+> @@ -400,7 +400,7 @@ static __always_inline void fpu_vstl(u8 v1, u32 index, const void *vxr)
+>  
+>  #else /* CONFIG_CC_HAS_ASM_AOR_FORMAT_FLAGS */
+>  
+> -static __always_inline void fpu_vstl(u8 v1, u32 index, const void *vxr)
+> +static __always_inline void fpu_vstl(u8 v1, u32 index, void *vxr)
+>  {
+>  	unsigned int size;
+>  
 
-Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
-stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
-debugfs is unavailable.
-
-Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
-settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
-documentation to match, and clarify the pool name in the debugfs path.
-
-Suggested-by: Nhat Pham <nphamcs@gmail.com>
-Reviewed-by: Nhat Pham <nphamcs@gmail.com>
-Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
----
-Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional. The
-option only controls the debugfs interface, while the class counters are
-updated unconditionally. Removing it simplifies the code.
-
-Following Nhat's suggestion, remove CONFIG_ZSMALLOC_STAT and rely on
-the existing debugfs API stubs when CONFIG_DEBUG_FS=n.
----
-Changes in v3:
-- Squash the three patches into one (Nhat, Sergey).
-- Add Nhat's Reviewed-by.
-- Update the documentation wording.
-- Link to v2: https://patch.msgid.link/20261109-zsmalloc_stat-v2-0-caee41684aba@gmail.com
-
-Changes in v2:
-- Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional.
-- Update configuration files and documentation.
-- Link to v1: https://patch.msgid.link/20261106-zsmalloc_stat-v1-1-b574f4714adf@gmail.com
----
- Documentation/mm/zsmalloc.rst                    |  4 +--
- Documentation/translations/zh_CN/mm/zsmalloc.rst |  2 +-
- arch/s390/configs/debug_defconfig                |  2 +-
- arch/s390/configs/defconfig                      |  2 +-
- drivers/gpu/drm/ci/arm.config                    |  2 +-
- drivers/gpu/drm/ci/arm64.config                  |  2 +-
- drivers/gpu/drm/ci/x86_64.config                 |  2 +-
- mm/Kconfig                                       |  9 -------
- mm/zsmalloc.c                                    | 33 ++----------------------
- 9 files changed, 10 insertions(+), 48 deletions(-)
-
-diff --git a/Documentation/mm/zsmalloc.rst b/Documentation/mm/zsmalloc.rst
-index d2bbecd78e14..4c0786378dc3 100644
---- a/Documentation/mm/zsmalloc.rst
-+++ b/Documentation/mm/zsmalloc.rst
-@@ -33,8 +33,8 @@ proper handle-based APIs.
- stat
- ====
- 
--With CONFIG_ZSMALLOC_STAT, we could see zsmalloc internal information via
--``/sys/kernel/debug/zsmalloc/<user name>``. Here is a sample of stat output::
-+With CONFIG_DEBUG_FS, we could see zsmalloc internal information via
-+``/sys/kernel/debug/zsmalloc/<pool-name>``. Here is a sample of stat output::
- 
-  # cat /sys/kernel/debug/zsmalloc/zram0/classes
- 
-diff --git a/Documentation/translations/zh_CN/mm/zsmalloc.rst b/Documentation/translations/zh_CN/mm/zsmalloc.rst
-index 4c8c9b1006a9..b555a07ac871 100644
---- a/Documentation/translations/zh_CN/mm/zsmalloc.rst
-+++ b/Documentation/translations/zh_CN/mm/zsmalloc.rst
-@@ -32,7 +32,7 @@ zs_unmap_object()解除映射。
- stat
- ====
- 
--通过CONFIG_ZSMALLOC_STAT，我们可以通过 ``/sys/kernel/debug/zsmalloc/<user name>``
-+启用CONFIG_DEBUG_FS，我们可以通过 ``/sys/kernel/debug/zsmalloc/<pool-name>``
- 看到zsmalloc内部信息。下面是一个统计输出的例子。::
- 
-  # cat /sys/kernel/debug/zsmalloc/zram0/classes
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-index d44674b63715..83193ef8efb9 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -100,7 +100,7 @@ CONFIG_UNIXWARE_DISKLABEL=y
- CONFIG_IOSCHED_BFQ=y
- CONFIG_BINFMT_MISC=m
- CONFIG_ZSWAP=y
--CONFIG_ZSMALLOC_STAT=y
-+CONFIG_DEBUG_FS=y
- CONFIG_SLAB_BUCKETS=y
- CONFIG_SLUB_STATS=y
- # CONFIG_COMPAT_BRK is not set
-diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-index e00e252d4694..694a309377d5 100644
---- a/arch/s390/configs/defconfig
-+++ b/arch/s390/configs/defconfig
-@@ -94,7 +94,7 @@ CONFIG_UNIXWARE_DISKLABEL=y
- CONFIG_IOSCHED_BFQ=y
- CONFIG_BINFMT_MISC=m
- CONFIG_ZSWAP=y
--CONFIG_ZSMALLOC_STAT=y
-+CONFIG_DEBUG_FS=y
- CONFIG_SLAB_BUCKETS=y
- # CONFIG_COMPAT_BRK is not set
- CONFIG_MEMORY_HOTPLUG=y
-diff --git a/drivers/gpu/drm/ci/arm.config b/drivers/gpu/drm/ci/arm.config
-index d7c51670da2f..fc0a8a4bfb18 100644
---- a/drivers/gpu/drm/ci/arm.config
-+++ b/drivers/gpu/drm/ci/arm.config
-@@ -5,7 +5,7 @@ CONFIG_CRYPTO_ZSTD=y
- CONFIG_ZRAM_MEMORY_TRACKING=y
- CONFIG_ZRAM_WRITEBACK=y
- CONFIG_ZRAM=y
--CONFIG_ZSMALLOC_STAT=y
-+CONFIG_DEBUG_FS=y
- 
- # abootimg with a 'dummy' rootfs fails with root=/dev/nfs
- CONFIG_BLK_DEV_INITRD=n
-diff --git a/drivers/gpu/drm/ci/arm64.config b/drivers/gpu/drm/ci/arm64.config
-index c46125c1f80f..10b01b55a66d 100644
---- a/drivers/gpu/drm/ci/arm64.config
-+++ b/drivers/gpu/drm/ci/arm64.config
-@@ -5,7 +5,7 @@ CONFIG_CRYPTO_ZSTD=y
- CONFIG_ZRAM_MEMORY_TRACKING=y
- CONFIG_ZRAM_WRITEBACK=y
- CONFIG_ZRAM=y
--CONFIG_ZSMALLOC_STAT=y
-+CONFIG_DEBUG_FS=y
- 
- # abootimg with a 'dummy' rootfs fails with root=/dev/nfs
- CONFIG_BLK_DEV_INITRD=n
-diff --git a/drivers/gpu/drm/ci/x86_64.config b/drivers/gpu/drm/ci/x86_64.config
-index 7ac98a78691e..8225b806dad8 100644
---- a/drivers/gpu/drm/ci/x86_64.config
-+++ b/drivers/gpu/drm/ci/x86_64.config
-@@ -5,7 +5,7 @@ CONFIG_CRYPTO_ZSTD=y
- CONFIG_ZRAM_MEMORY_TRACKING=y
- CONFIG_ZRAM_WRITEBACK=y
- CONFIG_ZRAM=y
--CONFIG_ZSMALLOC_STAT=y
-+CONFIG_DEBUG_FS=y
- 
- CONFIG_PWM=y
- CONFIG_PM_DEVFREQ=y
-diff --git a/mm/Kconfig b/mm/Kconfig
-index afff1b25b543..4a77cda7f1d7 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -130,15 +130,6 @@ menu "Zsmalloc allocator options"
- 
- comment "Zsmalloc is a common backend allocator for zswap & zram"
- 
--config ZSMALLOC_STAT
--	bool "Export zsmalloc statistics"
--	select DEBUG_FS
--	help
--	  This option enables code in the zsmalloc to collect various
--	  statistics about what's happening in zsmalloc and exports that
--	  information to userspace via debugfs.
--	  If unsure, say N.
--
- config ZSMALLOC_CHAIN_SIZE
- 	int "Maximum number of physical pages per-zspage"
- 	default 8
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 7ef80e0da626..104ccf3aa170 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -222,9 +222,7 @@ struct zs_size_stat {
- 	unsigned long objs[NR_CLASS_STAT_TYPES];
- };
- 
--#ifdef CONFIG_ZSMALLOC_STAT
- static struct dentry *zs_stat_root;
--#endif
- 
- static size_t huge_class_size;
- 
-@@ -279,9 +277,7 @@ struct zs_pool {
- 	/* Compact classes */
- 	struct shrinker *shrinker;
- 
--#ifdef CONFIG_ZSMALLOC_STAT
- 	struct dentry *stat_dentry;
--#endif
- #ifdef CONFIG_COMPACTION
- 	struct work_struct free_work;
- #endif
-@@ -565,14 +561,10 @@ static inline unsigned long class_stat_read(struct size_class *class, int type)
- 	return class->stats.objs[type];
- }
- 
--#ifdef CONFIG_ZSMALLOC_STAT
--
- static void __init zs_stat_init(void)
- {
--	if (!debugfs_initialized()) {
--		pr_warn("debugfs not available, stat dir not created\n");
-+	if (!debugfs_initialized())
- 		return;
--	}
- 
- 	zs_stat_root = debugfs_create_dir("zsmalloc", NULL);
- }
-@@ -650,10 +642,8 @@ DEFINE_SHOW_ATTRIBUTE(zs_stats_size);
- 
- static void zs_pool_stat_create(struct zs_pool *pool, const char *name)
- {
--	if (!zs_stat_root) {
--		pr_warn("no root stat dir, not creating <%s> stat dir\n", name);
-+	if (IS_ERR_OR_NULL(zs_stat_root))
- 		return;
--	}
- 
- 	pool->stat_dentry = debugfs_create_dir(name, zs_stat_root);
- 
-@@ -666,25 +656,6 @@ static void zs_pool_stat_destroy(struct zs_pool *pool)
- 	debugfs_remove_recursive(pool->stat_dentry);
- }
- 
--#else /* CONFIG_ZSMALLOC_STAT */
--static void __init zs_stat_init(void)
--{
--}
--
--static void __exit zs_stat_exit(void)
--{
--}
--
--static inline void zs_pool_stat_create(struct zs_pool *pool, const char *name)
--{
--}
--
--static inline void zs_pool_stat_destroy(struct zs_pool *pool)
--{
--}
--#endif
--
--
- /*
-  * For each size class, zspages are divided into different groups
-  * depending on their usage ratio. This function returns fullness
-
----
-base-commit: fa4ad798f6f681031775266044ba1b0cf3c670bd
-
---  
-Best regards,
-Xueyuan
-
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com> # s390
