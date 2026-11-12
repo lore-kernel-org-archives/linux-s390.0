@@ -1,60 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.177
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794482753;
-	b=uyn3ezUhKHZDketJEvQsshKc+C2LUCakBRMUb1rZD505lo/7ELTT/OHxmqXbebTb+Bkj
-	 bIMt1AlyFKHlItoImxR5gr9jR0i2NX43kM3vY6Efq2Hl7fdqF2AT8q2DLbGQqV/krXtG0
-	 gfIvrrU46yuoKqmNgE3LA/u3INTqEa6OSyyb5ikVE7jhub38JBvHaPyNwTCHNz33CXZys
-	 plhKrbT65PZBK/5mtca5yTstYgzP0jqVhMJGVQ3Nc2pORV/4uKSUiSaws/ViS9S+I00Lr
-	 I+ZkVAq9PhZKnebNNbTpXxNiyMlWX/UWKBbycfmsuf4Jc8I1JuxjipVoXVqhttLsq2w==
+	t=1794482788;
+	b=DeYcL9laO/ZTU/hgkY3vXOrNnS++EHoYVx9TT0kWAZcD0Oc1L25nhZNc97mNIuKm0WtL
+	 9Q8C4nk6OvrTZnLGq2CqazFNTee0tV0lPThkDu8lt2BMmnooQ3+9pn4+aeUK9q3V7nvfS
+	 GIkmQt7GSC5tT31z+I4IpHeqasy7SlJv+i83oRXUbOlbjb5kFCGSXqXgQowR1jyovKvTP
+	 0WsRn0Te8V77DCf507ART0CQt+BtjYFLsGoA1EifyA28tKQh7yTZE19GMIguXvagBAwRe
+	 z10biAV/ovHSThTGwkWvW+YO3vfd+czbamyklS0LO9mYj8skHUxiMQTjjLm67VG1ZRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794482753;
-	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
-	 Content-Language:From:In-Reply-To:Content-Transfer-Encoding:
-	 X-CMS-MailID:X-Msg-Generator:Content-Type:X-RootMTR:X-EPHeader:
-	 X-CMS-RootMailID:References;
-	bh=ipHsKGzdySUFK43kUSa1EUse/xjwdqGzCAkyYU+4IsQ=;
-	b=wOjgBBnKlTbkNYq1oXMwxGdYjuep2KycyIihhh8gv/iXoDyANppBkgwAOIItL4VpQZq8
-	 XHEpKfUxECJU2628+BNWeE3MHnrGjW/jhMqnKHolh8pIe1p/8uBn6aAfjU5mLo4XZMzWH
-	 z63ykvgpE9t3F9f4+e2G1b1YrhKBYOlvVNRxqJT356OEFy0z2ZZoYd0+1vBGm9bV4QMhF
-	 fOvJUdd7vaX3/Diqtfgzr2RtEKOkr4fuRjIPgZ3jJjNBQOvwgggmCATogi6WXKb5sKxwc
-	 DYaEcHezSL2HunlmfSSb7i0m+E6QIpZACNwDIaZCYgY0SmgWpXzwaGwh5QHV470MDxg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794482788;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
+	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
+	bh=2nWBtEEn4hd48cIOC+JW/bLoHA1gTBtQ/8nPmmpZzBk=;
+	b=Uet6sfOlv6VC5YJkG33zlyxqhBGaM0tEjpnRji5GkZGdPAnaxhnpYVoL/JQJ9wTYDp0v
+	 gkKyLfeyOWOfw7qWttUta46ELE6/mstCYiFRkBak+SmlPH43r+0qCZqEbMsboz/jkXsis
+	 NcdqkEUho3m+qOrW1YVjxPX2nhB9+q/Ul4F2m8hAYqGa3djryV+TN2HiOZHFjmyEPWcWc
+	 vS1yUHZkJxunKQscwbuW4Dmwmc32iODc9jz7Owx00IJI5YCsCYFsQHhNm2E+Wt+uNUKxJ
+	 8khUB7/5gmN66p1B/k8wJ8fnWwH8aeZiQyKX2NcAVFeh/M/LD9t6i08c6L0NxSPAEdw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=samsung.com;
-	spf=pass smtp.mailfrom=samsung.com;
-	dkim=pass header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=AvhYjNqW;
-	arc=none smtp.remote-ip=210.118.77.11
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=W9UGKRc2;
+	arc=none smtp.remote-ip=74.125.82.177
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABBDC606A880;
-	Thu, 12 Nov 2026 11:25:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ABBDC606A880
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60DF7606B364
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 11:26:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 60DF7606B364
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=AvhYjNqW
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20261112112543euoutp010f016eb7fa47ed13835ab3afff799d5d~nSIxA7B940644806448euoutp01J;
-	Thu, 12 Nov 2026 11:25:43 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20261112112543euoutp010f016eb7fa47ed13835ab3afff799d5d~nSIxA7B940644806448euoutp01J
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1794482743;
-	bh=ipHsKGzdySUFK43kUSa1EUse/xjwdqGzCAkyYU+4IsQ=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=AvhYjNqWqGDSDWciDHfOXU3HOJjD8I0PqyiBFvEino+CXJ/Ts8YCaLP0CTP7r83SV
-	 D0u2NoLv9bExEfdz3CuNTS48kAhibm5QmC2eYY3NRLEJ1vo1+7ksYjGgKf8B93b7Ln
-	 eIdw+0vhCIWca8FGDq/+owQFBplfxnoB2Ht47E5M=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20261112112543eucas1p2f3aa7565474df56edb967cbecfd1858d~nSIwwzSqJ0570005700eucas1p2G;
-	Thu, 12 Nov 2026 11:25:43 +0000 (GMT)
-Received: from [192.168.1.44] (unknown [106.210.136.40]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20261112112540eusmtip2793b80df566384250842db8b2aa8054b~nSIuZrphA1705017050eusmtip2o;
-	Thu, 12 Nov 2026 11:25:40 +0000 (GMT)
-Message-ID: <feca1837-fb17-4d96-b6d9-7e5d413ef222@samsung.com>
-Date: Thu, 12 Nov 2026 12:25:40 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=W9UGKRc2
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-3719e3cb82bso153978eec.3
+        for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 03:26:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794482787; x=1795087587; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=2nWBtEEn4hd48cIOC+JW/bLoHA1gTBtQ/8nPmmpZzBk=;
+        b=W9UGKRc2VpXLmhTp/WpfJWMZ8+yRuAb6+uRW/wiTSfJRv2O4YFBYyF2VrghSwiHmtj
+         m88CI55CSUU09SUUnLyLquc8Rum0kVd/GVSZ0dyVx6hamjNBtfkVl+jxNggqxGMOH0rs
+         x9SeNmVOrPcixQY99GpzlDmY201Ozk6VJeAjxeE+Mn3fkKmGXOdZreoPuUk+KdLeHIqc
+         xfKvuJyKAoBobiXe4PODiMLA3u3LNONJd2fxNIPULiBxAjwmBOzn6GG6OmR5l5D1WFxq
+         PoiPJ7eQ8GHDoNgo87TAOi235ekR9nfqaqJZ7BF6Lu18RXMrbJuupNFqYzOgPkVq2Uau
+         6iKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794482787; x=1795087587;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=2nWBtEEn4hd48cIOC+JW/bLoHA1gTBtQ/8nPmmpZzBk=;
+        b=gmRqhWHDM+Qp6ULe6w2UbkJtNkHP1dFWMqB5LGnBp6AV1X9cBSWuooZ1kH0RmSzMjQ
+         HNiFEYxedbmhjlOEXmd04DN3d4KtgUzfkNloCyJj895iSvi2lNYigQ1kudRy66RzYsTF
+         QTjJKtO8LlFhjj7VqfXGYRGAzD94l9urvwiITMaGn73SgqV+bIypqoXqq/LIBtCvCkYJ
+         H3pkdOlAVq/xATgfmCCEkni/2+YVzaR9qlkttVe3PMxSzthtfGuFzF5zUMK9BiNcLsEo
+         XARW8/RfA20TvZIm+jOg3ZNlXaYghwULuxRWi/5wkiNONRWSBGzZY0dC2Sy6FCrSN3Jx
+         KUGg==
+X-Forwarded-Encrypted: i=1; AL+hErFmBUEu/dPMmgFe9h8ZA+b/8cv95ogpYXBxzgiSDBTTKiZYuAx8ZMF4nD+Dn19EG8nYsTM6sE91tPdU@vger.kernel.org
+X-Gm-Message-State: APuU4Z9PqOF28kTynICrZbZyxE9qLkpZy/ai9xCktMIEhwGvbWlF4tVl
+	EqAtBVF7jQ8pXP2e/zKJOz1tcvDsWgWZfzTTzmpaWTrPxfrX5iQwueOZ
+X-Gm-Gg: AYBFou15xvbsK7gm1O9FL2jiO5RAiPENH20ccUVor9FDeDojQSgCoSOJq72SkYeIICh
+	vvAPq0f7UJytAO7xowF0RGbrxf8hqVym0OHsg8GugG60elnazQvq5ITH6iOWMCQ7z50HWHc92u9
+	KXOPTtxcZ0VzGlKwDTR3CBb89DcQxD8eZKAgXDSwn5GlFJuryM3NnHaNL1pxxcxu8UUpIXdPcqj
+	hNpb6t/mIdrjLHptAr3KnWMlY+/yBxwA8l485XA7qL8H/Sfynd1eapjhx70bjLRZa51I6FHKKE3
+	Lf86F1yubcedLrSqdSa+u9naGoczBefrCKkJNQKWOtxNI2Ls0xN7h0tt8nTpUT6Mndt4SYDjII4
+	QTAi76DvxjLMYPGvkjqGGxC6DnoNA1L/kc3y/ZQ1q3ZSGuwfUFeotZrXHrKpwvyUqCr6NC830aX
+	ZLPUUaoHmEJulI0WnLbRvNO2nDh7wErfC3gCDju4quSRpqi7eSN9f9XCSS6y4LCfYWUQD+AM3AO
+	XLdcanwQ9+aEDaYuWyI6C7Gi6/sAHcG7hvQHSLki5lKImAKoiAHH0TdUHxWdb+E+crutSCpzduC
+	tvaJnhkFxTCCed7zgK2FtbPeSzNezFQ/p3nl4xD7DBdD/E9bWaxH/4p/Exd28HA/SfU=
+X-Received: by 2002:a05:693c:8113:b0:35f:ea17:d171 with SMTP id 5a478bee46e88-37684ceea1emr9219901eec.2.1794482787103;
+        Thu, 12 Nov 2026 03:26:27 -0800 (PST)
+Received: from o6.lan ([2602:fce1:44f:115e::])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3751fe306e3sm27380131eec.7.2026.11.12.03.26.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Nov 2026 03:26:26 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,61 +88,59 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 00/15] lib/lz4: stop forking upstream LZ4, vendor it
- instead
-To: Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers
-	<ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt
-	<justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, Thomas
-	Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley"
-	<James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko
-	Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
-	Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
-	Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>, Sergey
-	Senozhatsky <senozhatsky@chromium.org>, Jens Axboe <axboe@kernel.dk>, Andrew
-	Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, Nick
-	Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu
-	<chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>, Eric Biggers
-	<ebiggers@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, David
-	Laight <david.laight.linux@gmail.com>, Sungguk <sungguk.na@samsung.com>,
-	Jaehoon Chung <jh80.chung@samsung.com>, Marek Szyprowski
-	<m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org,
-	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
-Content-Language: en-US
-From: Michal Wilczynski <m.wilczynski@samsung.com>
-In-Reply-To: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
-Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20261112112543eucas1p2f3aa7565474df56edb967cbecfd1858d
-X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
-X-EPHeader: CA
-X-CMS-RootMailID: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
-References: <CGME20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3@eucas1p1.samsung.com>
-	<20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
+From: Xueyuan Chen <xueyuan.chen21@gmail.com>
+To: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Xueyuan Chen <xueyuan.chen21@gmail.com>, 
+ Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, Alex Shi <alexs@kernel.org>, 
+ Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Helen Koike <helen.fornazier@gmail.com>, 
+ Vignesh Raman <vignesh.raman@collabora.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ linux-mm@kvack.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ Nhat Pham <nphamcs@gmail.com>
+In-Reply-To: <avUet_6jVqlWSP00@google.com>
+References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
+ <avUet_6jVqlWSP00@google.com>
+Date: Thu, 12 Nov 2026 19:26:15 +0800
+Message-Id: <179448277582.2553194.12524350925159624366.b4-reply@b4>
+X-Mailer: b4 0.16.0
 
-Hi everyone,
-
-On 11/6/26 15:42, Michal Wilczynski wrote:
+On 2026-11-12 11:05 +0900, Sergey Senozhatsky wrote:
+> On (26/11/11 20:41), Xueyuan Chen wrote:
+> > CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
+> > counters are updated regardless of this option.
+> > 
+> > Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
+> > stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
+> > debugfs is unavailable.
+> > 
+> > Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
+> > settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
+> > documentation to match, and clarify the pool name in the debugfs path.
+> > 
+> > Suggested-by: Nhat Pham <nphamcs@gmail.com>
+> > Reviewed-by: Nhat Pham <nphamcs@gmail.com>
+> > Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
 > 
-> The import is the v1.10.0 release tag.
-
-It appears v1.11.0, followed by v1.11.1 were released in the
-meantime. The next revision of this patchset will import from the
-v1.11.1 release tag to take advantage of the newest code. It already
-contains the backported commits so I will drop the backports.
-
-I will redo all the measurements with the newr version for the v3.
-
+> Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Thanks!
+> 
 > 
 
-Best regards,
--- 
-Michal Wilczynski <m.wilczynski@samsung.com>
+
