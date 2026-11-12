@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794490211;
-	b=qS2GsnF1CJ4rpMH1ZI/NyiOIwdelw5agnPqLUH5J/v6+CLy6BQMxOjprSjbEYnQtcdt2
-	 b2FBrsvYndKXy1D3wdclM9NzrcxCn8M4Q9doCaZDb/uDahLoyxWwkZ3BauGWYZ37JDIME
-	 0kaDFQ1W5LT10DiWUEaSJOT54GVmFyPHLIBu9k1lCi/Ps3FL+ssN9tfsH3ZiklZJIYdUr
-	 EPAxBTdkDlOrzSFNzV4M4QQ2/uurcKpJMgSuoMtalnBkR68lLkLR8YGg1fDYpm9fE8nw2
-	 vfFk8V8vjtw67K4pC5qBzaPzowG7Aly7e24dSrqPfhaP6SdsRL5EvU+0/0Uro0d7dsA==
+	b=tuqZJV/D9xJQmHk4dLtDHSYYTfUy4/+YfcuD2b3i4/OIFC5WvnXJqFqfEgc1UZ5l4YPK
+	 HTa5cQuZ3dfO6uTeq258vE4/f+fX3b9UdnLGHR/2UagYLjgbXYe3wMa5XxCFmuaMJV/yR
+	 nbfiINkTqDmgr0yifnEvGX+KyVZB1+Q8eJ+0P/qBFNFAFIakWLHaT/75vVoa0UiXlWhOc
+	 3/VZLy9+bwCJXEQUelbi42UaVCMuSBOXZaXfQhNELj50mLYh8Eu8L/vl2dQLIGd0fmF/H
+	 UFZFfmIUm+KYoPkGylrt6VBSMqKg0i85ABwf1lZ4VHuhvsTaYO2lU+HIBBsxSn1jmpw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794490211;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=aoJ59THfGfyJiiCL/fmA7/VV8FrggtNfMkME8DHUUi4=;
-	b=Wdfex9C/jVM4TRrK+fZiKJ4qvOZYTXdon8VjeJTgx8VuaIgacce+VpLi89PWGd565jYZ
-	 IOQgt0jmh1EkcGxrSwtgf4Ha2uF083MB7Xmc9ylUisD58JA1F0zi2HBrzEfd2VPiZp3l2
-	 inUAyKNB54cXKdVm61v3fHPckiYOFvQ4QRWJ0EN07cHCqkAtonpu/tl1fXaR9R1Nm5PNY
-	 3+mu4/xzGENY/ch2VFDaIeT1wr3hjLEFci3PodLT4PQZi96/GH42KfHGeVPT1ZA3m9+E2
-	 ueSvMpo1Ox+Jzyk/uK/ieh0DFNSs1DwDI2scJGh9Vf6oEx2/n9BvKiFt/ZwAhEl+4MA==
+	bh=y01dVZN/6Fkpx4DDFzgh+YVKco8L/S+xFOKKb499nbE=;
+	b=B+8Z96J8YixxdQz6X+0cbWuBfxfeYpJz+Wv7jJgzdNJus/AhCDXcyPx/vi8nNTuhaQSk
+	 Dp+3sVRLOdzv7a8Eb7ei1Bw3wP9vmPHF+y+gtj+MzgHcgMvYyKrO6vpqkerz/UWzrJ/WW
+	 loytgXEMny6LioC7UmRT9n52GpcBfDwIJuscDW6so+dw+bGefMgOu+kWSSEOXiUe6SlW8
+	 cfLRnlAWwEtIZcgUlj3UHmSBw1e6tNjxPTNyXfaGkwOwrKmX2ZsOyhuEzGAiI4SQM3sST
+	 /GlayrxJ4gZFC53y5Yg262VA711B/d+5oN38J5lkFemAr6XeW3U+PWNP6T23FP6yyOg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BofBr8Gc;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=itT+TqQ8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1BF2606A32A;
-	Thu, 12 Nov 2026 13:30:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F4B606A337;
+	Thu, 12 Nov 2026 13:30:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BofBr8Gc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F21B1F00A06;
-	Thu, 12 Nov 2026 13:30:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=itT+TqQ8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FD0E1F00A06;
+	Thu, 12 Nov 2026 13:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794490210;
-	bh=aoJ59THfGfyJiiCL/fmA7/VV8FrggtNfMkME8DHUUi4=;
+	s=k20260515; t=1794490211;
+	bh=y01dVZN/6Fkpx4DDFzgh+YVKco8L/S+xFOKKb499nbE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BofBr8Gc9YqvMTkjulgqz13S4zVg4U/TwZ2sc2nGFWoJbLslpWPiov6ATqk2paVfn
-	 8ITwCxplfnCPiNpoh2SY+8CWfSA5poouPL+KFdXaC7R+38M08NAwVCNX0eiUpnEL3w
-	 M00qvbAUXINDc8zgItuIhUZG24zPEWCRnmgjJvBp4QceVqFxsRevdIjvFVpSHkKTx9
-	 GFfjpUVnmxfVtkY84HU+1GEMQ87y6NxkN5wGG473RCh6ZL9bkM+eDJKMG5FY+oBJqq
-	 knzZFB8WOTdWYxg8grySZxmXh5rlnqRFrbFU5bgZMYdpioo3dbwfJUyDOPbPtcAznP
-	 GbeydQvmuut3A==
-Message-ID: <sashiko-outbox-211186@kernel.org>
+	b=itT+TqQ8qqmrNQnD1BgghH9zfNYTsbIs+BxxquxyeMi1AaMXoIXRdN5jWNyw/fJhb
+	 vw0tGDWiaNLbfhdX3skBwB4Id9FH/b8DJ6TadMcXK87TlWoeQb265I5agGjfQXyRk8
+	 VYtop/Oydhnbrfu/JODCTWM5fe4RSunGXtl+jza8vPxjCFDn5KZVkuNXezlYZwI9Tx
+	 12licXn9pwILMIxyx0h+y/+hrHqeo7BRHt0OJKMC8Kz21B2FMGkBQNSRiC/QsLAPtz
+	 XYw4inTCNsHcVRGy1dTAI5M4fS8DPDATZAEG/3muabhXCNI0N1p4wpW2MowYIDDSqr
+	 T9hdoKgHYmhuQ==
+Message-ID: <sashiko-outbox-211187@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v9 3/6] net/smc: bound the send length to the send
- buffer in smc_tx_sendmsg()
+Subject: Re: [PATCH net v9 4/6] net/smc: keep the source of an RDMA write
+ inside the send buffer
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bryam Vargas" <hexlabsecurity@proton.me>
 Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112-b4-disp-0287c16e-v9-3-e5e8fa688177@proton.me>
+In-Reply-To: <20261112-b4-disp-0287c16e-v9-4-e5e8fa688177@proton.me>
 References: <20261112-b4-disp-0287c16e-v9-0-e5e8fa688177@proton.me>
- <20261112-b4-disp-0287c16e-v9-3-e5e8fa688177@proton.me>
+ <20261112-b4-disp-0287c16e-v9-4-e5e8fa688177@proton.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Thu, 12 Nov 2026 13:30:10 +0000
@@ -65,24 +65,23 @@ Precedence: list
 
 > From: Bryam Vargas <hexlabsecurity@proton.me>
 >=20
-> conn->sndbuf_space can run past the send buffer. After an SMC-R link
-> failover, a late completion from the old link can move tx_curs_fin back,
-> and the next completion credits the same bytes again; across the ring
-> end, smc_curs_diff() credits the step back itself as more than a whole
-> ring, so even with a conforming peer sndbuf_space can reach three times
-> the buffer. The failover catch-up and SMC-D DMB merge (only the loopback
-> device today) also credit it from the peer's consumer cursor without a
-> bound. smc_tx_sendmsg() takes it as the write space, and the second
-> chunk of its copy writes past the send buffer.
+> smcr_tx_rdma_writes() sizes the first source SGE of the second
+> destination chunk from the send cursor as it was before the first
+> chunk, so that SGE runs past the send buffer when the buffer ends
+> inside the second chunk. A physically contiguous send buffer goes out
+> under the local DMA lkey, which does not bound the SGE; on rxe the peer
+> is sent the memory that follows the buffer. A conforming peer gets there
+> when a completion handled inside smc_switch_cursor() leaves tx_curs_sent
+> behind local_tx_ctrl.prod. Otherwise it takes a peer_rmbe_space forged
+> larger than the RMBE and a send buffer larger than the RMBE.
 >=20
-> Clamp writespace, which sizes the copy, to sndbuf_desc->len, negative
-> values included, so the copy stays in the send buffer. The over-credit
-> itself is not undone: with sndbuf_space too large, send() can still
-> overwrite data in the send buffer that the peer has not received.
+> Size the SGE from the running offset, as smcd_tx_rdma_writes() does. A
+> conforming write sends the same bytes.
 >=20
-> Fixes: c6f02ebeea3a ("net/smc: switch connections to alternate link")
-> Fixes: cc0ab806fc52 ("net/smc: adapt cursor update when sndbuf and peer D=
-MB are merged")
+> Fixes: e6727f39004b ("smc: send data (through RDMA)")
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Closes: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261013-b4-d=
+isp-f345196c-v7-0-ef3dddfbfa68%40proton.me?part=3D4
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 
@@ -90,5 +89,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112-b4-disp-02=
-87c16e-v9-0-e5e8fa688177@proton.me?part=3D3
+87c16e-v9-0-e5e8fa688177@proton.me?part=3D4
 
