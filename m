@@ -1,81 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=210.118.77.11
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794483594;
-	b=ApvJEHWyiHIa3FTM28LVrLTk0MPDmpn5Fwi0aCC/3ZMAr2vQVGh8EBHu1z98wX6WJlcu
-	 Xt0mg9qa0uhUoBBeiQmx9YYjXoPlavyGqaRHOB9qovdzqQIDdlWZz/9GAjQY0u+XDF97E
-	 kT0UDe/5xXup5Wytm5OQ4bDdnZhSU9sfZHPW1hZQvUw8kT3YR7SkOV7i80VYY3TLCmuIW
-	 SPL8/ipjHxdc70tvHwJtF44qBBxdyvNMnc2RrnBuFvxSXi2s2GcEtcwRLFn7C3jdguN4T
-	 3LvxIYmkP0rleedELlncCWR65odY7JtfdH3vDq7Ql8Qpgu4d1CD/D95iF6ZeMaMl0dA==
+	t=1794484208;
+	b=qRZSthehiICNPVprnN0gHqkaNggBaj1x0R6vcY8dxGVXF3xKQXWat+tSayw/FRx6ooig
+	 UvFUXd1ryz0VrRV3Wp7URGxN5zWH1Uu5HlS2skRQbndRo5JM1WAcBJ02fd2ahKycmRUuU
+	 Pcg1sYEJGq2aqHed1ALQDzGgojDtXcGKSYWbYeNK3K/27QfqLmUY+sjf9gPvlXcv3lybW
+	 nblr0FKk+9mleVhqk2ZOx4cNYMVb+2h2Ul7ibRg5Fs/Eu4qrIkAvPvv/wE7/fTJtKXOjn
+	 agIFXd6x5wzPFcNlpKMIrph966+32RNIKlMd/Jsx+5Qj0EzIS+LwPAfW75rrDPsWuBA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794483594;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=a8r0GCkPJ/Slz0ZSm+mqu84I1prvStukMVZF1rmhO5M=;
-	b=1zwK+vlXw1gs5bAQPDBN/Oiyd2/x7ENq1NDM3EaA1mpOaf0pKSkvcgWpOsClRo82gj9/
-	 f7u96RPmXbvqT/dURw/vNPuVz+nu+7dbelSFZj0DbaF2ZdGDvN5QjzdkVDRv1sVjtmA8V
-	 UCd53JVvSvjpTi7oeInX57QqNUemd6a1t7Ejsak2WMb91sIlaG/jbO3ld5I9PUQKlYHHk
-	 2wtozvVkpJ0fJ0gIYOOj+BAqBDkeData3DFn3JGNOAgCwsQ5u2CR5u0qXUY0pT+qhhWUW
-	 tOZ8MjOOqL5wZEdxm5LhGaBWrXKXXo3cchDOtosRBI8AWkqANwr6uY70oIbA0OqmKJw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794484208;
+	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 Content-Language:From:In-Reply-To:Content-Transfer-Encoding:
+	 X-CMS-MailID:X-Msg-Generator:Content-Type:X-RootMTR:X-EPHeader:
+	 X-CMS-RootMailID:References;
+	bh=Y1DkdK48Xnp7vfevJCGquLuztwnwhnHgqI63IQ/k7p8=;
+	b=wD3Orkf72OAdd6Uh3LzTaRUuMZqJ9+taLtFoItTsPjEuPhpp/Hyve+pTvoyHwMoc0R3d
+	 2Lxhs4ea3UPMpGEEYlu5LnmHE8Af9Qar6n6qA/tBDEG9w4yTxlSCVOpX2n/Sh0+RO0y5Z
+	 Z1QQGsEFWtDDkQu7pf7ojCtMMf9geYaSHjq0NjdDSi+paPFgUTAlWXaHkSimMdBvV8eB6
+	 DZ69Pi6JxpttTKpEixGxCGZMHpoUD56CPlDdx++gLK0gZJTP6tBvcl4uQRJRm00Tiw8Fa
+	 OrK84LjKT+zmA6D3KJwrNtgvHoXwx4xwZwqZZ7hg0EDdI55QN5zUW9I44cs0XC8ANVQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=de.ibm.com;
-	spf=pass smtp.mailfrom=de.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=der0ByUY;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=samsung.com;
+	spf=pass smtp.mailfrom=samsung.com;
+	dkim=pass header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=RvQ68wl1;
+	arc=none smtp.remote-ip=210.118.77.11
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20C8D606A331;
-	Thu, 12 Nov 2026 11:39:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 20C8D606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E26A7606A321;
+	Thu, 12 Nov 2026 11:50:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E26A7606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=der0ByUY
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2j9xs2857162;
-	Thu, 12 Nov 2026 11:39:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=a8r0GC
-	kPJ/Slz0ZSm+mqu84I1prvStukMVZF1rmhO5M=; b=der0ByUYwcTXrPjPXxVn4X
-	ApUAnDz3Iq4iKnmrWXRuIfS66RjWgqsyyhU1pM4aGz81TcC4gjy3opI3SmEXTvGI
-	uf/mde7jgxv8i42Mx8PuI1p7NrWSA0EJfbKysjDIj1sHLtS9GHcsBDbDSWrIH8TO
-	XIRFcDyzGcDUzkFRIztAFfIx4FMDYp8W4J4otdmabDepM1+I2twnLnGhqPzSka1v
-	cry4MSb7WRTfDBHPrh2kOnD0m03VAmxOEwfM2zU7tONwm+dWdlRM6vgAEN3rY9xZ
-	5JNTndShGuftJgBlXuTTMz+noChOppG/SJbYzaalvK+i2M3b51H6KjGFhHSDIwgQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsuq773tc-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 12 Nov 2026 11:39:52 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC8QibM097816;
-	Thu, 12 Nov 2026 11:39:51 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hvkq0w3cp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Nov 2026 11:39:51 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ACBdkpr33554776
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Nov 2026 11:39:46 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C436E2004B;
-	Thu, 12 Nov 2026 11:39:46 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 56DD020040;
-	Thu, 12 Nov 2026 11:39:45 +0000 (GMT)
-Received: from [9.111.75.87] (unknown [9.111.75.87])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 12 Nov 2026 11:39:45 +0000 (GMT)
-Message-ID: <05e31641-158e-4cfa-94b9-464d294d56ee@de.ibm.com>
-Date: Thu, 12 Nov 2026 12:39:44 +0100
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=RvQ68wl1
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20261112115004euoutp01097292e7ae21e5e37f1087780829ed90~nSeBx9XPu3249632496euoutp01n;
+	Thu, 12 Nov 2026 11:50:04 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20261112115004euoutp01097292e7ae21e5e37f1087780829ed90~nSeBx9XPu3249632496euoutp01n
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1794484204;
+	bh=Y1DkdK48Xnp7vfevJCGquLuztwnwhnHgqI63IQ/k7p8=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=RvQ68wl1U3qESoNVCuQUGyiyIfaNWCHYP1CNXcF+brxHCVeBy6KR97gpchCpx9iJq
+	 90l1wzn0qYwPoNTXMO0DMbwDiHQ4Uw1U/7fDn5TPgan/wGVnhM5Eh4ZwWx+Gs6kMfH
+	 c1VN7qorE8gyJMvtqMBWKPxW6bm4RYU6F9gNrCHA=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20261112115004eucas1p1ef74480795d4b0447b2f5fc9b5d9e528~nSeBeNxz42728927289eucas1p1f;
+	Thu, 12 Nov 2026 11:50:04 +0000 (GMT)
+Received: from [192.168.1.44] (unknown [106.210.136.40]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20261112115003eusmtip2a3ff1ea0c43c9febebf9d2d008bea473~nSeAHeWqa3153931539eusmtip2g;
+	Thu, 12 Nov 2026 11:50:03 +0000 (GMT)
+Message-ID: <92566ded-cc28-4cc6-9899-cf2421045455@samsung.com>
+Date: Thu, 12 Nov 2026 12:50:02 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,90 +65,95 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 3/5] KVM: s390: Fix idte_crste() clobber and table type
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@kernel.org,
-        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
-References: <20261105153705.208516-1-imbrenda@linux.ibm.com>
- <20261105153705.208516-4-imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v2 03/15] zram: lz4hc: reset the dictionary stream once,
+ not per page
+To: Sergey Senozhatsky <senozhatsky@chromium.org>,
+	sashiko-reviews@lists.linux.dev
+Cc: Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers
+	<ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt
+	<justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, Thomas
+	Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley"
+	<James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Heiko
+	Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+	Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
+	Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>, Jens
+	Axboe <axboe@kernel.dk>, Andrew Morton <akpm@linux-foundation.org>,
+	linux-s390@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, Nick
+	Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu
+	<chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>, Eric Biggers
+	<ebiggers@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, David
+	Laight <david.laight.linux@gmail.com>, Sungguk <sungguk.na@samsung.com>,
+	Jaehoon Chung <jh80.chung@samsung.com>, Marek Szyprowski
+	<m.szyprowski@samsung.com>, linux-crypto@vger.kernel.org
 Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20261105153705.208516-4-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Michal Wilczynski <m.wilczynski@samsung.com>
+In-Reply-To: <avKrj0h8fBNSrfCi@google.com>
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDA0NCBTYWx0ZWRfX/J0M6ntrNm/J
- A67DJEabFrLkzbsvXEZ5o3ZgRLMBTTQeUa/7Y52gA/XFXSyFJ7TdUPyHvbPigIY2qQMuLjqu+TN
- epJmfJsuRLeeULj76F4iOzgYyYDcumU=
-X-Authority-Analysis: v=2.4 cv=HbCB3SE8 c=1 sm=1 tr=0 ts=6af5a588 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=G5FI_Z7t-7XGJ5nj1RcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 0ZQ_luWxBEi_c3i04bo-_7Y_Pp1JhYxm
-X-Proofpoint-GUID: 0ZQ_luWxBEi_c3i04bo-_7Y_Pp1JhYxm
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDA0NCBTYWx0ZWRfXwaS6zTIFbnVE
- t4pMmiEOCCmgUPg3HXYzL9th+n6D6EzO0aqS0SPj/19JNWOrSWLqeFFNIyc0lEZVcVCmknP55LX
- g4XVUDo9CSDvvrLeuclIUVkty4HwzCZiIBJapakZ3d0frBEWKK+CSaG20Am250H0s/nMRd0moDI
- CVrLPvi+UVlrmUXhKMAxUAx0957VVHw8u8NX1K44dkuHYdcZudZb6oYUhM2/5sosM+lt72zGJMm
- DQnbT554HHhXJjhEJnYFnUMn6flSmmjisyd3P2GF05Ulz8DC3nD9Lx67Vefu85qhJX7DrNc/4QG
- KUDAhZXa7MhH+jjVtijZqJAdWcE1nv6GhNJ/QQcSOCM2DDdg1CY2m5I4idunXFtrK/bguzTWejr
- Aeuwm8TzdsGS5QKL9T6mAcxC0lJ2RhRAGKYStTt0vvi1PKyZ/G+8B+1Wx6FhBIH/5F81oI5N8Rs
- sM3MI7AnUsTGsHoZX8A==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-12_01,2026-11-11_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 spamscore=0 bulkscore=0 phishscore=0
- impostorscore=0 priorityscore=1501 clxscore=1015 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611120044
+X-CMS-MailID: 20261112115004eucas1p1ef74480795d4b0447b2f5fc9b5d9e528
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20261106144252eucas1p272c9e37d66ad385db070f941879aecb1
+X-EPHeader: CA
+X-CMS-RootMailID: 20261106144252eucas1p272c9e37d66ad385db070f941879aecb1
+References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
+	<CGME20261106144252eucas1p272c9e37d66ad385db070f941879aecb1@eucas1p2.samsung.com>
+	<20261106-lz4-vendor-upstream-v2-3-ee04c3f0d7dc@samsung.com>
+	<sashiko-outbox-201613@kernel.org> <avKrj0h8fBNSrfCi@google.com>
 
 
 
-Am 05.11.26 um 16:37 schrieb Claudio Imbrenda:
-> Fix idte_crste() to add the missing table-type bits and the missing
-> "memory" clobber.
+On 11/10/26 06:31, Sergey Senozhatsky wrote:
+> On (26/11/06 14:49), sashiko-bot@kernel.org wrote:
+>> Thank you for your contribution! Sashiko AI review found no new issues
+>> in this patch, but noticed 1 related pre-existing issue it does not
+>> introduce:
+>> - [Medium] zram: high-order memory allocation using kzalloc in
+>>   lz4hc_create() [1]
+>> --
+>>
+>> commit 2f51683dc7418bdcd0730283cb7003d8754fcd5f
+>> Author: Michal Wilczynski <m.wilczynski@samsung.com>
+>>
+>> zram: lz4hc: reset the dictionary stream once, not per page
+>>
+>> This commit moves the LZ4_resetStreamHC() call for dictionary-backed
+>> streams from lz4hc_compress() to lz4hc_create() so that the stream state is
+>> only reset once at creation time rather than on every compressed page.
+>>
+>>> diff --git a/drivers/block/zram/backend_lz4hc.c b/drivers/block/zram/backend_lz4hc.c
+>>> index d8aa01bb258fe..06286c805cf7c 100644
+>>> --- a/drivers/block/zram/backend_lz4hc.c
+>>> +++ b/drivers/block/zram/backend_lz4hc.c
+>>> @@ -72,6 +72,7 @@ static int lz4hc_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
+>>>  		zctx->cstrm = kzalloc_obj(*zctx->cstrm);
+>>>  		if (!zctx->cstrm)
+>>>  			goto error;
+>>> +		LZ4_resetStreamHC(zctx->cstrm, params->level);
+>>>  	}
+>>
+>> [Severity: Medium]
+>> This problem wasn't introduced by this patch, but should zctx->cstrm be
+>> allocated with vmalloc() or kvzalloc() instead of kzalloc_obj() [1]?
 > 
-> Fixes: 5a74e3d93417 ("KVM: s390: KVM-specific bitfields and helper functions")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: stable@vger.kernel.org # 7.0+
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> That's how I have it in my local tree - vmalloc(LZ4HC_MEM_COMPRESS).
+> Michal, I suppose you don't base the series on top of linux-next or
+> Andrew's tree?
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+No it's based on v7.3-rc4. I'll rebase v3 on linux-next.
 
-> ---
->   arch/s390/kvm/gmap/dat.h | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
-> index 9cdd1f122d7a..79efc56710b7 100644
-> --- a/arch/s390/kvm/gmap/dat.h
-> +++ b/arch/s390/kvm/gmap/dat.h
-> @@ -646,20 +646,22 @@ static __always_inline void idte_crste(union crste *crstep, gfn_t gfn, unsigned
->   	unsigned long table_origin = __pa(crste_table_start(crstep));
->   	unsigned long gaddr = gfn_to_gpa(gfn) & HPAGE_MASK;
->   
-> +	table_origin |= crstep->val & _REGION_ENTRY_TYPE_MASK;
-> +
->   	if (__builtin_constant_p(opt) && opt == 0) {
->   		/* flush without guest asce */
->   		asm volatile("idte	%[table_origin],0,%[gaddr],%[local]"
->   			: "+m" (*crstep)
->   			: [table_origin] "a" (table_origin), [gaddr] "a" (gaddr),
->   			  [local] "i" (local)
-> -			: "cc");
-> +			: "cc", "memory");
->   	} else {
->   		/* flush with guest asce */
->   		asm volatile("idte %[table_origin],%[asce],%[gaddr_opt],%[local]"
->   			: "+m" (*crstep)
->   			: [table_origin] "a" (table_origin), [gaddr_opt] "a" (gaddr | opt),
->   			  [asce] "a" (asce.val), [local] "i" (local)
-> -			: "cc");
-> +			: "cc", "memory");
->   	}
->   }
->   
+> We reset the stream when we setup params, so I don't think we need
+> to do anything in lz4hc_create().
+> 
 
+Agree your change covers it. I'll drop this patch.
+
+Thank you for having a look.
+
+
+Best regards,
+-- 
+Michal Wilczynski <m.wilczynski@samsung.com>
