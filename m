@@ -1,58 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794457892;
-	b=ADv6mw2s312HGmpxMwX/tMhF05xg2BA94CmgSljbRZT7wv3rz4sv0pj4qRJQByvc4Vld
-	 5pKWNaY9KBhqjz+/fBzT96T+eAuNSu0a/F0uoFpY6hbtdfT7AkPxbsueq/Odgefj18aj3
-	 1rzSjI6EenqcvRI+F/SjuvC8joB/G5ZHTreWTK8/HxCTLuoy0ZB8xiMQ3Sfcl3BWSlyRD
-	 cxV99Ue26HEx8Nm/451qImUhxViu1jQpYwJIy71Ba9BQwjVPWWo8u2mDVg+ZHcEjAkZQr
-	 WuWw11ljUmQSUyDFn90ZeS8bZ5yteAv//tYg78YRvz0acwJLlOjPB0EUupxZas/KxSw==
+	t=1794457893;
+	b=tYkvH2D6d9KicxSZQM0fFgZtAXdc1UHjcAIXfFNUyDTEWNAeHioxhuVMbfgCwUiD2FA8
+	 vq8HEDue3jpga5HPFHvZjKYRT2TmP6z16LbUM5TgUgK66hEwmDEeqCsDnuQJ0pwsDazlS
+	 ZoeOno1YrmZnXkwOghbXz57YDcn9E8qP+PbzEiUFdPJM0hsp0cgVvKMeij6WrZGSAjAIe
+	 qcI8yfrfh9hfpjnDwNPC1683sY28TpW6A3SgX449OnrvHCHiVTbfaILWwoIH4M1hIp+Bf
+	 MGnAKys8VoOeJAW1Ib5ZqNZKOAcd2kMrECgCUtkVFcZ9J6Xd8Q4fE00fzx1hT3/NsMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794457892;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794457893;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=cLXx74nCZd0OCDxr0e6YQ9FSeFgHNMVZbOb67SHCa9Y=;
-	b=yYlrw32QH66jjry9Jx7Jwlh3WGE3iHluVXtKoP5rdom4ft/UmxCdfWJxp57Rt65dEa1o
-	 FikUj8ucZ27IFHKMWdEl4jWIfUq26DMYxUxnEHuwcmRM+90tySmfVxlzW45geOGSal/m6
-	 ON12zZBqkfOGteqUnS/+pfGpoZhu6efSvBmVNKUXWmq44P4INobSWfTAIC+PQ7Wr5nAw3
-	 E/+mJXatXiPGaxBIzy8kHXhB5hCu8k5plTYfUePS04ZcT2cpc8yJe8hQSqxwNzmmgteSe
-	 Liz/DfD/L5qltH9WB9PCgT4YRy2yCp7MQrLebDFupkow7UQc9Yb/z6FAXz3H5o18t0w==
+	bh=oYknBPlZJYAgECq79x9f8uE4Xy57U1QXOVM+BLoL/wM=;
+	b=kXR4Fy6LAxmV/tKlCVLmexY0tkON+nyt9OpEhfTh+SraQ/EOU+dPfBVePoAu5nKEN14n
+	 ZM7w1gD2NzrYOonV/IUYmmdUP5IG9T37rQOjci5wPlC1P5O+dJpi7EVy3wwE/oJKtxUeq
+	 HSTV3REN9zsv/sHKa7N5cGc6bE9JgJ1CherhsYXw4tgTF12BIuJE0On0gSBbEfcbJ2mte
+	 SGl+WDex9d2jTiBMkunRfe5BSbh8hJMX4Q/fzT23WiFBNlxMAusC/NLjBJ1DJxNr3XULh
+	 JboCIWf4cBk2WFZuFHYroIxgaCuHnEXKOtATDx8b2sF2UvW4HpIIX6wCQxMUTtVCtQQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YEbgFrCh;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cN0dxhKO;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64416606A880;
-	Thu, 12 Nov 2026 04:31:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5510A606A895;
+	Thu, 12 Nov 2026 04:31:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YEbgFrCh
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCFD21F00A06;
-	Thu, 12 Nov 2026 04:31:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cN0dxhKO
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0A511F00A06;
+	Thu, 12 Nov 2026 04:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794457892;
-	bh=cLXx74nCZd0OCDxr0e6YQ9FSeFgHNMVZbOb67SHCa9Y=;
+	s=k20260515; t=1794457893;
+	bh=oYknBPlZJYAgECq79x9f8uE4Xy57U1QXOVM+BLoL/wM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YEbgFrChi7avMPUlafBc1/+y17L62SOrHklQ5u2AmWyKYUVqhCi5W2IRWlYWJpQSY
-	 czw9OiRYvWG4kz01lWyNC0BtbPSKlazW0FBosD5iHO9VjR//n8oPXJfri60UA26ifL
-	 rMkwQ5/aTOMw3G1yIBMns2xBV38LfGvg1xYZGfp0HjQmN29XevzHmeUEomnJnAOE9X
-	 tJJs5vA8vRJFmSCO9Qi8kYy1A0jT0swfD457rDkCjSVbNoiWs3py1zv9X/idlf1LLp
-	 5EbnK/AQAP9JJtUPtG0shZUEGCdIMSjvJ7iYDyY/T5G72qV0FrTsxR4IIzz56xjKb6
-	 3NHAD3dQ+jaaQ==
-Message-ID: <sashiko-outbox-210352@kernel.org>
+	b=cN0dxhKOOEx/6gVFIa1Oe/mC6JKe6MVSmzHwvfXP84q+v0hXkXQB4wcYsJuOYIwPS
+	 ZkPwS/NKb8689Cfeb3odBDcw0/4BeX6zo5I9mF7pP7JIT4jaA8gMJn2McZK0i9azlJ
+	 w+aLdqohGX9K2h0Y1PQP5EfFwFM/e0gWvwUu3+NAnGeBrl+xVfKzQJzl5JP5ITQGLj
+	 XrSJvXP840jmxgU6NRQ2Nf08iHRwmV/GULbKQGmyUpqbdCBnLwb7a9KVdGgk87gw9K
+	 nJSlafAYBGXhT4Oz3hHCbn9snUqx9NRnwmR5AMSvgq6N/2pajebnE1g0WqV/Ozxqdh
+	 PQhtezqIYdiPA==
+Message-ID: <sashiko-outbox-210353@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 06/13] KEYS: trusted: Update static calls before init
+Subject: Re: [PATCH v6 07/13] KEYS: trusted: TEE: Synchronize session
+ lifetime
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jarkko Sakkinen" <jarkko@kernel.org>
 Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112040242.247168-7-jarkko@kernel.org>
+In-Reply-To: <20261112040242.247168-8-jarkko@kernel.org>
 References: <20261112040242.247168-1-jarkko@kernel.org>
- <20261112040242.247168-7-jarkko@kernel.org>
+ <20261112040242.247168-8-jarkko@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 04:31:31 +0000
+Date: Thu, 12 Nov 2026 04:31:32 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,21 +63,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Given that the static calls are updated only after ->init() returns, an
-> added trusted key can race with the callback initializations. This can
-> ultimately lead into null dereference as static_call() is used unchecked.
+> The parent TEE device can remove the client device while live instances
+> keep trusted.ko loaded.
 >=20
-> Address the bug by updating the static calls before invoking ->init(), and
-> roll back on failure.
+> Guard session context state with a mutex, publish pvt_data.dev before
+> registering key_type_trusted and sanitize pvt_data on probe failure and
+> removal.
+>=20
+> When an active TEE has not been bound, reject seal, unseal and get_random
+> with -ENODEV.
 >=20
 > Cc: stable@vger.kernel.org # v5.15+
-> Fixes: 31de287345f4 ("KEYS: trusted: Rollback init_trusted() consistently=
-")
+> Fixes: 0a95ebc91305 ("KEYS: trusted: Introduce TEE based Trusted Keys")
+> Reviewed-by: Sumit Garg <sumit.garg@oss.qualcomm.com>
 > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112040242.2471=
-68-1-jarkko@kernel.org?part=3D6
+68-1-jarkko@kernel.org?part=3D7
 
