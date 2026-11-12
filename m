@@ -1,44 +1,44 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794456210;
-	b=UVeRl2y1cS6El0oxP+HERhJmIXzumjWwC+zVdyEyquPPFKH3VtyZ5hcP49bxTCe8gAGC
-	 sDVsLDSVUaKjI4iDXg4AZQk/umqieQSF9nM4tCKA9PYyv5L4ALIhps146nKEhDLlc3hi8
-	 Lv0gstqIkoDDqqGTLxBBQooRSx3UihXplwkEn6hY5ZurCJosjj6VId1jmQW2Xrbm5P8qB
-	 UGYsoXlwcy7iC6YchVlBED/9d681AVhO0m9QRTz/UatPFexF2REEMdScR21Qvj4d8u3lb
-	 ou1L/PXXUXvlHIqgFdmOkfVld0alcotj/XBeZg+MlAE1ry5KNuDWXFc0/eZPUzDYGDw==
+	t=1794456218;
+	b=A7Yb70BZTh4ysNntM+LwS3nTPedG42I6oADo8hPQfxU2hm6cpFPgkbvpLT04upUzyYWI
+	 Pox4X6Mc6GpTuM2d6Tm0oKEw6twMY4OXMNtnhM1vUN0nlu2kmx9kmH/VglaAT1Yoyaei7
+	 UDnun3sCK6exMW1nLm7uziR/3C1isr23N4q5uZ+smyEVRwARsEx/1kI25tVhTtJW8MbNr
+	 ohzIZBV/OcM1cOJyQ12cZs51Xnnmjk84CL+31xRUKQRFHpNbxTXmyPdTTOyGKNGTELJd2
+	 ODfOUq84Ol5M7VfGqlj1yuXdiRSqgt13HDijLZN/VSryx1pjeiUI8UAQZXaSb3jHifw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794456210;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794456218;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=9pV9MOVfgxXWEcwkUhDLETd+HrBV7lm9P0IFTPztEvU=;
-	b=BB6NrmcoUCFO8ZFi0EeRJNs3Wi4QUf7yDdUrBt6akloOy1SmtpktNT4LTB9E69FVGbmE
-	 GAQLha/ceYzn0sRw6AViSCE3INzTbB+/LsOSWfqF9SnaYjv8k9aCsHvN76l1lGiVbLnum
-	 SAzHRrYhUkvAKtukfoCEyH7F66rTols2mP5I172n2vzC8v+Z0HolIR+VhbanWggVBeOtl
-	 VXDBLePgB//fkBtB9ISJeVTtRM3+MwKoGe6FZXYuL5Ubzb5wjM/7V0ahrmkbsLoL9yivj
-	 mHYonUc5nKYirR1hxxCWXpedS9zBBVmi1tMyMFBLliMC4dslXAoc1HHn0JAdXUTa2ww==
+	bh=1Lrr6VmMkyW1zsEn76jFYJKvsjI3Ge4n5qY5HfV8y1g=;
+	b=YChj/f4OXU6xY5bylj4kAbjECSVxzApvWH6j6phl3rK1eLtsAR5LFqCKaF21mZq8M6pW
+	 p9s230B4y1jQpdUPigHh35qMJoiHkLIFqNKZxEJqeW4vtDtREgrRi1na7FR+ygXOvSkFq
+	 /odxciPfUrYqZFnbFk0166LzFUdxUEpFDVpi7KHZV7N6SJc6mBj3jg4MkqYZSki2FYH5C
+	 lDzUM3v6l8m7gM3RdjxXziDC7aDavMqVo/HfVjDG6/ERgxwDIrFWhulCyEGcmXEv0AQds
+	 1riErEW4PIq6/Iv3AfmN2wVTfEsr6ZR4P01g9NQOMQcTxt34eFQs5NZtkHyCNNHRuMQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UivPQR0o;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Lq/U+Q4p";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 9B49B606A323;
-	Thu, 12 Nov 2026 04:03:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 4D38B606A323;
+	Thu, 12 Nov 2026 04:03:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UivPQR0o
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 896B61F00A05;
-	Thu, 12 Nov 2026 04:03:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Lq/U+Q4p
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 2E8D51F00A05;
+	Thu, 12 Nov 2026 04:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794456210;
-	bh=9pV9MOVfgxXWEcwkUhDLETd+HrBV7lm9P0IFTPztEvU=;
+	s=k20260515; t=1794456217;
+	bh=1Lrr6VmMkyW1zsEn76jFYJKvsjI3Ge4n5qY5HfV8y1g=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=UivPQR0oaiAUizb6ushEo8yHjvo7bu4tGE0FLODiYG7vOchn3JvzQ36Fgf029fBBF
-	 obLxgxKiaiFKH0Sy55HEH5uY5knL8s5RwgWjKBhFgXIDqio4apmd/mcS43m2Tc/3wa
-	 7hlx9dRQRXjQRydiIlqi5pNl2S/pqTIxPCxjB0X4LD3KBV9ws/cvNEsrdyyeEnI5iT
-	 +w+xJi+GAy6xi0+9d58H8+128/nyZc2LxKFX4/z+wVE7vh0obe0DCN4GLQ4A33Q6jK
-	 H/jIrxWXvpk5L+wW5r6geD8dcguOYEC4ozq0vcQuOIK4pzp57taNaX0mKnP68isrK7
-	 Egis6z8OJQMmQ==
+	b=Lq/U+Q4plaSkIuHD7XRq4NppkVH9h+7O3pJamYVU8ctXDnBbmHhyqDzSEW4reSWfC
+	 K/zW9HkAQ3nBkc8w0KzQHzKnvcYv4RmRdqmg8q4mrPhBj4b1Zzqe1V0vdFZeIwAhmV
+	 DZX5y7BY7LJXMBcZhPHTMCqOWXcobqvJCeYIhS0GLqylXf85YdxSvYO2jtbgUPmXNV
+	 BEBKxPZ041llfZO0me84c9xjcfR1zjeXWJ/PnzefLoaUg+F/YKmfGKhuJp+H4MD+BA
+	 JeLRoSd7wZCcEzujXYFvN/8Ze+Eo27rjSVf5kFawjL0nX9K7PVSwJz/bQa/7jqWIXL
+	 iIZ6C33o5hy0g==
 From: Jarkko Sakkinen <jarkko@kernel.org>
 To: David Howells <dhowells@redhat.com>
 Cc: Jarkko Sakkinen <jarkko@kernel.org>,
@@ -77,9 +77,9 @@ Cc: Jarkko Sakkinen <jarkko@kernel.org>,
 	Tom Talpey <tom@talpey.com>,
 	Trond Myklebust <trondmy@kernel.org>,
 	Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v6 11/13] KEYS: Pin the backing kernel module for a key type
-Date: Thu, 12 Nov 2026 06:02:40 +0200
-Message-ID: <20261112040242.247168-12-jarkko@kernel.org>
+Subject: [PATCH v6 13/13] KEYS: key_garbage_collector(): process in chunks
+Date: Thu, 12 Nov 2026 06:02:42 +0200
+Message-ID: <20261112040242.247168-14-jarkko@kernel.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261112040242.247168-1-jarkko@kernel.org>
 References: <20261112040242.247168-1-jarkko@kernel.org>
@@ -94,313 +94,403 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add the owner field (populated with THIS_MODULE) to struct key_type.
+key_garbage_collector() has a design that is not resistant enough for
+workqueue lockups. The duration scales up relative to the number of items
+in the serial tree, which causes a reoccuring theme of being guilty of
+causing workqueue lockups.
 
-Pin the module in key_alloc() and keyring_restrict(), and release it in
-key_gc_unused_keys() and keyring_destroy(), which are wires to the keys
-and restrictions.
+Resolve the problem by processing in chunks:
 
-Reject module owners still in MODULE_STATE_COMING so that the failed
-module_init() paths cannot leave behind referenced keys.
+1. Declare a static variable key_gc_work, which owns the garbage collection
+   in-flight state, and key_schedule_gc_work() for re-scheduling the work.
+2. Define KEY_GC_CHUNK_SIZE, set to 64 keys, as the bound for the number
+   of items scanned and destroyed.
+3. Define KEY_GC_DESTROYING to mark resume to destruction without repeating
+   the RCU grace period.
+4. Define KEY_GC_REAP_REQUESTED for preserving full-pass requests across
+   the continuations.
 
+keygcbench results without the patch:
+
+unused:   min=413.359 avg=1817.240 max=3221.120 var=1970880.024
+expired:  min=0.002 avg=1360.124 max=2481.990 var=1055093.994
+combined: min=0.002 avg=1542.970 max=3221.120 var=1471557.422
+
+keygcbench results with the patch:
+
+unused:   min=0.005 avg=0.126 max=54.173 var=0.946
+expired:  min=0.002 avg=0.210 max=216.470 var=7.894
+combined: min=0.002 avg=0.158 max=216.470 var=3.627
+
+These results translate to:
+
+- >99.9% drop in the combined variance.
+- 3.0% increase in the total task time.
+
+The value 64 for KEY_GC_CHUNK_SIZE was cherry-picked from the set {1, 2,
+..., 1024} by running the benchmark for each chunk size three times.
+
+At the far left variance is 97% lower but at the same time total time
+grows by 133%, when compared to the selected chunk size. The size was
+picked based on getting a reasonable variance with a minimal throughput
+decline.
+
+Fixes: 0c061b5707ab ("KEYS: Correctly destroy key payloads when their keytype is removed")
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/jarkko/linux-tpmdd-test.git/tree/package/keygcbench
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 ---
- include/linux/key-type.h |  6 ++++-
- security/keys/gc.c       | 14 ++++++++++--
- security/keys/key.c      | 48 ++++++++++++++++++++++++++++++----------
- security/keys/keyring.c  | 36 +++++++++++++++++++++++++-----
- 4 files changed, 83 insertions(+), 21 deletions(-)
+ security/keys/gc.c       | 166 ++++++++++++++++++++++++++-------------
+ security/keys/internal.h |   3 +-
+ security/keys/key.c      |   4 +-
+ security/keys/keyring.c  |   2 +-
+ 4 files changed, 116 insertions(+), 59 deletions(-)
 
-diff --git a/include/linux/key-type.h b/include/linux/key-type.h
-index c4f329b6ae3f..9ecec31ad571 100644
---- a/include/linux/key-type.h
-+++ b/include/linux/key-type.h
-@@ -10,9 +10,11 @@
- 
- #include <linux/key.h>
- #include <linux/errno.h>
-+#include <linux/init.h>
- 
- #ifdef CONFIG_KEYS
- 
-+struct module;
- struct kernel_pkey_query;
- struct kernel_pkey_params;
- 
-@@ -161,6 +163,7 @@ struct key_type {
- 				     const void *in, const void *in2);
- 
- 	/* internal fields */
-+	struct module		*owner;
- 	atomic64_t		index_id;	/* Opaque keyring index ID */
- 	struct list_head	link;		/* link in types list */
- 	struct lock_class_key	lock_class;	/* key->sem lock class */
-@@ -168,7 +171,8 @@ struct key_type {
- 
- extern struct key_type key_type_keyring;
- 
--extern int register_key_type(struct key_type *ktype);
-+int __register_key_type(struct key_type *ktype, struct module *owner);
-+#define register_key_type(ktype) __register_key_type(ktype, THIS_MODULE)
- extern void unregister_key_type(struct key_type *ktype);
- 
- extern int key_payload_reserve(struct key *key, size_t datalen);
 diff --git a/security/keys/gc.c b/security/keys/gc.c
-index 9b625436d3b5..7b2f32998f58 100644
+index 859f331549ce..704dcc401983 100644
 --- a/security/keys/gc.c
 +++ b/security/keys/gc.c
-@@ -6,6 +6,7 @@
-  */
- 
- #include <linux/slab.h>
-+#include <linux/module.h>
- #include <linux/security.h>
+@@ -11,10 +11,7 @@
  #include <keys/keyring-type.h>
  #include "internal.h"
-@@ -150,6 +151,7 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
- 	while (!list_empty(keys)) {
+ 
+-/*
+- * Delay between key revocation/expiry in seconds
+- */
+-unsigned key_gc_delay = 5 * 60;
++#define KEY_GC_CHUNK_SIZE 64
+ 
+ /*
+  * Reaper for unused keys.
+@@ -22,18 +19,22 @@ unsigned key_gc_delay = 5 * 60;
+ static void key_garbage_collector(struct work_struct *work);
+ 
+ struct workqueue_struct *key_gc_wq __ro_after_init;
+-DECLARE_WORK(key_gc_work, key_garbage_collector);
+ 
+-/**
+- * key_gc_flush - Drain the garbage collector RCU callbacks
++static struct {
++	time64_t start;			/* expiry range start */
++	time64_t end;			/* expiry range end */
++	struct rb_node *cursor;		/* serial tree position */
++	u8 state;			/* state flags */
++	atomic_t seq;
++	struct work_struct work;	/* work item */
++} key_gc_work = {
++	.work = __WORK_INITIALIZER(key_gc_work.work, key_garbage_collector),
++};
++
++/*
++ * Delay between key revocation/expiry in seconds
+  */
+-void key_gc_flush(void)
+-{
+-	do {
+-		rcu_barrier();
+-	} while (flush_work(&key_gc_work));
+-}
+-EXPORT_SYMBOL_GPL(key_gc_flush);
++unsigned int key_gc_delay = 5 * 60;
+ 
+ /*
+  * Reaper for links from keyrings to dead keys.
+@@ -44,6 +45,42 @@ static DEFINE_TIMER(key_gc_timer, key_gc_timer_func);
+ static time64_t key_gc_next_run = TIME64_MAX;
+ static unsigned long key_gc_flags;
+ #define KEY_GC_KEY_EXPIRED	0	/* A key expired and needs unlinking */
++#define KEY_GC_REAP_REQUESTED	1	/* Another complete pass was requested */
++
++/*
++ * Schedule a new GC pass or re-schedule an ongoing GC pass.
++ */
++void key_schedule_gc_work(bool expired)
++{
++	unsigned long flags = BIT(KEY_GC_REAP_REQUESTED);
++
++	if (expired)
++		flags |= BIT(KEY_GC_KEY_EXPIRED);
++
++	/* Publish all request flags together, after the caller's updates. */
++	set_mask_bits(&key_gc_flags, 0, flags);
++	queue_work(key_gc_wq, &key_gc_work.work);
++}
++
++/**
++ * key_gc_flush - Drain the garbage collector RCU callbacks
++ */
++void key_gc_flush(void)
++{
++	int seq;
++
++	do {
++		while (flush_work(&key_gc_work.work) ||
++		       work_pending(&key_gc_work.work))
++			cpu_relax();
++		seq = atomic_read_acquire(&key_gc_work.seq);
++		rcu_barrier();
++	} while (flush_work(&key_gc_work.work) ||
++		 work_pending(&key_gc_work.work) ||
++		 atomic_read_acquire(&key_gc_work.seq) != seq);
++}
++EXPORT_SYMBOL_GPL(key_gc_flush);
++
+ /*
+  * Schedule a garbage collection run.
+  * - time precision isn't particularly important
+@@ -57,7 +94,8 @@ void key_schedule_gc(time64_t gc_at)
+ 
+ 	if (gc_at <= now) {
+ 		kdebug("IMMEDIATE");
+-		queue_work(key_gc_wq, &key_gc_work);
++		/* Catch expirations that became due during the scan. */
++		key_schedule_gc_work(true);
+ 	} else if (gc_at < key_gc_next_run) {
+ 		kdebug("DEFERRED");
+ 		key_gc_next_run = gc_at;
+@@ -79,15 +117,6 @@ void key_set_expiry(struct key *key, time64_t expiry)
+ 	}
+ }
+ 
+-/*
+- * Schedule a dead links collection run.
+- */
+-void key_schedule_gc_links(void)
+-{
+-	set_bit(KEY_GC_KEY_EXPIRED, &key_gc_flags);
+-	queue_work(key_gc_wq, &key_gc_work);
+-}
+-
+ /*
+  * Some key's cleanup time was met after it expired, so we need to get the
+  * reaper to go through a cycle finding expired keys.
+@@ -96,7 +125,7 @@ static void key_gc_timer_func(struct timer_list *unused)
+ {
+ 	kenter("");
+ 	key_gc_next_run = TIME64_MAX;
+-	key_schedule_gc_links();
++	key_schedule_gc_work(true);
+ }
+ 
+ /*
+@@ -104,7 +133,9 @@ static void key_gc_timer_func(struct timer_list *unused)
+  */
+ static noinline void key_gc_unused_keys(struct list_head *keys)
+ {
+-	while (!list_empty(keys)) {
++	unsigned int chunk = KEY_GC_CHUNK_SIZE;
++
++	while (!list_empty(keys) && chunk--) {
  		struct key *key =
  			list_entry(keys->next, struct key, graveyard_link);
-+		struct module *owner = key->type->owner;
- 		short state = key->state;
+ 		struct module *owner = key->type->owner;
+@@ -157,35 +188,46 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
+ static void key_garbage_collector(struct work_struct *work)
+ {
+ 	static LIST_HEAD(graveyard);
+-	u8 gc_state = 0;
++	typeof(key_gc_work) *gc = &key_gc_work;
+ #define KEY_GC_REAP_AGAIN	0x01	/* - Need another cycle */
+ #define KEY_GC_REAPING_LINKS	0x02	/* - We need to reap links */
++#define KEY_GC_DESTROYING	0x04	/* - We need to destroy keys */
  
- 		list_del(&key->graveyard_link);
-@@ -163,8 +165,15 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
- #endif
+-	struct rb_node *cursor;
++	unsigned int chunk = KEY_GC_CHUNK_SIZE;
++	unsigned long flags;
+ 	struct key *key;
+-	time64_t new_timer, limit, expiry;
++	time64_t expiry;
  
- 		/* Throw away the key data if the key is instantiated */
--		if (state == KEY_IS_POSITIVE && key->type->destroy)
--			key->type->destroy(key);
-+		if (state == KEY_IS_POSITIVE) {
-+			if (key->type->destroy)
-+				key->type->destroy(key);
-+		} else if (key->restrict_link) {
-+			if (key->restrict_link->keytype)
-+				module_put(key->restrict_link->keytype->owner);
-+			key_put(key->restrict_link->key);
-+			kfree(key->restrict_link);
+-	kenter("[%lx]", key_gc_flags);
++	kenter("[%lx,%x]", key_gc_flags, gc->state);
+ 
+-	limit = ktime_get_real_seconds();
++	if (gc->state & KEY_GC_DESTROYING)
++		goto destroy_keys;
++	if (gc->cursor) {
++		spin_lock(&key_serial_lock);
++		goto continue_scanning;
++	}
+ 
+-	if (test_and_clear_bit(KEY_GC_KEY_EXPIRED, &key_gc_flags))
+-		gc_state |= KEY_GC_REAPING_LINKS;
+-	kdebug("new pass %x", gc_state);
++	flags = xchg(&key_gc_flags, 0);
++	gc->start = ktime_get_real_seconds();
++	gc->state = 0;
++	if (flags & BIT(KEY_GC_KEY_EXPIRED))
++		gc->state |= KEY_GC_REAPING_LINKS;
++	kdebug("new pass %x", gc->state);
+ 
+-	new_timer = TIME64_MAX;
++	gc->end = TIME64_MAX;
+ 
+ 	/* As only this function is permitted to remove things from the key
+ 	 * serial tree, if cursor is non-NULL then it will always point to a
+ 	 * valid node in the tree - even if lock got dropped.
+ 	 */
+ 	spin_lock(&key_serial_lock);
+-	cursor = rb_first(&key_serial_tree);
++	gc->cursor = rb_first(&key_serial_tree);
+ 
+ continue_scanning:
+-	while (cursor) {
+-		key = rb_entry(cursor, struct key, serial_node);
+-		cursor = rb_next(cursor);
++	while (gc->cursor && chunk) {
++		key = rb_entry(gc->cursor, struct key, serial_node);
++		gc->cursor = rb_next(gc->cursor);
++		chunk--;
+ 
+ 		if (!test_bit_acquire(KEY_FLAG_USER_ALIVE, &key->flags)) {
+ 			/* Clobber key->user after final put seen. */
+@@ -196,14 +238,14 @@ static void key_garbage_collector(struct work_struct *work)
+ 		if (expiry != TIME64_MAX) {
+ 			if (!(key->type->flags & KEY_TYPE_INSTANT_REAP))
+ 				expiry += key_gc_delay;
+-			if (expiry > limit && expiry < new_timer) {
++			if (expiry > gc->start && expiry < gc->end) {
+ 				kdebug("will expire %x in %lld",
+-				       key_serial(key), key->expiry - limit);
+-				new_timer = key->expiry;
++				       key_serial(key), expiry - gc->start);
++				gc->end = expiry;
+ 			}
+ 		}
+ 
+-		if ((gc_state & KEY_GC_REAPING_LINKS) &&
++		if ((gc->state & KEY_GC_REAPING_LINKS) &&
+ 		    key->type == &key_type_keyring)
+ 			goto found_keyring;
+ 
+@@ -215,7 +257,11 @@ static void key_garbage_collector(struct work_struct *work)
+ 	spin_unlock(&key_serial_lock);
+ 
+ maybe_resched:
+-	if (cursor) {
++	if (gc->cursor) {
++		if (!chunk) {
++			queue_work(key_gc_wq, &key_gc_work.work);
++			goto out;
 +		}
+ 		cond_resched();
+ 		spin_lock(&key_serial_lock);
+ 		goto continue_scanning;
+@@ -227,10 +273,8 @@ static void key_garbage_collector(struct work_struct *work)
+ 	 */
+ 	kdebug("pass complete");
  
- 		security_key_free(key);
+-	if (new_timer != TIME64_MAX) {
+-		new_timer += key_gc_delay;
+-		key_schedule_gc(new_timer);
+-	}
++	if (gc->end != TIME64_MAX)
++		key_schedule_gc(gc->end);
  
-@@ -178,6 +187,7 @@ static noinline void key_gc_unused_keys(struct list_head *keys)
- 
- 		memzero_explicit(key, sizeof(*key));
- 		kmem_cache_free(key_jar, key);
-+		module_put(owner);
+ 	if (!list_empty(&graveyard)) {
+ 		/* Make sure that all pending keyring payload destructions are
+@@ -240,13 +284,27 @@ static void key_garbage_collector(struct work_struct *work)
+ 		 */
+ 		kdebug("gc sync");
+ 		synchronize_rcu();
++	}
++
++	gc->state |= KEY_GC_DESTROYING;
++
++destroy_keys:
++	if (!list_empty(&graveyard)) {
+ 		kdebug("gc keys");
+ 		key_gc_unused_keys(&graveyard);
++		if (!list_empty(&graveyard)) {
++			queue_work(key_gc_wq, &key_gc_work.work);
++			goto out;
++		}
  	}
- }
+-
+-	if (gc_state & KEY_GC_REAP_AGAIN)
+-		queue_work(key_gc_wq, &key_gc_work);
+-	kleave(" [end %x]", gc_state);
++	gc->state &= ~KEY_GC_DESTROYING;
++
++	if ((gc->state & KEY_GC_REAP_AGAIN) ||
++	    test_bit(KEY_GC_REAP_REQUESTED, &key_gc_flags))
++		queue_work(key_gc_wq, &key_gc_work.work);
++out:
++	atomic_inc_return(&gc->seq);
++	kleave(" [end %x]", gc->state);
+ 	return;
  
+ 	/* We found an unreferenced key - once we've removed it from the tree,
+@@ -258,7 +316,7 @@ static void key_garbage_collector(struct work_struct *work)
+ 	spin_unlock(&key_serial_lock);
+ 
+ 	list_add_tail(&key->graveyard_link, &graveyard);
+-	gc_state |= KEY_GC_REAP_AGAIN;
++	gc->state |= KEY_GC_REAP_AGAIN;
+ 	goto maybe_resched;
+ 
+ 	/* We found a keyring and we need to check the payload for links to
+@@ -268,6 +326,6 @@ static void key_garbage_collector(struct work_struct *work)
+ 	 */
+ found_keyring:
+ 	spin_unlock(&key_serial_lock);
+-	keyring_gc(key, limit);
++	keyring_gc(key, gc->start);
+ 	goto maybe_resched;
+ }
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index f8918b69dc77..6b5bb63b0e9e 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -161,13 +161,12 @@ extern bool lookup_user_key_possessed(const struct key *key,
+ extern long join_session_keyring(const char *name);
+ extern void key_change_session_keyring(struct callback_head *twork);
+ 
+-extern struct work_struct key_gc_work;
+ extern unsigned key_gc_delay;
+ extern struct workqueue_struct *key_gc_wq;
+ extern void keyring_gc(struct key *keyring, time64_t limit);
+ void key_set_expiry(struct key *key, time64_t expiry);
+ extern void key_schedule_gc(time64_t gc_at);
+-extern void key_schedule_gc_links(void);
++void key_schedule_gc_work(bool expired);
+ 
+ extern int key_task_permission(const key_ref_t key_ref,
+ 			       const struct cred *cred,
 diff --git a/security/keys/key.c b/security/keys/key.c
-index 3e604d25d35e..be68d19f91d3 100644
+index 80962c3ae12d..53106bee2d27 100644
 --- a/security/keys/key.c
 +++ b/security/keys/key.c
-@@ -7,6 +7,7 @@
- 
- #include <linux/export.h>
- #include <linux/init.h>
-+#include <linux/module.h>
- #include <linux/poison.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-@@ -234,19 +235,34 @@ struct key *key_alloc(struct key_type *type, const char *desc,
- 
- 	key = ERR_PTR(-EINVAL);
- 	if (!desc || !*desc)
--		goto error;
-+		goto out;
-+
-+	/* Failed module initialization ignores outstanding module references. */
-+	if ((type->owner && module_is_coming(type->owner)) ||
-+	    !try_module_get(type->owner)) {
-+		key = ERR_PTR(-ENOENT);
-+		goto out;
-+	}
-+
-+	if (restrict_link && restrict_link->keytype &&
-+	    ((restrict_link->keytype->owner &&
-+	      module_is_coming(restrict_link->keytype->owner)) ||
-+	     !try_module_get(restrict_link->keytype->owner))) {
-+		key = ERR_PTR(-ENOENT);
-+		goto out_put_module;
-+	}
- 
- 	if (type->vet_description) {
- 		ret = type->vet_description(desc);
- 		if (ret < 0) {
- 			key = ERR_PTR(ret);
--			goto error;
-+			goto out_put_restrict_module;
+@@ -693,7 +693,7 @@ void key_put(struct key *key)
+ 			}
+ 			/* Mark key as safe for GC after key->user done. */
+ 			clear_bit_unlock(KEY_FLAG_USER_ALIVE, &key->flags);
+-			queue_work(key_gc_wq, &key_gc_work);
++			key_schedule_gc_work(false);
  		}
  	}
- 
- 	desclen = strlen(desc);
- 	if (desclen >= KEY_MAX_DESC_SIZE)
--		goto error;
-+		goto out_put_restrict_module;
- 	quotalen = desclen + 1 + type->def_datalen;
- 
- 	/* get hold of the key tracking for this user */
-@@ -323,8 +339,6 @@ struct key *key_alloc(struct key_type *type, const char *desc,
- 	refcount_inc(&key->domain_tag->usage);
- 	atomic_inc(&user->nkeys);
- 	key_alloc_serial(key);
--
--error:
- 	return key;
- 
- security_error:
-@@ -338,7 +352,7 @@ struct key *key_alloc(struct key_type *type, const char *desc,
+ }
+@@ -1214,7 +1214,7 @@ void key_invalidate(struct key *key)
+ 		down_write_nested(&key->sem, 1);
+ 		if (!test_and_set_bit(KEY_FLAG_INVALIDATED, &key->flags)) {
+ 			notify_key(key, NOTIFY_KEY_INVALIDATED, 0);
+-			key_schedule_gc_links();
++			key_schedule_gc_work(true);
+ 		}
+ 		up_write(&key->sem);
  	}
- 	key_user_put(user);
- 	key = ERR_PTR(ret);
--	goto error;
-+	goto out_put_restrict_module;
- 
- no_memory_3:
- 	kmem_cache_free(key_jar, key);
-@@ -352,13 +366,22 @@ struct key *key_alloc(struct key_type *type, const char *desc,
- 	key_user_put(user);
- no_memory_1:
- 	key = ERR_PTR(-ENOMEM);
--	goto error;
-+	goto out_put_restrict_module;
- 
- no_quota:
- 	spin_unlock_irqrestore(&user->lock, irqflags);
- 	key_user_put(user);
- 	key = ERR_PTR(-EDQUOT);
--	goto error;
-+
-+out_put_restrict_module:
-+	if (restrict_link && restrict_link->keytype)
-+		module_put(restrict_link->keytype->owner);
-+
-+out_put_module:
-+	module_put(type->owner);
-+
-+out:
-+	return key;
- }
- EXPORT_SYMBOL(key_alloc);
- 
-@@ -1231,19 +1254,20 @@ int generic_key_instantiate(struct key *key, struct key_preparsed_payload *prep)
- EXPORT_SYMBOL(generic_key_instantiate);
- 
- /**
-- * register_key_type - Register a type of key.
-+ * __register_key_type - Register a type of key.
-  * @ktype: The new key type.
-+ * @owner: Module owning the key type.
-  *
-  * Register a new key type.
-  *
-  * Returns 0 on success or -EEXIST if a type of this name already exists.
-  */
--int register_key_type(struct key_type *ktype)
-+int __register_key_type(struct key_type *ktype, struct module *owner)
- {
- 	struct key_type *p;
- 	int ret;
- 
--	memset(&ktype->lock_class, 0, sizeof(ktype->lock_class));
-+	ktype->owner = owner;
- 
- 	ret = -EEXIST;
- 	down_write(&key_types_sem);
-@@ -1264,7 +1288,7 @@ int register_key_type(struct key_type *ktype)
- 	up_write(&key_types_sem);
- 	return ret;
- }
--EXPORT_SYMBOL(register_key_type);
-+EXPORT_SYMBOL(__register_key_type);
- 
- /**
-  * unregister_key_type - Unregister a type of key.
 diff --git a/security/keys/keyring.c b/security/keys/keyring.c
-index 357f56360810..6fff91d276c2 100644
+index 2d65356129ba..7776983c3fda 100644
 --- a/security/keys/keyring.c
 +++ b/security/keys/keyring.c
-@@ -7,6 +7,7 @@
+@@ -266,7 +266,7 @@ void key_remove_domain(struct key_tag *domain_tag)
+ {
+ 	domain_tag->removed = true;
+ 	if (!key_put_tag(domain_tag))
+-		key_schedule_gc_links();
++		key_schedule_gc_work(true);
+ }
  
- #include <linux/export.h>
- #include <linux/init.h>
-+#include <linux/module.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/security.h>
-@@ -436,6 +437,9 @@ static void keyring_destroy(struct key *keyring)
- 	if (keyring->restrict_link) {
- 		struct key_restriction *keyres = keyring->restrict_link;
- 
-+		if (keyres->keytype)
-+			module_put(keyres->keytype->owner);
-+
- 		key_put(keyres->key);
- 		kfree(keyres);
- 	}
-@@ -540,6 +544,9 @@ struct key *keyring_alloc(const char *description, kuid_t uid, kgid_t gid,
- 	if (!IS_ERR(keyring)) {
- 		ret = key_instantiate_and_link(keyring, NULL, 0, dest, NULL);
- 		if (ret < 0) {
-+			if (restrict_link && restrict_link->keytype)
-+				module_put(restrict_link->keytype->owner);
-+			keyring->restrict_link = NULL;
- 			key_put(keyring);
- 			keyring = ERR_PTR(ret);
- 		}
-@@ -1062,7 +1069,7 @@ int keyring_restrict(key_ref_t keyring_ref, const char *type,
- 
- 		if (!restrict_type->lookup_restriction) {
- 			ret = -ENOENT;
--			goto error;
-+			goto out;
- 		}
- 
- 		restrict_link = restrict_type->lookup_restriction(restriction);
-@@ -1070,7 +1077,15 @@ int keyring_restrict(key_ref_t keyring_ref, const char *type,
- 
- 	if (IS_ERR(restrict_link)) {
- 		ret = PTR_ERR(restrict_link);
--		goto error;
-+		goto out;
-+	}
-+
-+	if (restrict_link && restrict_link->keytype &&
-+	    ((restrict_link->keytype->owner &&
-+	      module_is_coming(restrict_link->keytype->owner)) ||
-+	     !try_module_get(restrict_link->keytype->owner))) {
-+		ret = -ENOENT;
-+		goto out_free_restriction;
- 	}
- 
- 	down_write(&keyring->sem);
-@@ -1088,12 +1103,21 @@ int keyring_restrict(key_ref_t keyring_ref, const char *type,
- 	up_write(&keyring_serialise_restrict_sem);
- 	up_write(&keyring->sem);
- 
--	if (ret < 0) {
-+	if (ret < 0)
-+		goto out_put_module;
-+
-+	goto out;
-+
-+out_put_module:
-+	if (restrict_link && restrict_link->keytype)
-+		module_put(restrict_link->keytype->owner);
-+
-+out_free_restriction:
-+	if (restrict_link)
- 		key_put(restrict_link->key);
--		kfree(restrict_link);
--	}
-+	kfree(restrict_link);
- 
--error:
-+out:
- 	if (restrict_type)
- 		key_type_put(restrict_type);
- 
+ /*
 -- 
 2.47.3
 
