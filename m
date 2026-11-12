@@ -1,111 +1,127 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.158
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794493207;
-	b=IZH8rZJ74jM+nJvHCnp5BvK7QFJLsD8G1+I9Ft8PoWynRVn/Zv3TeazbRMiAP2/GcpkD
-	 tSyHq8p/43/PNeU3MuScx/dSHQ6GXS8A+WtWgyXMBtRP7I6gmOv5HWuNK8FCKwKQ5p+wV
-	 Li8NVf46yuLxX6g6ZleQa77IhdeexX+TajAcRl+Wr2HwtIdhR751IZwtgZnlhGg5euoWA
-	 irOGxnhEOxRXZ5MrImbOr/zjRZtjfyC4po0bU1M3M3oqotdQYkD+jSs6OkTX+yA3c9vaX
-	 InXveLbD/SWb26jHv+w6Q1KqSdXfs34XvwyOFp87Bo1niTG8ZFuuTW8GClYxlCbhEIQ==
+	t=1794493534;
+	b=DnZph+9layRfBV3V8sMPwV0xT5qE7lgDvecIJC5RRuG3iED9wpBoYXKS1aMh55r9ffM6
+	 GoJZlyU8zte5VHPzJhYFl/EVVz63LZXD+0YOt7Wzcx4su/OKJai+Ohv0pBMnBJFPBgEt3
+	 scVEYwswUoalZMcBmemNkNfSCwu3IeL+8xXc5VrIsmjzz005t9EHgr5d+WTBq2ZboSfGs
+	 cfnJXUeesOfVzGkeEHIFTIT5DZ/S70cbI5N3J3V7ckAwDy0n1hYxcxsbPco9HbMUQtTJL
+	 hy+d0M+kYeN1CSejYoDuGrIeFlKM7nZ4l1EkanVcrusYZWfaKkkRnGMLOXRPIaW2Zbw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794493207;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=Po91A0TQeeSBZp6Uv+2VnxQcRtafkxVPR5t/omhy96I=;
-	b=bVG1ChRsIHp5Qv2j4u31S1GlxN9fOHxqRzQz7kFnr0ePiCF9pWMRtD/4ImoRISwxlHo3
-	 bKRNBNnBGlfb3MBkYxczOCWB4n+Mu8v9TY2OOQcCJ819UKRXyJT0zyI0aEGTU1yfzjF7A
-	 WRBtGnJihdY7Wh0LDUNypNv6g3X2nvoJE9va7jm9IHegX93K+RX+1KM89pgLPUAWsLQ5f
-	 d0Za9PPpY7TPnDRnBChVZ5N836qvEYUgGPq8S/SRf56mwRd2+1NBgxQxwpfna9fQ8O7c1
-	 nMXFNUL2/IDoZs2cB966ttvWAQwue37pHgW1bx4agEg+OKVY0WRFAN2pMxW01JZI4qg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794493534;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Spamd-Result:X-Spam-Score:X-Spam-Level:
+	 X-Spam-Flag;
+	bh=rarWhYCLUgWlwnaEceP0km2CWzz/RwE1HqqRhAgWRRk=;
+	b=aksD4CpvjqQF3KuDhAyhJSHaMspqrcAzskmMNXrv1Aftr7bJczGm1JsQLyaFQAQaJNFN
+	 Zzy4pGLXXtTIuy1KvAhpOTnHyiKK63WVjZ4DhyRmyc/+Ma41v66Ok0SXnb6pJqN7cuA1w
+	 UcDw+iMRWwgL3VdN3tSvc7n1NksP1aRU5I+11t2XeSy1DmiulJ+BT8otmsIB7pmlZNIg2
+	 HWgzueiI+/b0kEam9SNH4k7o20WPnmnQQB8LBo/JM50lKnHk4a4oh2zd1ot81MwjaFm73
+	 /oOJCn9pEj6QGBzx6zzbRyrycfTFYEOqfa4MO3Tu8c2V9h1pn2h5O0yfRdiwRXo8Ftw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=arndb.de;
-	spf=pass smtp.mailfrom=arndb.de;
-	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=JMAgKw2c;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b="A+eih/B1";
-	arc=none smtp.remote-ip=202.12.124.158
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ASjfoLYK;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=AG6NBTHW;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ASjfoLYK;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=AG6NBTHW;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67558607379A
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 14:20:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 67558607379A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C626C606A882;
+	Thu, 12 Nov 2026 14:25:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C626C606A882
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=JMAgKw2c;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=A+eih/B1
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 7D2777A0108
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 09:20:06 -0500 (EST)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Thu, 12 Nov 2026 09:20:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1794493199;
-	 x=1794579599; bh=Po91A0TQeeSBZp6Uv+2VnxQcRtafkxVPR5t/omhy96I=; b=
-	JMAgKw2cBxf3HBI2nLW3v6qPzOCjORacm2L5oljcdrnvA8ThpZZz5Hdq6WOi0TMO
-	ceF0cV114PdYIJzsbw4e7vTOU7Y+t2gJX9tXCbdbvAq5RjuZJXm0dF598zcFr3n3
-	0MkQeiapmR1u+8s28Adb/7nqCoZB5/OFZ8OYLciR8rvS+BTNMTNJHVAul1qU6Obd
-	m7kwZHrv1/gx0P9jg3gZy97282TzzBGt26bstIN9zVy0Y7yS/K7pYpcI0ZzfZ7Ii
-	giegKtclp/59pFWgaqoOoXxLCtvrSggYUD30kUsXZCbLDngx69lIDrO+07q4EplR
-	JmlUmlvllIQ67OkdTFUrmg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794493199; x=
-	1794579599; bh=Po91A0TQeeSBZp6Uv+2VnxQcRtafkxVPR5t/omhy96I=; b=A
-	+eih/B1y/W9H127L0xh9ReznZXXhgI7L9PcIOaXk2mStUP0UdFqxYgpZo39oQ3bG
-	hCMd8qID1qjS9hlJGeytziYM3D6obTneIB+CRttDQT0K0JeCU/AWRD1+CNC9F/ma
-	YfCBZUIV5Fv3YZZHJkPyWMYfhRNoWaXW39BxIAJD4B3/W85hMKrng7BbWZFeExpV
-	zxeWNqtPZ6KP/QH7gY8VCx1Evk4LBUuJ1GC7i7ewKnnJZNvL+psDSmyPPx7S88sg
-	e3jlx1+E2B5nd1OJgNCMN7Dduq6H6DmiMAhv45NYGUpiyBuGYRvh8rhg03MB3SoK
-	sCAWGMHZ89fCm1HkdoMew==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=arndb.de a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1794493199; d=arndb.de;
-	mf=PGFybmRAYXJuZGIuZGU+;
-	rt=PGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnPg==;
-	s=fm2:rsa-sha256:XMv2xZYxPIKPnV4t18Bq+YQ6nGnz4HGCffyJRTNkHbFJzkc
-	ZdiOxw5eXe5q/gcqVoOkr+jdPxfGpjArEY0vR1MISYhOfoJvtFMTK6V2CKHg4RqW
-	bZrHxIQNq5BEsQ6/cRf0LBsmPYndSKyIYp0yrp2ZrqUQhiMFPoPVvT/iDCK96TR2
-	zY5fZNVZVAdKGHmBvi6UCkG6w++VVOJFZnFCO6KCvXOmlQYZELDDD8B2Zzi5lvIR
-	bTtqoxrcf2gcKdRkEcB+HMG9FsHydEv0L+x8MatHEs66ET7++XmKOWU9YSAOe/WV
-	GbExOwGDaoVjYnGqji6v39mTu6HClfvwvgkcxew==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:CzKjW2ii3Ii99NcUIE7R3IQcCSwwTZp6oJmN9GEyraE=:Qpp6TZr2LnQu0fCpUcZA+1b0xv6q77wCVX6VfeaszxA=;
-X-ME-Sender: <xms:Csv1alPV7r77mU1QBRPAnfIyN0Eyq8uhCVZrfZ_QIjAApbqJxbcncQ>
-    <xme:Csv1aiw6bF3nJx6b4GpodNu-DsmWk2lemw2cdwhjPVAndkydL5BJ11UgMzvgUrv8h
-    WTa8u34956DxS-YcXJoW2W1cGzrHkDOwbAPkpElhwiDLAJLZOpTuKi7>
-X-ME-Proxy-Cause: dmFkZTEObNg9umLLU6xbG7/zXV89KDQzCCfYBEHjjSANLrrtjlLiY2uW4lVziXjkEqJKMw
-    XKNREzQgdsZrR9VEWvgYl091p+2S9cwT38HvM+f6o9ZXeDX7ArQxQRxom/0dvdgccvHJ8s
-    KQoVaehMfXFDpcPJTRU8Jf+KseI+Fuh3gwSBIXny3wQJxHpGVJ09y07nDjlGSfIYI7nzPP
-    yPeFbOTCi7qvYql9hQNyv976yhHdHwdUMRHAPyDEdMnh9Sct4pcvHn/l1EyBYWSP9NBHp6
-    EFRdwL0uuGwBKZvKwVYRx5Nhu+SPlpW9rLOD1o3RdS19XbZZD26isGy32pGW9ODsGcVFjP
-    6mFM2+VWBb1JKBxs+khMv7QolWaYUeXxg9zCZ1yLf2LnB8S+6n8zH+7W0i8o1TaBvUk4MY
-    806sI4+fNBC1agVYDxMI5tGuC52G+3X5UbVEXy9x0dWTYftE0e4KqGQEeymj4HNwHblDnb
-    4RhxAFLdyFzXfCK2oOJQ5tWC8ONXuIjGfwJUq1XlLfbsikQri2GGgTJfm9RSEkwJWBvGgP
-    /HWxHR1J51wtUT++wVV+JWxJeimNBF3mdFaj1NYqMGSZA0CSJSDlWSdnSJxoAds/dXopAr
-    RhQYAS697+WdmObA0ptBXVVgKkvsiVhNvfRng3Ga44/hcUgd60rxS2CsMSOw
-X-ME-Proxy: <xmx:Dcv1aixQxdoERAc4bVzvsOZTE0ZYEtgDms2ahp4EBAU8-M5YHfwQAQ>
-    <xmx:Dcv1ausdRbBJhCqxEYMXT_msYCWaWFA4AoLQrugRNI8hd8sr4gY5nw>
-    <xmx:Dcv1akFP1uWvaiRmrWwLNGG4qVqGhb38IdZJE2l_QNNnWNNzH0tb_w>
-    <xmx:Dcv1ak708SsZK0YMmm_yBtDZNHfjEEFAI6iPqHSyi9Q90K7NzkglLQ>
-    <xmx:D8v1arbvp7KsVFLrSk3rDjW-CTgilKWVmFz5_djGcM_lckGNErxPLCbR>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id B747032A0099; Thu, 12 Nov 2026 09:19:54 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ASjfoLYK;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=AG6NBTHW;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ASjfoLYK;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=AG6NBTHW
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id CE1611F7B9;
+	Thu, 12 Nov 2026 14:25:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1794493531; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rarWhYCLUgWlwnaEceP0km2CWzz/RwE1HqqRhAgWRRk=;
+	b=ASjfoLYKq8P16CL79W5QgBRozDfCvHzn/EUBfLPNx8F2lufVQ5iB2IBGuN+qYl0e/ALTYZ
+	++i8EkuIRmnFo1YSjCzMaT2/UQ2P1nmDuzcP9scj0NkDxymYz5MIt89/Ilm6QhCrABS8/7
+	KKyONF65hOwS0bjJ+rN7kS8QSfff9A8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1794493531;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rarWhYCLUgWlwnaEceP0km2CWzz/RwE1HqqRhAgWRRk=;
+	b=AG6NBTHWRnF6+79ulbExDm0U1UIZBd1in7IoAWxmZUPNiBDjAmbSNt3HovhqSlrQXcHaIe
+	fuxhOHi8BiaCzqAw==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1794493531; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rarWhYCLUgWlwnaEceP0km2CWzz/RwE1HqqRhAgWRRk=;
+	b=ASjfoLYKq8P16CL79W5QgBRozDfCvHzn/EUBfLPNx8F2lufVQ5iB2IBGuN+qYl0e/ALTYZ
+	++i8EkuIRmnFo1YSjCzMaT2/UQ2P1nmDuzcP9scj0NkDxymYz5MIt89/Ilm6QhCrABS8/7
+	KKyONF65hOwS0bjJ+rN7kS8QSfff9A8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1794493531;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rarWhYCLUgWlwnaEceP0km2CWzz/RwE1HqqRhAgWRRk=;
+	b=AG6NBTHWRnF6+79ulbExDm0U1UIZBd1in7IoAWxmZUPNiBDjAmbSNt3HovhqSlrQXcHaIe
+	fuxhOHi8BiaCzqAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A294E134F4;
+	Thu, 12 Nov 2026 14:25:30 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id w9GzDFnM9WoAPwAAD6G6ig:T2
+	(envelope-from <clopez@suse.de>); Thu, 12 Nov 2026 14:25:30 +0000
+From: =?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>
+To: kvm@vger.kernel.org,
+	linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	akpm@linux-foundation.org,
+	david@kernel.org,
+	peterx@redhat.com,
+	ljs@kernel.org,
+	imbrenda@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	frankja@linux.ibm.com,
+	=?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Jann Horn <jannh@google.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	Peter Feiner <pfeiner@google.com>
+Subject: [PATCH v3 1/9] mm: fix eager write-bit restore for write-notified shared mappings
+Date: Thu, 12 Nov 2026 15:20:30 +0100
+Message-ID: <20261112142039.907090-3-clopez@suse.de>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20261112142039.907090-2-clopez@suse.de>
+References: <20261112142039.907090-2-clopez@suse.de>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -115,44 +131,110 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AytIAyy8u7pB
-Date: Thu, 12 Nov 2026 15:19:34 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>,
- "Masami Hiramatsu" <mhiramat@kernel.org>
-Cc: "Christian Brauner" <brauner@kernel.org>, linux-kernel@vger.kernel.org,
- linux-kbuild@vger.kernel.org, kernel-dev@igalia.com,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev,
- linux-mips@vger.kernel.org, sparclinux@vger.kernel.org
-Message-Id: <18807452-5b89-4b69-b77b-812f8d7acc4a@app.fastmail.com>
-In-Reply-To: <20261105-tonyk-syscall_table-v9-8-8d1275885d9c@igalia.com>
-References: <20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com>
- <20261105-tonyk-syscall_table-v9-8-8d1275885d9c@igalia.com>
-Subject: Re: [PATCH v9 08/15] mips: Use the common syscall table
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-12.30 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -12.30
+X-Spam-Level: 
+X-Spam-Flag: NO
 
-On Thu, Nov 5, 2026, at 21:05, Andr=C3=A9 Almeida wrote:
-> Syscall numbers from 403 are shared with all architectures, so move the
-> toolchain to use the common syscall table and remove duplicated code.
->
-> The generated files are not exactly the same as before, but they have =
-no
-> functional changes:
->
->  - For O32 ABI, the syscall table would have entries like
->  __SYSCALL_WITH_COMPAT(403, sys_clock_gettime, sys_clock_gettime)
->  which is equivalent to the new entry __SYSCALL(403, sys_clock_gettime)
->
->  - For N32 ABI, the syscall table would have entries like
->  __SYSCALL(413, compat_sys_pselect6_time64), which is equivalent to
->  __SYSCALL_WITH_COMPAT(413, sys_pselect6, compat_sys_pselect6_time64)
->  given the new __SYSCALL_WITH_COMPAT() definition for N32.
->
->  - The above applies for N64 ABI as well.
->
-> Signed-off-by: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
+change_protection() applies vma->vm_page_prot, which lacks the write bit
+for CoW and write-notified mappings. Callers set
+MM_CP_TRY_CHANGE_WRITABLE when vma_wants_manual_pte_write_upgrade()
+returns true, so that entries that can be written without a fault, such
+as dirty PTEs in a shared mapping, are made writable right away.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+For shared mappings, that function passes vma->vm_page_prot to
+vma_wants_writenotify(). Once writenotify is enabled, this protection
+lacks the write bit, while the vma_pgprot_modify() result it is compared
+against adds it back. The two never match, so vma_wants_writenotify()
+returns false before checking for soft-dirty, uffd-wp and writeback.
+
+As a result, write-notified shmem mappings never get
+MM_CP_TRY_CHANGE_WRITABLE. For example, commit 931298e103c2
+("mm/userfaultfd: rely on vma->vm_page_prot in uffd_wp_range()") made
+uffd-wp unprotect set the flag so that dirty shmem PTEs become writable
+again, but this never takes effect. Unprotecting N dirty shmem pages
+still leads to N faults that only set the write bit.
+
+This dates back to the commit in the Fixes tag, which moved the
+equivalent check in mprotect_fixup() before vma_set_page_prot().
+
+Fix this by passing the protection recomputed from the VMA flags, as
+vma_set_page_prot() does.
+
+Note: this only affects performance, as the next write fault restores
+the write bit anyway.
+
+Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
+Signed-off-by: Carlos López <clopez@suse.de>
+---
+ mm/vma.h | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/mm/vma.h b/mm/vma.h
+index 3fc3b47a954b..e83700e248e4 100644
+--- a/mm/vma.h
++++ b/mm/vma.h
+@@ -589,6 +589,14 @@ int split_vma(struct vma_iterator *vmi, struct vm_area_struct *vma,
+ 	      unsigned long addr, int new_below);
+ #endif
+ 
++#ifdef CONFIG_MMU
++static inline pgprot_t vma_pgprot_modify(pgprot_t oldprot, vma_flags_t vma_flags)
++{
++	const pgprot_t prot = vma_flags_to_page_prot(vma_flags);
++
++	return pgprot_modify(oldprot, prot);
++}
++
+ static inline bool vma_wants_manual_pte_write_upgrade(struct vm_area_struct *vma)
+ {
+ 	/*
+@@ -596,19 +604,16 @@ static inline bool vma_wants_manual_pte_write_upgrade(struct vm_area_struct *vma
+ 	 * if we can't do that automatically for all PTEs in a mapping. For
+ 	 * private mappings, that's always the case when we have write
+ 	 * permissions as we properly have to handle COW.
++	 *
++	 * vma->vm_page_prot lacks the write bit if writenotify is already
++	 * enabled, so pass it with the bits restored, as vma_set_page_prot()
++	 * does.
+ 	 */
+ 	if (vma->vm_flags & VM_SHARED)
+-		return vma_wants_writenotify(vma, vma->vm_page_prot);
++		return vma_wants_writenotify(vma,
++		       vma_pgprot_modify(vma->vm_page_prot, vma->flags));
+ 	return !!(vma->vm_flags & VM_WRITE);
+ }
+-
+-#ifdef CONFIG_MMU
+-static inline pgprot_t vma_pgprot_modify(pgprot_t oldprot, vma_flags_t vma_flags)
+-{
+-	const pgprot_t prot = vma_flags_to_page_prot(vma_flags);
+-
+-	return pgprot_modify(oldprot, prot);
+-}
+ #endif
+ 
+ static inline struct vm_area_struct *vma_prev_limit(struct vma_iterator *vmi,
+-- 
+2.51.0
+
