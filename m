@@ -1,63 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=210.118.77.11
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794484379;
-	b=Z+0PGepSIrtZovIoy1v3QKXSsmjmF3i1imYPPadneeLcc5guTyBXrJSDPqlHxhSxhcAy
-	 7bWnVteiIQHizc7tcMvco4LQ/FtCIO/Ce1wE5llO/5ez0ttwgard9EZSfb35kZJOfN+Q7
-	 TPNIahSbC4CsUdUdPpe3CekFhsf5jvy3bJKIbjIF3r0JJq+NQhb7TbBZA+m7iGYLvOBXS
-	 cN6tqSTw4O840p0yPfczw07dgCLzZhrA6Y9i/CEI+ZVOubjPiE3OqzfOQeMIXsJj3l/B6
-	 wfYk6oi6SW6MsfaVRNtWj2VQUv0bu95vANuL6KIM3pKM1LqoUkztvqHHkBIghphC9Ag==
+	t=1794484981;
+	b=qNnI0TFyMiWQsILZKazNZgC3IjUoBHV+szjvY7KpwlWiLQQxkjK74Bw22gfiIQ8bv/YN
+	 PkJzX3qzKRFpJAZYif2pjjFGu0w2wZ0mveqG/GN4jCbZyTQQfJu8Rx5KuyzK8KQPGC+7H
+	 QogyZz4/SetaLBOwo1Idh15ybpe/WC1X4BzJSqf1spBFAZ2tnrfnXB7FaYRXfqJ8mYukR
+	 CK3yAhlCog5dr5YXNot49d+uSMdE4p5GB+WP9lVGZHrqEBpiTbawAoLEsnAmnH1UriIo1
+	 tCzgRSfl82Ifd6UXx+u39ZyLebXbP/cWDcTLh8aNREdXKRP6sZUp3+QWV64jkD0pZAg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794484379;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=NvKWITkPVoSG8d6eyNemOjAl3LRApkKJD8vkm/Uw8dI=;
-	b=DEgYSyQM+PIHRsFRge6x/AvIvuDttpWSYwVTx/YIP72SDIccN+lCc6X4oz8gxQ2mqZVz
-	 PGOQ91bSrA0UQl7mHtcwiz4c5bsxhFktt3hJ0piHKi+2eeW3gZ5ZWWE0sg67iTYRFsVRn
-	 3d1b+uRoxVC85sI5Sn4GF6qDnBWaCo7GZGSxMPfm0DBOfN5g+jPEVqqBwFKP4oJSW1D8/
-	 nogx/MVUgtc+U4PxJaDN7gSQkjXQUsv1atF5dwLQ6V7NH7EWOnWWush5Q1tf5ZqSKBW62
-	 6u1uvOv+pH6wwnQkFy/I/p3XIObQ1DijHWfBTz7NF0oxZukt2aElqy2wpnH3d0mLr1Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794484981;
+	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 Content-Language:From:In-Reply-To:Content-Transfer-Encoding:
+	 X-CMS-MailID:X-Msg-Generator:Content-Type:X-RootMTR:X-EPHeader:
+	 X-CMS-RootMailID:References;
+	bh=Xw7r6iF+zO8fXkdzLRufgVhinglmDPnuGGdycV+HHa4=;
+	b=yqE18Ibx6G7rd1IkjcGgXxBgQA3P9CDmqjlgE8OwgIG0VVhr5H6K8kfE636Kl4ugtjDx
+	 KQIYkVdBNU6XCk9wDqzoZqoAgM1WxfYv2OjmgMy64i6Tb3S6mBrIOb26quk0Dwrj+YxEO
+	 vM0zVdxCBhcmbVvaPb5eWKJztnjDR1B1Sqqo5VAsSPaXeaT0mHUz2jwtVPlp44mPTakmJ
+	 yvngqUsD2fRCJxkl+Qkebu4rb5fyQWKvzHJiDdlS0uTj7w8+6lmHsdeg+4qTX6M7ebApF
+	 la1BIE1VZmbwrTle3qSObvGzVYWN+hbwMrOZdiEVOdcvxNCx9LO7pJJsotO0Of9OM4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hNpDs8Or;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=samsung.com;
+	spf=pass smtp.mailfrom=samsung.com;
+	dkim=pass header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=bCSMFy5h;
+	arc=none smtp.remote-ip=210.118.77.11
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF83606A31C
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 11:52:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58B0A606A334;
+	Thu, 12 Nov 2026 12:03:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58B0A606A334
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hNpDs8Or
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7AE31F00A0A;
-	Thu, 12 Nov 2026 11:52:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794484379;
-	bh=NvKWITkPVoSG8d6eyNemOjAl3LRApkKJD8vkm/Uw8dI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hNpDs8Or60ABLt6mYuD+VCEbtYgzNpnPPYhlCb9EiRk+MjxduJc9baSa8eS1AMCQ8
-	 vqLfBX8PnBt8QxJAk2tPzRKetcFAKAt/dpN15PmBYU0AqbVp5mj0VBnePp7SUiCt3E
-	 869fuqJxmP5CcjCdPqgNyE9MyFj8kvAizroIsa0COXTjpaZTEQQGcnbQ4ErOAt4sa3
-	 qSYLYeoe7pzwxRRJ1oxmrBXv3+b+XEs6N2BBzbNxpXW3Z1a7UJZR1269nTFKSZEWQU
-	 2kh7Ee+nx07lCYX7HdLwPQ2Ngw5bqUZEpSNhsqfy/fynw128nCBcvpQoZad0s8YgKX
-	 mwHwHb5nJQcqQ==
-Message-ID: <sashiko-outbox-211051@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 6/8] s390/kdump: Use crashkernel CMA memory in the
- kdump kernel
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Zaslonko" <zaslonko@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-Cc: "Ilya Leoshkevich" <iii@linux.ibm.com>, "Andrew Morton" <akpm@linux-foundation.org>, "Baoquan
- He" <baoquan.he@linux.dev>, "Mike Rapoport" <rppt@kernel.org>, "Pasha
- Tatashin" <pasha.tatashin@soleen.com>, "Pratyush Yadav" <pratyush@kernel.org>, "Dave
- Young" <ruirui.yang@linux.dev>, "Jiri Bohac" <jbohac@suse.cz>, "Jonathan
- Corbet" <corbet@lwn.net>, "Usama Arif" <usama.arif@linux.dev>, linux-s390@vger.kernel.org, kexec@lists.infradead.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112112105.1169118-7-zaslonko@linux.ibm.com>
-References: <20261112112105.1169118-1-zaslonko@linux.ibm.com>
- <20261112112105.1169118-7-zaslonko@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 11:52:58 +0000
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=bCSMFy5h
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20261112120258euoutp01964489faf544bdddd3f3211e2255de7c~nSpSE0Td51139111391euoutp01a;
+	Thu, 12 Nov 2026 12:02:58 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20261112120258euoutp01964489faf544bdddd3f3211e2255de7c~nSpSE0Td51139111391euoutp01a
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1794484978;
+	bh=Xw7r6iF+zO8fXkdzLRufgVhinglmDPnuGGdycV+HHa4=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=bCSMFy5h9WR5MXhQfr/yYMe50oNl4ZJ3B9PhLvn3AfoVJ3Uyo+MSQBjlm9BDOqF/s
+	 YI8qgTWpK/VpOR25WqLm1BIOQY430YCMn2hX6owWJ0ZuGG39vX4A1Pt/J8PKIj6edQ
+	 41nNcZwJxZucP719/0INyVtl5uX7gSp1npjbR8yk=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20261112120258eucas1p1c5cb56175a355c1eae521563b7e5958f~nSpR05hFs2595725957eucas1p1w;
+	Thu, 12 Nov 2026 12:02:58 +0000 (GMT)
+Received: from [192.168.1.44] (unknown [106.210.136.40]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20261112120256eusmtip247d84ecda0f477bf594f640a7999ebf7~nSpQMIK460511505115eusmtip2L;
+	Thu, 12 Nov 2026 12:02:56 +0000 (GMT)
+Message-ID: <46236db8-c386-4db6-a8cd-e08073a5db0a@samsung.com>
+Date: Thu, 12 Nov 2026 13:02:55 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -66,200 +63,92 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 10/15] lib/lz4: switch the compressor to the vendored
+ sources
+To: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers
+	<ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt
+	<justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, Thomas
+	Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley"
+	<James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Heiko
+	Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+	Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
+	Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>, Jens
+	Axboe <axboe@kernel.dk>, Andrew Morton <akpm@linux-foundation.org>,
+	linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, Nick
+	Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu
+	<chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>, Eric Biggers
+	<ebiggers@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, David
+	Laight <david.laight.linux@gmail.com>, Sungguk <sungguk.na@samsung.com>,
+	Jaehoon Chung <jh80.chung@samsung.com>, Marek Szyprowski
+	<m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org,
+	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
+Content-Language: en-US
+From: Michal Wilczynski <m.wilczynski@samsung.com>
+In-Reply-To: <avKs4_S7r6EiUVgC@google.com>
+Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20261112120258eucas1p1c5cb56175a355c1eae521563b7e5958f
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20261106144305eucas1p17b3b27d403dc7d13b85cdd9a4bea83b9
+X-EPHeader: CA
+X-CMS-RootMailID: 20261106144305eucas1p17b3b27d403dc7d13b85cdd9a4bea83b9
+References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
+	<CGME20261106144305eucas1p17b3b27d403dc7d13b85cdd9a4bea83b9@eucas1p1.samsung.com>
+	<20261106-lz4-vendor-upstream-v2-10-ee04c3f0d7dc@samsung.com>
+	<avKs4_S7r6EiUVgC@google.com>
 
-Thank you for your contribution! Sashiko AI review found 5 potential
-issues to consider:
-- [Medium] s390/kdump: unmapped hole aborts __set_memory_4k() in
-  vmem_map_init()
-- [Medium] s390/kdump: uncapped ident_map_size and nokaslr truncate CMA
-  ranges
-- [Medium] s390/kdump: setup_usable_memory() loses CMA ranges below
-  oldmem_data.size
-- [Medium] s390/kdump: uncapped ident_map_size lets
-  reserve_crashkernel() run in kdump
-- [Low] s390/kdump: missing KASAN zero shadow in kasan_populate_shadow()
-  holes
---
 
-commit 9e7830ee8f173942437ec5cda601c7a5e6920ddc
-Author: Mikhail Zaslonko <zaslonko@linux.ibm.com>
 
-s390/kdump: Use crashkernel CMA memory in the kdump kernel
+On 11/10/26 06:36, Sergey Senozhatsky wrote:
+> On (26/11/06 15:42), Michal Wilczynski wrote:
+> [..]
+>> diff --git a/drivers/block/zram/backend_lz4.c b/drivers/block/zram/backend_lz4.c
+>> index 1e4ad31d39a63f45b3bddd3d8a467d8d7d095beb..50265e3ce256490994cb6dae32a45da376e408e0 100644
+>> --- a/drivers/block/zram/backend_lz4.c
+>> +++ b/drivers/block/zram/backend_lz4.c
+>> @@ -42,7 +42,7 @@ static int lz4_setup_params(struct zcomp_params *params)
+>>  	if (!params->dict || !params->dict_sz)
+>>  		return 0;
+>>  
+>> -	dict_stream = kzalloc_obj(*dict_stream);
+>> +	dict_stream = kzalloc(LZ4_MEM_COMPRESS, GFP_KERNEL);
+>>  	if (!dict_stream)
+>>  		return -ENOMEM;
+>>  
+>> @@ -88,7 +88,7 @@ static int lz4_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
+>>  		if (!zctx->dstrm)
+>>  			goto error;
+>>  
+>> -		zctx->cstrm = kzalloc_obj(*zctx->cstrm);
+>> +		zctx->cstrm = kzalloc(LZ4_MEM_COMPRESS, GFP_KERNEL);
+>>  		if (!zctx->cstrm)
+>>  			goto error;
+>>  	}
+>> @@ -112,7 +112,7 @@ static int lz4_compress(struct zcomp_params *params, struct zcomp_ctx *ctx,
+>>  					zctx->mem);
+>>  	} else {
+>>  		/* Cstrm needs to be reset */
+>> -		memcpy(zctx->cstrm, params->drv_data, sizeof(*zctx->cstrm));
+>> +		memcpy(zctx->cstrm, params->drv_data, LZ4_MEM_COMPRESS);
+>>  		ret = LZ4_compress_fast_continue(zctx->cstrm, req->src,
+>>  						 req->dst, req->src_len,
+>>  						 req->dst_len, params->level);
+> 
+> The zram code here is outdated, it has been reworked quite a bit
+> (patches are in linux-next and Andrew's trees).
+> 
 
-This commit stops capping ident_map_size to oldmem_data.size when crashkern=
-el
-CMA ranges are present and instead registers [0, oldmem_data.size) and the
-CMA ranges as usable physical memory ranges in setup_usable_memory().
+Right, I'll rebase on linux-next.
 
-> diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
-> index 111b146a3332f..dba1dfc0ee499 100644
-> --- a/arch/s390/boot/startup.c
-> +++ b/arch/s390/boot/startup.c
-> @@ -197,6 +197,22 @@ static void deploy_kernel(void *output)
->  }
->  #endif
-> =20
-> +static void setup_usable_memory(void)
-> +{
-> +	unsigned long start;
-> +	int i;
-> +
-> +	if (!IS_ENABLED(CONFIG_CRASH_DUMP) || !oldmem_data.start) {
-> +		physmem_add_usable_range(0, ident_map_size);
-> +		return;
-> +	}
-> +	physmem_add_usable_range(0, oldmem_data.size);
-> +	for (i =3D 0; i < ARRAY_SIZE(oldmem_data.crashk_cma) && oldmem_data.cra=
-shk_cma[i].size; i++) {
-> +		start =3D oldmem_data.crashk_cma[i].start;
-> +		physmem_add_usable_range(start, start + oldmem_data.crashk_cma[i].size=
-);
-> +	}
-> +}
-
-[Severity: Medium]
-Can registering discontiguous usable ranges here leave crashk_cma mapped wi=
-th
-large pages when debug_pagealloc is enabled?
-
-In setup_vmem(), pgtable_populate() only populates identity mappings for
-for_each_physmem_usable_range(), using 1MB or 2GB large pages while leaving
-the hole starting at __va(oldmem_data.size) unmapped.  Later, vmem_map_init=
-()
-calls __set_memory_4k(__va(0), absolute_pointer(__va(0)) + ident_map_size),
-which walks the range linearly and aborts with -EINVAL in walk_pmd_level()
-at the first unmapped entry at __va(oldmem_data.size):
-
-arch/s390/mm/pageattr.c:walk_pmd_level() {
-	...
-		pmd =3D pmdp_get(pmdp);
-		if (pmd_none(pmd))
-			return -EINVAL;
-	...
-}
-
-As a result, the large-page mappings for the CMA ranges above the hole are
-never split into 4KB PTEs.  When mem_init() frees those CMA pages to the
-buddy allocator, __kernel_map_pages() calls virt_to_kpte() on leaf PMD/PUD
-entries and passes the physical CMA data frames to ipte_range() or set_pte(=
-),
-corrupting memory or triggering a program check during kdump boot.
-
-[Severity: Medium]
-What happens if a crashk_cma range was allocated below oldmem_data.size in
-the primary kernel?
-
-reserve_crashkernel() calls reserve_crashkernel_cma() with a base of 0, so
-cma_declare_contiguous() can place CMA ranges below oldmem_data.size (for
-example, above 4GB when crash_size > 4GB, or via the top-down fallback when
-memory above 4GB is full).  When kdump triggers, purgatory swaps physical
-[0, oldmem_data.size) with [oldmem_data.start, oldmem_data.start +
-oldmem_data.size), moving any CMA range in that region into the
-oldmem_data.start area.
-
-Because setup_usable_memory() passes the unswapped crashk_cma[i].start to
-physmem_add_usable_range(), any CMA range with start <=3D oldmem_data.size =
-is
-merged into the [0, oldmem_data.size) range instead of adding the swapped
-frames inside [oldmem_data.start, oldmem_data.start + oldmem_data.size),
-losing that CMA memory in the kdump kernel.
-
-[ ... ]
-
-> @@ -287,7 +304,9 @@ static void setup_ident_map_size(unsigned long max_ph=
-ysmem_end)
->  #ifdef CONFIG_CRASH_DUMP
->  	if (oldmem_data.start) {
->  		__kaslr_enabled =3D 0;
-> -		ident_map_size =3D min(ident_map_size, oldmem_data.size);
-> +		/* no CMA ranges handed over to the crashkernel */
-> +		if (!oldmem_data.crashk_cma[0].size)
-> +			ident_map_size =3D min(ident_map_size, oldmem_data.size);
->  		boot_debug("kdump memory limit:  0x%016lx\n", oldmem_data.size);
->  	} else if (ipl_block_valid && is_ipl_block_dump()) {
-
-[Severity: Medium]
-Can leaving ident_map_size uncapped at max_physmem_end while forcing
-__kaslr_enabled =3D 0 cause crashk_cma ranges to be truncated on large-memo=
-ry
-systems?
-
-In setup_kernel_memory_layout(), a non-KASAN kernel with default
-CONFIG_KERNEL_IMAGE_BASE only selects 4-level paging (_REGION1_SIZE) when
-vsize > _REGION2_SIZE && kaslr_enabled():
-
-arch/s390/boot/startup.c:setup_kernel_memory_layout() {
-	...
-	if (IS_ENABLED(CONFIG_KASAN) || __NO_KASLR_END_KERNEL > _REGION2_SIZE ||
-	    (vsize > _REGION2_SIZE && kaslr_enabled())) {
-		asce_limit =3D _REGION1_SIZE;
-	...
-	} else {
-		asce_limit =3D _REGION2_SIZE;
-		rte_size =3D _REGION3_SIZE;
-	}
-}
-
-While the primary kernel with KASLR enabled upgrades to 4-level paging and
-can reserve crashk_cma ranges at higher physical addresses, the kdump kernel
-has __kaslr_enabled =3D 0 and stays in 3-level paging (4TB).  Because
-ident_map_size is left at max_physmem_end instead of the end of the highest
-usable CMA range, vmalloc_size and vmemmap are sized for max_physmem_end,
-pushing vmemmap_start down within the 4TB space.  setup_kernel_memory_layou=
-t()
-then clamps ident_map_size to vmemmap_start, and physmem_add_usable_range()
-silently clips and drops any crashk_cma ranges above that limit.
-
-[Severity: Medium]
-Does leaving ident_map_size uncapped also allow reserve_crashkernel() to
-succeed inside the kdump kernel when crashkernel=3D is on the kdump command
-line?
-
-In reserve_crashkernel(), parse_crashkernel(boot_command_line,
-ident_map_size, ...) previously saw ident_map_size capped to oldmem_data.si=
-ze
-and rejected the reservation because crash_size >=3D system_ram.  With
-ident_map_size left at max_physmem_end, parse_crashkernel() succeeds: when
-crash_base is 0, reserve_crashkernel() sets crashk_res to
-[oldmem_data.start, oldmem_data.start + crash_size - 1], and
-setup_resources() adds that range to memblock even though
-setup_usable_memory() excluded oldmem_data.start from the identity mapping.
-
-[Severity: Low]
-When CONFIG_KASAN is enabled, does leaving ident_map_size above the last
-usable CMA range leave KASAN shadow holes unmapped?
-
-In kasan_populate_shadow(), the loop over for_each_physmem_usable_range()
-only populates POPULATE_KASAN_ZERO_SHADOW for inter-range gaps when
-physmem_info.info_source =3D=3D MEM_DETECT_DIAG260, and the untracked shadow
-population after the loop starts at __identity_va(ident_map_size) rather th=
-an
-at the end of the last usable range (memgap_start):
-
-arch/s390/boot/vmem.c:kasan_populate_shadow() {
-	...
-	for_each_physmem_usable_range(iter, &start, &end) {
-		kasan_populate((unsigned long)__identity_va(start),
-			       (unsigned long)__identity_va(end),
-			       POPULATE_KASAN_MAP_SHADOW);
-		if (memgap_start && physmem_info.info_source =3D=3D MEM_DETECT_DIAG260) {
-			kasan_populate((unsigned long)__identity_va(memgap_start),
-				       (unsigned long)__identity_va(start),
-				       POPULATE_KASAN_ZERO_SHADOW);
-		}
-		memgap_start =3D end;
-	}
-	...
-	kasan_populate((unsigned long)__identity_va(ident_map_size), VMALLOC_START,
-		       POPULATE_KASAN_ZERO_SHADOW);
-}
-
-This leaves the identity-map holes between usable ranges (when info_source =
-is
-not MEM_DETECT_DIAG260) and between the last CMA range and ident_map_size
-without KASAN shadow mappings, which will fault if a DCSS segment is mapped
-into those regions.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112112105.1169=
-118-1-zaslonko@linux.ibm.com?part=3D6
+Best regards,
+-- 
+Michal Wilczynski <m.wilczynski@samsung.com>
