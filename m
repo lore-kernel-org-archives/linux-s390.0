@@ -1,55 +1,100 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794493541;
-	b=0rmNC8sog6ii/45JmDOjheJnGEIJgOqc8kMKtZnh2AQpzIJ+qqXLlOLpYx5hQGpiGbWJ
-	 C+PZfjSqg8yJ6goscwh6lwgdI6izHcnZjzOWeVmBY2UyVuXETztpGj8UhMaTalvfF8dfU
-	 hkz+I9r+jh08hWEvElcEqKh1sHL2ypK7kDyWzy5RUyegkkaEore0AGJhLUrvmYFLhZwUt
-	 eSIZoAOL67SjEdf/OwCMWHklcVClBN7Ph6DxPKnLwjbofGm7NquvV1A5aJiLKXf3N5ODq
-	 Rbh12QWbNDJCYEZS9a/KEJpKPjul5a1ZamJu/0ZxU2gbB7XY7T7E0B7DdWho7TI18Zg==
+	t=1794493544;
+	b=lmDaWvzPDLt+hgxAK9hTTKX9xv4DZz1BMlY+4PEjzRiB4apLOPiURzOfmlz8ylG+ElLk
+	 006tipSgM9hcowmXEKeiABjYDmffcbP5eG3Thi/adTGFaNQxCwrjlHr5jW/zDO40b50BT
+	 QUw+fLAfvrb/1L722ZELp3iPJNnN1re/pcXOAoT311CGig0ybJXHKJzSIEAXCiECiY3Z2
+	 iRFKGp2XuGem5D+wL38roxONIZgihRmV1LcFA+lkaZN0/t0ZMwNTbIHL/f4TxyEGsGz/W
+	 0StLf7q/X7Kzv7mpshYMY/l3uXtdK/baUG0cusqfoS3Kp8wQ/4qVtPSj3SLBpTKKUvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794493541;
-	h=DMARC-Filter:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Rspamd-Pre-Result:X-Rspamd-Queue-Id:
-	 X-Rspamd-Pre-Result:X-Rspamd-Action:X-Rspamd-Server:X-Spam-Level:
-	 X-Spamd-Result:X-Spam-Flag:X-Spam-Score;
-	bh=AcG4jQDK10PWiWbm7mNfeb+DWsCeA1RxCscXblM2xnQ=;
-	b=KQZ5rHBrthlkkJcnZhBly9zLmX+/nvZA8+51W9XKI5FD1dPt7sjiPeS8In64lu9DpbFv
-	 DCoa3s3P2BMM5FVFFC43HJXG6SKNlxf+8fmV0NC1z9rNYFx+Bjrsz75+6zL2mugaR8YEC
-	 ElE6dgWB/i7kAABQ6lcWb9iW2zi4zhVNHuym/Mjy6k6oOidTsBxNOyVaUAjjMOZ3E3lch
-	 u+Q9zyq7oBzHEQpFkV1+6KoiRwcpnWskqtqxew4ytT0uZSJpiVbB66OaBJneQ8OUNe/WL
-	 sEBD9DiyDdmNvWXpu8QCgc4DQwgeczXtHPxnZMoVgdqGOyIjI50xCFZBN472qXrTwGg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794493544;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Spamd-Result:X-Spam-Score:X-Spam-Level:
+	 X-Spam-Flag;
+	bh=pds7Uqtuvy1DGjOeeoA+Vkfk5LWosIAipoHj1WXULeE=;
+	b=nhMODCH+nbNRGVU2g02TOFteI8h2QJKTlCD0sLoshk5Em2TfgoRc1rsbO2rkAGfE3hAV
+	 KAIqwLVEtnLYtz11E1nUxtdpNi2AVJD3geap4pB84Dq8ljuLLxjRKt56u4AVK1taapjQf
+	 jdD025t6wL23L0hElzR44H+ABvEIaFgbgUrQVXLDGdptLJfwbIzCBBX9zibFFNYhPUe1Y
+	 m73eG7Jx/68zEAoLXlPpkSvE8dq7Jcgo0KQEkMIt1dyJGl2zxkJ06uD9tARmR8V+uy0Ku
+	 /WWiGhBmkFnpRN9PaNpZh68EtRo4UGDr6xCRRdl2QsygmAAtjrtAwLiuexWdx9MGO4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=suse.de;
 	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=NoYzXDWf;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="27/HHTUY";
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=NoYzXDWf;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="27/HHTUY";
 	arc=none smtp.remote-ip=195.135.223.131
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D5E8606B094;
-	Thu, 12 Nov 2026 14:25:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D5E8606B094
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9D1260A3822;
+	Thu, 12 Nov 2026 14:25:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A9D1260A3822
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=NoYzXDWf;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=27/HHTUY;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=NoYzXDWf;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=27/HHTUY
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id B0A701F7A3;
-	Thu, 12 Nov 2026 14:25:39 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 3588B1F7AB;
+	Thu, 12 Nov 2026 14:25:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1794493542; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pds7Uqtuvy1DGjOeeoA+Vkfk5LWosIAipoHj1WXULeE=;
+	b=NoYzXDWfAOmI8zdX5+chynT7UmwhBQTnmoRwZoMJ/VGhFM0PKtfGA/JYP/bSAIOADu9kGQ
+	9gOBQ7k7ZTXpUlGUFGpEfaj3G9VTwdpmvysWY4H7QdBJ6dxmg4p0Id7AeGXlHPNsGl9x5k
+	nn5xl4sAlY5CnQHYIWz4RkNYFCqp2cU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1794493542;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pds7Uqtuvy1DGjOeeoA+Vkfk5LWosIAipoHj1WXULeE=;
+	b=27/HHTUYBi6MOz2Dw2T7fjj9pDuC9sG1BBJdzOY94YAfUiu/eHvOCNpuZOT9gxMVmfVKLl
+	tBbKllXxrTJz+JCw==
 Authentication-Results: smtp-out2.suse.de;
 	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1794493542; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pds7Uqtuvy1DGjOeeoA+Vkfk5LWosIAipoHj1WXULeE=;
+	b=NoYzXDWfAOmI8zdX5+chynT7UmwhBQTnmoRwZoMJ/VGhFM0PKtfGA/JYP/bSAIOADu9kGQ
+	9gOBQ7k7ZTXpUlGUFGpEfaj3G9VTwdpmvysWY4H7QdBJ6dxmg4p0Id7AeGXlHPNsGl9x5k
+	nn5xl4sAlY5CnQHYIWz4RkNYFCqp2cU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1794493542;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pds7Uqtuvy1DGjOeeoA+Vkfk5LWosIAipoHj1WXULeE=;
+	b=27/HHTUYBi6MOz2Dw2T7fjj9pDuC9sG1BBJdzOY94YAfUiu/eHvOCNpuZOT9gxMVmfVKLl
+	tBbKllXxrTJz+JCw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 5BE6013432;
-	Thu, 12 Nov 2026 14:25:38 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id EF33813432;
+	Thu, 12 Nov 2026 14:25:40 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id w9GzDFnM9WoAPwAAD6G6ig:T7
-	(envelope-from <clopez@suse.de>); Thu, 12 Nov 2026 14:25:38 +0000
+	id w9GzDFnM9WoAPwAAD6G6ig:T9
+	(envelope-from <clopez@suse.de>); Thu, 12 Nov 2026 14:25:40 +0000
 From: =?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>
 To: kvm@vger.kernel.org,
 	linux-mm@kvack.org
@@ -66,18 +111,15 @@ Cc: linux-kernel@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	frankja@linux.ibm.com,
 	=?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>
-Subject: [PATCH v3 6/9] mm/mmu_notifier: add MMU_NOTIFIER_RANGE_PERM_UPGRADE
-Date: Thu, 12 Nov 2026 15:20:35 +0100
-Message-ID: <20261112142039.907090-8-clopez@suse.de>
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+	"H. Peter Anvin" <hpa@zytor.com>
+Subject: [PATCH v3 8/9] KVM: x86/mmu: don't zap secondary MMU on permission upgrade
+Date: Thu, 12 Nov 2026 15:20:37 +0100
+Message-ID: <20261112142039.907090-10-clopez@suse.de>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20261112142039.907090-2-clopez@suse.de>
 References: <20261112142039.907090-2-clopez@suse.de>
@@ -92,109 +134,69 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Queue-Id: B0A701F7A3
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-16.30 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	REPLY(-4.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCPT_COUNT_TWELVE(0.00)[19];
+	MIME_TRACE(0.00)[0:+];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -16.30
 X-Spam-Level: 
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
 X-Spam-Flag: NO
-X-Spam-Score: -4.00
 
-Add a range flag for invalidations that only upgrade permissions, so
-that secondary MMUs can keep their mappings rather than zap them.
-change_protection() sets it for MM_CP_PERM_UPGRADE and for the
-userfaultfd resolves, which only restore access.
+When an mmu_notifier invalidation only upgrades permissions
+(MMU_NOTIFIER_RANGE_PERM_UPGRADE), keep the existing SPTEs instead of
+zapping them. The PFN is unchanged and no access is revoked, so an
+existing SPTE is no more permissive than the new host PTE, and the new
+permissions are picked up on the next fault.
 
-Now that change_protection() keeps writable entries writable on these
-changes, no present entry loses access. Writable migration and
-device-private entries are still made read-only, which does not affect
-secondary MMUs. Migration entries are only installed after secondary
-MMUs are invalidated, and device-private pages are migrated back, with
-an invalidation, before the CPU can access them.
+The motivating case is a userfaultfd-wp dirty tracker such as QEMU's
+background snapshot, which unprotects every guest page as it saves it.
+Zapping on each unprotect makes the guest refault its whole working
+set. On a 64GB guest under a background snapshot, a read-mostly workload
+drops secondary-MMU refaults from ~1M/s to ~2.5K/s and cross-vCPU TLB
+shootdowns from ~1400/s to near zero.
 
-hugetlb_change_protection() never sets the flag, as hugetlb does not
-restore the write bit and may unshare page tables.
+Note: this also skips the APIC-access page reload, which is not needed
+as the page's PFN is unchanged.
 
 Signed-off-by: Carlos López <clopez@suse.de>
 ---
- include/linux/mmu_notifier.h | 5 +++++
- mm/hugetlb.c                 | 4 ++++
- mm/internal.h                | 7 +++++++
- mm/mprotect.c                | 5 +++--
- 4 files changed, 19 insertions(+), 2 deletions(-)
+ arch/x86/kvm/mmu/mmu.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/linux/mmu_notifier.h b/include/linux/mmu_notifier.h
-index 5db78e5761c5..b2f186ebacf9 100644
---- a/include/linux/mmu_notifier.h
-+++ b/include/linux/mmu_notifier.h
-@@ -60,6 +60,11 @@ enum mmu_notifier_event {
- };
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index f89e9f8a6cc2..3c92379bdbe0 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -1719,6 +1719,13 @@ bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
+ 	lockdep_assert_once(kvm->mmu_invalidate_in_progress ||
+ 			    lockdep_is_held(&kvm->slots_lock));
  
- #define MMU_NOTIFIER_RANGE_BLOCKABLE (1 << 0)
-+/*
-+ * Set on an invalidation that only expands permissions without
-+ * revoking any existing access, nor freeing/moving the underlying page.
-+ */
-+#define MMU_NOTIFIER_RANGE_PERM_UPGRADE (1 << 1)
- 
- struct mmu_notifier_ops {
- 	/*
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index ce9c8e57b8e5..06fd31b8fbc4 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -6632,6 +6632,10 @@ long hugetlb_change_protection(struct vm_area_struct *vma,
- 	 * In the case of shared PMDs, the area to flush could be beyond
- 	 * start/end.  Set range.start/range.end to cover the maximum possible
- 	 * range if PMD sharing is possible.
-+	 *
-+	 * MMU_NOTIFIER_RANGE_PERM_UPGRADE is never set here. hugetlb does not
-+	 * restore the write bit, and huge_pmd_unshare() may drop the mapping,
-+	 * so this is not a strict permission upgrade.
- 	 */
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_PROTECTION_VMA,
- 				0, mm, start, end);
-diff --git a/mm/internal.h b/mm/internal.h
-index e3f92883bf23..b74ea18c6103 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -1453,6 +1453,13 @@ static inline bool pte_needs_soft_dirty_wp(struct vm_area_struct *vma, pte_t pte
- 	return vma_soft_dirty_enabled(vma) && !pte_soft_dirty(pte);
- }
- 
-+/* Whether a change_protection() only adds permissions. */
-+static inline bool mm_cp_is_perm_upgrade(unsigned long cp_flags)
-+{
-+	return cp_flags & (MM_CP_PERM_UPGRADE | MM_CP_UFFD_WP_RESOLVE |
-+			   MM_CP_UFFD_RWP_RESOLVE);
-+}
++	/*
++	 * Do not bother zapping SPTEs if this is only a protection upgrade.
++	 * Permissions will be faulted-in on demand.
++	 */
++	if (range->flags & MMU_NOTIFIER_RANGE_PERM_UPGRADE)
++		return false;
 +
- /* shrinker related functions */
- unsigned long shrink_slab(gfp_t gfp_mask, int nid, struct mem_cgroup *memcg,
- 			  int priority);
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index 8c0fcd10f5a3..b7accf60c3d4 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -608,8 +608,9 @@ static inline long change_pud_range(struct mmu_gather *tlb,
- 			continue;
- 
- 		if (!range.start) {
--			mmu_notifier_range_init(&range,
--						MMU_NOTIFY_PROTECTION_VMA, 0,
-+			mmu_notifier_range_init(&range, MMU_NOTIFY_PROTECTION_VMA,
-+						mm_cp_is_perm_upgrade(cp_flags) ?
-+						MMU_NOTIFIER_RANGE_PERM_UPGRADE : 0,
- 						vma->vm_mm, addr, end);
- 			mmu_notifier_invalidate_range_start(&range);
- 		}
+ 	if (kvm_memslots_have_rmaps(kvm))
+ 		flush = __kvm_rmap_zap_gfn_range(kvm, range->slot,
+ 						 range->start, range->end,
 -- 
 2.51.0
 
