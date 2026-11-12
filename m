@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794479678;
-	b=QXD8QyUT40IREq1CNJ3MWclg5HwT9TKLSWaAD1zDFSIujwGglcqVZ1gVmNDdMYaw77Gb
-	 w987MN24800pCoRY887uJUHF2eIDrBXKAqcutPIPSZDWcSXAR8gHysI2DLhn+Loky7gsD
-	 aAmmE9vX+sWFdXEItgu0EYxtNRLvwYTfOTIdo6jz416qMzwlgVOiCg0IA9hjYcFoe4o8O
-	 S5DWYH1Koj6eoNMao7g/fEuHk4fC99ugY0X7qPdfrcB0OurJb+LZmfwOcDpIXb1DXrOzs
-	 jM+KYqzqrgYrfWnh8t9RdWU75zPtQyiK7M1p7921V5a2aNFfzZr5QRk6Wg5/+dKXFDQ==
+	t=1794480207;
+	b=KlQhdWgdNObxu5g8gu7B1nLo6uhAC6pR1wK+OvIvHXR0I/HC4VmeM/q2q+7XBcuIGvJI
+	 p/YCGJSV8VwvaHAciG+RvGAd2DpIP5gyeF1ZWbcAO7TJeylZdEE06SmY+8ga3S1N+HdVU
+	 ogKHBLQ7GCZyrjhnUzGRopcOQc9niggWXI5yJ+sMLIDEeTRKQjzDnjjsal1j9+v/n09gS
+	 0TCqFD5tBE9sRH3WzSHPBhn8HIt71J+hKTMwwZH2ScdI4sK/zU2O1odys/6ihG0DPMlqf
+	 luke/ZKA2S1PLB+eqxwrn9Jj/o9g8F3SI2097k65c2GNN/kLeEMisnxxKum/q73MM/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794479678;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794480207;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=omMrYtfgn43QKeJuFmJvS7ABFQMYMkSdTo1cihBdQb0=;
-	b=KKs7E8n2zYXCdAXO342m1aLxDmqXGNZb+d9q52SqqP0zpJOMhOYGh7OrB1gVkIfdJQjV
-	 U0/SJvEk2NVQ8uM1hyrDq2c3fmtvu91L4g26Myedw0c7zK6eNlq9XHOAgtWe3IcrDjhlI
-	 ZaTvMGJypfMUAI5PDIUBeP3B9McWmP7epqPHNHLWqaHGIA/GIBYIa7KElN9F1S5SQjRMV
-	 KnFxDgqIcIHIBU4CJ7/hlRJ+jkfkjQ16mhDRtFRK0CDJI5aYjtMk5eFludB3PHSRWlmGU
-	 MdPDHenNQj6DTzxsTP2AmVVtyEca159/CAZUfjJeMCginchzZZXr7pgoDd06kFay1VQ==
+	bh=4fTa9XjEKPwNyNYYhWk8U21HDGHGx3pqKym5kHsn4W4=;
+	b=FZMxwgwi/ofqXQjiF2s7VCHFAmD/oUrlSRUTkQnBfLgZJ5G7KSN9EH6u7lMrAYhyIGNX
+	 XbxGxXqARXmYqBOcah8fujMFR2+kyOggecDBZK7e7VXnTDw8M3zTeyXT6fn5jPB3fcNOF
+	 5Giir5136lU/KRs3akqDIFmWbysBe4Rsa4jBTh/i2VEEPM3e2a1uBcgcqrz+rdJsnNYj+
+	 P6/EetlmXyyIvnPOYXl2F57ppnqbC3+9ock19qWVPMr0wGPKXX54cWqibwd1tRVcHTAaB
+	 1YDmXRwmapdtrKzOSP9hicB+hofgRvivtl7keql78nOun+Qnmgf4tIE1+ZMtIp1YK/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RRtHLpVg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YWmU3go9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C3F606A88B
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 10:34:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91B8A606A332
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 10:43:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RRtHLpVg
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEB361F00A0A;
-	Thu, 12 Nov 2026 10:34:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YWmU3go9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF731F00A05;
+	Thu, 12 Nov 2026 10:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794479677;
-	bh=omMrYtfgn43QKeJuFmJvS7ABFQMYMkSdTo1cihBdQb0=;
+	s=k20260515; t=1794480207;
+	bh=4fTa9XjEKPwNyNYYhWk8U21HDGHGx3pqKym5kHsn4W4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RRtHLpVgyjoA+y8b03rP4HAcZIc439rQgM/7/9VPDhCQ/6XSRAusLn2LfTrbjCehp
-	 YmY3cmuMIlCR9ygyc9hlasmgA3+Fcd5U7hk5PvvcjEf2Mujc2OS1Q6XSl2k4uN2Trb
-	 9ouIxHWo2D6ak+sUCXTgIvIqSF9hwczE3DIIUZsOHcluaTzFnB8vYkbI93DPBW3k8O
-	 s3LjtOhp5ladPztjA+mnZYjQmjEr0RM49p/xZQrZaIp6ww00tephiSL8XUoyKmsP6A
-	 yEe9Md1j9lDkzvA2lrVrSySchUzB82ZQjcz1Q6rFAzMbphkbqYIyYfca8knGbk5Khr
-	 oMMbAXaLm8+uA==
-Message-ID: <sashiko-outbox-210949@kernel.org>
+	b=YWmU3go9CUobvnbKMeotEk5hAK77D214THyiPMv+W6Q6OrIV+FAkfM4zSSGhZVTNZ
+	 WeuOUVax1phJbOxTtIvdVdc5o3w551mQsI/fUOrDbJojS5EJIizj3k4qmHOrLSbJap
+	 WagceZOd2o4Fr2464YqDYFyXUQRcOf0611pD2znzUVbtk61xRhlMMhoLf1W6Ob1l43
+	 irlL//gFBVBcX//LYD8SeKGjezk5n2ZX9hzvxRibdcuDehbBq/DqVLDAaUkPCDb1UU
+	 fgLyrgAG7n3Des7PmXULTJrHIB/wa4wAv4Jc5vfVaVWVgTsHeDCGd2WmooBOuJJIYS
+	 0/GuqiJhlUjeg==
+Message-ID: <sashiko-outbox-210968@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] s390/dasd: Don't trust userspace-supplied result
- field in format check
+Subject: Re: [PATCH 3/4] s390/dasd: Fix wrong free and refcount leak in
+ build_check_tcw error path
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112102608.1057852-5-sth@linux.ibm.com>
+In-Reply-To: <20261112102608.1057852-4-sth@linux.ibm.com>
 References: <20261112102608.1057852-1-sth@linux.ibm.com>
- <20261112102608.1057852-5-sth@linux.ibm.com>
+ <20261112102608.1057852-4-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 10:34:37 +0000
+Date: Thu, 12 Nov 2026 10:43:26 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,30 +63,69 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> BIODASDCHECKFMT used to copy the entire format_check_t struct from
-> userspace, including the result/unit/rec/num_records/blksize/
-> key_length fields that are output fields only.
-> dasd_eckd_format_evaluate_tracks() relies on cdata->result being zero
-> to decide whether to apply an index correction (i--/pos--) after a
-> successful check. A caller that pre-sets result to a non-zero value
-> can suppress that correction, leaving pos advanced past the last valid
-> entry; the (partially out-of-bounds) fmt_buffer[pos] fields are then
-> copied back to userspace, leaking heap contents.
->=20
-> Only expect is an Input field; copy just that member in and zero
-> the rest of cdata.
->=20
-> Fixes: 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT")
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] s390/dasd: inaccurate Fixes tag and crash description in commit
+  message
+--
+
+commit b485d08acd9f888238bf37617a7cb2fffa1637cc
+Author: Stefan Haberland <sth@linux.ibm.com>
+
+> s390/dasd: Fix wrong free and refcount leak in build_check_tcw error path
+>
+> dasd_eckd_build_check_tcw() allocates its request with
+> dasd_fmalloc_request(), but its out_err path frees it with
+> dasd_sfree_request(). The latter uses a different pool and therefor,
+> leading to invalid pointer arithmetic and a crash.
+> Use the matching dasd_ffree_request() instead.
+>
+> The same error path also leaves start_priv->count incremented
+> without ever decrementing it again.
+> This leaks a permanent reference on every build failure.
+> Decrement it before freeing the request.
+>
 > Reported-by: Sashiko <sashiko-bot@kernel.org>
 > Closes: https://sashiko.dev/#/patchset/20260722103704.1709668-1-sth@linux=
 .ibm.com
+> Fixes: 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT")
 > Cc: stable@vger.kernel.org #4.7
 > Reviewed-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
 > Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 
-Sashiko has reviewed this patch and found no issues.
+[Severity: Low]
+Are the Fixes tag, the #4.7 stable hint, and the crash description in the
+commit message accurate?
+
+Commit 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT") introduced
+the missing start_priv->count decrement, but it paired dasd_smalloc_request=
+()
+with dasd_sfree_request().  Commit 5e2b17e712cf ("s390/dasd: Add dynamic
+formatting support for ESE volumes") in v4.18 introduced
+dasd_fmalloc_request() and dasd_ffree_request() and switched
+dasd_eckd_build_check_tcw() to dasd_fmalloc_request(), so backporting this
+patch to v4.7..v4.17 will fail to build, and this commit should also carry:
+
+  Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE v=
+olumes")
+
+Also, since commit 9cebfced1324 ("s390/dasd: Add infrastructure for ESE
+full-track write"), dasd_sfree_request() checks cqr->mem_chunk and frees
+requests with a NULL mem_chunk from device->ese_chunks rather than crashing:
+
+drivers/s390/block/dasd.c:dasd_sfree_request() {
+    ...
+	if (cqr->mem_chunk)
+		dasd_free_chunk(&device->ccw_chunks, cqr->mem_chunk);
+	else
+		dasd_free_chunk(&device->ese_chunks, cqr);
+    ...
+}
+
+So the invalid pointer arithmetic and crash only occur on kernels between
+5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+and 9cebfced1324 ("s390/dasd: Add infrastructure for ESE full-track write").
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112102608.1057=
-852-1-sth@linux.ibm.com?part=3D4
-
+852-1-sth@linux.ibm.com?part=3D3
