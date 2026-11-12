@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794483050;
-	b=NDxvnoNXTf9na3aZ+WgeD2BNJJIAoJ6vKrDaX4icjMnhwOBzKaI44TE6On2EGjeSgijq
-	 O+RUW7flTX8noEhGyeGP1O7As7VD3IXSmnQL4XDgg/1SH7ZZaiCOnEBLoxUGwTOPAWGRv
-	 ltuAwL/WSqqIga5atHe5zl+KECevxuE6WlxjGKKUc6VqSWbDJB1PUfG0B1U3r7KMkJ3EQ
-	 vZqz6iDf4HhcY6AKHiGEWHJEE3YukvxZp+gv12CIssRwb3OysqObpv92zOGuaAOBsOIkv
-	 aGi0CxMXPAGuhfq9OJWsed8/cMu6X0zvMr71tIqVVp+GwfDfTma1WSKeJwvlLX7AEYw==
+	t=1794483056;
+	b=s1H9mVEvYhVIVUxPHxsf0LhF1OzKVX+OaQBnGzbw6J0bLPIfiRtvpNFbUUUY85RDVZMj
+	 f1XOnzVlBTMtT4uXXcR1jmCqfWLqFK68rzlom3kQB7r5SmD9qfRlWAnxguug0suyL/nYb
+	 tWzZyX+MGPkX3rfbMGhXjN4KGT7Q5+1yE6YK9+wHvez2UO7aATS5bK0/9R0VmwcZurfeA
+	 ssAGV1ySerzeFpDZRuVaK1AB3+CDLTKqwozhARp6FwuPoH5F5XmI6Vnpa9KSHUNh8nHpT
+	 vj4s+9U5mljZaN3zlEBN5DIZ5V7AhqWjXAYMyLMZYge0E6NORWj9RXTZOy7hpq7ySkw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794483050;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794483056;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=HcSyYyL1aI9yVXJRMG+8rB80N8c/m6fAmhL+0qfSOuA=;
-	b=2kU0DAa85Yn/8USchM0aQdTKC8AcGnJmXKKDl7JtiDBdJTlyeitzb3aHnxa0B6QcmlCc
-	 gKimuml/6STzei/HtomZGWt2sNYTYKHqXhN08+NoL/e2DJV1kunvpPW6YQFZUfGDKwvFg
-	 yhtUq/YqG6cbAWQBwa49mBf+rWRszkx6ejFFYdOjhqjh+xx/xv2iv7YLpx1F8ikwZo1u2
-	 2+azyKHTWMr/zHUMFcL8DH1xVBluztlTFMxhVRv4z/yoO0a3o63Uwzsyz/BEZ5xTC5Q1H
-	 I3vaVkSqeW00PHP9ZMNrH8QA/zgZ+ZDXyRiGvmmGcQLyvLRjRiQvfDKIRz++V1h/Qeg==
+	bh=Oy75uPWa0jCFUOquVgVgwNWJp0hYJYnupyTZJ8t3hMc=;
+	b=koP2Ls7Tvv+SWtDPxILPw8c4QYJm+3W72bSPE2kPzN3P+0A4bCpniSGzQDa89ik97zUK
+	 3oo37HhnEH0+QT+33mGCDcY9RgC2TIX6TFmKatCNtKn/xaCKwGb9sHDQgdC78NSk4XiqI
+	 ml3CZzIFOz65S3eACH1KanyDayzhX7RKmP7WbmYQEcQN4dRZyEI4ghrvwWJxiXgLEIkvE
+	 td5bcaoRq6h8Gvs4vSLMfrjma8e02WuH0hMjbYwF9eQnaT8HdAa0pm52JUAHBhrtIUwO+
+	 3dC8caqrSFRxYMiS5ddo9n4+XpE0dHSAQLU4PVJgzIJlv1UnO4/nZSNqPm9VxGeINXA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QknDstmT;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cGkxg11U;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EE6E606B58C
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 11:30:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C6F3606A886
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 11:30:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QknDstmT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2626C1F00A06;
-	Thu, 12 Nov 2026 11:30:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cGkxg11U
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A311F00A08;
+	Thu, 12 Nov 2026 11:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794483049;
-	bh=HcSyYyL1aI9yVXJRMG+8rB80N8c/m6fAmhL+0qfSOuA=;
+	s=k20260515; t=1794483055;
+	bh=Oy75uPWa0jCFUOquVgVgwNWJp0hYJYnupyTZJ8t3hMc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QknDstmTjHUe2g2R+kyYKGlBriyS2a4Uaeq26iu0MVr7nAqXkBqRJm95OllgWyogK
-	 2pshuhOVzvX7a0eVzPcPG+abvrFTlZnOh3J8M1tUTUpLDBIa/8/Ydoeiw+PXTeeAHl
-	 R/lkZV0xGNBwFy1qGt9egZrBHDMlPxGgncLhKcdRUWAMflnChj5Qow6i9c9D4CEiIo
-	 2Xwo0g7g93CRBm7A0cT5OS1V1C67/MdvyEVBFLMosVN8HJTnYmDGlrOoXL+NtbVzO/
-	 2XYQQyIvvzR678w2Fm1bNPVA5piWw4nFE+DulCO95qryAHbmWL5uz5jac1F321YcEy
-	 kDCMN/TNt3yNw==
-Message-ID: <sashiko-outbox-211019@kernel.org>
+	b=cGkxg11UfkX84uQlzbchqtsWcMgBYLBziAdRu4TJyBY+M/qnebZ3xGmgHMNZ+eAU1
+	 nZza4HqP9ZQ8FYmg7AFoPoXU/ohrA03yGnZGkWxWwiIa1bH/otY3pGmDBWx+RrmMr0
+	 IPxeB+sMFtHlTknFamgmyVvlWJYSYr7Kx9czWbMun4DeuZrRhC7Zk8FwPtpoYJ+DVZ
+	 5NtMZPhinKxLDiqdklpDbe0LGWSN5D/+RIvQKCH+nV1LAWGngwvI3g3f67Pgp1kbiB
+	 GbuCMFg3a6if1An1YpgtELUaN2aSboVOER5ZZsjW8C2rRQwudJrKC4OH7rXlNGSmol
+	 RAWfClZvWExOw==
+Message-ID: <sashiko-outbox-211020@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 5/8] s390/kdump: Exclude crashkernel CMA memory from
- vmcore
+Subject: Re: [PATCH v1 1/8] s390/kdump: Enable crashkernel CMA
+ infrastructure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mikhail Zaslonko" <zaslonko@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
@@ -52,12 +52,12 @@ Cc: "Ilya Leoshkevich" <iii@linux.ibm.com>, "Andrew Morton" <akpm@linux-foundati
  Young" <ruirui.yang@linux.dev>, "Jiri Bohac" <jbohac@suse.cz>, "Jonathan
  Corbet" <corbet@lwn.net>, "Usama Arif" <usama.arif@linux.dev>, linux-s390@vger.kernel.org, kexec@lists.infradead.org, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112112105.1169118-6-zaslonko@linux.ibm.com>
+In-Reply-To: <20261112112105.1169118-2-zaslonko@linux.ibm.com>
 References: <20261112112105.1169118-1-zaslonko@linux.ibm.com>
- <20261112112105.1169118-6-zaslonko@linux.ibm.com>
+ <20261112112105.1169118-2-zaslonko@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 11:30:48 +0000
+Date: Thu, 12 Nov 2026 11:30:54 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,27 +67,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> The kdump kernel will be using the crashkernel CMA memory of the
-> crashed kernel, so it must not be a part of the dump.
+> Select ARCH_HAS_GENERIC_CRASHKERNEL_RESERVATION to build the generic
+> crashkernel CMA code: reserve_crashkernel_cma() and crashk_cma_ranges[].
 >=20
-> Keep the CMA ranges handed over by the crashed kernel in oldmem_data.
-> Add them to oldmem_type next to the crashkernel memory, so that no
-> PT_LOAD headers are created for them.
+> s390 keeps its own reserve_crashkernel(), the CRASH_* definitions in the
+> new asm/crash_reserve.h are only there to satisfy the generic header.
+> arch_add_crash_res_to_iomem() returns false because setup_resources()
+> already inserts the crashkernel resource.
 >=20
-> Merge adjacent regions, such as CMA areas placed back to back or next
-> to the crashkernel memory. Otherwise for_each_physmem_range() returns an
-> empty range between them, which ends up as an empty PT_LOAD header.
->=20
-> Use the original ranges even if mem=3D limits usable memory in the kdump
-> kernel. Build the list without depending on CONFIG_CMA in that kernel.
->=20
-> Co-developed-by: Vasily Gorbik <gor@linux.ibm.com>
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 > Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112112105.1169=
-118-1-zaslonko@linux.ibm.com?part=3D5
+118-1-zaslonko@linux.ibm.com?part=3D1
 
