@@ -1,100 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794493535;
-	b=sFxLyE0LHBDs3G5vH/jl9ovil5sZg3Q+RNSK2NYkcHeocL2VzQpbgJN596kjau+v70mv
-	 /gEpyia6JNqSgHj/sVCHlRA9KEtEG61Y+KWCCvIkYrQnv6Mfvh6SS7WKhzQNlDHM6iZmp
-	 nO7QPKeMJADoHgx4M60DGKpRTRtss3+G9uzHmBsb1I76DJr015iWECaVAxa0WFzv+z7YK
-	 6mQt64SJGI8aqDrZZyvV4nKUAyTTLls/qVDGbTilsof4eoOSvLfLnPeLhX0mp6F4ige+p
-	 TFds/cQgUmQqqOS4XzrDBmlkWx9dZbhhFUiy2WgPuxhUEKlLqtXwUgw/u+Oz23NBk5g==
+	t=1794493537;
+	b=OIR9QgZEyA7HOuvSAGARly/97ubz9GMf6jw3qEpr8qw9NTvM397wcxt1FwnIRhKdudJL
+	 GlOljIV/1GdKOzTjRUdob8ekYaa64KDXDwvP/Ca5i1d3kvRme90ZukvwSq75g9Y51Z6EZ
+	 cYaUO6gLlj7RP0TD/HWGrYdDGl6xG1ZNDg913+fHvVCCJ0qJ2MgnRUmJBni1XmcNk75A7
+	 YWcL1So601351hmhbIX/FU1BGz3FGTFg2eZv5KdYNxo3RReJwWoQVGk7mdbXoFrQyneA6
+	 DeV11IIYZlp/jeThN6YvhsMcOeVm5JDog31uCv6jeSpNBv4i5vylGc7Eo6/PloBVQjg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794493535;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794493537;
 	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
 	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:X-Spamd-Result:X-Spam-Score:X-Spam-Level:
 	 X-Spam-Flag;
-	bh=fSNuCMsN1VNgtr3D4qnj+zDeO7DxOLUKfJqgOoVCVPU=;
-	b=yfkq9JNsMNM0Rj1pPFQ2kNN5gRTAlWqwR1la89VV7GYzZHHyrptjnoHh1siAftSpvvep
-	 wxLko7OmvQfvvsfnINlN9O2N6muojskIm+oD4EZktsp8jPN7XR5w5qxKot1F8gkNH+6gi
-	 UdZJJZYM0e3Fj1gByOIsvtRD6Ym6gypZPduDvQuCDFyctwoDozuC4G1ApeGotR0aIMDdg
-	 9wQnuf81pBrI1lra99f4LlSsxceyWhDKUERyCCeHubNru1aeo9/flvl8o4fjF5lkRfvyf
-	 QIS3rAtxnlBxUKpBY7xLq2/+2V7p3F96xZakDa2SCPg0CeJgvFajKd7Rd6GQzNeE6wA==
+	bh=6YWUCSXWqyL1xWG0ifotpOzssQneDskvG8p1+21PIR4=;
+	b=uFkT8Af8XWaMqlA8NOoEdYBfe9ZknvecW1yRtZkvXMcZO5SQKMJNRp+qdBV1OFDzRj2q
+	 pV949l4GSwtFStaiGmHs0RTEpSHOPlyw8IDtQ4HdbKuDOaRygi96B9i7uPyM3+DovzoIo
+	 MC3unaXSTF3CPDZu98jgDpOdCaRaeXxiGDwWfKNUwIUWnDlL5mNF7rROfjqPmOGJTkQhi
+	 YnrLYOekYjyt/2FZ96B7kd6M2y0qEgeIVSqlSMCaTnq8d9u+2ghdloixyjSgPkls29TyV
+	 Q11DU588mY1WYuk+cM/vYyjPqlb5UEeazwJpDBJfb57m7b+7cRdHa0Vkg0HY36YgYRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=suse.de;
 	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IJ1JzRmh;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pcu88trj;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IJ1JzRmh;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pcu88trj;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=RadUXxFz;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=IZqtonmx;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=RadUXxFz;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=IZqtonmx;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C656F6072A0E;
-	Thu, 12 Nov 2026 14:25:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C656F6072A0E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F57960A2619;
+	Thu, 12 Nov 2026 14:25:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9F57960A2619
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IJ1JzRmh;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pcu88trj;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=IJ1JzRmh;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pcu88trj
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=RadUXxFz;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=IZqtonmx;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=RadUXxFz;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=IZqtonmx
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 2297F1F8B4;
-	Thu, 12 Nov 2026 14:25:33 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id DE15D21DEF;
+	Thu, 12 Nov 2026 14:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1794493533; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1794493534; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=fSNuCMsN1VNgtr3D4qnj+zDeO7DxOLUKfJqgOoVCVPU=;
-	b=IJ1JzRmhJB+1jyg5pCgn5nlsjCZQQcblG2IgVIsUEyxmDSn8wbK/iDhbqzwvP4PQj8JFF2
-	XkLhsnaARIvc9iasv/O8vDYAqgAizdDeAMQSBG83PnKfbHi86DLayceFpiiniA8zZr0JQZ
-	kZ7WA1Mfh5AGJUs8JY7Xr7QmGVd4nfE=
+	bh=6YWUCSXWqyL1xWG0ifotpOzssQneDskvG8p1+21PIR4=;
+	b=RadUXxFzw0HyqoD8lqQh5wbYPJz0ASHGDzXSkyZjXl/V+5m7xPx/svoXkDxCJvmpgcwy6R
+	gI+U7ML0T4axp66JIE6EPZvAsEW4OzonyXlgJn1F1X0YiVzkUBo84xFjNM/d7Kjwzt6Xwz
+	WX2ZFxX5ly2jUooq9uoQ8aPZVPyk32g=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1794493533;
+	s=susede2_ed25519; t=1794493534;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=fSNuCMsN1VNgtr3D4qnj+zDeO7DxOLUKfJqgOoVCVPU=;
-	b=pcu88trjNhOJVGCafuuVQ5n9cn/S2UvWpMZdS+iHleTTMFEQhC7gpSLC/y+B8VP/75G/t6
-	BfmLZW/EyrOPx5Cw==
-Authentication-Results: smtp-out2.suse.de;
+	bh=6YWUCSXWqyL1xWG0ifotpOzssQneDskvG8p1+21PIR4=;
+	b=IZqtonmxFwZVkMHUyVhmFt3xNKcjxQ46cGK7RNQYrb12IKUPSvBmH5ZgzZzE9SJQtdvKLL
+	+FjBiBzVnR3Sc4AA==
+Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1794493533; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1794493534; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=fSNuCMsN1VNgtr3D4qnj+zDeO7DxOLUKfJqgOoVCVPU=;
-	b=IJ1JzRmhJB+1jyg5pCgn5nlsjCZQQcblG2IgVIsUEyxmDSn8wbK/iDhbqzwvP4PQj8JFF2
-	XkLhsnaARIvc9iasv/O8vDYAqgAizdDeAMQSBG83PnKfbHi86DLayceFpiiniA8zZr0JQZ
-	kZ7WA1Mfh5AGJUs8JY7Xr7QmGVd4nfE=
+	bh=6YWUCSXWqyL1xWG0ifotpOzssQneDskvG8p1+21PIR4=;
+	b=RadUXxFzw0HyqoD8lqQh5wbYPJz0ASHGDzXSkyZjXl/V+5m7xPx/svoXkDxCJvmpgcwy6R
+	gI+U7ML0T4axp66JIE6EPZvAsEW4OzonyXlgJn1F1X0YiVzkUBo84xFjNM/d7Kjwzt6Xwz
+	WX2ZFxX5ly2jUooq9uoQ8aPZVPyk32g=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1794493533;
+	s=susede2_ed25519; t=1794493534;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=fSNuCMsN1VNgtr3D4qnj+zDeO7DxOLUKfJqgOoVCVPU=;
-	b=pcu88trjNhOJVGCafuuVQ5n9cn/S2UvWpMZdS+iHleTTMFEQhC7gpSLC/y+B8VP/75G/t6
-	BfmLZW/EyrOPx5Cw==
+	bh=6YWUCSXWqyL1xWG0ifotpOzssQneDskvG8p1+21PIR4=;
+	b=IZqtonmxFwZVkMHUyVhmFt3xNKcjxQ46cGK7RNQYrb12IKUPSvBmH5ZgzZzE9SJQtdvKLL
+	+FjBiBzVnR3Sc4AA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F14A0134F4;
-	Thu, 12 Nov 2026 14:25:31 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4D6DA13432;
+	Thu, 12 Nov 2026 14:25:33 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id w9GzDFnM9WoAPwAAD6G6ig:T3
-	(envelope-from <clopez@suse.de>); Thu, 12 Nov 2026 14:25:31 +0000
+	id w9GzDFnM9WoAPwAAD6G6ig:T4
+	(envelope-from <clopez@suse.de>); Thu, 12 Nov 2026 14:25:33 +0000
 From: =?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>
 To: kvm@vger.kernel.org,
 	linux-mm@kvack.org
@@ -111,13 +111,23 @@ Cc: linux-kernel@vger.kernel.org,
 	borntraeger@linux.ibm.com,
 	frankja@linux.ibm.com,
 	=?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH v3 2/9] riscv: mm: add pud_soft_dirty()
-Date: Thu, 12 Nov 2026 15:20:31 +0100
-Message-ID: <20261112142039.907090-4-clopez@suse.de>
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <nico.pache@linux.dev>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>,
+	Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>,
+	Usama Arif <usama.arif@linux.dev>,
+	Kiryl Shutsemau <kas@kernel.org>
+Subject: [PATCH v3 3/9] mm/huge_memory: honor MM_CP_TRY_CHANGE_WRITABLE in change_huge_pud()
+Date: Thu, 12 Nov 2026 15:20:32 +0100
+Message-ID: <20261112142039.907090-5-clopez@suse.de>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20261112142039.907090-2-clopez@suse.de>
 References: <20261112142039.907090-2-clopez@suse.de>
@@ -143,12 +153,12 @@ X-Spamd-Result: default: False [-16.30 / 50.00];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	TO_DN_SOME(0.00)[];
 	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[19];
+	RCPT_COUNT_TWELVE(0.00)[29];
 	MIME_TRACE(0.00)[0:+];
 	RCVD_TLS_ALL(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLpaod1bh3ffbsf8emkm3npqp6)];
+	R_RATELIMIT(0.00)[to_ip_from(RL8fugicft4tip39ru97wanzoz)];
 	FROM_EQ_ENVFROM(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
@@ -157,31 +167,94 @@ X-Spam-Score: -16.30
 X-Spam-Level: 
 X-Spam-Flag: NO
 
-riscv supports soft-dirty and PUD-sized transparent huge pages, but only
-provides pmd_soft_dirty() and not pud_soft_dirty(). Add it, so generic
-code can check the soft-dirty bit of a huge PUD.
+change_protection() applies vma->vm_page_prot, which lacks the write bit
+for CoW and write-notified mappings. MM_CP_TRY_CHANGE_WRITABLE makes
+entries writable again if a write fault would only set the write bit.
+
+However, change_huge_pud() ignores the flag. For example, device DAX
+mappings are write-notified once soft-dirty tracking is armed through
+/proc/pid/clear_refs, and a protection change then leaves dirty PUDs
+read-only, so the next write to each of them faults.
+
+Fix this by adding can_change_pud_writable(), based on
+can_change_pmd_writable(). It omits the NUMA and uffd-wp checks, as
+change_huge_pud() bails out on those changes.
 
 Signed-off-by: Carlos López <clopez@suse.de>
 ---
- arch/riscv/include/asm/pgtable.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/linux/pgtable.h |  5 +++++
+ mm/huge_memory.c        | 28 +++++++++++++++++++++++++++-
+ 2 files changed, 32 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 2ebd5fa5adc5..40890f51dec6 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -949,6 +949,11 @@ static inline pmd_t pmd_clear_soft_dirty(pmd_t pmd)
- 	return pte_pmd(pte_clear_soft_dirty(pmd_pte(pmd)));
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index 780fe849ff8b..943d7e95f426 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -1866,6 +1866,11 @@ static inline int pmd_soft_dirty(pmd_t pmd)
+ 	return 0;
  }
  
-+static inline bool pud_soft_dirty(pud_t pud)
++static inline int pud_soft_dirty(pud_t pud)
 +{
-+	return pte_soft_dirty(pud_pte(pud));
++	return 0;
 +}
 +
- #ifdef CONFIG_ARCH_HAS_PMD_SOFTLEAVES
- static inline bool pmd_swp_soft_dirty(pmd_t pmd)
+ static inline pte_t pte_mksoft_dirty(pte_t pte)
  {
+ 	return pte;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index eb913acb03b7..080b718eb7de 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2833,6 +2833,29 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
++static inline bool can_change_pud_writable(struct vm_area_struct *vma,
++					   unsigned long addr, pud_t pud)
++{
++	struct page *page;
++
++	if (WARN_ON_ONCE(!(vma->vm_flags & VM_WRITE)))
++		return false;
++
++	/* Do we need write faults for softdirty tracking? */
++	if (vma_soft_dirty_enabled(vma) && !pud_soft_dirty(pud))
++		return false;
++
++	if (!(vma->vm_flags & VM_SHARED)) {
++		/* See can_change_pte_writable(). */
++		page = vm_normal_page_pud(vma, addr, pud);
++		return page && PageAnon(page) && PageAnonExclusive(page);
++	}
++
++	/* See can_change_pte_writable(). */
++	return pud_dirty(pud);
++}
++
+ /*
+  * Returns:
+  *
+@@ -2840,7 +2863,6 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
+  * - 1: if pud can be skipped
+  * - HPAGE_PUD_NR: if pud was successfully processed
+  */
+-#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+ int change_huge_pud(struct mmu_gather *tlb, struct vm_area_struct *vma,
+ 		    pud_t *pudp, unsigned long addr, pgprot_t newprot,
+ 		    unsigned long cp_flags)
+@@ -2872,6 +2894,10 @@ int change_huge_pud(struct mmu_gather *tlb, struct vm_area_struct *vma,
+ 	 */
+ 	oldpud = pudp_invalidate(vma, addr, pudp);
+ 	entry = pud_modify(oldpud, newprot);
++	/* See change_pte_range(). */
++	if ((cp_flags & MM_CP_TRY_CHANGE_WRITABLE) && !pud_write(entry) &&
++	    can_change_pud_writable(vma, addr, entry))
++		entry = pud_mkwrite(entry);
+ 	set_pud_at(mm, addr, pudp, entry);
+ 	tlb_flush_pud_range(tlb, addr, HPAGE_PUD_SIZE);
+ 
 -- 
 2.51.0
 
