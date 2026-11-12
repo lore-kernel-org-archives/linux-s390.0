@@ -1,81 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794459290;
-	b=4iNhu42vX0R+msbksGQWM0qmDU1gaA/8tO46AICAc4mqlXKwYRm12SBBCFdW3Ydrtl28
-	 JEUlRqcB/GkJ3BN74utxjOqZTxb9+aj9JIpHHrHWpwsAOJnndkkwWTCXFGyvJFffIeehI
-	 gekOauXfJ7zV3Z7VRRzhwwXrmwGa+1mwHo8AQdBd7sZVZSyCHUMNB1AdNFxs484YlqpAH
-	 qSDMMCD8A9dEY++iZkHqEnlTQi8MEDTaGrkp5EBCBhG3+q7K/hFgiOUd66lTHaUV7MAVH
-	 6PAR1ZMA3+5sqO6cFOH+y5v0sLpZvZ0JUnE0G0yMOWQquCF+/8QXHU2pFu6w0slo6rQ==
+	t=1794460191;
+	b=YydkyqvNq6SAM9C6jAzwJfuInIkHWrGhRY8dr9lGA2ng/dCmD54fXrfStY4HMyhL7GoC
+	 KwckVDk2lYluMLXSAeIbOjnCT50A7Q0osCF5gYl6+oyBzsSPtlw3Ask8IrIj6DBhmJ9ws
+	 ANIMxJcNhFrdoDJ4Idh+8tCQcAor7ExaUbxHVDUowfXJuDN4ZxCgTv0+7PcT688zwrcUM
+	 zTETx1GSZG/Pil6gDqyg8K6tBTt3j27S8YleL1j1dwyMUpSujJloHnJP5rKKfjBLc281b
+	 aLZCOsqgkTCVaompuDvCNcfKBN6EQluPmgs1dDGlgNjyrnJfb2GepUaVsXa/+ij/Ewg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794459290;
-	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:Date:From:To:
-	 Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=/V28rCHXi3T9oO9LFCn5sfVOcz0zmvubCJbcVebXDxQ=;
-	b=xEHiGJOb9wMcknM/xQqVA+uG6A8Dw1YzVX26qlYAbMjn4oioog3Mr3AAKT08BzbQoPlm
-	 e4OxRa1wKaPDLNWamivJj3958wPNvpfHxAP5PxeVSkECNXrHj2oaV/4/lAcCdMRexkeTL
-	 X0FThaqeWpQgmrzDoL3pFzhKNHmoVMUP5vmAd9pZxc8sa/B+aEOPL4ZrFGXYGhwHmntJs
-	 X5hn1wYLE0pkULJeQ3gbW4FqosCURDlMCm0jKcWUUhUDbJTt+ULk7cXmLAc7lHINhDuGf
-	 f8vZSxmm4Eiwpdkimfi00q9bVb/kT200z+62eU59VqS4jJXdgCjPqorqoo3DXRn/iZw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794460191;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=nVVIfN4BTkm5Q9xCDqSEMw7hlfWL7ACUPVcuHFZ/o3g=;
+	b=SMRLO2xDlwSiozn82XgngJ0sTR3wFJRpnzbX+GMa9mjZY3l6xUGOSDKeTqGXDJGGReor
+	 zMFlYNWv5fX6EStLQrTBu0h0pKkYbgefLOfuxKU0Fdoy+MkRDMyGuO9HfQG5KJnm3ZLLp
+	 RTyr3IwGbEY9j2aSSkkQs7KclFAL4q1oET6JxVKZvYJVqSZ/5TOkbTsrJldH8TTlYHvxt
+	 3p7H05MREg250goVGsOd9e/PSiU6kanAHGo4Iz3UfFhnOGXB41ZB3oAU8hA3RVJohvBx+
+	 whb5ZgPZS+ztejstWh4RiUbEm4jpVG1Gk4bqDs7Ky6Y8lM/ZxGvlExHH6jtKsYCHGLQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.alibaba.com;
-	spf=pass smtp.mailfrom=linux.alibaba.com;
-	dkim=pass header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MXltY6b0;
-	arc=none smtp.remote-ip=115.124.30.100
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=OlG5tUX1;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FBCB606A32A;
-	Thu, 12 Nov 2026 04:54:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9FBCB606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84D2E606A31C;
+	Thu, 12 Nov 2026 05:09:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 84D2E606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=MXltY6b0
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1794459284; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=/V28rCHXi3T9oO9LFCn5sfVOcz0zmvubCJbcVebXDxQ=;
-	b=MXltY6b02zxJBPSSJCcrFOFIVlsBPwa+MF+BOn7nVcYMoHG/lR/idyOofAtP+7o28bmnleqYQobOuF1X03XhPFzpBC/hqZgH8dTQlrXbc1lMAFQJxWEzyBHEg4X9w+v0wAMn3OjhU+vlgQS7hHIJLJYkmTvC3eWmg5pBomYYpaY=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0XEaoXEq_1794459281;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XEaoXEq_1794459281 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 12 Nov 2026 12:54:41 +0800
-Date: Thu, 12 Nov 2026 12:54:41 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Jiayuan Chen <jiayuan.chen@linux.dev>, netdev@vger.kernel.org
-Cc: David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Matthieu Baerts <matttbe@kernel.org>,
-	Mat Martineau <martineau@kernel.org>,
-	Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
-	Allison Henderson <achender@kernel.org>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-	bridge@lists.linux.dev, linux-security-module@vger.kernel.org,
-	mptcp@lists.linux.dev, lvs-devel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
-	linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH net-next 12/14] net/smc: annotate data-races around smc
- sysctls
-Message-ID: <avVGkcI_j0hDPjQB@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
- <20261109025425.328445-13-jiayuan.chen@linux.dev>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=OlG5tUX1
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2iXeY1214888;
+	Thu, 12 Nov 2026 05:09:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=nVVIfN
+	4BTkm5Q9xCDqSEMw7hlfWL7ACUPVcuHFZ/o3g=; b=OlG5tUX1O2ww6cm14macBK
+	cjdgAgo854InLT7kSM7FJBlU0ki9XlUW6NlQAycQTkwTh+HDjEbPX3cQvzHZs6zm
+	KnoQoE5MO47PSQIRmChH5gDaAm9K/vycIVK8ulHnbbe34AuQfZMIap6DN3IU+DQM
+	GO/fMKgGYq+U0XuXx4v9P66yTDkWnjRlghuRnxmZ9dc1CDTzNVm2qSsqPBD5tJ3t
+	CcQiv8l0f5RD/w4Z2iA1PaZL4IYYH1QMQ04qiTZdeL789Gt31X7YKUe2nLm8FHvj
+	PuYoaETiuPCHOcTWdYaJRlNC42SnLcgUac7/sq0B8YOEJLPfRkLftjJ6sxwkxnew
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsuntdwak-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 12 Nov 2026 05:09:18 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2ZnlC016704;
+	Thu, 12 Nov 2026 05:09:17 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hv3327f2u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Nov 2026 05:09:17 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AC59DeP48890152
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 12 Nov 2026 05:09:13 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E9F1720043;
+	Thu, 12 Nov 2026 05:09:12 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3CA882004E;
+	Thu, 12 Nov 2026 05:09:04 +0000 (GMT)
+Received: from [9.39.17.134] (unknown [9.39.17.134])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 12 Nov 2026 05:09:03 +0000 (GMT)
+Message-ID: <1d170fb4-7e78-4c8c-9cd0-642973dd9163@linux.ibm.com>
+Date: Thu, 12 Nov 2026 10:39:03 +0530
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,123 +86,148 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261109025425.328445-13-jiayuan.chen@linux.dev>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/6] sched: Expose writable interface for preferred CPUs
+ mask
+To: Yury Norov <ynorov@nvidia.com>
+Cc: Maxim Kuvyrkov <maxim.kuvyrkov@grdncc.com>,
+        Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Righi
+ <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        K Prateek Nayak <kprateek.nayak@amd.com>, Mel Gorman <mgorman@suse.de>,
+        Mete Durlu <meted@linux.ibm.com>, Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Steven Rostedt
+ <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
+        linux-s390@vger.kernel.org
+References: <20261101192203.6979-1-ynorov@nvidia.com>
+ <A2B09626-39F0-4EC3-B57D-CD83D77DD208@grdncc.com>
+ <1d1b22ce-fdf1-47ad-99ec-8c9925ea7275@linux.ibm.com> <avSorfTkB3pZX2ic@yury>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <avSorfTkB3pZX2ic@yury>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDAxOCBTYWx0ZWRfX311hCVMLD0Hc
+ Kt4HlOAhsQOnWUC78GYq0edsRUwn/hPsvXRE3OjmQrYBWkTXjJYTVt//CaMzQmiyJiFcEeQt4dq
+ vo3NkFb+W8PLaZnW49I/NRYDGE9AFmQsWN780tb+WzHjhYt7Ch9fNLotNoO3RYhwzKaCzd7+N6B
+ /c4T1cKQhIBP1tyR2piSpOenZ8vV6pDAPEY4Jny41DxLMvLJ/d9RdrCu4v5NImh0fjwgko8Ww4R
+ k02HM7PxH0hpwyse1d7IJlrZ2QYsCAjR+uh2DTSX+4lfHqxFlmTA2fEpmACYtQyummjm59IghOZ
+ KB0fLOcg8MW5xJV6vsKAuKhDvJGxXWuY33rCcHefh3ifSIoe5Rh4qXTT3MGTLAJvo2uBfJA8ipK
+ 2BhVQr7fsdkOVlneP2+PTyDyqKDyn6Be1T5jFxK1ITZ2yxdTZp3hA1RowSimbEnYHk/anYWRRmI
+ ZCD8oJrRiuO6BsiXcjg==
+X-Proofpoint-ORIG-GUID: mwJVrk1495EbgCbioZERqcZZWLE3v8di
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDAxOCBTYWx0ZWRfX90f2Q/uxeZHe
+ BwIB1tOEwf31qkUi5OKpqWym4bFrZxa0Gc7VkteZXl9nM1Kv2x61K2UKk2Wbk43/y8QCoyE1H6x
+ avmCGoBVhmICPW77VY2mhOr/bWo8nnI=
+X-Authority-Analysis: v=2.4 cv=euZKXYpX c=1 sm=1 tr=0 ts=6af549fe cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=Ikd4Dj_1AAAA:8
+ a=9Qk1hqGbzmtnogXl2ysA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: eD0RfhbmiDm4gZvmVYr9UM_KGr6YPB50
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-12_01,2026-11-11_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 clxscore=1015 suspectscore=0 spamscore=0 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 adultscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611120018
 
-On 2026-11-09 10:52:11, Jiayuan Chen wrote:
->autocorking_size, smcr_buf_type, smcr_max_links_per_lgr,
->smcr_max_conns_per_lgr and limit_smc_hs are read without any lock while
->their sysctl handlers update them with WRITE_ONCE(), and the SMC netlink
->handlers toggle limit_smc_hs with plain writes. Add READ_ONCE() to the
->readers and WRITE_ONCE() to those handlers.
->
->Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
-Acked-by: Dust Li <dust.li@linux.alibaba.com>
 
-Best regards,
-Dust
 
->---
-> net/smc/af_smc.c   | 8 ++++----
-> net/smc/smc_clc.c  | 8 ++++----
-> net/smc/smc_core.c | 2 +-
-> net/smc/smc_tx.c   | 2 +-
-> 4 files changed, 10 insertions(+), 10 deletions(-)
->
->diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->index d10244af5bd29..9a657172be8f9 100644
->--- a/net/smc/af_smc.c
->+++ b/net/smc/af_smc.c
->@@ -88,7 +88,7 @@ int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
-> 		return -ENOMEM;
+On 11/11/26 11:11 PM, Yury Norov wrote:
+> On Tue, Nov 10, 2026 at 02:45:58PM +0530, Shrikanth Hegde wrote:
+>> Hi,
+>>
+>> On 11/10/26 8:45 AM, Maxim Kuvyrkov wrote:
+>>>> On Nov 2, 2026, at 08:21, Yury Norov <ynorov@nvidia.com> wrote:
+>>>>
+>>>> The preferred CPU mask currently lets the steal governor reduce vCPU
+>>>> demand when physical CPUs are contended. This series adds manual control,
+>>>> opening more use cases.
+>>>>
+>>>> For example, setting CPUs aside for selected fair tasks at runtime while
+>>>> steering other fair tasks toward the remaining CPUs.
+>>>
+>>> Hi Yury,
+>>>
+>>> I've been trying to do this with crutches in user-space for a long time.  Thanks for implementing this in the kernel, and with a convenient user interface.
+>>>
+>>>>
+>>>> A user can mark a CPU non-preferred and pin a workload to it. Fair tasks
+>>>> whose affinity includes preferred CPUs are steered away, while tasks
+>>>> whose allowed CPUs contain no preferred CPU can still run there. The CPU
+>>>> stays online, task affinity is preserved, and the selection can be
+>>>> reversed without rebooting:
+>>>>
+>>>>      # rmmod steal_governor
+>>>>      # echo 0 > /sys/devices/system/cpu/cpu3/preferred
+>>>>      # taskset -c 3 ./my_workload
+>>>>      # echo 1 > /sys/devices/system/cpu/cpu3/preferred
+>>>
+>>> My use-case (being a compiler optimization engineer) is to pin benchmarks to specific cores, and stop the system from using those cores even when the cores are idle.  This prevents L1/L2 cache pollution and makes performance numbers more stable.
+>>>
+>>
+>> Do you change it when running workload based on any signal/event? or you set it before starting it?
+>>
+>> If it is set before starting, you might as well offline the CPUs to achieve the same. I assume you are
+>> managing the preferred CPUs manually with write interface. You can do the same for online state.
+>> (Though it takes a longer)
 > 
-> 	if (nla_put_u8(skb, SMC_NLA_HS_LIMITATION_ENABLED,
->-		       sock_net(skb->sk)->smc.limit_smc_hs))
->+		       READ_ONCE(sock_net(skb->sk)->smc.limit_smc_hs)))
-> 		goto err;
+> How that? I tried, and offlining destroys the affinity, as it should:
 > 
-> 	genlmsg_end(skb, hdr);
->@@ -102,13 +102,13 @@ int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+
+You are doing "hotplug when workload is running".
+
+>    # taskset -c 3 sh -c 'while :; do :; done' &
+>    [1] 380
+>    # taskset -pc "$pid"
+>    pid 380's current affinity list: 3
+>    # echo 0 >/sys/devices/system/cpu/cpu3/online
+>    [  115.767634] process 380 (sh) no longer affine to cpu3
+>    [  115.772881] smpboot: CPU 3 is now offline
+>    taskset -pc 380
+>    pid 380's current affinity list: 0-2,4-7
 > 
-> int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info)
-> {
->-	sock_net(skb->sk)->smc.limit_smc_hs = true;
->+	WRITE_ONCE(sock_net(skb->sk)->smc.limit_smc_hs, true);
-> 	return 0;
-> }
-> 
-> int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info)
-> {
->-	sock_net(skb->sk)->smc.limit_smc_hs = false;
->+	WRITE_ONCE(sock_net(skb->sk)->smc.limit_smc_hs, false);
-> 	return 0;
-> }
-> 
->@@ -411,7 +411,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
-> 	spin_lock_init(&smc->conn.send_lock);
-> 	mutex_init(&smc->clcsock_release_lock);
-> 	smc_init_saved_callbacks(smc);
->-	smc->limit_smc_hs = net->smc.limit_smc_hs;
->+	smc->limit_smc_hs = READ_ONCE(net->smc.limit_smc_hs);
-> 	smc->use_fallback = false; /* assume rdma capability first */
-> 	smc->fallback_rsn = 0;
-> 	smc_close_init(smc);
->diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
->index 014d527d5462d..df0afeef67cbd 100644
->--- a/net/smc/smc_clc.c
->+++ b/net/smc/smc_clc.c
->@@ -990,8 +990,8 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
-> 	}
-> 	if (smcr_indicated(ini->smc_type_v2)) {
-> 		memcpy(v2_ext->roce, ini->smcrv2.ib_gid_v2, SMC_GID_SIZE);
->-		v2_ext->max_conns = net->smc.sysctl_max_conns_per_lgr;
->-		v2_ext->max_links = net->smc.sysctl_max_links_per_lgr;
->+		v2_ext->max_conns = READ_ONCE(net->smc.sysctl_max_conns_per_lgr);
->+		v2_ext->max_links = READ_ONCE(net->smc.sysctl_max_links_per_lgr);
-> 	}
-> 
-> 	pclc_base->hdr.length = htons(plen);
->@@ -1272,12 +1272,12 @@ int smc_clc_srv_v2x_features_validate(struct smc_sock *smc,
-> 
-> 	if (ini->smcr_version & SMC_V2) {
-> 		ini->max_conns = min_t(u8, pclc_v2_ext->max_conns,
->-				       net->smc.sysctl_max_conns_per_lgr);
->+				       READ_ONCE(net->smc.sysctl_max_conns_per_lgr));
-> 		if (ini->max_conns < SMC_CONN_PER_LGR_MIN)
-> 			return SMC_CLC_DECL_MAXCONNERR;
-> 
-> 		ini->max_links = min_t(u8, pclc_v2_ext->max_links,
->-				       net->smc.sysctl_max_links_per_lgr);
->+				       READ_ONCE(net->smc.sysctl_max_links_per_lgr));
-> 		if (ini->max_links < SMC_LINKS_ADD_LNK_MIN)
-> 			return SMC_CLC_DECL_MAXLINKERR;
-> 	}
->diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->index 6021322253e93..3d338019a1b8b 100644
->--- a/net/smc/smc_core.c
->+++ b/net/smc/smc_core.c
->@@ -990,7 +990,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
-> 		lgr->net = smc_ib_net(lnk->smcibdev);
-> 		lgr_list = &smc_lgr_list.list;
-> 		lgr_lock = &smc_lgr_list.lock;
->-		lgr->buf_type = lgr->net->smc.sysctl_smcr_buf_type;
->+		lgr->buf_type = READ_ONCE(lgr->net->smc.sysctl_smcr_buf_type);
-> 		atomic_inc(&lgr_cnt);
-> 	}
-> 	smc->conn.lgr = lgr;
->diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
->index 0f0c6df3bf2ce..30bffe79d06a3 100644
->--- a/net/smc/smc_tx.c
->+++ b/net/smc/smc_tx.c
->@@ -148,7 +148,7 @@ static bool smc_should_autocork(struct smc_sock *smc)
-> 	int corking_size;
-> 
-> 	corking_size = min_t(unsigned int, conn->sndbuf_desc->len >> 1,
->-			     sock_net(&smc->sk)->smc.sysctl_autocorking_size);
->+			     READ_ONCE(sock_net(&smc->sk)->smc.sysctl_autocorking_size));
-> 
-> 	if (atomic_read(&conn->cdc_pend_tx_wr) == 0 ||
-> 	    smc_tx_prepared_sends(conn) > corking_size)
->-- 
->2.43.0
+> Did you mean something else, maybe?
+
+What matters is how/when you start the workload.
+ From the use case, I see it is about using only specific set of CPUs and there is no explicit affinity assigned.
+
+Sequence1:
+1. You are setting preferred CPUs.
+2. You start the workload. Workload finishes using preferred CPUs.
+3. You set the preferred same as active.
+
+In that sequence, offlining the CPUs is going to be similar. You are managing preferred CPUs, you can as well manage
+offline CPUs. Most of the workload check the CPU state before assigning any explicit affinity or spawning threads etc.
+
+Sequence 2:
+1. workload is long running job. Lets say comprising of warmup/steady/closure phases.
+2. You only to run on specific CPUs during steady phase.
+3. You fallback to active during closure phase again.
+
+In that sequence what you said about offline breaking affinities is very much possibility. It is
+good to set preferred CPUs in this sequence.
+
+but reading maxim's description it fitted Sequence1.
