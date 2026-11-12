@@ -1,47 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794483198;
-	b=eeOtO4xhjeOuhB/2dXu8oXA0H+qz7hGgb532QLhJOcB0sQqDOmDNomj9eCp6hCPiAyT+
-	 8x2GMBXhoJ08ZCfLMAItUSwebCMNvq4MhqzSBhOU8p2UVuTVhybyq7IpH6Pvpl/9iP4dQ
-	 s608gHJvJUw4WuT2QMIR/nV0nkZEHVM/9KE51hdi7imL0cBjbqoULUi3AFBGxKeOKY2r8
-	 n8R0BiJd7On86iI3WRqTvBHf2LYwVHG0R9w2QlsFFHuGxRI6/h2PHZ6bcdnGkREtwPyQO
-	 afmR4kDQ9CL8+x5jJJ0MZmBcBK05VMyr0kCF/KH6SH/2vw/CtL9t+6n7vPtjrsB8LmA==
+	t=1794483279;
+	b=YLe4LTPTxig1doA16603OJx54MFb2psjT/bCrRknmqhn0xgIN67AkPZFPn9ebXzUMPnn
+	 Jt5ZhCxfx+0Q+OR17J6cLOWpY583c69tcYV69X+xMgZgcH/BhaUQQ2BPGxTJD2W2x3Fan
+	 K5hcvdi2J2K2xTttGd/61YK/UcVkVNq4ROsmEC8b/fqEW5m7SfIRzZT9t1XzhPB335MiY
+	 n0T9y/U42ZEd77dUiCRURc0ppLD4PMl/zW3KQgxlyOA0jNz5qB/MpBeBWjszzX3OEu36g
+	 QIu3z8PhEnRRvpv40SWPnBR/jjCsRKaVnwiVaRuY33kz49nlzH61YJhxfC2VkTY+Qgw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794483198;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794483279;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=fkFNkK9waQrr04LqwebhOzpt6VfUKvnie5m0HgQWrUo=;
-	b=L7BLIEDWirbQrMHDbKooMX00K/e3Ljbjm1MWsw//pKQZRcHS5OAHM/Pk17FpWryyyXiz
-	 yt7h9fMugW8XTCTnuk35ilS070LC9ebnKO5bct25CyKWJzLq+euogL+fgXkMYvPftGEBB
-	 ydWxa27bQurgGumLeseyaY932ulAOKcM3mwxbr0W7hnYl9rEtI7sqqqJ+UKI0za9+3o5z
-	 QbFYudSjLP9kUlc3gD5aQ0i8hH0BNDU5Yhpk+9PcyzvrfGewOY8znTAFP2zoQL4YndseC
-	 wl/kUwViTNkZf3FcFq1/QW3r1OgZcVB8W/eE0EGvTViEhjvYta7KPmFmdiPS05OgGFw==
+	bh=zLsrZztbD+ZscRIw64dNIPk38Ao6S3WgpMxepM0KndU=;
+	b=yk7DFjRFw6AVzHhmAO18SUg674b7W76MI8NDhFO6PHM2lGUc/k2Rl18pvFkcd8bdNAwD
+	 inZvEHauqKKvMaR1ET+G3P5tKnM+2/Lyhr1wCjyDdXTi3/RLphjzITe74EBAUaTmKJP+0
+	 aquAcyGdw+7nH9/0/uE8sJdB+Jg/asWFgUxjI3/+fE5Xhk8mdSfmEzqH43DkQuhOenTU0
+	 biXGzob2oa1efNnEvLEpTUb60OL3mFXs7LF93O+t96Em0bkDpD0RYu67VJ6gFr0i3thxj
+	 Pw3imc3n8wrCiLp2NJung3nPN3Nshp7G2QayKdwzD+c7iTWtBbwhoz3BONQqSMD4cYQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=onDgyYuJ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XKM1hCEB;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00719606A323
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 11:33:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 608BE606A31C
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 11:34:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=onDgyYuJ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D8511F00A05;
-	Thu, 12 Nov 2026 11:33:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XKM1hCEB
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E9631F00A05;
+	Thu, 12 Nov 2026 11:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794483197;
-	bh=fkFNkK9waQrr04LqwebhOzpt6VfUKvnie5m0HgQWrUo=;
+	s=k20260515; t=1794483279;
+	bh=zLsrZztbD+ZscRIw64dNIPk38Ao6S3WgpMxepM0KndU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=onDgyYuJKgV44zugwU9gGwPzSAFyEAxTs/scsFiB0tU8kRJbXb2A3jG8IdykKNp2a
-	 6zPxM0dPoTwCGGvxOZ6L/z3kL0BzkcEyREoh7k3n+otLvhLnxWcy6EDRvxrYzKOnei
-	 pbfH2+bz6mqvNyuTwv+igEJfT1jrvHfD5cyQWfg/qIhCrgVTz11baOAxOQ/ZCsKFlI
-	 v2CQGk+TuMgbV7PIVpo402NA6MWbw1y3+vG3NorVAg/o7Jz34JKpBJLofuMbBxMhbS
-	 0jT1Es9hS8e2HE1WKQM/cfcJBAJtXrHgc4bBX0hlzElDzSAEuV3P1UHNzc+r7BUIlu
-	 W5xAOXdZJoAJw==
-Message-ID: <sashiko-outbox-211025@kernel.org>
+	b=XKM1hCEB+Y0qpmen5FQZg5n+F3aAUCUNDd6q9uuqcfGcBe902Ijw7gtJ1ZIy1uYTl
+	 KZaKYYaeDF2VJIsTDF+GSUgdmAxZGQRS8yS6uC7/WSyyRRAeCl4f5dHn5mHSo+rvMt
+	 9ODr2GELrlcmDsHkq/nCCjMDlTtuWnbTXNctPd0S0YcQREerk32CoBQyIXTH9HGX74
+	 QoKdUOgw2KOgojaHRhZU+ruAckryVumTQVIT8TsOTDGTnOY6NKQnVr1oUrkRbjONuH
+	 bBGohSC2PWKBpMvNjAsubzMEX9ugKTYhjj8teu+WK9sHI7jKeCt8PYs8tSBOPPixTa
+	 oyYQXMJfix3Jg==
+Message-ID: <sashiko-outbox-211026@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 4/8] s390/boot: Allow additional usable memory ranges
+Subject: Re: [PATCH v1 3/8] s390/kexec: Pass crashkernel CMA ranges to the
+ kdump kernel
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mikhail Zaslonko" <zaslonko@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
@@ -51,12 +52,12 @@ Cc: "Ilya Leoshkevich" <iii@linux.ibm.com>, "Andrew Morton" <akpm@linux-foundati
  Young" <ruirui.yang@linux.dev>, "Jiri Bohac" <jbohac@suse.cz>, "Jonathan
  Corbet" <corbet@lwn.net>, "Usama Arif" <usama.arif@linux.dev>, linux-s390@vger.kernel.org, kexec@lists.infradead.org, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112112105.1169118-5-zaslonko@linux.ibm.com>
+In-Reply-To: <20261112112105.1169118-4-zaslonko@linux.ibm.com>
 References: <20261112112105.1169118-1-zaslonko@linux.ibm.com>
- <20261112112105.1169118-5-zaslonko@linux.ibm.com>
+ <20261112112105.1169118-4-zaslonko@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 11:33:16 +0000
+Date: Thu, 12 Nov 2026 11:34:38 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -66,20 +67,17 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> All online memory above the usable limit is left unused. A kdump kernel
-> will need a few ranges above that limit for the crashkernel CMA memory
-> of the crashed kernel.
+> Store the crashkernel CMA ranges in the parmarea of the kdump kernel,
+> next to oldmem_base and oldmem_size, when it is loaded with
+> kexec_file_load().
 >=20
-> Add physmem_add_usable_range() to register usable memory ranges. Clip
-> them to ident_map_size and merge overlapping or adjacent ranges.
-> for_each_physmem_usable_range() walks their intersection with the
-> online memory ranges.
+> The ranges use 64 of the 72 bytes of pad1, which is enough for the four
+> ranges the generic code reserves at most. They are sorted by address
+> and unused entries are zero. Older kernels ignore pad1 and kernel images
+> have it zeroed, so old and new kernels still work together.
 >=20
-> Use the same ranges for boot allocations, identity mappings, KASAN
-> shadow and memblock. Keep the allocation position separate from the
-> usable ranges.
->=20
-> When no extra ranges are added, nothing changes.
+> For kexec_load(), kexec-tools would have to fill in the ranges. It can
+> read them from /sys/kernel/kexec_crash_cma_ranges.
 >=20
 > Co-developed-by: Vasily Gorbik <gor@linux.ibm.com>
 > Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
@@ -89,5 +87,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112112105.1169=
-118-1-zaslonko@linux.ibm.com?part=3D4
+118-1-zaslonko@linux.ibm.com?part=3D3
 
