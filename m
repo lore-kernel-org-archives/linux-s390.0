@@ -1,82 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794460384;
-	b=1lwLeSBToDY4hApQWWCHjRopkjanqU+LiFYQDZLC2fKuMxDd77woldKI/7PD9JN1wVgk
-	 bsYGt5/IQxZ538JvjHBuoeI/bHn/zgZ7fpFV2ngdfLUcqjtzG8zRxNfyvdHRKDGKilHYE
-	 nsguWkmJjfgH2UWn6+FefknQlO+Nf8Wqj9zB19OJwoF4+3gdY3X9hx/WLIO7zEBD+a5xO
-	 +UUI4/JN6hU52mTc3B7AilJkbcMbmCA5m+A7zK9FEKdT521A7myVkgSNDHTfDUeHPivIn
-	 ZxSlHCwhJ8U1tupqrsKjdM7bBzMSRigqF8Ihiu3tMrE9SRB8RjjbXXuUHMGRwBzIBog==
+	t=1794470099;
+	b=0CXsCfYKAN3ex0qChl4cpVH7qyeUYetomTNR4EKmdHOEWuUiS7V3oAEtrYHWFg0E54Jk
+	 W43EsHfFUL+O49fqaRY2dzwQMbLJ0gaKMJY74e++3YRo1SLAZTITQs5dwl8rQHSvD+1hF
+	 NlSo2zikW2NCVFFrCkE6WLwp2gcHfHry4+KzjUp9GYOgUzWlbGV87gT4G304IKpmWoJM3
+	 IohVFTuSa+k6USJJSUpcuz5b1BfYpGKLMVtAU0xATnFLlUS8gSj5NSQExccF1cGpmeHF9
+	 q2/BzCiO/FJNTl5GtjqX3EGwHvbBalT0Z6hH9c6BM2fpLJfYGDSgPmrj3sRS36YREVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794460384;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794470099;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=Hf0AXvsUNvjXjOJMG3JDj4EuaQqMCaznHS3229Oa2a4=;
-	b=HtEv6IrXReZIVJpf2pvMOF7lw+BiDn7ND34N9l/siAoIvm4WKvk+AZjRUpaA+TEfNoof
-	 HKu8Md3XaCuj4WoYRfo3GDjEQZZTb566wt2CSZKpw+LEjmS6U2v9gCqp6Ua8MLCtbHbU4
-	 4f4pi5ABNy++7E1keNomiEngh2FeTAWi6u+ZyCEEGY9pMGzmCBPvF7WDEqsNL27u4bGfT
-	 DLyiwtgUfqmU42jwKIrHJKpDm7bJSzomPDO17toAoac88tFzA1h80ot97bVeBA81Ttjm5
-	 hUPna7rb9eUnN1MI9Htzvy2451Dxm0aay1WMHwkhzXrBL8nOEtzBSswa/QdXY0msd5g==
+	bh=vJLwmUL9nCXoDZ6cdxtW6DcSQziimyn2Mp0CG9uGD8o=;
+	b=ajc+EnTllFLCX9w5/TjuBt9c7T3pUlWBdBHBDepqPS2hZDOXKMy50LGCT++8GBOIkWTc
+	 5tDH4OALDg+qkVi7SCQ0ZhWkEEHpcsvHsoSECHuFjQITKwIK4IcSd4wjhxG3lHq/OKomr
+	 TXimrOwWy+Ri+9T6tG5ntYilFK3t+JvPQEQGjI0BKtupCQkDz8aIkeaw+My9uhnsltVZR
+	 Y2i1dKRk+LOjQcGJ9bMN8fb+60kU7NJAqIVeGNNm720GvIjQVaAL5u0+UKZtLpTMC6MlX
+	 LMQvrupfZaGSUdXdj94MgDYEl/s5MAMTtG1LOQayIboWcgJLTCv3E6SfxXR8WrMBjwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="phrgYDB/";
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=EMFO3HMv;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4C6606A324;
-	Thu, 12 Nov 2026 05:13:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4B4C6606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58D8E606A330
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 07:54:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58D8E606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=phrgYDB/
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2j2js2796920;
-	Thu, 12 Nov 2026 05:12:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=EMFO3HMv
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2i8Os3053570
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 07:54:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Hf0AXv
-	sUNvjXjOJMG3JDj4EuaQqMCaznHS3229Oa2a4=; b=phrgYDB/P661J+qWMoI7Lc
-	YLcoxQLPj+c4Id3YKDBrUzd9xoojQvEQSDutEJppDScv3cKRtUeVon0L0mWpw7RP
-	+FFEJakNqOFeJ3brm6PT9SOfg2Zdg2usjGWW/JQFnys7leLFv5YCkg7mB1vpLgjR
-	xgmLvLDQ8M8yLB7GY/NqtUDvjLrwdjHPJGMTyT1oilQ52QOAxI35ecbinU0K7Ocn
-	qUA0LRwphlWWXbXuuidH9fUIUI4tmCU+A1/P7tZuV5r1d6+FO6h83WIFwbBOGG3u
-	j5LQYRB2FERJAhV/NlvhwRJZo3eo4s5pcJYSWSMWIr37ZenbwOj4iwe4IEN9idcA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hssdkwgcv-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 12 Nov 2026 05:12:32 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2ZoCX106626;
-	Thu, 12 Nov 2026 05:12:31 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hv4nsy3k0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Nov 2026 05:12:31 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AC5CSkZ47120742
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=vJLwmUL9nCXoDZ6cdxtW6DcSQziimy
+	n2Mp0CG9uGD8o=; b=EMFO3HMvzsb0vEzFo2lDcsDBuWFC+FCPpimaXSFEcGgPOL
+	XS05a2CFN/a5INFnyfsMDE5ztcYWF5vo1TupfzeeXP2tkqSWLrNoEmmW7QEZ310k
+	Uk3l9VPt60gcsE5L7rd4utTnGUows1iv+fgExeMz9VqRImFIuOZBK++p9a+wmkrQ
+	iLEaNb3LcbkjrCiKHrtkscHtStt4F838YKhGOifBey9dskqRJlhQOnBWl/7NaDvd
+	wBAlXvamkC405QupQOEIodMVK+Dzptrblu2Duf+Q/0WiTohHJBvzEpqJ1cJ7czwz
+	8WeW+nEXqk+e1efBVxzFAq96Jp4lIw4/45YR6WXg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsug6ee3h-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 07:54:58 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AC2ZnIQ016704
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 07:54:57 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hv3327wmn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 07:54:57 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AC7sqWg32440758
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Nov 2026 05:12:28 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EEC862005A;
-	Thu, 12 Nov 2026 05:12:27 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 611332004E;
-	Thu, 12 Nov 2026 05:12:18 +0000 (GMT)
-Received: from [9.39.17.134] (unknown [9.39.17.134])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 12 Nov 2026 05:12:18 +0000 (GMT)
-Message-ID: <ef8dcbd9-61e9-467a-88da-3d159a5df9df@linux.ibm.com>
-Date: Thu, 12 Nov 2026 10:42:17 +0530
+	Thu, 12 Nov 2026 07:54:52 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C3D882004F;
+	Thu, 12 Nov 2026 07:54:52 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 875C02004E;
+	Thu, 12 Nov 2026 07:54:52 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.69.86])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 12 Nov 2026 07:54:52 +0000 (GMT)
+Date: Thu, 12 Nov 2026 08:54:51 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/mm: Allow hugepage migration for s390
+Message-ID: <76c9d6b0-77d3-46df-9c64-e4489b5a92c7-agordeev@linux.ibm.com>
+References: <20261111182944.4154805-1-gerald.schaefer@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,120 +92,48 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/6] sched: Expose writable interface for preferred CPUs
- mask
-To: Yury Norov <ynorov@nvidia.com>, Maxim Kuvyrkov <maxim.kuvyrkov@grdncc.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrea Righi
- <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Danilo Krummrich <dakr@kernel.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        K Prateek Nayak <kprateek.nayak@amd.com>, Mel Gorman <mgorman@suse.de>,
-        Mete Durlu <meted@linux.ibm.com>, Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Steven Rostedt
- <rostedt@goodmis.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
-        linux-s390@vger.kernel.org
-References: <20261101192203.6979-1-ynorov@nvidia.com>
- <A2B09626-39F0-4EC3-B57D-CD83D77DD208@grdncc.com> <avTSC2r61uht9oFK@yury>
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <avTSC2r61uht9oFK@yury>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261111182944.4154805-1-gerald.schaefer@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=POqaavqC c=1 sm=1 tr=0 ts=6af54ac1 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=Ikd4Dj_1AAAA:8
- a=z54utOFOnMwhspSCAOEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDAxOCBTYWx0ZWRfX3HJBwkFMsPvJ
- KkBYz83eIQRrbY6olD6lX9j+0ShfGj+XJt9LC462ChLKoGT0RzsWvLO8b+x/v7T2G4VXdyxFph4
- oxQ/4WwjA4u4AfX2ds4RN5TZlHZDWbyQLgbZf3toZPVPtwzaCCona9UL77gXDsFXgzasD8olizX
- hE+IakX4XD+OQpCtc7qIosTQrAkClbrBSW2nsQ01gbgVs9exHtx3UGohOB9UxTXEB4P3G8ejqzM
- fo4Wr6VlNY52a4YiuYMO3WrS0/KAt3L/Qsj2IxfWxd8cwMW9mqE4XRpCua32+tbDcq/5MZAogd4
- AhVnIjozx/lfN03XuVaJyz2ofbeHnz41DcIdfo8xX9KkeFp0AJOuXohxr8Pkvk6d4Nf88Kuu86N
- 9QPrpqd2dL+yLWZYtymQoONG//uExILycR7L7YGZVk8vkyw+AjgEIUXXA+rmz0KHEkjPJwUBjZ3
- 43uiCUi5mSnWD2oZtew==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDAxOCBTYWx0ZWRfX4ySYHq3mrpLD
- YyFPk/DpwQxMq+nCCul4/3HNMD8JXVdQHv7ViYPl15osg7LlQhcjefX5QF90wKBNFi0BtBqtiUy
- CF0K+GmNhIfjYAIszT9BvAZI4CKeChs=
-X-Proofpoint-ORIG-GUID: OeJyO-NNYMTgqCIJOKHW8OLywsnJAI7o
-X-Proofpoint-GUID: RZFZPk8z2WiLfkrE2NbB4E5FQNS6XzlV
+X-Proofpoint-ORIG-GUID: t4tAE8W3a0u1IOY89YvVfDF5Q_tdxVRR
+X-Authority-Analysis: v=2.4 cv=PeVqFShd c=1 sm=1 tr=0 ts=6af570d2 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=xxPbDROubBk5HubNp58A:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: t4tAE8W3a0u1IOY89YvVfDF5Q_tdxVRR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEyMDAzMCBTYWx0ZWRfX7rI96VclPFUi
+ YUfB7Dx0KWPSNRcjAZgTo5ZmH9YchEsBZkCklbEBaPv+x2T/zHx01wCXQZdWDholraPlAw9ASP5
+ o2X0eaY7ZNbntvu98LExXtwdJ9A2NkVNTeIt5ANCt8OX6Dj0RWKBzoRxVf6afv42ZfHU1GSBBrG
+ uK9TP5e84lTeiBYgjZfjCERHD9969fPXOVuuXZBwku7jbW2oVs5coWF9Y7zGHvF3QQ161Ppnirh
+ qYp1WcxJlqGG5ECfZsaHyRgXA1SIeBfS6ndjF/0iGZp3JyxRRBrLdYF3U8CUB//EQCofTX0DEuI
+ eTfb7mNvcxCKR2aKq/kWIFPiBAsu7g+pQLTkl9/2S7gIxWpZw8haaz/TTlBLwbm8y6vp5WyIOoa
+ DEK+V0QoeSyRuJzrqwNef0MX8B0nLI5705Z0bAsTMAY1Ig6/IKTA8gha0L5dZgwH73Zkeim+UBI
+ mfLF00gJFqC+Dof+zWA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEyMDAzMCBTYWx0ZWRfX+IWU9muCsGi3
+ 6XmCbG7Du82zZSlOWpgEFeDuqUCimgcjQ+9HHNXVOPW+vIQY4t39VTu4abaRam+Gkyxv4U0Guw9
+ 1VUigm7DVBy+QIry54LYSHRso+EB9Mo=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-12_01,2026-11-11_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 bulkscore=0 impostorscore=0 malwarescore=0 phishscore=0
- lowpriorityscore=0 suspectscore=0 adultscore=0 spamscore=0 clxscore=1015
+ bulkscore=0 phishscore=0 suspectscore=0 impostorscore=0 priorityscore=1501
+ lowpriorityscore=0 spamscore=0 malwarescore=0 clxscore=1015 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611120018
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611120030
 
-Hi Yury,
+On Wed, Nov 11, 2026 at 07:29:44PM +0100, Gerald Schaefer wrote:
 
-On 11/12/26 2:07 AM, Yury Norov wrote:
-> On Tue, Nov 10, 2026 at 04:15:31PM +1300, Maxim Kuvyrkov wrote:
->>> On Nov 2, 2026, at 08:21, Yury Norov <ynorov@nvidia.com> wrote:
->>>
->>> The preferred CPU mask currently lets the steal governor reduce vCPU
->>> demand when physical CPUs are contended. This series adds manual control,
->>> opening more use cases.
->>>
->>> For example, setting CPUs aside for selected fair tasks at runtime while
->>> steering other fair tasks toward the remaining CPUs.
->>
->> Hi Yury,
->>
->> I've been trying to do this with crutches in user-space for a long time.  Thanks for implementing this in the kernel, and with a convenient user interface.
->>
->>>
->>> A user can mark a CPU non-preferred and pin a workload to it. Fair tasks
->>> whose affinity includes preferred CPUs are steered away, while tasks
->>> whose allowed CPUs contain no preferred CPU can still run there. The CPU
->>> stays online, task affinity is preserved, and the selection can be
->>> reversed without rebooting:
->>>
->>>     # rmmod steal_governor
->>>     # echo 0 > /sys/devices/system/cpu/cpu3/preferred
->>>     # taskset -c 3 ./my_workload
->>>     # echo 1 > /sys/devices/system/cpu/cpu3/preferred
->>
->> My use-case (being a compiler optimization engineer) is to pin benchmarks to specific cores, and stop the system from using those cores even when the cores are idle.  This prevents L1/L2 cache pollution and makes performance numbers more stable.
-> 
-> Hi Maxim,
-> 
-> Thank you for the feedback.
-> 
-> I agree, this trick with pinning a workload to an non-preferred CPU
-> looks promising for benchmarking purposes, and probably for more.
-> 
+> +#if IS_ENABLED(CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION)
+> +bool arch_hugetlb_migration_supported(struct hstate *h)
+> +{
 
-Sorry, i don't follow.
+Oh, would you agree to such one? ;)
 
-Did you mean pin to preferred CPUs? Why would anyone want to run their
-workload only on non-preferred CPUs? By definition, they are not meant to
-be used as much as possible. and It is benchmarking.
+	return IS_ENABLED(CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION) &&
+	       __hugetlb_valid_size(huge_page_size(h));
 
-> I'm going to split this series to the cleanup and follow-up parts.
-> In the follow-up, I'll focus on this writable interface. I'll keep
-> you in CC there.
-> 
-> Thanks,
-> Yury
-
+> +	return __hugetlb_valid_size(huge_page_size(h));
+> +}
+> +#endif
