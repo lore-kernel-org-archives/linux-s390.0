@@ -1,84 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=66.163.188.212
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794446829;
-	b=vdXQsmMDhaEy0WYHuOijNALkS09/eE0ykbpQ4p4tyRjhmHLOereHXtBuI/I5IWuqeE5w
-	 LHEc1c+LItWljmz63meiyduiTDpS58R0lZK7kVM9uBLQquSjBBzTP6XCXjfZV6x3iVN7r
-	 0AJ6TvRQdj6NNM9cdbrGaISD0eknWyXbm3229acRmzQrVk7blB+oJ6uqc2s7U0w6RMDx9
-	 ugMd8u8ctSgmi6m+dgir3JHNagTvdhKZETUB5lgpewOaT/FccTeWrio/EbuWwXO44+WZl
-	 nOQepc8NApkRAgLM5AAt1DqDQs2SGrRpuegNDR7p0ewwQ78ysjZgT85sxCzUs8XHoqQ==
+	t=1794448237;
+	b=Ly8cAWxBQ7/9jCyvrP47Cqp+EmBNbKw9YLP6UONIIsdztQX8fOUEE/x8lQCuyLl40Fxa
+	 xPK/n3V6TPVvDyVcu6PCG9L+WWzcD0TY7fHBdD+WPaU8gz7szZK/MtGHSVlWZuhMixXXK
+	 GwszN+NsImHIUfIQv4GYyhXRbOe+tee4fkjR4sfYGpPAzJ+AE2+QYruEIAe8dTPn8tl+r
+	 fB4koDlXHAFvmcqpwRJeg6/c6WrOZkFC3RnvRn9cC+wpV75eQgnSqvJPNd7RZ+Zabo8Hf
+	 0lUdGp2ZkqUaC1hTYu2JKvpsj3jP7UJ2VXVmH3JwWSDS+PoOrDwEBb3liEeIL9jv8fQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794446829;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
-	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
-	bh=Pf+orCI2rLpYXGk3dzBIrPS1HgJeZ6wmt3S+jICR+IQ=;
-	b=Ge++eOZjfGD1434Yg2vSpgo18bakYbfMfcuR83cHAOUGNf3QAEl8KnQ0dMGs6BX5aElm
-	 /fLjgxEdeZSSfqFiTBSur9F0Ip0Hf0kE7TUuopXju4QGzn7tgdl1tfOu0PPUz9pIwKaw1
-	 ZulW7/t+S103FqfuXQf8Jqz9xKcOpDCUHrpPtO6+bxYXuswuwu80Zz+FbGaScPPYhQG5F
-	 nuQFo+savHfxEmwLwskEchZBksQLYGZhRHZHwrkLpuU8yJnodNr2XEVHuzuQVqloaVrJU
-	 RsnDELQbw8Ei/3HUj5NQCGRSWYecS4zDfAS4n/7GFei5sbzfyMV9/eacE+L/PRF7ssQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794448237;
+	h=DMARC-Filter:DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
+	 X-Sonic-ID:Received:Received:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Mailer;
+	bh=O8h9fybdyu+Al7CdWlfRBQ6LgqQutaBSF+Rc2HGjCVE=;
+	b=N4mZyJLmHDB2r7CSAYwpHOSVLDe+hj+gEQXdcyYnKmj6ANmSIGIK6VfJ1EGtEAeskh3A
+	 crz9tswR84ho8KTFp5kM4vTMqA4ld6HPR05QNWVn20WtDlpXck2+HuA/yi2aaJh27lgWx
+	 fVP0oL9Yb4tB9t0iwL3hMHgUuTf62BtEFFFeFtGIiCEa3oYazz3U3r0j8hJjPnR0kcXNL
+	 PnWr+H/KClyOL/i+li6XxFt0giBVChdwIrx/tKZPn+HKEzh/qU0gABmVv3I4Ow3d/dueL
+	 OB954v0iLZNtBj/O5YGWmVj518RaDTQwjAduotRYEaIFCvyE0EuLEgtbKyLi6PFxGUQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GQYBxejX;
-	arc=none smtp.remote-ip=74.125.82.41
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+	dmarc=pass header.from=schaufler-ca.com;
+	spf=pass smtp.mailfrom=schaufler-ca.com;
+	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=F+m434hx;
+	arc=none smtp.remote-ip=66.163.188.212
+Received: from sonic311-31.consmr.mail.ne1.yahoo.com (sonic311-31.consmr.mail.ne1.yahoo.com [66.163.188.212])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E686606A31C
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 01:27:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7E686606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFA3D606A335
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 01:50:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFA3D606A335
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GQYBxejX
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-1ac926f28c9so31797c88.2
-        for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2026 17:27:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794446827; x=1795051627; darn=vger.kernel.org;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Pf+orCI2rLpYXGk3dzBIrPS1HgJeZ6wmt3S+jICR+IQ=;
-        b=GQYBxejXqj9xKMkrNLYSftKDOeRVn8MGo5YIk9XbbwLV71haYO1pTPDykyrDQahJKY
-         eIJle8vCmyIM6oge/Xx+H83+68zv1DZREQv7gig7L2mUgi+X6oJziPYhi8v4w2u3QhlU
-         9OeztHu/Txto49TDjRv+dj9WM9QfqNFpnFfr7W4zzNvykjeNaXJrf3uZDzyPDZyUYX3X
-         2YDn37cpmNmoVs8FtOZO4LXESBQoYq09d8LOuKbMKZGWgM4cjwfW96JRcHWHi4hxjgDF
-         iNZIc16V5k28cumvno3px7yJ+UHHJ5A8+p05RTuKlIe0bK0zn7V1cHhzVNc8VcDWyu4e
-         srfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794446827; x=1795051627;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Pf+orCI2rLpYXGk3dzBIrPS1HgJeZ6wmt3S+jICR+IQ=;
-        b=Pdl84IulLHmWgYtmQS2JYMISXUPt2ElSxQIxAfNE5iysGPjm3o4cTVaCTKlSZSTyHs
-         bUl5t+gBhpAEWGUvZVtytJpAUMjzCkWrQFARDc7yOVrfgslP9BhS8gJDVCp+TZUG5owz
-         sdKCgpik366Mwen1+vswz95L7KGXm+Z6vPT0n5BgtOIXRkIVkek7OQlnGW9XZrvOFhQE
-         Eg3cN+srfmoZMyJpapbvAuhqpOl0DfJBqIlLiUMcG9DvCqeT0lHgeHevs3lm9VSR4M8H
-         yM1DRpLu+Pa88hKbLdaqb2KgfwGiMhA476mD5uVO3XPQlRMxBFzyFBTlorOvhrb8gDDb
-         pxow==
-X-Forwarded-Encrypted: i=1; AL+hErHj1glJfJQ6ef9azZZeMLlhnnaP5tRzhBo5CsRC1YY9VyTOm7UZ08wIDqRa7Hsg9KUdH+CEbDz2TpgY@vger.kernel.org
-X-Gm-Message-State: APuU4Z/JTAo7GHR9T/+DW3p5ySeQwln4mjJdm7liLn0S9/0vtgTzKopr
-	gr1sd0Q57Xxz4w+/aYVXRZ7/ayaJECXIV9k4I1aqqj8I/B6r5JWUAskoH/5O0omEljc64g==
-X-Gm-Gg: AYBFou2sivN5pcW8pJbvdQR4anSu4+cK+BLHd5hOstMeu3jsgWROvxzY7oQ5v/iuyFV
-	dZjsHnyj4cFRg/TTXkMd/oblHxeiMLE6FFBRXsE7N3O0bJxw5OMcXoaRkxswt8r8Kz7iW5NOJY8
-	DZ1yCz5piD9++w2/rQc+swjPa0O0lVvz5e7tXX7l6jKZP0OzWgcazsTsJ93HMBXDDAz06vH4Sfy
-	3y+qYk/iACEVIxGURIhCSO7rtlBiFRi6MHDFPX7KJfNBzNe+E1pfExcBGOeSTQZYyzNFJ8Pshs/
-	jmraXUM8d69cq6Flm5ekCSA9Uyh3630Hh88gnUE/h6+VCblMq/o/pOQYc+DiLl2OFcwCKWysL3I
-	HDVA0o13PgkT0dY/dfppR3qnLnqpXj1cXMQ4LOz+8Z40NR2Bhq1znlkoZmcst2JAsKhg/NWLhce
-	ifs4oCAgzZXashcaQUswgodjPrfzGk6qh4BXX09ageV23CTPH6R23GJnSqEU0zumn4fFpuP5lbJ
-	ADMkKep8EgN1QiMS1baPzzT75erV0bJmOHzWPn6AjIAoftmur9ZFhqlQWyEhBoy5dD/TcrlomFx
-	c0WVPFzn0uB3y/HKmjvUUJgmAhaUSMEaQzkcWmgLeX6SEhoG1rEtEhKIXonzf1R2x94=
-X-Received: by 2002:a05:701b:42c7:20b0:1b2:5884:a039 with SMTP id a92af1059eb24-1b3c0151554mr6228487c88.0.1794446827180;
-        Wed, 11 Nov 2026 17:27:07 -0800 (PST)
-Received: from o6.lan ([2602:fce1:44f:115e::])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3b5b2ff3bsm24887181c88.11.2026.11.11.17.26.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Nov 2026 17:27:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=F+m434hx
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794448235; bh=O8h9fybdyu+Al7CdWlfRBQ6LgqQutaBSF+Rc2HGjCVE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:Content-Type:From:Subject:Reply-To:Content-Type; b=F+m434hxnazo+znIsDN87b1q6q2BjDXrSK85l4sPO4/7/Nv6ouklEMGBpfrTHUnO8eGiNQoV5Bbw/uB3JZACliQBg8PtdTRYRP97HHZoegx3ArYwH69kAdVaUPkV7WcyNd89YKs91cZCwmWeziNsUM+FCRLahqzZW3a6Ku8pvIiJlMO/7XaKbdkzRicymfmmSk9XFsFNG+fkHI8UO70pZ1hFT9v2XQiwRrAslvpHUFbDR+3rpTT4Ikh/N/oSBL0qRMnhxDrBkdI0Mmku6tTsyJWpgcJjSTSvBuepznmh0kGiP8yElqSHRAm6ov8qvVTBbZJZj+71HtVfmpD+WAp7XA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794448235; bh=cB6ms4YZu3OSr7Oj5Ktyy9vRYllWqlKKBSjCDtAOhd3=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Wh5tO+A7k6l9RAB9CmF+7nFPpV+s7vwQOvHRCpB836zmpk+EmZdiT1obFQYb3eEYUV/ZZrDMNSGrpqiSFrVBvEAP1+BcX3bVXL8AkZe5aM0djERGyxVy+oivb40ItIA89tHRP/kW5BzO7GaPGZrOTfFkDQF1HHnKQVH/ifoH5PYTL/BXjLkbPViq5JKecTMlRIryhz3iU6NkOHkP1F3oliaijdeTD+Tk00HCA4w802Q1PFZvsZSndMk6hlb4A1wMRPh3z4tVeu12oZckS5JIJR1ywCFknBKWBE+hVxojbZ57Qr3RCaKJrua5vLBD1s/SnsdmRZ+/JLOhUlVDaAQyJw==
+X-YMail-OSG: zqmnDtkVM1n5t6ueog55b_vkFHSYM5E1qoECEJywzBr3UwiKAfUIVI_o6w7R9SH
+ CQ1t93f4qyBpZEcVGjU2OBO9C0Of8.lRAD_UtcVdUMSf6_GiG98G7rNXb1ZhUGsyYLDyJE5oLG69
+ MPpknxdoviNcfunvMa.q1ATsxUiRNZaaYFEtaSi7o3ARz3uzFbYwa4zXUFVTxVNR1M4yEm8E_vMu
+ CX3lc6b1b0MWbnmh3DAeGebLmTpZwI12LuF9QH7MRRpV.Y7YkiPkkooycQl42qWPa_ZCsKSCVnTi
+ cfYjzn7ZtEqmGYVjYEY1kEbVCA4JoS5GMMDKMoO39G5YhBugROnX2jrgGh0AwdwAby30.ZBxmd.l
+ S62hS2hlPvIDoPxGhzS2whxCcIZrt8XbiUGRsBq2lfu8t9x.TIubZ4wIiRqzfDYoZIwioLDCjm6k
+ .cljRFJEOnSix_ImX_sSyVP7eQAAEJ1GsHeUHb7atzAIHDlw0lV7YT_EQZaDbjuCghjYyGwMa7FJ
+ LxdRDFOXlr05WMcbROqV0a4sd0J7UyT01rGVa2p8mqlfg_ZPSk1p0.zKLMJDr5A1o8n0sxe4LbiR
+ qbREBgT6XAwECEJNbNHKO1YTM4iOmevp8GvnGDd6MDNapigfFoPwfu59SMy7zYd9LO3Z8_0VkIJt
+ aPlGTgcyxBF.v1wQggIdb30_WaSmydGJlcGPdQ03irHq2wrwxiCoQO6IJUZEr0jypo3mUQnAGyDG
+ k9vUUntKtCsyi.w0t_vFjR1T1M3Z6Xk5RLKDL9njS7LNW.CupQSEmNQ1GkX7kSwPFQP21HwmyMsp
+ i9SdJowJ0s5y.bw2SrHxrP7sM6YbNToNL5ZVELMODpe5VuCBtDWl7VcCxYMmahr5455.ZE_hGmHs
+ LrmFJx1uQ46OcZ2Ii956498sukETOy0INQsrtoq.ypS01I6QTO8GSI7rVFeq81ZNfcHhvUGJ06ME
+ B8yJmeeVBase_8cBDx_Yk7y0xRppCWZz9S9bNwiHzQcmhSHJ99JaTf4E0zOIsgLWqU5tZh4wLZKp
+ MnYneLIuBkBNwjBcYTuKXcpCwff8fTcsfan2g9ag6_HRqbKvb3lqTrnQRPIG.IGMBIXdu4D1HB2r
+ Ygn65JHFmN1QF2ROBGshwilsGajQNSqHXHgx.co9RO5Evfjv8vx67t__1ew7rn3sc1C.7W_m4N4M
+ cSR8SYdV43PcknGSee9yB1x8pWannWLYRUROzisZnoPLwDPX1S0a5pIeYojUo9jnHaAdfaOw5IJs
+ bc0nB3tQZQ.0b782FrYX_n_pf05DxifKK1hrJ0OqXSo23BlRt.p63_4auT8X4tq9HTs9fxQLg0OA
+ ydi2BtTIKopjFdQtWH0NOUC1U6_wILbgtZfZnlVsbVhHJ7Tk.UZGmAVff_vQl8b4id5D4T9jwtS9
+ 8nKfk1Ghey2tqeZDF9SgVACRH_x6kJa81R1e4J_83TMyBY4Ays_MTt39YbFzXRfBMRqG0I92h9IS
+ Xl4i4wMK_gUqmjpP0P_oaDsTzptxLp7NMOmOY3T81w3i60pQpmuYMvggEU3dv.ebRC4Brat.KcXq
+ ZyjrZ4BouQUvapbNSNNP1Y253sBId7Ys37DryRT0fCsyFp6LIN0DYA1xElaICSH34S2v84muDGZe
+ .CGRnjEo0Q2679LeUfRrG7eDmdHtGbtXa02kyQjntuOc7VrR9y8jRUHqkLiiITgSdxH1QGB5PWuQ
+ ARpFP1xjX3OHKFGeQd7o8WX3xDhKeppcWAPJEhIosno79RY0IQ4.4JX7WCaXgDYbj6BL4okuPPnu
+ 9CEiWKr_A1oRBHcXo_t2XyX1N2Jd1tPqjLAB1WY0vIGe1SVdGRdRloM6.RT24mU1pbFP4DjeRn1w
+ _aXrAymHoztvd7BVNk78MI6f1URU2iBFJ6msmP6JgXQac5cfrtvlS9yn2eohnwEPfv__IKNy26n1
+ mYs7i0yOvj6LH9jEvBJfejsFOAeuf8LBdL.MbTk8ZZiVorhzaxO81Zf4PRAQwZfM29CLtP5dAKbb
+ klVicXy3HgsPrMZiM94qTb2yOlO2WSLEgrPS_2Vx31FNEHJNJpuKXHkfgTtKgjLPmpCr4Taq44yO
+ KB8vbaoDybAHzNwFN22pWQG3NDp.x8aciLmMT8fUQgwMgW8NlLKb6ErL7ChYlwsHUhzhzMbUfvnT
+ 2bA6QlHpoN4OcRsGeb2ygbIpUCMhvL1tqClAnkg41oGlCJa3crNRCKKeXXqZBarf9KzLHJa8i581
+ 0YgHHROuHzbtZ8GRm6ggBoLbsrITMfTGKIshO9uwpGYYxl6nVscbC6LtZUsxlV5iP8t8XsYi.ga0
+ EDsRWYHlK
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 4e6572e0-628c-4102-8309-f6caa349ac8e
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Thu, 12 Nov 2026 01:50:35 +0000
+Received: by hermes--production-gq1-fd7994565-9vhlr (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 15d81e1a8a6348ae9dcd84771e3b8196;
+          Thu, 12 Nov 2026 01:50:33 +0000 (UTC)
+Message-ID: <41617b0a-90d9-484e-a143-78e2a92e872c@schaufler-ca.com>
+Date: Wed, 11 Nov 2026 17:50:30 -0800
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,97 +84,68 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [apparmor] [PATCH RFC 19/41] smack: use fc_init_pseudo() for
+ smackfs
+To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
+Cc: linux-efi@vger.kernel.org, Jan Kara <jack@suse.cz>,
+ Amir Goldstein <amir73il@gmail.com>, linux-nvme@lists.infradead.org,
+ fuse-devel@lists.linux.dev, linux-mm@kvack.org,
+ target-devel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ Chris Mason <mason@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org,
+ driver-core@lists.linux.dev, Jann Horn <jannh@google.com>,
+ selinux@vger.kernel.org, apparmor@lists.ubuntu.com,
+ Josef Bacik <josef@toxicpanda.com>, linux-block@vger.kernel.org,
+ ocfs2-devel@lists.linux.dev, Alexander Viro <viro@zeniv.linux.org.uk>,
+ linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
+ linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, bpf@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, Casey Schaufler <casey@schaufler-ca.com>
+References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
+ <20261110-work-loop-pseudo-v1-19-4c998976c6c7@kernel.org>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20261110-work-loop-pseudo-v1-19-4c998976c6c7@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
-From: Xueyuan Chen <xueyuan.chen21@gmail.com>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Xueyuan Chen <xueyuan.chen21@gmail.com>, 
- Minchan Kim <minchan@kernel.org>, 
- Sergey Senozhatsky <senozhatsky@chromium.org>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, Alex Shi <alexs@kernel.org>, 
- Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Helen Koike <helen.fornazier@gmail.com>, 
- Vignesh Raman <vignesh.raman@collabora.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- linux-mm@kvack.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- Nhat Pham <nphamcs@gmail.com>
-In-Reply-To: <a7b1d671-18b0-44e8-b112-ab66893b3bf4@infradead.org>
-References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
- <a7b1d671-18b0-44e8-b112-ab66893b3bf4@infradead.org>
-Date: Thu, 12 Nov 2026 09:26:55 +0800
-Message-Id: <179444681565.2553194.6533752746321637708.b4-reply@b4>
-X-Mailer: b4 0.16.0
+X-Mailer: WebService/1.1.26943 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 2026-11-11 16:26 -0800, Randy Dunlap wrote:
-> 
-> 
-> On 11/11/26 4:41 AM, Xueyuan Chen wrote:
-> > CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
-> > counters are updated regardless of this option.
-> > 
-> > Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
-> > stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
-> > debugfs is unavailable.
-> > 
-> > Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
-> > settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
-> > documentation to match, and clarify the pool name in the debugfs path.
-> > 
-> > Suggested-by: Nhat Pham <nphamcs@gmail.com>
-> > Reviewed-by: Nhat Pham <nphamcs@gmail.com>
-> > Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
-> 
-> Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Thanks!
-> Thanks.
-> 
-> > ---
-> > Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional. The
-> > option only controls the debugfs interface, while the class counters are
-> > updated unconditionally. Removing it simplifies the code.
-> > 
-> > Following Nhat's suggestion, remove CONFIG_ZSMALLOC_STAT and rely on
-> > the existing debugfs API stubs when CONFIG_DEBUG_FS=n.
-> > ---
-> > Changes in v3:
-> > - Squash the three patches into one (Nhat, Sergey).
-> > - Add Nhat's Reviewed-by.
-> > - Update the documentation wording.
-> > - Link to v2: https://patch.msgid.link/20261109-zsmalloc_stat-v2-0-caee41684aba@gmail.com
-> > 
-> > Changes in v2:
-> > - Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional.
-> > - Update configuration files and documentation.
-> > - Link to v1: https://patch.msgid.link/20261106-zsmalloc_stat-v1-1-b574f4714adf@gmail.com
-> > ---
-> >  Documentation/mm/zsmalloc.rst                    |  4 +--
-> >  Documentation/translations/zh_CN/mm/zsmalloc.rst |  2 +-
-> >  arch/s390/configs/debug_defconfig                |  2 +-
-> >  arch/s390/configs/defconfig                      |  2 +-
-> >  drivers/gpu/drm/ci/arm.config                    |  2 +-
-> >  drivers/gpu/drm/ci/arm64.config                  |  2 +-
-> >  drivers/gpu/drm/ci/x86_64.config                 |  2 +-
-> >  mm/Kconfig                                       |  9 -------
-> >  mm/zsmalloc.c                                    | 33 ++----------------------
-> >  9 files changed, 10 insertions(+), 48 deletions(-)
-> 
-> 
-> -- 
-> ~Randy
-> 
-> 
+On 11/10/2026 1:14 AM, Christian Brauner via AppArmor wrote:
+> Initialize smackfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. smackfs never holds executables or
+> device nodes.
+>
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
+Please include me at least as a CC on Smack patches.
+I ain't dead yet. Nonetheless,
 
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+
+> ---
+>  security/smack/smackfs.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+> index a72bc7fabea9..4a56bbeaeca3 100644
+> --- a/security/smack/smackfs.c
+> +++ b/security/smack/smackfs.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/magic.h>
+>  #include <linux/mount.h>
+>  #include <linux/fs_context.h>
+> +#include <linux/pseudo_fs.h>
+>  #include "smack.h"
+>  
+>  #define BEBITS	(sizeof(__be32) * 8)
+> @@ -2880,6 +2881,7 @@ static const struct fs_context_operations smk_context_ops = {
+>   */
+>  static int smk_init_fs_context(struct fs_context *fc)
+>  {
+> +	fc_init_pseudo(fc);
+>  	fc->ops = &smk_context_ops;
+>  	return 0;
+>  }
+>
