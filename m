@@ -1,123 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.137.202.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794434587;
-	b=m0rJNXonjjzzwcTDcwTO4H1ldWx2S483c/CamjyQxS7tHfthY19pXuJ5mWXKXZgrmn9/
-	 zCyem5ACf1s8qYMaBl+RTOvNQRX4E7Siq5VCwrj0N3aFsJA/+JtSpg8wBP4VxEJuFMyxc
-	 2daXbJMRdBow7664nIwUmXNtHWAfVyTBNDdgdgSYhkWsD7DrBuqjE1J/D6yNcQCrSREpw
-	 lFw0SXr/a6Fp//aNF1HX7Ucud6e/iJRWSemd4gTWmSZN+XweB4RLrS9ukaWzvzYJJfhGz
-	 9fml/LOt8SWAtlhWgRMMGL7YyzrP/LUpaRYumD1GgEI9v6okCbNVAXFASPd3LyeP5gg==
+	t=1794443196;
+	b=PklsDSXcZi4Iov0N9wKWOQX+WQOpWHs66vmq3P2IOizzwVWskLA8wKt6nK4tzuHUhYi0
+	 cc6lOCjR6UoftxVOJ9gwAMhnI6akE0Txjx4ptQrGLWyA1l2aiM2ACIP0wcEUwLpEqDX1g
+	 dRuefcmVbfW0vyKyDTi2KzZGU0ISDYVKjdxnqiqr7RWXDVRQZOVuKdc3cNvkF455tJyGq
+	 Me7u5/P+klr076fId4c79s3EYtLSlDmoCW5aQ0sEivXU1ToFlTZxph2fEIz1703ZSHMJp
+	 7/0K9XICTxDTKPIYcyO1PYaD6+KTbX2/iRa+IaBBn9vPQ8CuxxY5L2U4HnyMrw+KLrg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794434587;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=/29Fh1u2FOm5/5k1pmwlztbcmx561O6eu158ApMSsyU=;
-	b=oDLLqt2wZocMgWJg+j0Xz9D0Ncm7u4C7fyJizRS281dwA7RhjGR90esX195TmYd9taxq
-	 DwZw2WoEcxZ7dK7WtSk8N8ClxxsmuJ3j7XUuvlvGJwBx5d4i/pXO17rNfWNgL0UttUjSW
-	 el/a6J3GinaCMJgsmuQB1VZZEdgNn9AAygnKMp+QgKrYUO6dHN3hfprNfIfueoRJLQcD2
-	 jaY3J2mzyRMzUTIW8wp3L1caGOEiM8UOagT4m1PHCU/vt3aYVQk/xPGX69ABXpu1c275i
-	 +bIcDBqpTo/EVqtt8gknlNJkm9kqDQSJcPhVsTzS3Ftg5ndS1zVEsSlZyWJI7gt3dDg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794443196;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=3JaUIX8TvleTZ/eyRqexb46r9ox6QF7gVm6ONPKED1k=;
+	b=aWyKF62iMLG4F2S/ylNhExVD6FlI6yjMEBo53Fd9bv5mUrB+7YD+OZM1trSHOfT8IkjX
+	 k7GhAxfaGV+uhG8eJFIRlMGguffMqalfKQBP+EYw7wAgmGyk/M3+Hrxfb9MIg9ki32a+p
+	 LEuiVFI7lJ4O2SeMkCe5FYLSW+LNf06ed4NnThnc6AXvxB9xOhtWG5JOWizf4/giJDOJj
+	 DqlWYpvDk919Z9i/Booyreq+0Gj7MPhtczc8zNpD0vzg7yHuq7PQ6mtVMEloRtjpi1zyH
+	 NirrkhQQG7g5uAyEdEVaFwfy8m7YuvxqwdsOO/wQkHhfayumhJHVbOMiS8U0OpDCj4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H2HTk8rO;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=infradead.org;
+	spf=pass smtp.mailfrom=infradead.org;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=rafqYhJO;
+	arc=none smtp.remote-ip=198.137.202.133
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B77606A32D;
-	Wed, 11 Nov 2026 22:03:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDCCB606A31C;
+	Thu, 12 Nov 2026 00:26:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DDCCB606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H2HTk8rO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E751F00A05;
-	Wed, 11 Nov 2026 22:02:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794434586;
-	bh=/29Fh1u2FOm5/5k1pmwlztbcmx561O6eu158ApMSsyU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=H2HTk8rOLZgWw9Lm2uB8it44XJGQ1VP252zKM3Vsl27YeQT3fQC/oPf+9dR1GGuPe
-	 fTrdVHJg83sazuCLRwsK7FMBmZ65BjYmx/5l1Fr9V4zrWbVX2E4c/EGrAZHOJ23iP5
-	 K6oVJy3Ue6XdepxFi87RWoq3TdzVK9qDLL8BM8XMCz9n7H3pjJ8s2COHz+NjnFIDwg
-	 2eGJ+4dbOKk2dBpxqBDuRpXAU1slNtJxbA2Dkar3W/730CiqV+uxXwdTMmafxIRXoH
-	 hanK6KHxVmWrohkzaChiP47GtgTq+nQUar+jL+4xWJclsB1e8afff/e4uoWiQs4JB9
-	 jrQrJYXOzTbWA==
-Date: Wed, 11 Nov 2026 23:02:51 +0100
-From: Gao Xiang <xiang@kernel.org>
-To: Michal Wilczynski <m.wilczynski@samsung.com>
-Cc: Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Jens Axboe <axboe@kernel.dk>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>,
-	Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-	Eric Biggers <ebiggers@kernel.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	David Laight <david.laight.linux@gmail.com>,
-	Sungguk <sungguk.na@samsung.com>,
-	Jaehoon Chung <jh80.chung@samsung.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	linux-erofs@lists.ozlabs.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 12/15] lib/lz4: widen LZ4_DECOMPRESS_INPLACE_MARGIN
- for the fast decode loop
-Message-ID: <avTmC_1I59FKA1FN@MacBookPro.fritz.box>
-Mail-Followup-To: Michal Wilczynski <m.wilczynski@samsung.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Jens Axboe <axboe@kernel.dk>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>,
-	Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-	Eric Biggers <ebiggers@kernel.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	David Laight <david.laight.linux@gmail.com>,
-	Sungguk <sungguk.na@samsung.com>,
-	Jaehoon Chung <jh80.chung@samsung.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	linux-erofs@lists.ozlabs.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-crypto@vger.kernel.org
-References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
- <CGME20261106144309eucas1p2a9bfcc1cf81779d473fb073e7d9139b7@eucas1p2.samsung.com>
- <20261106-lz4-vendor-upstream-v2-12-ee04c3f0d7dc@samsung.com>
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=rafqYhJO
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=3JaUIX8TvleTZ/eyRqexb46r9ox6QF7gVm6ONPKED1k=; b=rafqYhJOPOa4iyEQfoTvTZ4K6T
+	JVbDXCbUOkzGjrQC/xfo2SUILYVmHnv+jE1DpCEUr5UyyUxk3wCBssj1LE/zlM9WK6X0g2rkRthwf
+	yvfLdVgeFnsmpeZ63A8wNgZzMoPPVqhz+1cMNxhKwCoJxTwN7iPj5kz2Je+KnDPde5Np+p7Pg9+iO
+	EOyofX6A557DYr4wnLBnWDkTd7V0+fj6dLF6mYRJ39yinQRTOo/ezE2ND398UgI9HguHC9op42+ko
+	fsvSXzyYASfK+vM9pYCGI+HWF0RRni/yWCbKDFhSA+4aIBXHGZTApjFR6G3Fukte5JrpDtPvere0F
+	Tj8w+vCQ==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xRIe6-00000008Em9-1nv8;
+	Thu, 12 Nov 2026 00:26:30 +0000
+Message-ID: <a7b1d671-18b0-44e8-b112-ab66893b3bf4@infradead.org>
+Date: Wed, 11 Nov 2026 16:26:29 -0800
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -127,42 +58,86 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261106-lz4-vendor-upstream-v2-12-ee04c3f0d7dc@samsung.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
+To: Xueyuan Chen <xueyuan.chen21@gmail.com>, Minchan Kim
+ <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Alex Shi <alexs@kernel.org>,
+ Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Helen Koike
+ <helen.fornazier@gmail.com>, Vignesh Raman <vignesh.raman@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
+Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, Nhat Pham <nphamcs@gmail.com>
+References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Michal,
 
-On Fri, Nov 06, 2026 at 03:42:52PM +0100, Michal Wilczynski wrote:
-> erofs decompresses a pcluster in place when the slack after the output
-> is at least LZ4_DECOMPRESS_INPLACE_MARGIN(compressed size), upstream's
-> (compressedSize >> 8) + 32.
+
+On 11/11/26 4:41 AM, Xueyuan Chen wrote:
+> CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
+> counters are updated regardless of this option.
 > 
-> That holds for the fork, which overshoots its output by at most 8
-> bytes. Upstream's LZ4_FAST_DEC_LOOP, which the next patch brings in for
-> x86 and arm64, copies in 32-byte steps and can overwrite input it has
-> not read yet: of 172410 valid streams laid out as erofs does at exactly
-> that margin, 3660 fail to decode, none with the fork. The worst needs
-> (compressedSize >> 8) + 33. Images mkfs.erofs built did not hit this,
-> but nothing in the format rules it out.
+> Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
+> stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
+> debugfs is unavailable.
 > 
-> Use (compressedSize >> 8) + (compressedSize >> 15) + 36, which takes a
-> 4K pcluster's margin from 48 to 52 bytes. Upstream's lz4.h defines the
-> macro too, so undefine it first.
+> Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
+> settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
+> documentation to match, and clarify the pool name in the debugfs path.
 > 
-> Signed-off-by: Michal Wilczynski <m.wilczynski@samsung.com>
+> Suggested-by: Nhat Pham <nphamcs@gmail.com>
+> Reviewed-by: Nhat Pham <nphamcs@gmail.com>
+> Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
 
-First, I really think kernel LZ4 should be updated for many years, so
-thanks for this!
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Thanks.
 
-But my personal thought is that could you just fold this patch into
-the next one ("lib/lz4: switch the decompressor to the vendored sources")?
-Because this one should be part of the fast loop update.
+> ---
+> Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional. The
+> option only controls the debugfs interface, while the class counters are
+> updated unconditionally. Removing it simplifies the code.
+> 
+> Following Nhat's suggestion, remove CONFIG_ZSMALLOC_STAT and rely on
+> the existing debugfs API stubs when CONFIG_DEBUG_FS=n.
+> ---
+> Changes in v3:
+> - Squash the three patches into one (Nhat, Sergey).
+> - Add Nhat's Reviewed-by.
+> - Update the documentation wording.
+> - Link to v2: https://patch.msgid.link/20261109-zsmalloc_stat-v2-0-caee41684aba@gmail.com
+> 
+> Changes in v2:
+> - Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional.
+> - Update configuration files and documentation.
+> - Link to v1: https://patch.msgid.link/20261106-zsmalloc_stat-v1-1-b574f4714adf@gmail.com
+> ---
+>  Documentation/mm/zsmalloc.rst                    |  4 +--
+>  Documentation/translations/zh_CN/mm/zsmalloc.rst |  2 +-
+>  arch/s390/configs/debug_defconfig                |  2 +-
+>  arch/s390/configs/defconfig                      |  2 +-
+>  drivers/gpu/drm/ci/arm.config                    |  2 +-
+>  drivers/gpu/drm/ci/arm64.config                  |  2 +-
+>  drivers/gpu/drm/ci/x86_64.config                 |  2 +-
+>  mm/Kconfig                                       |  9 -------
+>  mm/zsmalloc.c                                    | 33 ++----------------------
+>  9 files changed, 10 insertions(+), 48 deletions(-)
 
-Although the current patch order is also fine, but my potential concern
-is that people don't know the details maybe pick the random ones for
-backporting, which is what I'd like to avoid so I hope this patch could
-be just part of it, otherwise the inplace decompression could be broken.
 
-Thanks,
-Gao Xiang
+-- 
+~Randy
