@@ -1,53 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.145
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794494262;
-	b=nqQrqUcyshRPggdsv/Uvr3pXWlaUpgIvxccV4hcyNrpCzVqDI93HYmEVYl3uOONBV1wm
-	 4HcUSR0RrTPe0vANLb2uSorUwXSHMLJCcfqt6ZEobCJpZ/r0IwJHkE5J5Ba+Aefh4r/AM
-	 25PIoB+XLYTpYdRZyE1kM3TEuFxxHbFv5DXrmiKFELyRkuvoacd/cxgx5f/oGl4julfBg
-	 BFWQx0L9lH3M85bYsvgvaO0u7l6YEgVGv+Wc4Yy2Lv7vkM6/MrKbFR7qxHDemkECZN9ux
-	 /UnrLm36mmxYhqMEttyv3BUtANfDIdZeLeh7L2keAstWNiwl5wfXIqRPzbw9kXWSNbw==
+	t=1794496154;
+	b=fkHLFYGEUVnCFmGer0uL9MO9Q1Mn2DqGXC5PtPgvMvQsIfi5Rg0MIgaU3Adul+ZorC3g
+	 ZqDsySFXrfi9UFqju9+0jgDyqwXzC6B8RD516mxo8LNT+zPO+D6o/AFpNcoaheJh21tYu
+	 KJdPvFa+fPdx92gPaFysbLESeh6QhKv0rdYrR0qbOcu0vgyFn5uAKeyCUNBIpkz3paQag
+	 +k20ZuT+rsa678D38IEVnPwQsQdibHFVlbc/0/TrizpX/YHT46ch21hJ46yGva9HUc3om
+	 zCjEn/28Dulo03fFSXpLK9tnNrK/XF58ZcwYRmMbDEvVUGa/dCK6Va2Gv7AbNth2/iQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794494262;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=N2sxZgU9VMgKrCmPeJoteByBoH/V9b4GoWqupbGXeDI=;
-	b=3HS0sGjTVNItrJWL/ZwdwV/T0qfWK4cyYGRQYkVWK5RIB6oOL2Me1fqd/om8BFrBBYZw
-	 Mc3DsjQL9/1AHZucINNHo0gqBUsLzDIlH+tfNBW7FiJJ0WxH4oue8c7CSoQfpCWWDPN4d
-	 ZaYKxjfZQqJt5R4Ol1AQ7R0u1pzjQJ1vDdXVreGrcrwnq62GaFLbqOF6iMkISQ/jz+Sji
-	 Wfn7Sa7lz0vl1Tpu8m6EX2p1tM7V54hfUU4qU8zN/vr9jNNeTmWQkUpqiWLBbzFwu0+gv
-	 LMbgMaHev7LdfzcbLKQoEExADbdPuRcvb8z7Hsnz4M+2WSArOvEXGjq5ouhlaxDcD0A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794496154;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=sGr120yhIBdaSdARYe9jHupZpoylhh+YQmi4ICs4aNQ=;
+	b=dr4eau5jJ2TlsliSGEpmDAudbk3xyE2AqpO/2tfqH8mzd0+6Oft+jUX/4eGGKdIp98Xo
+	 PjJs2jil1+hrbbEmVheywkmgeJ/CAyl3BI+aMENACA2bXVlj1iDGm4KH6XNVfy+EjQBwB
+	 TXAw8wAVgjXFtqMYG4I9VfXTgf2AC0O1qq3OlrzlXH8hk4fR+UaYX4fInPTpfNHiYwxKt
+	 vEW/aUR48NnyE9zXzdPoNrkYiNwZWiFC5FRMgOIQWmNb/m6N8UG7H4RYbeqTYPM+LbHdF
+	 A+GKFxY3EKEUWcpbFPOQ0bzsn/RiRsB0UtlpvPje7R7jojB5ZH7+3Du7+t6vAhxxmHA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=igalia.com;
-	spf=pass smtp.mailfrom=igalia.com;
-	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b="nJA67h/P";
-	arc=none smtp.remote-ip=213.97.179.56
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=HV54rgju;
+	dkim=temperror header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=JdOJUseH;
+	arc=none smtp.remote-ip=103.168.172.145
+Received: from fout-a2-smtp.messagingengine.com (fout-a2-smtp.messagingengine.com [103.168.172.145])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C306606A31C;
-	Thu, 12 Nov 2026 14:37:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4C306606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E83160A2605
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 15:09:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E83160A2605
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=nJA67h/P
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:From:Cc:To:Subject:
-	MIME-Version:Date:Message-ID:From:Reply-To;
-	bh=N2sxZgU9VMgKrCmPeJoteByBoH/V9b4GoWqupbGXeDI=; t=1794494260; x=2109854260; 
-	b=nJA67h/P5Ean9s8I2686q80jHlq8egA6rn53yg8RE+NOjkwzMg0TnO/tU+NzmBXmqRcqtnUzRtc
-	kJFuS6UTknGmXmeoLa8hVnzECQfE1GRXhBx37yOunzDKLWzoBptP/XDEnfYEmNGBEpiVu9x58WAOi
-	jP2dVW1oadlkdv8Ym8oqHFhvnnvvIjw+omsYYI/uV9FcjdAJPIly1lT5PZZYE2zB5tIF5/EGpbena
-	XchYBC9ZlXrviWaX1oA2JWbsgNPvs7glalvb992OF+noT8CpDghTQcg20pfVH34+m7ikMTiGLdUkO
-	Wl9/vHPVyBFPU9ZrMl/q/3kfm1T1hFN2vWRg==;
-Received: from [177.172.124.218] (helo=[192.168.15.100])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-	id 1xRVvc-009aPf-1X; Thu, 12 Nov 2026 15:37:28 +0100
-Message-ID: <e3910a18-dc28-470f-be2f-6a6d568ba7e3@igalia.com>
-Date: Thu, 12 Nov 2026 11:37:33 -0300
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=HV54rgju;
+	dkim=temperror header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=JdOJUseH
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfout.phl.internal (Postfix) with ESMTP id 3E4D8EC00BA
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 10:09:08 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Thu, 12 Nov 2026 10:09:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1794496141;
+	 x=1794582541; bh=sGr120yhIBdaSdARYe9jHupZpoylhh+YQmi4ICs4aNQ=; b=
+	HV54rgju8oopQ8mrCiZACFhXZUaGpUVUQftb8kZ80IVHjBGH6at1SQmdMkZU0pgn
+	+yZ42wZ+Xaw9imltPwKrgmW3NRRbfyUGxS6fYyW8BtNTddNmCEehJypTF8Jkd52P
+	jK/499UeBxEWUyqhuHEa0o7grlznny3JbJa0mnoaVqpR0gVInHb2bugzAbvV1H9V
+	B3lmWHpO9idj5aVCreNDVUo+X/NQJvR7/4357aBx5ivMwMCHi2w+IeunQCIRlawQ
+	rdXSVwFcJ1X1WV6c9/QbaFDrFm63i7jqDe2m5iw+F3GqxYB6CEo6yVYxpzvR1Qkz
+	v/U+vixcFxqO8oPlhoF9RQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1794496141; x=
+	1794582541; bh=sGr120yhIBdaSdARYe9jHupZpoylhh+YQmi4ICs4aNQ=; b=J
+	dOJUseH2roRfTOnk6kxsl/Kcy1QawGq7gsdKrpB5r4tTcQRk7sxqLrauE7SUvtBC
+	1hq+16OI7WTEa9mirPeuROi6mUrvSRHr+PYo/duFLIz00Y2bnX30neOep6BBkKKD
+	KC9tCylFVJP0KeAsonFesDkEoUNmGSD7Og0vlB691YocVqWKuU5NHU9EEYLDeyua
+	dgPX1HFU/zUu3AA2pjKnoVXV+XT602HXumbSxxAYE0i+ADcGkxKJxUbbYYHbsTKx
+	Q+OIhwT6GZxBrpvXX8dcY0jqO1cRafkAtNJ2OghfJiXnzw7yhyWZVvUlQMEPRoeR
+	HraVzbgSehwG665Uxxtqw==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1794496141; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnPg==;
+	s=fm2:rsa-sha256:hFn5D5Nogro3Xgp43hDsbo0ZB+XeS4qi1JI1y2AmbmNT8kf
+	SOblfgaGv1z4Ss/q4sgD3zCe7iz3fblfMcECdwt3OC5+g0tF7ujW+AqV25MwGZmx
+	8fXSNCwLF28rwlMOZROoypmaHWaozcZswocKfqbaBFHOUXXPdqq/QjkHfnFlQbUO
+	BYERdJiXgOLZgHL4zL62rJrv4ayKi2xS+lcDwQCR0505HEcxtYDGvEJeQmjx4xr7
+	k9Jif7yOde1SJDue8cGgeKx2I1LdXnH7Nn9d2HCZCk/U+fSrwcyE9S5bpW48HOCc
+	x4Chx7GKBB9V4YaDfNNDWAqzUKOLQI3BCoM0NOg==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:wxbtSMbEorYH0lZI3pdea9/rpvvHzsSRIfi3r/1IPFE=:GBzSCyfBPfq54wbrZD9CYEBaiyqPb2ywhRWDhbfcUoo=;
+X-ME-Sender: <xms:idb1an9vAppKmkZIo5c3WS4RP5FQUSjk5B8C1MS_i4hIugqDCLen6Q>
+    <xme:idb1auhm2IlCizSgHGDn4KduduQi9xANONo4t_EhrvRsWU8giXmawSSI8lZpvFPGf
+    iZ2s4YVuYTVJt831WtSk4JiBdDH78Cqltq0gGaniyhJnuzBueaGHzg2>
+X-ME-Proxy-Cause: dmFkZTE7YpGM5r+CZhs7LsKN1SVk++5MSLG27RSXn6MgJjGV3wg+pkV04g1c/VOwRMjCiI
+    Bg+oxUOLNImdpVOXDw6KQOuqD9lwjXzsoiE7i5KRtKeDwglSDqNuEyG7H2wBLB1GrlBKa+
+    8OUaTSrFJSb1rr8NIpUE0Myf85czDQ04ldSU4IfA6LSGll4/sa/OOdbcxbBmCujjcNGoO3
+    8ZBWeq05m2ejO4Kt/tH3DgDXNdutu8JBlzJWfI9c3KOOYkM+7fwvm+saKsII+M9Fn8Ylhb
+    3mRYSMa521FXMQicJ9KoFIfuzFT3GeY4e0h7je/rfhx2oJCLwbVI7+9GFqNesO1hEuthUE
+    C6WDVh5IpQnNnxqZWAn9CtJmVjMQ7x8OVFMmeenEHaemxE/CY5MpoUby795fMvRsAZoLrC
+    rn7oMc7JE8OtuPTBjquyKicRWueITPz4hFFJCFr3cInAMp2ozwHG87AHAz2Ikc/UVGUOzd
+    wd2x2Qent+9TjVCOQHAgWobugpkg52KVLvDeYTajwO4RLNt4xhz4v22gDIHkei425lfg4l
+    wVadgEwixDdYsqbyC81rolVPZuRbtacJUJ3ofhNmPW8Qgg6K14w9j1GKW9Jjrhrys7OU77
+    e1Vo0ujUJealjTDj8vOj9b4z5zcILaM7UOm0iTmYghh9Q1mpE3Y6uizLqBdQ
+X-ME-Proxy: <xmx:i9b1ajgmY3ALz2X6FE7Krrs80qHaE0sCg6y8-Yp3v9mZI2TDPLstmQ>
+    <xmx:i9b1agcJ2O06osTU8eKOQS6e3OY-ajguoyN_EGNnwR2CZzZ9H8MjYQ>
+    <xmx:i9b1ai2SbyIhE1_fX2_2RSliHLUSB7fuEp2wVWowftEUO10SXoKRNQ>
+    <xmx:i9b1asp64wSKhIKMaHHD8yBJitxl6_5WqV9SOrsdt60r8ug8aVg5yA>
+    <xmx:jdb1ajxcaAc11ne6H5QATMQosJXds2NP5hLNByN8M2Vy0YdVtOVxZdF2>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 8563C32A009C; Thu, 12 Nov 2026 10:08:57 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -57,75 +115,38 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 09/15] syscalls: Add an option for offsetting the
- common table
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org,
+X-ThreadId: AXRzvbN5yUxV
+Date: Thu, 12 Nov 2026 16:08:36 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
+Cc: "Christian Brauner" <brauner@kernel.org>, linux-kernel@vger.kernel.org,
  linux-kbuild@vger.kernel.org, kernel-dev@igalia.com,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ "Masami Hiramatsu" <mhiramat@kernel.org>,
+ "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
  linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev,
  linux-mips@vger.kernel.org, sparclinux@vger.kernel.org
+Message-Id: <301115f6-3f1e-4e83-bc01-0ba49dec496a@app.fastmail.com>
+In-Reply-To: <e3910a18-dc28-470f-be2f-6a6d568ba7e3@igalia.com>
 References: <20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com>
  <20261105-tonyk-syscall_table-v9-9-8d1275885d9c@igalia.com>
  <0cfb4dbf-f3e2-4ceb-ab89-0453ae59793d@app.fastmail.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-In-Reply-To: <0cfb4dbf-f3e2-4ceb-ab89-0453ae59793d@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+ <e3910a18-dc28-470f-be2f-6a6d568ba7e3@igalia.com>
+Subject: Re: [PATCH v9 09/15] syscalls: Add an option for offsetting the common table
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Em 12/11/2026 11:07, Arnd Bergmann escreveu:
-> On Thu, Nov 5, 2026, at 21:05, André Almeida wrote:
->> To better support architectures that doesn't share the same syscall
->> numbers, but have them in the same sequence, add an new option to offset
->> the common syscall table numbers by a value. This make it possible to reuse
->> the common syscall table for alpha.
->>
->> Signed-off-by: André Almeida <andrealmeid@igalia.com>
->> ---
->> Changes from v4:
->>   - I was reusing the logic from --offset to apply the --common-offset, but
->>   the logic is different: --offset does a string concat, and --common-offset
->>   does a addition to the number
-> 
-> I don't understand why this should be different here.
-> 
->      Arnd
+On Thu, Nov 12, 2026, at 15:37, Andr=C3=A9 Almeida wrote:
+> Em 12/11/2026 11:07, Arnd Bergmann escreveu:
+>> On Thu, Nov 5, 2026, at 21:05, Andr=C3=A9 Almeida wrote:
+> So one option does a string concat, the other option really does a sum=20
+> operation. If I had used --offset 110, the result would be
+>
+> #define __NR_file_setattr (110 + 469)
+> #define __NR_listns (110 + 470)
+> #define __NR_rseq_slice_yield (110 + 471)
 
-This how --offset is used, from arch/mips/kernel/syscalls/Makefile:
+I think for consistency, that would have been fine here, possibly
+using another macro.
 
-       cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --offset __NR_Linux $< $@
-
-The effect of this is that the string "__NR_Linux +" will be added to 
-every syscall number in the unistd header, e.g.:
-
-#define __NR_file_setattr (__NR_Linux + 469)
-#define __NR_listns (__NR_Linux + 470)
-#define __NR_rseq_slice_yield (__NR_Linux + 471)
-
-...
-
-Now, for --common-offset, from arch/alpha/kernel/syscalls/Makefile:
-
-       cmd_systbl = $(CONFIG_SHELL) $(systbl) \
-		   --common-tbl $(systbl_common) --common-offset 110 \
-		   --abis $(abis) $< $@
-
-That means that 110 will be added to the syscall number itself:
-
-#define __NR_file_setattr 579
-#define __NR_listns 580
-#define __NR_rseq_slice_yield 581
-
-So one option does a string concat, the other option really does a sum 
-operation. If I had used --offset 110, the result would be
-
-#define __NR_file_setattr (110 + 469)
-#define __NR_listns (110 + 470)
-#define __NR_rseq_slice_yield (110 + 471)
-
-Thanks!
-	André
+      Arnd
