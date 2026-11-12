@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794479555;
-	b=aSJzoCdQwINQQrL/8o383BdjGpj7wWl83zUH/w7cG93SOvfLG4CAUun/KnmFpOctEZj5
-	 oYFqIU1+9X+x7c1O3ZRdO5ygwtysU17iy/L9AvKOcHxJiqxVEDb9zgWAoX/toLRkyCcjB
-	 ZatbfAHtGzHrRWOcpl/gA0N4CYQaQmqR6SOkcp9TVLEm9UEWfObQelMWhF0x7asljKXFZ
-	 g+pCRGhLiLfzV+e71Sa/DxCC9HwF1QAGSaa8ENg3h/za9uA61B8Cc56lqVYIlhKxz4lBF
-	 TzqGexJ2ftDUdWwNvIGLmxTL4H9kO99r1xPm7PQfKr1zNAiJeexEFMEtmfK7Q8Qk9xw==
+	t=1794479678;
+	b=QXD8QyUT40IREq1CNJ3MWclg5HwT9TKLSWaAD1zDFSIujwGglcqVZ1gVmNDdMYaw77Gb
+	 w987MN24800pCoRY887uJUHF2eIDrBXKAqcutPIPSZDWcSXAR8gHysI2DLhn+Loky7gsD
+	 aAmmE9vX+sWFdXEItgu0EYxtNRLvwYTfOTIdo6jz416qMzwlgVOiCg0IA9hjYcFoe4o8O
+	 S5DWYH1Koj6eoNMao7g/fEuHk4fC99ugY0X7qPdfrcB0OurJb+LZmfwOcDpIXb1DXrOzs
+	 jM+KYqzqrgYrfWnh8t9RdWU75zPtQyiK7M1p7921V5a2aNFfzZr5QRk6Wg5/+dKXFDQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794479555;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794479678;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=myXdB+17NKzNARhMEqlXFOAMwQxbWUFoY7dj47IZY0M=;
-	b=yCq2nHotOo0MtkkZAYShgmBkDsxG/pkGNlszea9Ve4rl6MRxUlMMW4czhAu10tLuXONg
-	 QALtGS9ih26pU9owGVsQ0HdHL9IxnsfnfzNzx3Ip4cf8GR235RMgN8TZxWk25rebfQ9AT
-	 jxAX0KsJL1p1ZDt97B4Nix1YG7+khZKP+hJypF6W1I8X8E5gPlvmXyrpNbcRNnAVz5l2q
-	 vOE7v1E6gvrJUdIG4bvkgFFwrZP5lS6bpb48hl/JYhZxx0hE+tiKJr6uRdqarK6R2LvEv
-	 RErQME0W6Bmb252axaxErv8QfQ76d4tFTIvQLTVhl1KmuU9ZXWPBLTCsoAdca3jKgFw==
+	bh=omMrYtfgn43QKeJuFmJvS7ABFQMYMkSdTo1cihBdQb0=;
+	b=KKs7E8n2zYXCdAXO342m1aLxDmqXGNZb+d9q52SqqP0zpJOMhOYGh7OrB1gVkIfdJQjV
+	 U0/SJvEk2NVQ8uM1hyrDq2c3fmtvu91L4g26Myedw0c7zK6eNlq9XHOAgtWe3IcrDjhlI
+	 ZaTvMGJypfMUAI5PDIUBeP3B9McWmP7epqPHNHLWqaHGIA/GIBYIa7KElN9F1S5SQjRMV
+	 KnFxDgqIcIHIBU4CJ7/hlRJ+jkfkjQ16mhDRtFRK0CDJI5aYjtMk5eFludB3PHSRWlmGU
+	 MdPDHenNQj6DTzxsTP2AmVVtyEca159/CAZUfjJeMCginchzZZXr7pgoDd06kFay1VQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e+5nzzFY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RRtHLpVg;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21142606A323
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 10:32:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C3F606A88B
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 10:34:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=e+5nzzFY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D87F1F00A05;
-	Thu, 12 Nov 2026 10:32:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RRtHLpVg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEB361F00A0A;
+	Thu, 12 Nov 2026 10:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794479554;
-	bh=myXdB+17NKzNARhMEqlXFOAMwQxbWUFoY7dj47IZY0M=;
+	s=k20260515; t=1794479677;
+	bh=omMrYtfgn43QKeJuFmJvS7ABFQMYMkSdTo1cihBdQb0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=e+5nzzFY5q62Hr4qu3BUnKdaDLeLgHAoR48/a1EZ3M/fcnSNzVLpHQDPQOjTbnWvG
-	 c6Kl0LmF4UH+U/onfIhVrKjluD+GVfqjvlRCI3OJkn0PjnQrTt3C03hV7KnjmSOLau
-	 MfudLseIVPZAJlPFyNZ7fswXx8+RXWc83gngtuYRuV1ptsdLf7jH48EPwfYcNveT5+
-	 B9LnEy8td7bFZMoQyPZL1lZumlsVoP/qJHc+8Dg35uy5cR7Q4RXJxJWrLz49vVxHi0
-	 /8XENedeiMqUJ8Qjf0oBApvgtfEexdnywKr1XIgd3XMkTnKThHLnbSE2wjY8Ho7guZ
-	 gnDNqyQTAmoDQ==
-Message-ID: <sashiko-outbox-210947@kernel.org>
+	b=RRtHLpVgyjoA+y8b03rP4HAcZIc439rQgM/7/9VPDhCQ/6XSRAusLn2LfTrbjCehp
+	 YmY3cmuMIlCR9ygyc9hlasmgA3+Fcd5U7hk5PvvcjEf2Mujc2OS1Q6XSl2k4uN2Trb
+	 9ouIxHWo2D6ak+sUCXTgIvIqSF9hwczE3DIIUZsOHcluaTzFnB8vYkbI93DPBW3k8O
+	 s3LjtOhp5ladPztjA+mnZYjQmjEr0RM49p/xZQrZaIp6ww00tephiSL8XUoyKmsP6A
+	 yEe9Md1j9lDkzvA2lrVrSySchUzB82ZQjcz1Q6rFAzMbphkbqYIyYfca8knGbk5Khr
+	 oMMbAXaLm8+uA==
+Message-ID: <sashiko-outbox-210949@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/4] s390/dasd: Re-initialize RCD buffer with "V1.0"
- before every start
+Subject: Re: [PATCH 4/4] s390/dasd: Don't trust userspace-supplied result
+ field in format check
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Stefan Haberland" <sth@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112102608.1057852-3-sth@linux.ibm.com>
+In-Reply-To: <20261112102608.1057852-5-sth@linux.ibm.com>
 References: <20261112102608.1057852-1-sth@linux.ibm.com>
- <20261112102608.1057852-3-sth@linux.ibm.com>
+ <20261112102608.1057852-5-sth@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 12 Nov 2026 10:32:33 +0000
+Date: Thu, 12 Nov 2026 10:34:37 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,26 +63,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Under z/VM the Read Configuration Data (RCD) buffer has to start with
-> EBCDIC "V1.0" to request the virtual device SNEQ that carries the
-> minidisk UIT. The request and the response share the same buffer:
-> CP evaluates the magic on the way out and the RCD data is written into
-> the same buffer on the way back.
+> BIODASDCHECKFMT used to copy the entire format_check_t struct from
+> userspace, including the result/unit/rec/num_records/blksize/
+> key_length fields that are output fields only.
+> dasd_eckd_format_evaluate_tracks() relies on cdata->result being zero
+> to decide whether to apply an index correction (i--/pos--) after a
+> successful check. A caller that pre-sets result to a non-zero value
+> can suppress that correction, leaving pos advanced past the last valid
+> entry; the (partially out-of-bounds) fmt_buffer[pos] fields are then
+> copied back to userspace, leaking heap contents.
 >=20
-> The magic is only written when the request is built and again in
-> read_conf_cb() when the original request fails.
+> Only expect is an Input field; copy just that member in and zero
+> the rest of cdata.
 >=20
-> Several restart paths do not run that callback:
->  - ERP use the same buffer and if the same error occurs again,
->    the ERP restarts the existing ERP request;
->    if a different error occurs, it adds another ERP request.
->    Neither re-initializes the magic.
->  - Terminated (timed out) ERP requests, killed requests and requests
-> [ ... ]
->=20
-> Fixes: 5915a873fcb1 ("[S390] dasd: re-initialize read_conf buffer for ret=
-ries")
-> Cc: stable@vger.kernel.org
+> Fixes: 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT")
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Closes: https://sashiko.dev/#/patchset/20260722103704.1709668-1-sth@linux=
+.ibm.com
+> Cc: stable@vger.kernel.org #4.7
 > Reviewed-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
 > Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 
@@ -90,5 +88,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261112102608.1057=
-852-1-sth@linux.ibm.com?part=3D2
+852-1-sth@linux.ibm.com?part=3D4
 
