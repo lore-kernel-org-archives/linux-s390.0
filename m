@@ -1,80 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=66.163.188.212
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794448237;
-	b=Ly8cAWxBQ7/9jCyvrP47Cqp+EmBNbKw9YLP6UONIIsdztQX8fOUEE/x8lQCuyLl40Fxa
-	 xPK/n3V6TPVvDyVcu6PCG9L+WWzcD0TY7fHBdD+WPaU8gz7szZK/MtGHSVlWZuhMixXXK
-	 GwszN+NsImHIUfIQv4GYyhXRbOe+tee4fkjR4sfYGpPAzJ+AE2+QYruEIAe8dTPn8tl+r
-	 fB4koDlXHAFvmcqpwRJeg6/c6WrOZkFC3RnvRn9cC+wpV75eQgnSqvJPNd7RZ+Zabo8Hf
-	 0lUdGp2ZkqUaC1hTYu2JKvpsj3jP7UJ2VXVmH3JwWSDS+PoOrDwEBb3liEeIL9jv8fQ==
+	t=1794449124;
+	b=U4Fu+maLaUIgJHep7t1CAXDcaP6TehrVfgG42ZB08Dwrac7bqBUGh3miL5B4uFTd/ZE3
+	 XUlSF6M2RSRPVhuK915oLrnnpGDEQ3nHHmzJxVD3vM2p+P5I96O4gHveu6D5NDuwZBMyo
+	 xiCwYQYCKmLPnsB+4P1bOMd80S/2NJSLgYpKIHdKOwSuuPC0c7l7iSS+ygYOy2NOmfTmZ
+	 AM8DcP3mzSvXMUYZhpizb9V5iItF4B0mJRTmoaEmSY5W7fdeC+zlB/jv6i1n6ZqjPWJSV
+	 rNwPTeuKOmeuabpgFANnP4RdhuZyrFFmcVthTam2dZV8DwkA1v5h6QGcypqNtJ7gpHg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794448237;
-	h=DMARC-Filter:DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
-	 X-Sonic-ID:Received:Received:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Mailer;
-	bh=O8h9fybdyu+Al7CdWlfRBQ6LgqQutaBSF+Rc2HGjCVE=;
-	b=N4mZyJLmHDB2r7CSAYwpHOSVLDe+hj+gEQXdcyYnKmj6ANmSIGIK6VfJ1EGtEAeskh3A
-	 crz9tswR84ho8KTFp5kM4vTMqA4ld6HPR05QNWVn20WtDlpXck2+HuA/yi2aaJh27lgWx
-	 fVP0oL9Yb4tB9t0iwL3hMHgUuTf62BtEFFFeFtGIiCEa3oYazz3U3r0j8hJjPnR0kcXNL
-	 PnWr+H/KClyOL/i+li6XxFt0giBVChdwIrx/tKZPn+HKEzh/qU0gABmVv3I4Ow3d/dueL
-	 OB954v0iLZNtBj/O5YGWmVj518RaDTQwjAduotRYEaIFCvyE0EuLEgtbKyLi6PFxGUQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794449124;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=qKzq1YaHaTK/cMOsuVlloBBGSRBcO+4dM5JD9G9qTYM=;
+	b=uwOjdbxFhdo6q7GlIB9RUmk4vHJIYkimLjmWVB2Y0eXmbuAg+o1n7LR4etRCHJPu6IK2
+	 H6H7fFjLsyQ0K8JSg4hu0TA6kqt0CmZh1wvv68RtwfHpmYTYM1DQLzyQRWIpUN55ZF+IK
+	 8hOtx8S4fib0EvuRNouYzJ/1IlDFi1wJY3ixjPLeV4jywwInbn2XD6pOnrNHEMB77k4ws
+	 lHgBgOjCXt9P0vbWzCXW8SWLA0bS9q3BVKlCa/gVHGPDMOUvzN1MKnQEmnGsSKV+rASX4
+	 uw6zi+nrENCtZKD4TDENF05v4xdSkzT2oakvU4ajmxbdKWo1z+CiE3EVCwyhYlAC9vQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=schaufler-ca.com;
-	spf=pass smtp.mailfrom=schaufler-ca.com;
-	dkim=pass header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=F+m434hx;
-	arc=none smtp.remote-ip=66.163.188.212
-Received: from sonic311-31.consmr.mail.ne1.yahoo.com (sonic311-31.consmr.mail.ne1.yahoo.com [66.163.188.212])
+	dmarc=pass header.from=chromium.org;
+	spf=pass smtp.mailfrom=chromium.org;
+	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=M8LMUd9p;
+	arc=none smtp.remote-ip=209.85.216.42
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFA3D606A335
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 01:50:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFA3D606A335
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=schaufler-ca.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40B4D606A323
+	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 02:05:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40B4D606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=F+m434hx
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794448235; bh=O8h9fybdyu+Al7CdWlfRBQ6LgqQutaBSF+Rc2HGjCVE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:Content-Type:From:Subject:Reply-To:Content-Type; b=F+m434hxnazo+znIsDN87b1q6q2BjDXrSK85l4sPO4/7/Nv6ouklEMGBpfrTHUnO8eGiNQoV5Bbw/uB3JZACliQBg8PtdTRYRP97HHZoegx3ArYwH69kAdVaUPkV7WcyNd89YKs91cZCwmWeziNsUM+FCRLahqzZW3a6Ku8pvIiJlMO/7XaKbdkzRicymfmmSk9XFsFNG+fkHI8UO70pZ1hFT9v2XQiwRrAslvpHUFbDR+3rpTT4Ikh/N/oSBL0qRMnhxDrBkdI0Mmku6tTsyJWpgcJjSTSvBuepznmh0kGiP8yElqSHRAm6ov8qvVTBbZJZj+71HtVfmpD+WAp7XA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1794448235; bh=cB6ms4YZu3OSr7Oj5Ktyy9vRYllWqlKKBSjCDtAOhd3=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Wh5tO+A7k6l9RAB9CmF+7nFPpV+s7vwQOvHRCpB836zmpk+EmZdiT1obFQYb3eEYUV/ZZrDMNSGrpqiSFrVBvEAP1+BcX3bVXL8AkZe5aM0djERGyxVy+oivb40ItIA89tHRP/kW5BzO7GaPGZrOTfFkDQF1HHnKQVH/ifoH5PYTL/BXjLkbPViq5JKecTMlRIryhz3iU6NkOHkP1F3oliaijdeTD+Tk00HCA4w802Q1PFZvsZSndMk6hlb4A1wMRPh3z4tVeu12oZckS5JIJR1ywCFknBKWBE+hVxojbZ57Qr3RCaKJrua5vLBD1s/SnsdmRZ+/JLOhUlVDaAQyJw==
-X-YMail-OSG: zqmnDtkVM1n5t6ueog55b_vkFHSYM5E1qoECEJywzBr3UwiKAfUIVI_o6w7R9SH
- CQ1t93f4qyBpZEcVGjU2OBO9C0Of8.lRAD_UtcVdUMSf6_GiG98G7rNXb1ZhUGsyYLDyJE5oLG69
- MPpknxdoviNcfunvMa.q1ATsxUiRNZaaYFEtaSi7o3ARz3uzFbYwa4zXUFVTxVNR1M4yEm8E_vMu
- CX3lc6b1b0MWbnmh3DAeGebLmTpZwI12LuF9QH7MRRpV.Y7YkiPkkooycQl42qWPa_ZCsKSCVnTi
- cfYjzn7ZtEqmGYVjYEY1kEbVCA4JoS5GMMDKMoO39G5YhBugROnX2jrgGh0AwdwAby30.ZBxmd.l
- S62hS2hlPvIDoPxGhzS2whxCcIZrt8XbiUGRsBq2lfu8t9x.TIubZ4wIiRqzfDYoZIwioLDCjm6k
- .cljRFJEOnSix_ImX_sSyVP7eQAAEJ1GsHeUHb7atzAIHDlw0lV7YT_EQZaDbjuCghjYyGwMa7FJ
- LxdRDFOXlr05WMcbROqV0a4sd0J7UyT01rGVa2p8mqlfg_ZPSk1p0.zKLMJDr5A1o8n0sxe4LbiR
- qbREBgT6XAwECEJNbNHKO1YTM4iOmevp8GvnGDd6MDNapigfFoPwfu59SMy7zYd9LO3Z8_0VkIJt
- aPlGTgcyxBF.v1wQggIdb30_WaSmydGJlcGPdQ03irHq2wrwxiCoQO6IJUZEr0jypo3mUQnAGyDG
- k9vUUntKtCsyi.w0t_vFjR1T1M3Z6Xk5RLKDL9njS7LNW.CupQSEmNQ1GkX7kSwPFQP21HwmyMsp
- i9SdJowJ0s5y.bw2SrHxrP7sM6YbNToNL5ZVELMODpe5VuCBtDWl7VcCxYMmahr5455.ZE_hGmHs
- LrmFJx1uQ46OcZ2Ii956498sukETOy0INQsrtoq.ypS01I6QTO8GSI7rVFeq81ZNfcHhvUGJ06ME
- B8yJmeeVBase_8cBDx_Yk7y0xRppCWZz9S9bNwiHzQcmhSHJ99JaTf4E0zOIsgLWqU5tZh4wLZKp
- MnYneLIuBkBNwjBcYTuKXcpCwff8fTcsfan2g9ag6_HRqbKvb3lqTrnQRPIG.IGMBIXdu4D1HB2r
- Ygn65JHFmN1QF2ROBGshwilsGajQNSqHXHgx.co9RO5Evfjv8vx67t__1ew7rn3sc1C.7W_m4N4M
- cSR8SYdV43PcknGSee9yB1x8pWannWLYRUROzisZnoPLwDPX1S0a5pIeYojUo9jnHaAdfaOw5IJs
- bc0nB3tQZQ.0b782FrYX_n_pf05DxifKK1hrJ0OqXSo23BlRt.p63_4auT8X4tq9HTs9fxQLg0OA
- ydi2BtTIKopjFdQtWH0NOUC1U6_wILbgtZfZnlVsbVhHJ7Tk.UZGmAVff_vQl8b4id5D4T9jwtS9
- 8nKfk1Ghey2tqeZDF9SgVACRH_x6kJa81R1e4J_83TMyBY4Ays_MTt39YbFzXRfBMRqG0I92h9IS
- Xl4i4wMK_gUqmjpP0P_oaDsTzptxLp7NMOmOY3T81w3i60pQpmuYMvggEU3dv.ebRC4Brat.KcXq
- ZyjrZ4BouQUvapbNSNNP1Y253sBId7Ys37DryRT0fCsyFp6LIN0DYA1xElaICSH34S2v84muDGZe
- .CGRnjEo0Q2679LeUfRrG7eDmdHtGbtXa02kyQjntuOc7VrR9y8jRUHqkLiiITgSdxH1QGB5PWuQ
- ARpFP1xjX3OHKFGeQd7o8WX3xDhKeppcWAPJEhIosno79RY0IQ4.4JX7WCaXgDYbj6BL4okuPPnu
- 9CEiWKr_A1oRBHcXo_t2XyX1N2Jd1tPqjLAB1WY0vIGe1SVdGRdRloM6.RT24mU1pbFP4DjeRn1w
- _aXrAymHoztvd7BVNk78MI6f1URU2iBFJ6msmP6JgXQac5cfrtvlS9yn2eohnwEPfv__IKNy26n1
- mYs7i0yOvj6LH9jEvBJfejsFOAeuf8LBdL.MbTk8ZZiVorhzaxO81Zf4PRAQwZfM29CLtP5dAKbb
- klVicXy3HgsPrMZiM94qTb2yOlO2WSLEgrPS_2Vx31FNEHJNJpuKXHkfgTtKgjLPmpCr4Taq44yO
- KB8vbaoDybAHzNwFN22pWQG3NDp.x8aciLmMT8fUQgwMgW8NlLKb6ErL7ChYlwsHUhzhzMbUfvnT
- 2bA6QlHpoN4OcRsGeb2ygbIpUCMhvL1tqClAnkg41oGlCJa3crNRCKKeXXqZBarf9KzLHJa8i581
- 0YgHHROuHzbtZ8GRm6ggBoLbsrITMfTGKIshO9uwpGYYxl6nVscbC6LtZUsxlV5iP8t8XsYi.ga0
- EDsRWYHlK
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 4e6572e0-628c-4102-8309-f6caa349ac8e
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Thu, 12 Nov 2026 01:50:35 +0000
-Received: by hermes--production-gq1-fd7994565-9vhlr (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 15d81e1a8a6348ae9dcd84771e3b8196;
-          Thu, 12 Nov 2026 01:50:33 +0000 (UTC)
-Message-ID: <41617b0a-90d9-484e-a143-78e2a92e872c@schaufler-ca.com>
-Date: Wed, 11 Nov 2026 17:50:30 -0800
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=M8LMUd9p
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-3b0d09df973so2943481a91.0
+        for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2026 18:05:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1794449122; x=1795053922; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=qKzq1YaHaTK/cMOsuVlloBBGSRBcO+4dM5JD9G9qTYM=;
+        b=M8LMUd9pSI4E189tEYTQVVCeqMNbmM8OBOGdL5r1WCP+ApYPIFhMe0GulCPpc/maC6
+         v9xWV2K8DWgADKMPZxbEZBtBgtXib/TA5zvfMr1oREvVJC04J0SflCaRXieUd+SQZqHV
+         AecGMblpWBVJMHQl+geL5R3Hc+6KlnC6RG6f8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794449122; x=1795053922;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qKzq1YaHaTK/cMOsuVlloBBGSRBcO+4dM5JD9G9qTYM=;
+        b=FEnTbrVNEYWet+2fqSrjXPbe5D+6jofAU9ohFNijEn6sXKbOreX9ILjqv73HOT1LoZ
+         PGAQsfUg7JJ83m/uZcdvkhpMVovxNUWkzG6TK0txyaNbG27wTUoYEK7VK1lSc6qnhQQB
+         6jYqnjK4w6o1l7PGkTLUNho7tlKFFvUZaa18V6cHnS+aaytfHsP4lrgUqXOJEQkU/Nru
+         8TyUUelocm0YfIuuYWWmEM1X7Fq4iTaiEQJDT8YXFCCiLoP/2i2yjQrdNVWFtuG+vE7c
+         sVq1KkvL6Zi4FXUzI0VkC7vDVSgjlF9hC76Mp5VJ2//nIujXB+GMiV9uZIAsURj0kRwz
+         QTHA==
+X-Forwarded-Encrypted: i=1; AL+hErFnq8wjte8sP55Wi2aV5IhRRuc6dVBHyP3MUEH1tdgGFpykpXH4XfdDlFzLY421j2qNk07qEQGYSJDV@vger.kernel.org
+X-Gm-Message-State: APuU4Z9mJc+oPPHLkhjaGPIE43sOFUoggMC6UXJuiMhXEp3WASjQY413
+	PL6XcN2bUOlrADe3/zt9gc05qWDwmvRLPHdNz1aMJzOkhEDcL1HKU2OPB2N9F0KVZQ==
+X-Gm-Gg: AYBFou0J9zmAJREVG+D7BlJZfG5Mm3cjQW5nGVFquKlzDmrKYxH0f/GgaE2U5rpNIEV
+	nfxRBLkICQDfIe7HINAzPe+oQIS1raGvYYaMrqkNEt6ZvD2MNOQ+PVsq1QclgmrIyom/gsTGT4O
+	y1AZzLWR9PCBsbuYDvimQbVSV3HqRuuxEh/Gyb8EsdgF4dJ2c3m0ljorV+IWOSV6jjpQOuTGyOn
+	e4O2a050PhG5guX72axVa16/OqYinuIH8twhalZO/ElFstLm7zPEC+KM79qY0f507tP4wjG4mHX
+	Yo2IaXqyzODB3ufY8G1t6PS5QOacZXwFU6iwacswZKic2nROctrRHy8q9HhQ4LP+h2eMHlvL4XU
+	jS7sHCNASijPyqnHTYOjw3uTiLFJi9BXYRv3nKjx1jDP654tHnWJqRDoS89UyyuvreqMMEp6VnE
+	6aGbDbDqcwAkJAwCpbhgZAXwhX8UTZaFedsxtPaVPtDTOFeoUp2Q32tHjT96iBveOje6SapkgIZ
+	kDICksoAlz23DR9LAjSsGv4ofBPocXFZyTbGneGzfZjmcq+6xgI6LoQEWizghGOsqH6QJMWRsJY
+	+z2LQxvh0iIJjbe258j/9Ie1MkCX6fDvTOMQ2f6RQ7ApeDd3vvcT9SJ/EKaCgaelo75Iyw==
+X-Received: by 2002:a17:90b:4ad0:b0:3a7:3474:b1ee with SMTP id 98e67ed59e1d1-3b182f1adcdmr4140105a91.60.1794449122530;
+        Wed, 11 Nov 2026 18:05:22 -0800 (PST)
+Received: from google.com ([2a00:79e0:2031:6:ace7:ac44:3dca:1bb4])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b197c6c9c5sm1832060a91.1.2026.11.11.18.05.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Nov 2026 18:05:21 -0800 (PST)
+Date: Thu, 12 Nov 2026 11:05:13 +0900
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
+To: Xueyuan Chen <xueyuan.chen21@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>, 
+	Sergey Senozhatsky <senozhatsky@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, 
+	Alex Shi <alexs@kernel.org>, Yanteng Si <si.yanteng@linux.dev>, 
+	Dongliang Mu <dzm91@hust.edu.cn>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Helen Koike <helen.fornazier@gmail.com>, Vignesh Raman <vignesh.raman@collabora.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, linux-mm@kvack.org, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	Nhat Pham <nphamcs@gmail.com>
+Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
+Message-ID: <avUet_6jVqlWSP00@google.com>
+References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -84,68 +108,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [apparmor] [PATCH RFC 19/41] smack: use fc_init_pseudo() for
- smackfs
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: linux-efi@vger.kernel.org, Jan Kara <jack@suse.cz>,
- Amir Goldstein <amir73il@gmail.com>, linux-nvme@lists.infradead.org,
- fuse-devel@lists.linux.dev, linux-mm@kvack.org,
- target-devel@vger.kernel.org, linux-kselftest@vger.kernel.org,
- Chris Mason <mason@kernel.org>, Christoph Hellwig <hch@lst.de>,
- linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-scsi@vger.kernel.org, xen-devel@lists.xenproject.org,
- driver-core@lists.linux.dev, Jann Horn <jannh@google.com>,
- selinux@vger.kernel.org, apparmor@lists.ubuntu.com,
- Josef Bacik <josef@toxicpanda.com>, linux-block@vger.kernel.org,
- ocfs2-devel@lists.linux.dev, Alexander Viro <viro@zeniv.linux.org.uk>,
- linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, bpf@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
- <20261110-work-loop-pseudo-v1-19-4c998976c6c7@kernel.org>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20261110-work-loop-pseudo-v1-19-4c998976c6c7@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.26943 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
 
-On 11/10/2026 1:14 AM, Christian Brauner via AppArmor wrote:
-> Initialize smackfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> also SB_I_NOEXEC and SB_I_NODEV. smackfs never holds executables or
-> device nodes.
->
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+On (26/11/11 20:41), Xueyuan Chen wrote:
+> CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
+> counters are updated regardless of this option.
+> 
+> Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
+> stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
+> debugfs is unavailable.
+> 
+> Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
+> settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
+> documentation to match, and clarify the pool name in the debugfs path.
+> 
+> Suggested-by: Nhat Pham <nphamcs@gmail.com>
+> Reviewed-by: Nhat Pham <nphamcs@gmail.com>
+> Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
 
-Please include me at least as a CC on Smack patches.
-I ain't dead yet. Nonetheless,
-
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
-> ---
->  security/smack/smackfs.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-> index a72bc7fabea9..4a56bbeaeca3 100644
-> --- a/security/smack/smackfs.c
-> +++ b/security/smack/smackfs.c
-> @@ -25,6 +25,7 @@
->  #include <linux/magic.h>
->  #include <linux/mount.h>
->  #include <linux/fs_context.h>
-> +#include <linux/pseudo_fs.h>
->  #include "smack.h"
->  
->  #define BEBITS	(sizeof(__be32) * 8)
-> @@ -2880,6 +2881,7 @@ static const struct fs_context_operations smk_context_ops = {
->   */
->  static int smk_init_fs_context(struct fs_context *fc)
->  {
-> +	fc_init_pseudo(fc);
->  	fc->ops = &smk_context_ops;
->  	return 0;
->  }
->
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
