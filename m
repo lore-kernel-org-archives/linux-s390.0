@@ -1,59 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794589793;
-	b=oS2UFyZ3ULZQSrqREYcSj6Yu0+9m/nh9SJxuw4Pt+BPxZx8OdPqPU8TQfvxvGc/nHqKa
-	 5YRLgbkIngzFB2XyCa4uk7rtY9bJ8xtLihjAuyzBBp8W7dD8HtDNZet22MQy68GmSgM5E
-	 1zTRTqVLPtA6wJfP7WLEKalv8r6uejcFm/cqPojmiSi5x17mncLqMp2zPRuGP6ly99TPU
-	 fW65nbzUMCtpjFZWRaQ01RlfWiBT+AqPN2hCsggcvoromMxKWW9/PqAhW6KA2dqNSocJs
-	 /njpGNiZnEi+qwkU1J+I4uFRQ2X9HwkB3HhzrJlv4e4Nnv2MGDz3RCj57+xfZUaBOQg==
+	t=1794589858;
+	b=Ekg2tL9kmdIR9HtFB52f4wXqJYR3vBvBCDna+9Cpcf+AOCwUH1R60zCmWCvOnJsNZ0Az
+	 IrOBqG9KBXgdxvJVzG0TzrEir7M6O7qnF+y4SIwDiTE+bCFQZY296oSzrUjypzohE+f9Y
+	 JvT2PgfQlHDxsBME+JLSR+WIUchzW3w/gIp+pvrI2Pe2kjZnUfgizbkONmD3AJNHLbSiZ
+	 tn5309PQ5Yipg78RjfEt44xPY1lBfWcwDW3y3gIp6FOYnF1J5GzVw/kMtWT7u7R6YC00O
+	 8o73e8P76UivonkYc4po/FXNapbXGIVI5D0aNQRmBA8QjklAMPDS4M4iyPl/p1vaw/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794589793;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=YX2HowanTt24Gf7wjOmC7k1ehSIVG4b8pTN0REQCGcM=;
-	b=LcHUUzSx+kY0eecSGl52V2psyGPkMBYFLV/489qaAklp0gYQFyNnHHE1OQBvl6mSjwu5
-	 XWeUiPHi96q4H4TBcbN6XTFqTGocOkB4+ZPkr5BiwmqnRKQYIh16gjSbZu1tkmWwnoL6Y
-	 YI9lSOwOYAILKZSJRLJA+X46JOCGxo+NZ2aXUYeMpF4vwAVT3m8l/3QoQZXwf1xoAktMm
-	 J62wLnOqUqJ0jSrMSAbwtC5x26Nx7GqPiaFlkH0fr80fJLNl0ljEZ+jLXEAVcAb0SZG5I
-	 KM70npYjMCSzQ3UOuXYb1GH2a2C7a6DilXfcThESAAlN/u4mrcs9vQDb/wYjQZhVJVw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794589858;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=maofO7OzpRbXrucFNRCXLNY3Wo8C40MOHwmWctw+fM8=;
+	b=mYC9XZ6hLdDHdteeYZvwv0RVEHdQKi9jf1tKqD0q3OmLBfSGcoykwZj3/kP8IzaMi0bk
+	 2F6ABLyS8gjCofJwUxcGLTKSH9ymqX50SvGnSuSstLJDR+arr/Fo2TvewcrcicqMdpKfT
+	 ftrLeL2Rh/qh4pxsybQQGELfPYF0dhXdUCOlJFM+YEyXkkzxAsjl62Zq5Pa+jIxazfLC0
+	 2X5csoO0sKADUBLqm4Opgnfs8INcg9i9wTTX1vKH3bUGSCu9naB1Cb0W3E0oGR0neYFbp
+	 erMT3cpMXzJ/YTgHzMMXEAEAeEQ9KlSEX5MetEZQO9bhJN+q2sh/Xb6rQHv0iPLWS3A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDhTHVxS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BpWp6k1S;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE361606A330
-	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 17:09:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 815BE606A88E;
+	Fri, 13 Nov 2026 17:10:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GDhTHVxS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A181F000C4;
-	Fri, 13 Nov 2026 17:09:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BpWp6k1S
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD401F000C7;
+	Fri, 13 Nov 2026 17:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794589793;
-	bh=YX2HowanTt24Gf7wjOmC7k1ehSIVG4b8pTN0REQCGcM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GDhTHVxSam4C0Kz2OGXNQ5QfV3gihIg6ZYs0ZiL7mAd8Vpmy+XxD5A6l/9v1Xvl5e
-	 BWyBCHxLKZhXcrvCE5Y5FcBpa2jB5jj3VuW3JX1gVCVrFIO3PnyBdmV04C3eXbK5Uw
-	 E0dGmZUUjjq16jaf4csezwMV0QdeByVJy+wydF3IBTxVuuHpUQBHwMbsKi4Y3es2q8
-	 zjGPStFaaMdKJmey8csStSKmzagr+fv7JQoM/e/qENkU1ILHyHj6eG8lNxmVwPM9y9
-	 6LDzJACj/7h1zicBo8Ql617eMHBhqt+jleiS445j5mtoxkjy0vA4ltUUMo0ZEu2udX
-	 30xxDTm6IjvyQ==
-Message-ID: <sashiko-outbox-213279@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 1/3] seccomp: let the tracer skip a syscall
- independently of its number
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Renzo Davoli" <renzo@cs.unibo.it>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261113165509.229869-2-renzo@cs.unibo.it>
-References: <20261113165509.229869-1-renzo@cs.unibo.it>
- <20261113165509.229869-2-renzo@cs.unibo.it>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Nov 2026 17:09:52 +0000
+	s=k20260515; t=1794589858;
+	bh=maofO7OzpRbXrucFNRCXLNY3Wo8C40MOHwmWctw+fM8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=BpWp6k1SdAfBuXCQXVprjvqV5tKMSYJz/sh75MYEal9fLvubId0RI2k0pXbaXPcqP
+	 XW7W8QTY8Yp80bHb3bHbhJ2pmExjzJKvRTkysa/kB7Uk5kSQk48Ky/V6jYgRS2Ag/z
+	 b0gc71kH7THrDydxHbgpA1u2Z+aPcUEz4iVI/oIZ8uDXPH+fZw+EOrLG8smPRlR81n
+	 hUqtJAsa4dogw4cFSolmDv3RS80cZ9AdHNVyrReK6dyCERc/Tkn+CUP8WdJ70s/Tyd
+	 WsDSoElNiJ/7Mr3PPR2dotagWAQqYJsoCXp8vaEKs5odiInmbGy+gNs4DhVXqgNBFb
+	 z/PlpRnhV0X9Q==
+Date: Fri, 13 Nov 2026 17:10:50 +0000
+From: Simon Horman <horms@kernel.org>
+To: Jiayuan Chen <jiayuan.chen@linux.dev>
+Cc: netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Paul Moore <paul@paul-moore.com>,
+	Matthieu Baerts <matttbe@kernel.org>,
+	Mat Martineau <martineau@kernel.org>,
+	Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+	Allison Henderson <achender@kernel.org>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	bridge@lists.linux.dev, linux-security-module@vger.kernel.org,
+	mptcp@lists.linux.dev, lvs-devel@vger.kernel.org,
+	linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
+	linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next 02/14] inet: frags: annotate data-races around
+ fqdir->timeout and fqdir->max_dist
+Message-ID: <20261113171050.GM18859@horms.kernel.org>
+References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
+ <20261109025425.328445-3-jiayuan.chen@linux.dev>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,32 +81,16 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261109025425.328445-3-jiayuan.chen@linux.dev>
 
-> From: Davide Berardi <berardi.dav@gmail.com>
->=20
-> At a PTRACE_EVENT_SECCOMP stop the tracer can only skip the system call
-> by setting its number to -1, which seccomp reads back with
-> syscall_get_nr().  This depends on how each architecture lays out the
-> syscall number and the return value in the registers:
->=20
->  - on some architectures the syscall number shares a register with the
->    return value (e.g. v0 on MIPS), so setting the return value after the
->    number would overwrite the skip request, and each of them needs its
->    own way to keep it (MIPS keeps a copy of the number in thread_info);
->=20
->  - on s390 syscall_get_nr() returns the low 16 bits of int_code, so -1
->    is read back as 65535: seccomp does not skip the call but runs the
->    filters again on syscall 65535, which kills the task if the filter
-> [ ... ]
-> The next patch uses this in PTRACE_SET_SYSCALL_INFO.
->=20
-> Suggested-by: Michal Such=C3=A1nek <msuchanek@suse.de>
-> Assisted-by: claude-opus-5-5
-> Signed-off-by: Renzo Davoli <renzo@cs.unibo.it>
+On Mon, Nov 09, 2026 at 10:52:01AM +0800, Jiayuan Chen wrote:
+> fqdir->timeout and fqdir->max_dist are read without any lock while their
+> sysctl handlers update them with WRITE_ONCE(). Add READ_ONCE() to the
+> readers.
+> 
+> Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113165509.2298=
-69-1-renzo@cs.unibo.it?part=3D1
-
+Reviewed-by: Simon Horman <horms@kernel.org>
