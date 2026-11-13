@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794596300;
-	b=5JsH9XOGCgUD2RR9CbsqccaIBWeXL+Ii6jy1hACpsdvKycFDUt3ejkZ/uiXxqjCBTOcL
-	 PNqmpuClVRTTkKAy3npQhOFT1imfblkGczqfViPahhZryZ/i3adkN+hJ8Mq8u8RdqFf83
-	 mfJmUK/T+Qczrhz4x5Sj/6mLB1MyyzZa4C/siu1iKTSJJGMa5csCQwaFe0UBT1XgJoV0L
-	 S3Wkwo3FkbeIQYoyVy018Vx6S6zWL8ha9Ho2a0zB6aaXVAydRFqeZbjq4qeCHfxrNiS7o
-	 UBMRhcyLiTRBqPoDseQj9V6qB4Y4hBfDAFRBngBW94DovCm4yab5DQqCKxDE9gsqa5Q==
+	t=1794596410;
+	b=wVlJceT6h7XODGikSSSOmZ3k5ycd1U8p+PTXE5+X+ys1opOlkIoHSnAYM6+1+aCU67VD
+	 c+A20tO80zdWwgJME+G94NaDSMC/xG3KJiMBfKO/m/hc05eWWXGQk04IfpTqHulRsQfSJ
+	 s354FLbyeQmi11tRblVeCJwWVlzb397alJbD+mJVoe4RglUvQRaKGYJhmjOnqTsFyC5B0
+	 zAb9iZa1fsdhDavIv+sTV9kHJRIKte2l14DA3Lm5GCQLuBvTuxIhpSLqIc64yg67eE1Sq
+	 tHuAkfIIEVHz6XeRW28LjtrgxFNPTqRel6BqYC7AHT1Xb/bWNpIS/to6ET8JPN8ZLqA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794596300;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794596410;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=plduXl+R6cqY32R5PgJwlwqrejdYEcZNDX1tD+foFH4=;
-	b=RWJCxGEM3KxcEgvQLS3jGqRQrB0S+RuFS9nZO1SutmKWIUb/PgBmRkClX1NWZ56bVA6T
-	 Y9z9+ehMITMNXiSjSHyl8Kyu8OBJBbJATTfu4WUN6eoY7/9YBySlY3WfrVS+xyhWB/8VR
-	 fXKHfgN3oDIpFfCtGm2RaO3aKcMDwNtlcLA55D8QY0uG6IAO8VQh/ST4NI2W9XqNKvfGY
-	 l4L7D4GWEelzBHVzy7YkyMXm5sGyu3lnrFlrCSfcFTi1clXbAQJatyTGravWkJqiMRwYO
-	 FGEt5bJOE7LGM0m2DVc30w3IFYVBF2PO+tGjxgbEsS8L/Gy73cj0O9F2codOBJlVCgg==
+	bh=+2lqXoxbcTGbpqi5YkiRhwq1uO/E+YCynWayZ3OE3fk=;
+	b=DLsKr9TIxyXnXas1yRRrydbWgU7ICdHzYq0KYyQhgA3pn46txekfi7Thqjhx7eBCXOQc
+	 vo5d0MnkVaOY+Ii4oSoBQLOF7EFGVBErHX5v1MbPvi5ISo57Jd53sJMTNJ8RALchIQVAl
+	 0G7TsL+q4xStndFryrM1DJowlhEWswoZmhAQm3IbLCdh7giVwcarM+2Ncm2n5ZrK0FmMU
+	 LPPbXbSidDy/gZLIAIeUt2iIOpnnaPpcMsC8Lqni+si2yD/jl0WulloqmBhKBdtUN/16v
+	 L/wC8/Jc+UlJJKacT6xYZ+LoCeEAtFPVfnHoW4u6daAtlFDgYZ22YaXWrOLQrJr6mJA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cFHMfohK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gcZYmCrb;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C92606A323;
-	Fri, 13 Nov 2026 18:58:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66299606A337;
+	Fri, 13 Nov 2026 19:00:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cFHMfohK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A6C1F000C4;
-	Fri, 13 Nov 2026 18:58:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gcZYmCrb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB51F1F000C4;
+	Fri, 13 Nov 2026 19:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794596299;
-	bh=plduXl+R6cqY32R5PgJwlwqrejdYEcZNDX1tD+foFH4=;
+	s=k20260515; t=1794596410;
+	bh=+2lqXoxbcTGbpqi5YkiRhwq1uO/E+YCynWayZ3OE3fk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=cFHMfohKIP9bZkMX3RyFr/Ll4R+czW78WJbfwmAUJfkYxKrc3F5eycBDUkXneLE5J
-	 zLmy7f4T3SKuWAbJfOjW4wASWun1i2hpcPsSRgg6sNBUSxm7CxmKMEGeUPM1hXAMIH
-	 3GKF4t/5yePvyYKMcZlLAbEjrBlxqOByEOlVcR5r7Uvpv4RTQO4oZnVFlQUkxtsBTt
-	 Qanw4sSGu2xtFHluqWwh/ghF1SF7encSXNNqYrl7JksRhjnMYE4wNSfAafURUA57/X
-	 GrydL0T9XVbUhYn6/7nrHwJRG8DZESnJdoN6m6Bg1l6eWdIuolgbk3ZPEpxgXtYvEL
-	 husZdF7uzgD7Q==
-Message-ID: <136002e1-646d-4607-be3f-b6a6a869bbec@kernel.org>
-Date: Fri, 13 Nov 2026 19:58:08 +0100
+	b=gcZYmCrb/XakcrNd58e3ddXkD36SjuOB0rbEEBXmvH785qkb9J2/KK9BHMjqhPOdD
+	 7sQkDObyATbGUuhcqKqGrEXCUiXVpdyfzVyO9YQLKKG/6aTVob2pgTNO1IuNaj6/dG
+	 APTwnMbRMSLtHHT7Y4dXM8O0DsNemxBY2KlH3MRjlmE8oQzAEkzRLGJMWHIIkVtuWZ
+	 uYUZPIsbhVuPx6iD5A4ScPvtRe3uQlffpuhazLJ3BF7hTUDanfv7K1hsChy+q6Vdo7
+	 dSv4aGisHzzgaPOOwGrgGIt7wf0it+6ZKnZlcXBv5vbzxzUPz4LxcfeF9nN+6E4uS/
+	 6x5mu1VMCiK/Q==
+Message-ID: <2ff19317-8da9-4014-be04-27fc218b8eea@kernel.org>
+Date: Fri, 13 Nov 2026 20:00:02 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,24 +52,16 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/9] mm/huge_memory: honor MM_CP_TRY_CHANGE_WRITABLE in
- change_huge_pud()
+Subject: Re: [PATCH v3 0/9] KVM: don't zap secondary MMU on permission upgrade
 To: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>, kvm@vger.kernel.org,
  linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  linux-riscv@lists.infradead.org, seanjc@google.com, pbonzini@redhat.com,
  akpm@linux-foundation.org, peterx@redhat.com, ljs@kernel.org,
  imbrenda@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Zi Yan <ziy@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Kiryl Shutsemau <kas@kernel.org>
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>
 References: <20261112142039.907090-2-clopez@suse.de>
- <20261112142039.907090-5-clopez@suse.de>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -116,27 +108,52 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20261112142039.907090-5-clopez@suse.de>
+In-Reply-To: <20261112142039.907090-2-clopez@suse.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 On 11/12/26 15:20, Carlos López wrote:
-> change_protection() applies vma->vm_page_prot, which lacks the write bit
-> for CoW and write-notified mappings. MM_CP_TRY_CHANGE_WRITABLE makes
-> entries writable again if a write fault would only set the write bit.
+> Stop KVM from zapping its mappings on permission upgrades on x86 and
+> s390, as these keep the PFNs unchanged and revoke no access. KVM faults
+> in the new permissions on demand, so dropping mappings early gains
+> nothing.
 > 
-> However, change_huge_pud() ignores the flag. For example, device DAX
-> mappings are write-notified once soft-dirty tracking is armed through
-> /proc/pid/clear_refs, and a protection change then leaves dirty PUDs
-> read-only, so the next write to each of them faults.
+> To do so, add an MMU notifier flag that marks an
+> MMU_NOTIFY_PROTECTION_VMA invalidation as a strict permission upgrade.
+> For the flag to be accurate, change_protection() keeps writable entries
+> writable on such changes. A few cases where it needlessly makes or
+> leaves entries read-only are fixed along the way.
 > 
-> Fix this by adding can_change_pud_writable(), based on
-> can_change_pmd_writable(). It omits the NUMA and uffd-wp checks, as
-> change_huge_pud() bails out on those changes.
+> Background
+> ==========
+> 
+> change_protection() pairs every protection change with an
+> MMU_NOTIFY_PROTECTION_VMA invalidation, and KVM zaps its SPTEs in
+> response, as it cannot tell whether permissions widened or narrowed.
+> This is costly, e.g. during a QEMU background snapshot, which uses
+> uffd-wp to write-protect guest RAM and unprotects each page once it is
+> saved. Every unprotect then makes the guest refault memory it could
+> already access.
+> 
+> Secondary MMUs that share the CPU page tables (e.g. ARM SMMU,
+> IOMMU/ATS) can keep read-only entries in their TLBs that a fault does
+> not flush, so they are already notified of permission upgrades on the
+> CPU TLB flush path [1]. KVM keeps its own page tables and faults in
+> permissions on demand, so it needs no notification, as Sean noted when
+> that signalling was first proposed [2].
+> 
+> Series overview
+> ===============
+> 
+> Patches 1-4 fix cases where change_protection() needlessly makes or
+> leaves entries read-only, so that the next write to them faults. They
+> only affect performance and can be picked up independently.
 
-Again, please keep MM changes to a bare minimum for your work.
+We generally don't add performance improvements without clear motivation and
+data to back it up.
 
-If this is not required for your work, please drop it.
+MM is currently busy with more important stuff, so best to keep your changes to
+a bare minimum.
 
 -- 
 Cheers,
