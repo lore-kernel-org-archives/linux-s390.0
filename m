@@ -1,65 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794597477;
-	b=d4Q7O6FcpJ4Mm5cNkTHF+DSJN095/JYyhD02ggvx/HNL8m4E511QE1eMuCSjbZqJfWui
-	 MCC/g71kTAjta7q4eW7Wy5Q4VDgx/rhJ7cb2ySYBhpy+kdK5jE3hBOLktq4ccATcLV5hR
-	 u1ZPd5A5Bv1Y/y786WUEtAfDWG9yMNWKszzMAQYL3IpNNQhuOVKHJ63yFTv1I83TUrGN/
-	 riHeVXJQ2q9FCuuBLnUb0Uk9sSujk0OdCY501U7dvLU0yoDhdLUPkJ1MyR2pBYO4RMjxm
-	 etcX+iKXqrePruclQlLuo2tJiftfoiMG+JBgPGw6fuejtlsj1t8emglV/0eAMdAAaIQ==
+	t=1794597704;
+	b=bhRyidShxW689Y7afwCsYBK9kDlfPfICthBaT404uPlquj22K26eKHF3P/8RbHtQx6e0
+	 FV2OoZBVxWOujdJ2zYU7zbyAnqTEUEWYsFzKlV6rbqcZv4yNDJvxymH7F94hIwPaGxG/7
+	 C39EaQ31cNDF0tT2EcZ0z7APOhE2fM3gUlm2hj1WkU1NDU3oLv6OJ7FzA7X70yBRntHrB
+	 e6SPp4SIBQywUNzq8/fyq7ektXaOyWeF+xM3Z26ZhZu04cKRmS24fmf+9oP+0OqEdwPRW
+	 FecGGQ4rknDll1OauUMbTqd0pXJZsZ0Nfqohvq+8QG5SUvZkp7lvpu2nVPhAnBp0q5A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794597477;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	b=oSDUsO/1wD8U0kqfSar9Du3k30vW4MBgXquR47o9s2XwhnaZlRbkCUBBRP7e190PGJvV
-	 zt/h4l4MflK/uAQiaNBamVnRm0/TyytREhCu9rFFZclLIiuG7lG65TNyAYDH7zBM46KyU
-	 Ai8NYny6z9W51W6ac89s9XyO2i56jAtBpLV6/tLq09jODr3PmMMcfueioMucFMGFgmBAM
-	 89OO1aGI8NHBT+7ybtE9G7BknLgN5BZ+Ac/0E712zDcrpHiWWt76MroxD+uB8daVAxekL
-	 /R8D5G+eD3tRCq+wLn6d0fCZF/g4PtpU2cs/2d9XWfMGk33zDezIGPXYIqvYeaZo9fw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794597704;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=HDg0Z1aMRA6BdNjxfmZXkrPyQXk/DTX6fowUNDviSvQ=;
+	b=b9GKY23hPbempCi5xTNkFI3Knu1RPi6SrvdC5vm8u9Yr5SAktX1TyVdVrwje5i7s1sTT
+	 CN7DdilycCAVAjcODUNhyD8ojypht56JzGzIbwRwNpxgdPYWkCANxx8KLekDcm2atMpDY
+	 CN1wryC90IqeI9Y1nH1fPjk93ZejrD07G/31oS7J9e72V1x5ZDXDH4f8zYlDQJSHGoyN5
+	 IR74PWNBOKLiYljX+ey0S4wRMkB/VriSbQIvbakWgF/0V6b2MVBKUUrNNsFf4/vrNBKMv
+	 3NwzLt+u9iat1AFwaKkgvE971ye/115s1lMbVDbXRygMWPfDsLxamYTCstett9EpBdQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mIDWnctw;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n+Voe2RQ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03E3C606A32E;
-	Fri, 13 Nov 2026 19:17:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10D23606A332
+	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 19:21:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mIDWnctw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0275A1F000C4;
-	Fri, 13 Nov 2026 19:17:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n+Voe2RQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 654541F000C4;
+	Fri, 13 Nov 2026 19:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794597476;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=mIDWnctwMOxz+UKHvuoNnVkL1d1VnOXuDlLth2b+S8TDvGuX42NiQtR9xSIMTFmly
-	 jYojNEqX3MFFPES9qHBb4tBuYCFM/aI9ZgwLvjOR/HK5xihmmGIAgbYpGSx5Y6FYoa
-	 0b2ddnHaKGMdeFgMG+NYKbISXOhVYWkiq6ukV6hPjwqyUzI7z0FnCC4OcXuP3QWS+1
-	 JM/zL18Pw3ZRCQGXBnmSRieyakMFflDHIGXaCexqKut5tKNz+F5Yd9Uq6PX5hFJSGf
-	 9t41keV1EPZHpmxwG3EDWZ+lDyrIohQRV+azP59Rqm6I5OkihzPtHYeB024XM/KiCg
-	 I8coML9bkaAJQ==
-From: netdev-bot+sinfo@kernel.org
-To: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Eric Dumazet <edumazet@kernel.org>,
- Sidraya Jayagond <sidraya@linux.ibm.com>, Dust Li <dust.li@linux.alibaba.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org,
- Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- Tony Lu <tonylu@linux.alibaba.com>
-Subject: Re: [PATCH net] net/smc: check every link before skipping the RMB
- registration
-Date: Fri, 13 Nov 2026 19:17:55 +0000
-Message-ID: <179459747549.2168702.12984461097488923860@kernel.org>
-In-Reply-To: <20261113-b4-disp-08835f86-v1-1-b2ee1b9b94e2@proton.me>
-References: <20261113-b4-disp-08835f86-v1-1-b2ee1b9b94e2@proton.me>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	s=k20260515; t=1794597703;
+	bh=HDg0Z1aMRA6BdNjxfmZXkrPyQXk/DTX6fowUNDviSvQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=n+Voe2RQe+LyCvPfQlK6HVlO9cmGLy5tAVjU5ySLoMO3ghAPmjrZdeuUeSYRJ0G8K
+	 W9L3I2/Qqyve5il53cT6BW4OO8RPAv4+R44aW35X1TtAfXVLm8K0+8v2RRv5GckD++
+	 33n6vFZWuzauWewdUYRaJj32eOILrdlhnqcesfeYvYRDAwpiIkRbt0HOUGnmTKyoZ6
+	 Y94YxVqiA5Wc7TQgkIKPP5N1UHAYYxHN7NO9UIXStzJMit0ecihO1Z7hYYedJ+RefX
+	 ijvE8wAdcew3NXHAVlITSx64G7nREDFpymegb2v+FyR5vWBUJ6ZyaTGLm0uQtgMN2s
+	 BjG2okfQTU70A==
+Message-ID: <sashiko-outbox-213542@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 6/7] virt: steal_governor: restart sampling immediately
+ after CPU hotplug
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yury Norov" <ynorov@nvidia.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261113184257.621707-7-ynorov@nvidia.com>
+References: <20261113184257.621707-1-ynorov@nvidia.com>
+ <20261113184257.621707-7-ynorov@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 13 Nov 2026 19:21:42 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -68,22 +62,102 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
 
-Hi!
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] virt: steal_governor: deprecated system_wq use and workqueue
+  mismatch
+--
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+commit 71c885eda2b0a72a307fd87b15575e6e5a4178ed
+Author: Yury Norov <ynorov@nvidia.com>
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+virt: steal_governor: restart sampling immediately after CPU hotplug
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
+This commit registers a CPU hotplug callback to invalidate the current
+steal-time sample and immediately requeue the governor work when a CPU
+goes online or offline.
 
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
+> diff --git a/drivers/virt/steal_governor.c b/drivers/virt/steal_governor.c
+> index c34d91267ec1d..f71dbf27e4a9d 100644
+> --- a/drivers/virt/steal_governor.c
+> +++ b/drivers/virt/steal_governor.c
+[ ... ]
+> @@ -217,6 +220,13 @@ static bool preferred_cpus_valid(void)
+>  	return true;
+>  }
+> =20
+> +static int hotplug_callback(unsigned int cpu)
+> +{
+> +	sg_ctx.sample_invalidated =3D true;
+> +	mod_delayed_work(system_wq, &sg_ctx.work, 0);
+> +	return 0;
+> +}
+> +
+>  static void steal_governor_loop(struct work_struct *work)
+>  {
+>  	u64 curr_steal, delta_steal, delta_ns, steal_ratio;
+> @@ -233,6 +243,11 @@ static void steal_governor_loop(struct work_struct *=
+work)
+>  	sg_ctx.steal =3D curr_steal;
+>  	sg_ctx.time =3D now;
+> =20
+> +	if (sg_ctx.sample_invalidated) {
+> +		sg_ctx.sample_invalidated =3D false;
+> +		goto requeue_work;
+> +	}
+> +
+>  	/*
+>  	 * steal_ratio =3D (delta_steal * 100*100)/(delta_ns * num_cpus())
+>  	 * To avoid possible overflow, divide the denominator early.
+> @@ -254,11 +269,14 @@ static void steal_governor_loop(struct work_struct =
+*work)
+>  		return;
+>  	}
+> =20
+> -	schedule_delayed_work(&sg_ctx.work, sg_ctx.delay);
+> +requeue_work:
+> +	mod_delayed_work(system_wq, &sg_ctx.work, sg_ctx.delay);
+>  }
+
+[Severity: Medium]
+Should both mod_delayed_work() calls use system_percpu_wq instead of
+system_wq?
+
+system_wq is allocated with __WQ_DEPRECATED, so queueing sg_ctx.work onto
+it triggers a pr_warn_once() deprecation warning in __queue_work().
+
+In addition, steal_governor_init() queues sg_ctx.work onto
+system_percpu_wq via schedule_delayed_work(), which is a separate
+workqueue_struct from system_wq.  Because __queue_work() only enforces
+cross-CPU non-reentrancy when worker->current_pwq->wq =3D=3D wq, a hotplug
+event during the first execution of steal_governor_loop() can queue
+sg_ctx.work on a second CPU while it is still running on the first:
+
+CPU0 (system_percpu_wq)           CPU1 (hotplug)
+steal_governor_loop()
+  guard(cpus_read_lock)()
+    (blocks on cpus_write_lock)
+                                  hotplug_callback()
+                                    sg_ctx.sample_invalidated =3D true
+                                    mod_delayed_work(system_wq, ..., 0)
+                                      (wq !=3D current_pwq->wq, queues on C=
+PU1)
+                                  cpus_write_unlock()
+  sg_ctx.sample_invalidated =3D false
+  ...
+                                  steal_governor_loop()
+                                    guard(cpus_read_lock)()
+                                    (sample_invalidated is false, delta_ns =
+~ 0)
+                                    increase_preferred_cpus()  <-- bogus sa=
+mple
+
+When the second worker runs right after the first finishes,
+sample_invalidated has already been cleared and delta_ns is near zero,
+yielding steal_ratio =3D=3D 0 and calling increase_preferred_cpus()
+prematurely.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113184257.6217=
+07-2-ynorov@nvidia.com?part=3D6
