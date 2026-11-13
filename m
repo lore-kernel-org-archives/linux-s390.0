@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.198.62
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794599285;
-	b=Tf7sd3bW+GaMM7sDJKY4yFuFXgjoorIEziUiDAc6ikno2AsxRCzn9tOiKNqAHgh7m/tV
-	 DM24dTemcyYzwcBTPfZe5mwjrWzlA1oE18HMY/8kF99yOaRqFnW90pbG93rD6yswvGeQs
-	 399zhql/trVASRn0HUe/fMV/tteMMy2bcuDg/8qbeEAra1VJt8J5rvQKpe4q8U14EtvpL
-	 8o1X/VWWrMQA9mOL9JLVZuYdZN7E5qObCInNhjVXo4V7FbHUj62tUrREJt9xXrvgC0wuK
-	 7+pFp24BlNN5syjowWZOlfb3IiC+d19n/yFUeuNQG05WG5ZvhIgvejQQRoAyZtLwVeA==
+	t=1794599286;
+	b=C5V4WeAG5Dtkyi7haFY4VbofMmcn4EaNbpy0P3ehcN/N+eH3EYLASdPgQGji7Gh6wumk
+	 qgvlOsqqWluDv5w1gkkjbBT33GVcNstJ4bYLjxgxPZvbF/AQH770+XH04nZSSBSC60U75
+	 rillOsnHnhYMe8EcIo1NiTowOLiRvxB0+1lm9SQavgSOHVPDXmKbn6bPYF+agQVIppqur
+	 1boXKM6fvCnCMJkMGIK3D2HWWLZkqmBCLmfM29AZKL38QfAZb28VrEFLe2AhyRso2qWsZ
+	 1Wy6U8MsyNqi/kNkR1IOljMPlKNO3N/XpkVRaK6pNuaJmC1WCTOFFeVSGho5bovGPbQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794599285;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794599286;
 	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 Content-Transfer-Encoding:Content-Type:X-ClientProxiedBy:MIME-Version:
@@ -24,54 +24,54 @@ ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
 	 X-MS-Exchange-CrossTenant-UserPrincipalName:
 	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=F7K60yrGMowWr+R8XFHEJhOEA78qk9qL1+2THGEX2hM=;
-	b=SBSFg1ZWL0HPT786LynI8SG9aGBbQ/1Kf2xHEZWIgCIANd7qLtRhzs4cE7hpZZT74Xbl
-	 2X3SioX7ZPj5dn+MuQZCNqygYHBxRBSl+OLuEmbXoSYiqDr/5STgAsOC4OPQkP/j0Cqn9
-	 eXhfwPv65ZvjO54u66NdxcAf7im8aUw2leWFMAuS3jMdVES9mIGGC3DDMkwc83nhoneVu
-	 Jf62Keap0WDr0hABkuPOp70HoBQftd9dq1SqC2paTGZNyTrHOnbtel5yeuQUxI8LDk0gI
-	 isZS5joawRbLlWAelP0KUdWUo2Vov0qhXhKOM+TaNAtKyMcMH2x7K35E0QvtAk/6eeQ==
+	bh=1thHQg2WDQPDZ7T7ErqjPZCoCST2YOVD+u4zXbUFrb0=;
+	b=1tcbdvdy2nAyYpmWy2MQBxSvGkkUu09jQeCHi2F5tn4NMgVVq4xR1J1qYiOUEh13lUFI
+	 KhZB+2n+Io0x23kCh7xRT0Cn80DSSH93l5EVsxiulxX30KSURwS9t7IBFf+NoE85P5H8O
+	 HbTW7SkhYmOtm6cXxOyZ49ixb1PbZ0iX9wA0bLRIBOe4xCciOkJNq5Ic/jcmU6kRlBH3f
+	 QStksEhL+Ke+7CPNydZky49eADYS1Et63u+7wYGJUaIjieeg32V7vOVMt9R+qmCQ0jZDh
+	 90u5/WO38oxOCqbBcikVedcKafD8cJXhvM3r1ass9Jv/jk7KjuxFEsEcJRgEsrrXP7A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nvidia.com;
 	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=P78Vb8qQ;
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=hZVocxVm;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.198.62
 Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010062.outbound.protection.outlook.com [40.93.198.62])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652F8606A8A2;
-	Fri, 13 Nov 2026 19:48:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 652F8606A8A2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EA8D606A8A9;
+	Fri, 13 Nov 2026 19:48:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0EA8D606A8A9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=P78Vb8qQ
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=hZVocxVm
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=PHT6hhRKwvX3ZMutCVF6B6imWpHWMMHnPjfgOsx2tiXBeWLP5UJ+vL6b66dGPLchLSjaZX19FkiftweuZDGsHqrV1TkaaZgLzB6aPcqgmxymetEPIZ808keDULvMIMNi6QUQreo+a7tsr5S1uQHZgAz2HWV4kQ/G1ssQ9OuQ3Rl8dm26IuDe+5w0SkznQqluRyrgRz0JwcE6s6yxivTIkglj2McCI2YPeVcKnhu/ARPZ5VJeKN2JaBV/OgMtdE6KN2DsjqzYUqNTXNlwJCe9jA/F/aTbuJ4meYruxmk9xncKHvfd8W5og+sj0XiikesiPkFE7gs05LN8/ZAmB3uHkA==
+ b=ZcdzOrGI8PNcCgHzqLi2NJcwpgDHGv0jnHI+0TvGD8JPqy34bw9WSIhylb0FZsRgPXIk37VxGpOsYFE8q5AJVAaBqgumRuTAGQ5f5CU1vYwDaZVV5GjaQlXucfBorCq6iEmvOTSjKrYiSC5GdyDoK/Yu6ujpHwZiXLD6iKGzl0PY7X4Hs91QWvEIABqz79Bw2jyjNxO03hLd5dhb4C3WxtTWEzG7iGiUKTlc7nA/NRld37RWAxv2GvedYq1gdaJKzErD6EteBuaVLwwbggDsZVNFwXFVB9hPX1TxSTPZ+HzeVmLNN4XQNWrWjU2pD95/3YtiPINnSJFjjc4xQnVG3A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=F7K60yrGMowWr+R8XFHEJhOEA78qk9qL1+2THGEX2hM=;
- b=NUb/CZpsFYhM+FA+EdUTvoOv9R/HKfYzgOF+R2cMpPjjdiKiSSj6KDJiO3qLrbCPSQ7RO6yBNrtFrky7/krKdXDcFcFH1x3pvcwRRnVqj4GMqU86Obo0JN92cQRNiFp6ypth2J9+0F0us9DTfERs4du5SWIvBK3X1aGEk2XFUe29rz1h/yTqkk0ARljHaxt7Q7mE41BqqJUAoBDiSRkFOTlqkC4KyWXJg/kiaNg+m+rH7CV7S4DrBHpkUc2wKU1psWvTVnOoAiWrPSQ+4cYJao505+/qamApGFVBJPtdsjE0TAoLGzfLnHB/j58CBHoE68fri65aFuIxCS/xXfU2Eg==
+ bh=1thHQg2WDQPDZ7T7ErqjPZCoCST2YOVD+u4zXbUFrb0=;
+ b=e2SPAIytMQ4PCaJMb/R5+5MG9NQYubfoEP3mM/w6gyPcjQ+WGsDdNbCnxUG89w2N/fCNm2Y34RazM7BI3JLDPg8wQVZtW9hLGNDAQxosjZt9YoW1VHCZ3fL2/IsSHjMbE4Kg2FfWPKne85BvxE2Bkt2MXq44TET9Vz+Ot51PYlg8XnmeHOO/lyYwLaExGc+JqI3uDUBLeXJgWpM2/UyO0X/rXj3jsUthqnv9U2PE44k9RCxLcQP26o++/tFdf1VuUeyTLMTXU4Epm0ZNC66mllp1LHn3iN4zZZ3OrYb8rWPu0mdX3hDE2HqpBkEYMlIPvNQgdclWuH9u5+AsrNS7tg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=F7K60yrGMowWr+R8XFHEJhOEA78qk9qL1+2THGEX2hM=;
- b=P78Vb8qQz8W8/veCBo1iLDvRkS5B5RdsWu2JwbhuWuIb5YbN1XkmgBja0aDQQJvU8FNyH80n2hWleidpSwSw5ew4UbHmDM1aoXuoq85bFoeGcViiNi5hLycnUgSjuAbVLsRQ8kjvaSJ7wGOLZTD6tHzI0E9KR+RVl5H2fubYMztwPwZ7BvcKFee+thBXPB4wM9BoN36VSP8o4z7sP1h3FAiajm3C+DzbT9zeAnPDZub4RmUIEdnXdJyib0F8X0NfFXCpynlZBI4j4wwmQqJ1vvJ/3hRtv+S3yoaM3DmITXIchz29hau7R7U578PEx1GzHJFi+GD7tYpiongrkU/6ug==
+ bh=1thHQg2WDQPDZ7T7ErqjPZCoCST2YOVD+u4zXbUFrb0=;
+ b=hZVocxVm9x30u7+lyDDuZG1qeyNRkO+XbFnMaGu4USH7RJPxMhRASwZVneFJEmUjzAxjxWtCnBa8MT49skeYvSNQc8Ol6ZFH8pbf/avjrF3rNKxTe5n1QfG4d0PGOORurPbZEcFAXFRq6upeTOLe4BUcXfG56e0TeOIOGV7mn9EayJ8NA8D03PLW3GMS1m7iXWbeMfpQpCebG3l86NMZUQ/HA8D/4lr4wLfnnwrjLpEBePvSubuDE9aDso2W9M4f1kdnRUE818Ub4dnnaIeV40P5GwvoOPX96/q+IzdnC/EkVttdsgtzRHJCDGTNTz1aVv8XpSEaZzEdm82ozHPlWQ==
 Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
  by LV2PR12MB5896.namprd12.prod.outlook.com (2603:10b6:408:172::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.592.11; Fri, 13 Nov
- 2026 18:43:02 +0000
+ 2026 18:43:11 +0000
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286%4]) with mapi id 15.21.0615.007; Fri, 13 Nov 2026
- 18:43:02 +0000
+ 18:43:08 +0000
 From: Yury Norov <ynorov@nvidia.com>
 To: Peter Zijlstra <peterz@infradead.org>,
 	Ingo Molnar <mingo@redhat.com>,
@@ -108,16 +108,16 @@ Cc: Yury Norov <ynorov@nvidia.com>,
 	linux-doc@vger.kernel.org,
 	driver-core@lists.linux.dev,
 	linux-s390@vger.kernel.org
-Subject: [PATCH 2/7] sched: restore preferred CPUs when hotplug removes the last one
-Date: Fri, 13 Nov 2026 13:42:51 -0500
-Message-ID: <20261113184257.621707-3-ynorov@nvidia.com>
+Subject: [PATCH 6/7] virt: steal_governor: restart sampling immediately after CPU hotplug
+Date: Fri, 13 Nov 2026 13:42:55 -0500
+Message-ID: <20261113184257.621707-7-ynorov@nvidia.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261113184257.621707-1-ynorov@nvidia.com>
 References: <20261113184257.621707-1-ynorov@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: MN2PR06CA0012.namprd06.prod.outlook.com
- (2603:10b6:208:23d::17) To LV3PR12MB9356.namprd12.prod.outlook.com
+X-ClientProxiedBy: BL1PR13CA0200.namprd13.prod.outlook.com
+ (2603:10b6:208:2be::25) To LV3PR12MB9356.namprd12.prod.outlook.com
  (2603:10b6:408:20c::21)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -130,97 +130,183 @@ Precedence: list
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|LV2PR12MB5896:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9eef396d-3685-4266-ad37-08df41b5f2b3
+X-MS-Office365-Filtering-Correlation-Id: fa121c51-0f9d-4294-0e0b-08df41b5f64e
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|23010399003|366016|1800799024|10070799003|10067099003|261022105027099003|56012099006|261026140227099003|261028144727099003|261102123227099003|11063799006|261021121427099003|261022075727099003|18002099003|22082099003;
+	BCL:0;ARA:13230040|376014|7416014|23010399003|366016|1800799024|10070799003|10067099003|261022105027099003|261021123027099003|56012099006|261026140227099003|261028144727099003|261102123227099003|11063799006|261009223027099003|261021121427099003|261022075727099003|261026121527099003|18002099003|22082099003;
 X-Microsoft-Antispam-Message-Info:
-	t8MXsupPt+aD26nuC8IhC4yqSBCFonpppVGi8FyCJj7T3+vjXP+rnopm1Vc6aWs/nBBVeI930H/u4OBEj0jYTbWXedv6dgGIQLjkA2hjoiz/NnFk7Qu3yjKbyk/vv0TTCExfD3UCq5sTw74TWrPZlye8E6w6v9r+hNz4nOXDUumwe/Okk68hYCbX+T2W8q25lraB6ZLK8skvhuoDvc8UCxllagt9cripe0+7ZdnDv1eB7SVL7IkKOo6ObylFzr2Dwe0pztyYhfDaWW17DwvZHBvtFLZKC25Xi0Axh+3Fj8K/N5vpmL5Az4KtIZ5T5lPvhKEO8xMUvCWNR68+SlVoyKVUK5eSI+HpAqmx+yXUxqWS5gDMcLSktWK4fWrXr1CXZYf02chhTVe+HvVsP7Z6idT7foPMsfvltC6pksuPr8C2U7mqefey4ov8r31TCdX/PIqh7U2gAdhSMUw02x3a7EfHNcoRqpH2Z83vKZm+cPP//Mm/abK0EjjoRz6b8/GVn+6ZoHRCz5B1ObB7rYRx620v4cyDr8pFVijdqH5G8SqZSMp8W+f3M6lTXuHBH/ASlR+QIMRRCN/H3uv09W7sF7otzJr91aUAh6wt1wtv32VVdAJBUK805PQ2bhvWxDs5rAGA8ZJv0l1F71pPikFxK6cP11W83ATVsFR9FmdVtJQ=
+	0AOZvBvGn/AQ+dDzmJe1a496pmGYdkRABhgWYMVLnDWVp6VbAWyapQsV2KK0xS2gA9FTFE6kKQ1bqqEDwiaookrQ7Mr0qWgVWBaHXA4pSKc540SZx5Hp7a1brR5KC9CkfK5GTk2EOnFJNPdL81oplWKSxYOaguIXZY7f8J3FWBuVu6yXOZs1uZXTGnZ25qTKJdDpjduG3haD0CDhXhqdyb2qMNHoQ1nHbzoE8SGaCo7AE5/5P+V2ZljPsWHJoPE+oV7R4NUXw9WmV2sluw6PkYFxFj/6CPhpDkyZV3cXyDSTaUfU9ujby/L0Ln8wyeiaAAlT5rh9K9O5SSZ8PIS9jAaAC1AWOMZPhaej16LAwO3sDTwMK4nIfbFcpVr2qFrLUQHq8FKyeSbi1un1uN0/TdHmm5McSBGMkVE/vtOPd+W30jbqrZqbSgK1YF1AKyHdrs6MJ/dGCVrXK1XvFko6En7e26TmqBYgmqabQjf8ci1NdpVpDmQhz2kgUvcNNd+mXpo/7GjjKHW9ctv6RjKf5SDejHoB4+K0m85myX89BpfpfpJ744vAOpgeHBBqol5lWSl3aBCWnFkAEAxKU7BntAA95NNN+FN1gKcl5UxB8DscCJSh0gQeZMJyMXXqtxJb77pW12Wuu/0L5VKhKw4oRhFAglEdnmozhWG8kFawGSc=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(23010399003)(366016)(1800799024)(10070799003)(10067099003)(261022105027099003)(56012099006)(261026140227099003)(261028144727099003)(261102123227099003)(11063799006)(261021121427099003)(261022075727099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(23010399003)(366016)(1800799024)(10070799003)(10067099003)(261022105027099003)(261021123027099003)(56012099006)(261026140227099003)(261028144727099003)(261102123227099003)(11063799006)(261009223027099003)(261021121427099003)(261022075727099003)(261026121527099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?0AsDgfRFbywVI4qAKAIIIO50gjJwG8h8FLF4OTdy/Apasaha110a45D/rMvy?=
- =?us-ascii?Q?W+cGB+l2WEz2E9f5hut/iIqzis8c1I7xuZOqv0oqPi00vx4K+aPGurf0vMNe?=
- =?us-ascii?Q?aT1+slxXXR7o7aG1vbOkGjHuZMMdY4HITn9Fn4uMlFkxCkEbBgXLOtjk4iq/?=
- =?us-ascii?Q?7n9ry57Mr6W0iO9JcqSsl1sxBiR6VW+4IViweqLfdUxOdnrQaMzkPPGdkavN?=
- =?us-ascii?Q?wYHMCDCojKKEHEpevptgq72DepiHgMxfQh9N/1tkhSnbTrwCilRk3LkRmG1J?=
- =?us-ascii?Q?QSS+A/o8HfqVcMLvTWpwpLLISXr4x0SsVMr11Pvu2S2aSI4zUiOmZXBk6TO4?=
- =?us-ascii?Q?yKEe2T8KPZ3IXdyJzRiq1PbDFU7X9Lox7kdvDoRhmfnAUifFEMy+FLLGafhK?=
- =?us-ascii?Q?kYTf7bVwbL1y/vxuZ2p5XPXh6wZNS8h4enrwtUL5uY2sSh9Q3pTdu2hxOB6B?=
- =?us-ascii?Q?dNg9ZzdrGDR0HWf11fPUC7YhybjwMfDc5RZ3SdvEh5rmoZ4VaEFQiCW8DXR0?=
- =?us-ascii?Q?BLONmUFqCmi83cR4Bba1Ur7b0MSzmitk+U5swZ/jU1jYKMIT4H7xZyY53E/I?=
- =?us-ascii?Q?xlSfBM0Eb9jFrmFawdWMrYnp7FBlRNs2y/ihzwE7s62DaKfOC4GEoC/O2e+6?=
- =?us-ascii?Q?MZqIdBEZjWsPvnDKXEcG4NhkUGAvd1+pOqkkIETpU4gZjQXt/aGdmKBTVsvz?=
- =?us-ascii?Q?D8wLrBsZol0UcOPycp/PKEhLnkOdJ+Bi8M7vTQ3KDOClfUKnCRfngBq3jmvo?=
- =?us-ascii?Q?CcmCAUmS+GGhWLgdSHsifffIuSeNHp5wK9vc0nZ2Mq/frYKypivNADZ2ooIY?=
- =?us-ascii?Q?iN0LZ6YL8eyaErzoliUnibAQSgMTUtBrQE/q4qm+DkupqK+a8YyyfbtXkfBg?=
- =?us-ascii?Q?hAJcfA7dmxjo/qR4yoi7eFpfZJfcT+fwEnXHF15bYZREcQCrCMn4rcZAg8/8?=
- =?us-ascii?Q?Wx6kRq9k2KD66Jd+3joQwhf4jcyPcN5L7atw6SLkDN+Ll/1ZCMXtqij9aPS7?=
- =?us-ascii?Q?YF8xvMbK9IEsVnMmZypTGJ2l0uWxaL1QiJvI0k98NtdWU5Yu63+mEG4kN4qv?=
- =?us-ascii?Q?c9d4Ch8fZBUbBcJlDIwNjFtVvqFJA/oE15viMCrftNBw9yTBvUb3vrrAQ5lb?=
- =?us-ascii?Q?tnGetiSkC2nyjrUiLiWPZuHeVBi27dEQ856qijvqVwKEYXEFEHW2TFQzkKUG?=
- =?us-ascii?Q?A2vRcmzYWzf/f2bAJQVfeBiHoZQwlYA5hFph0e2u+Eyn3tW0wOLG2etk7yda?=
- =?us-ascii?Q?ROsaSnN4Qo48i+rHp4di71X+SBUBZb7Luv9FJZiy6luIKUZIUGRat8BwwXzo?=
- =?us-ascii?Q?iJVA/iiNhX0g4X+XzUUSG/goolDoC4Mi9KqfJ3JJWiD+ic2Attc8uKKPGAq9?=
- =?us-ascii?Q?iFNvCVfoZ/BEdSFsDKkma9hOUHUmjI6pCJu7chGn3H1OjmuImWhTsc4n0L44?=
- =?us-ascii?Q?yFP/tKSWTKkVBJLh3jni0C6YHbGCXUIkUJVKBjvaH7qQLH50cATRcWFtko2b?=
- =?us-ascii?Q?b/Er2S2BrGdn4TC62Kks1cFTjFtFUHimWL6GmyuVMABW5HmxBHYsGGvBKxtT?=
- =?us-ascii?Q?9AT3zKU1SkYftzZacEqq5aHBBDoIqgPT053ZeqVA+e6+mZEnfFhFIEHzieUd?=
- =?us-ascii?Q?Yg8D2Oknm2SGy41QRvwxANppYVaXiK6ddTQ1RHp3YmBjAOadPHZCxaZBSCHs?=
- =?us-ascii?Q?avlqWCKWLGpR/BkQ0ekmyU/oXOabK/x91JzcJenrhpgRmGx5jWdDkElZwjgm?=
- =?us-ascii?Q?WQQLn9FCLL/UmpaWc0g+7m32GSvn/qcuNQYfPvQgsIqlVzBB0iP6?=
+	=?us-ascii?Q?praNWuPqaBM8PZj/zwnkonc7fm6SOBEZzOsvaaSoVo3fuKY3UtvYrQLGNG5T?=
+ =?us-ascii?Q?nuXWetGEd2p9xf0In39k8J3FYwYcKpNEJWPAamh66mK6dgWhLcaLwH3CP+yi?=
+ =?us-ascii?Q?sE9aZTkw43YISUxD5KdJY5jEJ916YaQBzJhVPKtB/7YBiai3218joG3ZcK1y?=
+ =?us-ascii?Q?ONxRg5JWzDi4QGSjr4yMFZc3dQv8l0tuOpY3qaEZQFUfpg24l1MKjbQvIiYR?=
+ =?us-ascii?Q?5sYGcpq3yuoxKq6ZVBkfMxPng+716vAFVzkEOCuxk5ll84xcYp/CxbVfVH9x?=
+ =?us-ascii?Q?9F0TH7/xzdPpc47kszG+TFI5FzCUg+k8G9qPQyLf8+rQgY/mVMba/d1Ouswa?=
+ =?us-ascii?Q?jSWKMtfCBknzO0RbqZhiHij2dGsuSNaFb+wBFtlHhuI//H/eVlB6SZ+FKmu/?=
+ =?us-ascii?Q?A8rF8rjRqELwCAam8t1zhaswtpliC0KCJKkQGeuVYrVOPKr0TvB9BJRIpO03?=
+ =?us-ascii?Q?F8lZRay83DDLSpZzLj6GM/v35Bu0rrH5cOGCOFarOQEfsqhuN+9AR/rgn+GS?=
+ =?us-ascii?Q?hRp47GYUVPq3myDwqqYZDeIP8ZhpgAZLgsQ2BUOI+VWgKml9e9j+wHXoC5fl?=
+ =?us-ascii?Q?LZSJMmIOVasOAE2IormUGhsy2I2Hr0mkRw8tLIwjPQVDoyN4EdLpkiS5R/Cv?=
+ =?us-ascii?Q?Co16EL+bFQRULSUvL71PbqSPH484PDHEEI0FuQVTAjQwgl9PtqsmiCe1cV6C?=
+ =?us-ascii?Q?m3GHfE64SiaRufRYHBxKygwZP/oem1MjnGfNwK+MSzicq2oBIjtIDKCq9eji?=
+ =?us-ascii?Q?yi1aOKKQfSoqaQLbP15DsplnJJha2IkJCS2BBZR15wurc0AvhrciotsA8kzy?=
+ =?us-ascii?Q?aBLdKnFpZA5h9qwBWnCe8KoVY8u5g4cot/Vf9Wawfai9mjts0ispYKZKY3kj?=
+ =?us-ascii?Q?PXFueLs2wS/WbGAI8/ervFisf9U/+p81PpZE0aMqqxT+MKoxG6mH8vwFZhha?=
+ =?us-ascii?Q?W78XULsc4RU3Of5ebCfc+cFKKd7VOKkscFZvYTFrzka+IbGemTafxZkQTYcQ?=
+ =?us-ascii?Q?EtVZR4E2XcTSP7QVmTtZ1QE7OP4Z8d9Pm8Btgt4RoCpZZcPEn88DTr2WoKVk?=
+ =?us-ascii?Q?bws8a2HmsvQmZ0BJXhYixh7xW1bk/LOj5VJhNdIELz8rsqszt9CgkSSh6+BL?=
+ =?us-ascii?Q?lFl0zPhPpnTbZYOTXMhabOhQ1NuHHfjvni77rrbyHJhfkWTTFhlC5/GMWDOA?=
+ =?us-ascii?Q?VurybNcpQ7WDdfq3/1laUoPPfEM7GgsDNT5ItgEy+rcjLzfzpJD3Y+Uhwk3a?=
+ =?us-ascii?Q?teJMUTqxnAuLYbhtSH2eujYbrz14+9/OyA9d4XfqAu3Dye8qureqypcXpYq6?=
+ =?us-ascii?Q?sR27KWMoVNMEE62yoK2GGjRXa6pucXrEHFOV3rtn+C5ekqRfEuYZI4O45A7t?=
+ =?us-ascii?Q?5Bpn4xg9GoBZu5XqCvz5iMs3gEqmXCzSUNMhIyvEbcXmFtp9bs/nYo8+7JFY?=
+ =?us-ascii?Q?aDo6pL2OImsNJVODSsOumRpR2tGYcywhJpJgjiRQnMfMUpZV6U9e+1KeGrcw?=
+ =?us-ascii?Q?Wpztby53HW3wr4eddsiR6lC92f/iVg44AJKOjc4r8l1VnUfyIVS5QLZCzktC?=
+ =?us-ascii?Q?E9KmIswnc7vAAu4rannhjng3Lw92GGV8qI7c506nMo2ASatrYKlhfcT0zalp?=
+ =?us-ascii?Q?D4aBisLvMyAgfPx945XWpu7E0kt72pezWxVp9POi/9CzMOB/rOeC35zDI8Dp?=
+ =?us-ascii?Q?c6ZZTADL+PfmJ1xGgJzZePYb8sF26A811ckmqXgdFor2Z4ZH8HeW3ap2UEAu?=
+ =?us-ascii?Q?EkWf9bFRv1/K+hc8TbZrzegFkInh3jbyliWq5Gt2ujNZSi7m6iI/?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9eef396d-3685-4266-ad37-08df41b5f2b3
+X-MS-Exchange-CrossTenant-Network-Message-Id: fa121c51-0f9d-4294-0e0b-08df41b5f64e
 X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Nov 2026 18:43:02.7495
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Nov 2026 18:43:08.8759
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: AlU5+A+rPS2GxR57TXsusZTB8aTK3Nw3T/CQ/mkE2bCYEAaaMMms4LTW61pjMfkRSzOdD8/YshNC0j8dzAKZ1A==
+X-MS-Exchange-CrossTenant-UserPrincipalName: BhQIvwTd6+AWsslF0ugvv3rEIvzNSxitz2cHSmIT4kia3SMVYo5RNqdbySB0j0BnbSHkanhtzz6GU9sqvxY1EQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5896
 
-Offlining the last preferred CPU leaves cpu_preferred_mask empty. Normal
-fair load balancing stops, potentially leaving CPUs idle while having
-queued tasks.
+CPU hotplug between samples can distort the calculated steal ratio because
+the governor divides accumulated steal time by the current active CPU
+count, even when that count changed during the sampling interval.
 
-Currently, steal governor is the only module that may modify the mask,
-so it takes care of it by resetting the mask to mirror the active cpumask.
+For example, assume a constant 3% steal rate on each CPU, with four active
+CPUs for 900ms followed by two active CPUs for 100ms. The accumulated
+steal time is:
 
-The design allows alternative preferred cpumask managers; relying on
-loadable modules to maintain consistency of the core data structure
-is not worthwhile in general.
+    4 * 900ms * 3% + 2 * 100ms * 3% = 108ms + 6ms = 114ms
 
-Restore all remaining active CPUs as preferred in sched_cpu_deactivate()
-path, without relying on the steal governor to recover.
+The elapsed time is 1000ms. Using the final count of two active CPUs, the
+governor calculates:
 
+    114ms / (2 * 1000ms) = 5.7%
+
+This exceeds the default 5% high threshold, even though the actual steal
+rate stayed at 3%. Using the CPU counts over the whole interval gives:
+
+    114ms / (4 * 900ms + 2 * 100ms) = 3%
+
+Checking num_online_cpus() doesn't account for cases where CPUs go online
+and offline such that the total number of online CPUs doesn't change. So,
+implement the sampling restart on hotplug event.
+
+Fixes: 27d47ebce4d6 ("virt/steal_governor: Implement steal_governor policy loop")
 Signed-off-by: Yury Norov <ynorov@nvidia.com>
 ---
- kernel/sched/core.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/virt/steal_governor.c | 37 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 34 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 175b52a7ea79..b5c158c4efad 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -8723,6 +8723,14 @@ int sched_cpu_deactivate(unsigned int cpu)
+diff --git a/drivers/virt/steal_governor.c b/drivers/virt/steal_governor.c
+index c34d91267ec1..f71dbf27e4a9 100644
+--- a/drivers/virt/steal_governor.c
++++ b/drivers/virt/steal_governor.c
+@@ -14,6 +14,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
- 	set_cpu_active(cpu, false);
+ #include <linux/cleanup.h>
++#include <linux/cpuhotplug.h>
+ #include <linux/cpuhplock.h>
+ #include <linux/cpumask.h>
+ #include <linux/init.h>
+@@ -42,6 +43,8 @@ struct steal_governor {
+ 	unsigned long		delay;
+ 	unsigned int		high_threshold;
+ 	unsigned int		low_threshold;
++	int			hp_state;
++	bool			sample_invalidated;
+ 	struct delayed_work	work;
+ };
  
-+#ifdef CONFIG_PREFERRED_CPU
-+	if (cpumask_empty(cpu_preferred_mask)) {
-+		pr_notice("sched: last preferred CPU%u offlined; make all active CPUs preferred\n",
-+			  cpu);
-+		reset_preferred_cpumask();
+@@ -217,6 +220,13 @@ static bool preferred_cpus_valid(void)
+ 	return true;
+ }
+ 
++static int hotplug_callback(unsigned int cpu)
++{
++	sg_ctx.sample_invalidated = true;
++	mod_delayed_work(system_wq, &sg_ctx.work, 0);
++	return 0;
++}
++
+ static void steal_governor_loop(struct work_struct *work)
+ {
+ 	u64 curr_steal, delta_steal, delta_ns, steal_ratio;
+@@ -233,6 +243,11 @@ static void steal_governor_loop(struct work_struct *work)
+ 	sg_ctx.steal = curr_steal;
+ 	sg_ctx.time = now;
+ 
++	if (sg_ctx.sample_invalidated) {
++		sg_ctx.sample_invalidated = false;
++		goto requeue_work;
 +	}
-+#endif
 +
  	/*
- 	 * From this point forward, this CPU will refuse to run any task that
- 	 * is not: migrate_disable() or KTHREAD_IS_PER_CPU, and will actively
+ 	 * steal_ratio = (delta_steal * 100*100)/(delta_ns * num_cpus())
+ 	 * To avoid possible overflow, divide the denominator early.
+@@ -254,11 +269,14 @@ static void steal_governor_loop(struct work_struct *work)
+ 		return;
+ 	}
+ 
+-	schedule_delayed_work(&sg_ctx.work, sg_ctx.delay);
++requeue_work:
++	mod_delayed_work(system_wq, &sg_ctx.work, sg_ctx.delay);
+ }
+ 
+ static int __init steal_governor_init(void)
+ {
++	int ret;
++
+ #ifdef CONFIG_XEN
+ 	if (xen_initial_domain()) {
+ 		pr_err("Cannot load in Xen Dom0 (Host OS). Driver is for guests only.\n");
+@@ -273,8 +291,20 @@ static int __init steal_governor_init(void)
+ 	}
+ 
+ 	INIT_DELAYED_WORK(&sg_ctx.work, steal_governor_loop);
+-	sg_ctx.steal = get_system_steal_time();
+-	sg_ctx.time = ktime_get();
++	/* Lock to prevent unobserved hotplug event during setup. */
++	scoped_guard(cpus_read_lock) {
++		sg_ctx.steal = get_system_steal_time();
++		sg_ctx.time = ktime_get();
++		sg_ctx.sample_invalidated = false;
++		ret = cpuhp_setup_state_nocalls_cpuslocked(CPUHP_AP_ONLINE_DYN,
++							 "virt/steal_governor:online",
++							 hotplug_callback,
++							 hotplug_callback);
++	}
++	if (ret < 0)
++		return ret;
++	sg_ctx.hp_state = ret;
++
+ 	schedule_delayed_work(&sg_ctx.work, sg_ctx.delay);
+ 	pr_info("enabled. interval: %ums, high_threshold: %u, low_threshold: %u\n",
+ 		jiffies_to_msecs(sg_ctx.delay), sg_ctx.high_threshold, sg_ctx.low_threshold);
+@@ -285,6 +315,7 @@ static int __init steal_governor_init(void)
+ static void __exit steal_governor_exit(void)
+ {
+ 	disable_delayed_work_sync(&sg_ctx.work);
++	cpuhp_remove_state_nocalls(sg_ctx.hp_state);
+ 	guard(cpus_read_lock)();
+ 	guard(mutex)(&cpu_preferred_mutex);
+ 
 -- 
 2.53.0
 
