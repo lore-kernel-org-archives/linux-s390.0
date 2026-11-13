@@ -1,80 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794571273;
-	b=IdDG735Vpq3rxJG4XTVwudbzDogi4zdkBISq93wqLpg6QXJwYoVGyyyxHXqaYN4z6G+k
-	 Am+hC1uwMz6ZGbNMQdDKcRcWPuQnw1xZOfXEfR5UdU/mreu2OFKy638Bk6IVcZOMEm7DV
-	 JLzp8SbuMOG42iVdUlWUXZVQLXnMIvAeuto3D3a++MvSFDIDfwiTQgArWr+TSSXVfxfOx
-	 h79MEOsRhsn7zUzzrY3ETgOT/b9nT4dQSKtrMdRwITQ1QqSmqnsF4aNy64OQXOgYpfB9k
-	 sEKWZeSuUEKkOyPgxI0kyugEmbVJXZ9QLmqRZdjIBDF2ynn/jXHz9kX2ZCxNpFUCWiw==
+	t=1794571300;
+	b=MAIRQ5m2QP9vuHfLlsuvO2j7FJSxzlc/b0TMfw/J63OB0SqFQa8T6SxVzoChWZLV/lzA
+	 DqNwcPY6ph8LM8ip0OjESOKDaqSYQ5NKWcLMzjTWgq2UH1ySu0qm6kdn2/517zJUB2Jri
+	 59EPKEqrI1DiWEum3l/OwlFt7QSbdnWThJD2yaHXYRpr+0dFz5gROPZX9XBPgpd2hg3rL
+	 DBTGYJOA8JUtga6fu2NvjY+1XnW3/WpepUG/LP23MZXH/gWmljFAOFlcPAjgV6bAHf9U9
+	 qP9IBLEov22lto7cqcATEyx4frO2uj32yMGjJ/ufPo0scBFqayb0H6oaJpyK2VA6r+w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794571273;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:MIME-Version:Content-Transfer-Encoding:X-Scanned-By;
-	bh=QuDGTGEuVvl3MPiP6Lxh0kED44wnv1RS4KyW/3v5QR0=;
-	b=4/YsF4M5MxCnPO+wELFrAU0l+B+THfUc8/RCxfIGOKcoYZ3gmMkTbSPU21/9HIzWkO4r
-	 COr0c+TSjzcLwADwvFezlb/BlKGLViG/I2TwRifvXpgNB8pbzee3NSXuv+neCImFHTuPV
-	 K4TyVr62EGJBfKMdconaxpw72hpGScfSy6/c2uuR1imbGfl9wGGDXv7dSk2s9YowH7fNK
-	 sp22hIO2ZfrqD81GfIZ5JFvqd97mKRqb6xGwJWsl4mvc6uAJ+zc5WXJ6hgMepb0eLtKqY
-	 NhGXJpbJxMdEjptKL5G3ru8pzI34rEuOy2uLiqs1bPcg/j3vnUIgrqtnynH+EaKiPNA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794571300;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
+	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
+	bh=kudVfvR8j8oKpMlnT4HRJXKZnsjg3IZPx8xqv9ln/aY=;
+	b=2pRV9R9x0jGkImjJjW5jr3RrWPKppa1CU+4ld6KJ4Qpu3Ra/x1PW9OQFqCLygY51RrWZ
+	 YRtR5mfTWBILrkZa66q4aZZPIykJbEqm/uK0obPn02GJ3R4eJcQ7Nf+vAg3lHbK71nVn+
+	 5SWcK1yhTq6snwRcJp/CATjbT/q9uoR9ElUKFRC4CpfNNTR55XcefU6/61/D9VtNIrG1U
+	 jHhBGhfIzy0x4n/MwQwQc7ZMgMBA4NgnYA5srCRprTvY1vP8tWoIBMlqgjl4C0Z7DOfLq
+	 VsS1Biu2JfQGl+3wBsmiH21oM6D8uXl4CEji5ANjFv0BJcMl+DgPzYbCWlLNXwb5wPw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H3gcFsb3;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d+pL95pW;
+	arc=none smtp.remote-ip=74.125.82.169
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E93E060A6F6D
-	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 12:01:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E93E060A6F6D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6894F606A8D1
+	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 12:01:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6894F606A8D1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H3gcFsb3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1794571271;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=QuDGTGEuVvl3MPiP6Lxh0kED44wnv1RS4KyW/3v5QR0=;
-	b=H3gcFsb3l7KBSA77Cv13pBq7TyAhwAXhhU/J4SU8I1ZAG5/40qZEf3uBaaFTfBwdmgU4/d
-	1Um8vMGy2Fjpu3aki3kVMdmmKXCX0Oq/uXmclfwfw/kIM0onMYF4yMsWTU7lVnP9ciE/fh
-	H5AEhTj0jVZ+S8oJi0N0xbHa0g+Ctjo=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-353-A7ZsTMK1NMyLP5Xu2r78Mg-1; Fri,
- 13 Nov 2026 07:01:10 -0500
-X-MC-Unique: A7ZsTMK1NMyLP5Xu2r78Mg-1
-X-Mimecast-MFC-AGG-ID: A7ZsTMK1NMyLP5Xu2r78Mg_1794571268
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4329E1800607;
-	Fri, 13 Nov 2026 12:01:07 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.44.48.21])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B092418004FC;
-	Fri, 13 Nov 2026 12:01:02 +0000 (UTC)
-From: Thomas Huth <thuth@redhat.com>
-To: Andrew Jones <andrew.jones@linux.dev>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	kvm@vger.kernel.org
-Cc: Laurent Vivier <lvivier@redhat.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>,
-	Chinmay Rath <rathc@linux.ibm.com>,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	Amit Machhiwal <amachhiw@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] Move position-independant code flags into the target specific Makefiles
-Date: Fri, 13 Nov 2026 13:01:01 +0100
-Message-ID: <20261113120101.145183-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d+pL95pW
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-33c10faf6easo111003eec.0
+        for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 04:01:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794571299; x=1795176099; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=kudVfvR8j8oKpMlnT4HRJXKZnsjg3IZPx8xqv9ln/aY=;
+        b=d+pL95pWTQ3jrjsxlqw989H+pRIcGJv3p+LmtTJBiGIde7CnsOXvSoqBApHnEmkY8W
+         CIHbYQSmM2kh35Pl3BlaLCxZsVNZ0fu5sfL8j8UFuehkrJgEFnYzZc/3eToNysPq+YfX
+         vmfJh2csbKkvlEQdIreMGP7eViXk2+5J/H98WxURJB66Z/B1NiyOgng86GIXSJhfsKHj
+         fQqXXta6cctfbhUb5bLPwttwNlXQzr2BDXsDxq7Oi37tkKMNlCKRK/fTjjo06N4N6/hF
+         OmS/OaWk0J2tj9/UAJeyq0nEXNwh8YKS68TtURAi0Otfyp++uyReuokYx+SdBU6zoRLx
+         rbzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794571299; x=1795176099;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kudVfvR8j8oKpMlnT4HRJXKZnsjg3IZPx8xqv9ln/aY=;
+        b=ASHYfkAGCa1dOsFSm5cTkQUo8tKd02szcqHkZQORPDm/IisUzU5lCUqKmHubwIFL+G
+         7NFg6/HUI609CJamwc9DdX97cQb1jNyKB2UwFVMfbNpSSgZlDOXvB8z8ocegNj+xRyiq
+         Ju6l6PPFCQviv3WVZVD/DYb9bffj784Nt69bKAIrnC+4WESGhaqvmsC4I8hknLsZR/F4
+         fTQ3jo9G1cSLfXY6P6vxOxVefsdKLyfnHz6ksY5O8Mkg5MjapYYUzqPuDAvyS4hV4qiv
+         cdn/RiyYF5qqaWzTOoRdnSbrTjDy8KuAyXHFRMVVSk3TehAWOKMe8rugu9SgCmdlvdYe
+         AN2w==
+X-Forwarded-Encrypted: i=1; AL+hErFwND62MHGs6IAeGFmLp2YUJx7l1bIZg74KSVS1Kumzn441TMry+AR67K2n/4X01vKmpBQy4SsmOAU/@vger.kernel.org
+X-Gm-Message-State: APuU4Z/mIe46//OgqZ2yYKdg5/FmfAzMKZpuzXl6KcXn9LHj43TixOBk
+	0irDSDdW6pGBEtE1EC+7CfWioKpPUt6WBaYYn2kKFnODwykDMKxZSYzbvM4PM8S68HReAw==
+X-Gm-Gg: AYBFou1QbKHXOIyga+Un73We9sG1cPCfBYqrGpHgKz+OKJFbSe0nxdQU9e7mnzpkJzY
+	pRu3UrB+AVIMtXzuZCFaFNDXdlILSyaZF8lYpVRu74R8w+w6E57Bzyf3/o5exu52hDMsmKBNhN+
+	pnvcplewCQOCoHZ/OiDDmFCf9gi+E3jlma5X0Cb0lJfFZRK8CLqaUqUjE4AK7o44OYWZrRSoN7A
+	Mhr4+++ELTJ2KyeD7JFNnA1Ow+3VNjiRwI1IX+0zOiWS23NsQG/1BP5jrVqWc36g8/LnTCwhmzY
+	y/7DsEN1H8rldCwr9gtYlF9UsuXoVmdGbVmpvX8OLUKmfHieSStWudw65VKG6aErC3MigDsg6rR
+	6MkjU+924jX11LGvoj8km8YJC47QJBH17ufiYkPt4NVcAMBbLme798F5gWw8RbD1uGZt4r7XspH
+	PqafmYe+agCHnPj5z9AvWLs7yQPFSPmOI5p8NvKTp0VStb31PTrf4qGkHA5o1uA5Bg5u9CPczH/
+	FddFIS+oDHCYogo3jn5i/JK0GeDL6lP5nO9fnJm3FBVUbMUrSRC1pEBiIiwz2Awtu2C4yGxdQ6p
+	OmD41Uf5vu3PQeYlzk4gAt7BnytLeMHHUTl9vVsn/aPzK+PY7hbTFpOEHTOY1HKWGOnTV4OjirS
+	QaFu4Cx+P5GeP
+X-Received: by 2002:a05:701b:290a:b0:127:def:dd72 with SMTP id a92af1059eb24-1b5030f8a7dmr3059602c88.2.1794571299135;
+        Fri, 13 Nov 2026 04:01:39 -0800 (PST)
+Received: from o6.lan ([2602:fce1:44f:115e::])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b50313d8f5sm11650418c88.3.2026.11.13.04.01.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 04:01:38 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -84,158 +89,67 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
+From: Xueyuan Chen <xueyuan.chen21@gmail.com>
+To: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Xueyuan Chen <xueyuan.chen21@gmail.com>, 
+ Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, Alex Shi <alexs@kernel.org>, 
+ Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Helen Koike <helen.fornazier@gmail.com>, 
+ Vignesh Raman <vignesh.raman@collabora.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ linux-mm@kvack.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ Nhat Pham <nphamcs@gmail.com>
+In-Reply-To: <avZyo_hCRonuhXW6@google.com>
+References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
+ <avZyo_hCRonuhXW6@google.com>
+Date: Fri, 13 Nov 2026 20:01:28 +0800
+Message-Id: <179457128804.2142163.14813125534208665209.b4-reply@b4>
+X-Mailer: b4 0.16.0
 
-The settings for position-independant code are currently quite a mess:
-It depends on the target whether we need the flags or rather should even
-disable PIC / PIE, but currently the settings are spread between the
-main Makefile (-fno-pic is the default, unless CONFIG_EFI has been set)
-and the target specific Makefiles.
-This leads to some weird situations where we have -fno-pic in the CFLAGS,
-but link with -pie in the LDFLAGS since we still want to get a relocation
-table, but then again need to add a "-z notext" to the linker flags to
-avoid warnings about relocation entries in the text segment.
-Let's face it: Always adding -fno-pic / -no-pie in the main Makefile is
-a bad idea. Move the settings to the target specific Makefiles instead
-where we know what we really want, and then we can finally drop the
-"-z notext" settings, too.
+On 2026-11-13 11:19 +0900, Sergey Senozhatsky wrote:
+> On (26/11/11 20:41), Xueyuan Chen wrote:
+> [..]
+> > diff --git a/Documentation/mm/zsmalloc.rst b/Documentation/mm/zsmalloc.rst
+> > index d2bbecd78e14..4c0786378dc3 100644
+> > --- a/Documentation/mm/zsmalloc.rst
+> > +++ b/Documentation/mm/zsmalloc.rst
+> > @@ -33,8 +33,8 @@ proper handle-based APIs.
+> >  stat
+> >  ====
+> >  
+> > -With CONFIG_ZSMALLOC_STAT, we could see zsmalloc internal information via
+> > -``/sys/kernel/debug/zsmalloc/<user name>``. Here is a sample of stat output::
+> > +With CONFIG_DEBUG_FS, we could see zsmalloc internal information via
+> > +``/sys/kernel/debug/zsmalloc/<pool-name>``. Here is a sample of stat output::
+> 
+> While we are at it,
+> We use zramX throughout Documentation/admin-guide/blockdev/zram.rst
+> and in some other files as well.  So let's just replace user/pool name
+> with
+> 
+> 	/sys/kernel/debug/zsmalloc/zramX/classes
+Zswap has its own zsmalloc pool too. How about this?
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- Makefile            | 6 +-----
- arm/Makefile.arm    | 2 ++
- arm/Makefile.arm64  | 3 +--
- powerpc/Makefile    | 5 ++++-
- riscv/Makefile      | 1 +
- s390x/Makefile      | 3 +++
- x86/Makefile.common | 5 +++++
- 7 files changed, 17 insertions(+), 8 deletions(-)
+	/sys/kernel/debug/zsmalloc/{zramX,zswapX}/classes
+> 
+> Here and in the Chinese translation.
+> 
+> 
 
-diff --git a/Makefile b/Makefile
-index 8e002043..b0a0b89f 100644
---- a/Makefile
-+++ b/Makefile
-@@ -70,8 +70,6 @@ fomit_frame_pointer := $(call cc-option, $(frame-pointer-flag), "")
- fno_stack_protector := $(call cc-option, -fno-stack-protector, "")
- fno_stack_protector_all := $(call cc-option, -fno-stack-protector-all, "")
- wno_frame_address := $(call cc-option, -Wno-frame-address, "")
--fno_pic := $(call cc-option, -fno-pic, "")
--no_pie := $(call cc-option, -no-pie, "")
- wclobbered := $(call cc-option, -Wclobbered, "")
- wunused_but_set_parameter := $(call cc-option, -Wunused-but-set-parameter, "")
- wmissing_parameter_type := $(call cc-option, -Wmissing-parameter-type, "")
-@@ -85,8 +83,6 @@ COMMON_CFLAGS += $(wno_frame_address)
- COMMON_CFLAGS += $(if $(U32_LONG_FMT),-D__U32_LONG_FMT__,)
- ifeq ($(CONFIG_EFI),y)
- COMMON_CFLAGS += $(EFI_CFLAGS)
--else
--COMMON_CFLAGS += $(fno_pic)
- endif
- COMMON_CFLAGS += $(wclobbered)
- COMMON_CFLAGS += $(wunused_but_set_parameter)
-@@ -103,7 +99,7 @@ CFLAGS += $(LATE_CFLAGS)
- 
- autodepend-flags = -MMD -MP -MF $(dir $*).$(notdir $*).d
- 
--LDFLAGS += -nostdlib $(no_pie) -z noexecstack
-+LDFLAGS += -nostdlib -z noexecstack
- 
- $(libcflat): $(cflatobjs)
- 	$(AR) rcs $@ $^
-diff --git a/arm/Makefile.arm b/arm/Makefile.arm
-index 7734e17f..7313c843 100644
---- a/arm/Makefile.arm
-+++ b/arm/Makefile.arm
-@@ -13,6 +13,8 @@ endif
- 
- CFLAGS += $(machine)
- CFLAGS += -mno-unaligned-access
-+CFLAGS += -fno-pic
-+LDFLAGS += -no-pie
- 
- ifeq ($(TARGET),qemu)
- arch_LDFLAGS = -Ttext=40010000
-diff --git a/arm/Makefile.arm64 b/arm/Makefile.arm64
-index a40c830d..ea0202eb 100644
---- a/arm/Makefile.arm64
-+++ b/arm/Makefile.arm64
-@@ -7,8 +7,7 @@ bits = 64
- ldarch = elf64-littleaarch64
- 
- arch_LDFLAGS = -pie -n
--arch_LDFLAGS += -z notext
--CFLAGS += -mstrict-align
-+CFLAGS += -fpie -mstrict-align
- 
- sve_flag := $(call cc-option, -march=armv8.5-a+sve, "")
- ifneq ($(strip $(sve_flag)),)
-diff --git a/powerpc/Makefile b/powerpc/Makefile
-index 41e752b0..eff129b0 100644
---- a/powerpc/Makefile
-+++ b/powerpc/Makefile
-@@ -66,6 +66,9 @@ CFLAGS += -ffreestanding
- CFLAGS += -O2 -msoft-float -mno-altivec $(mabi_no_altivec)
- CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I lib
- CFLAGS += -Wa,-mregnames
-+CFLAGS += -fpie
-+
-+LDFLAGS += -pie
- 
- # We want to keep intermediate files
- .PRECIOUS: %.o
-@@ -78,7 +81,7 @@ include $(SRCDIR)/scripts/asm-offsets.mak
- 
- FLATLIBS = $(libcflat) $(LIBFDT_archive)
- %.elf: CFLAGS += $(arch_CFLAGS)
--%.elf: LDFLAGS += $(arch_LDFLAGS) -pie -n
-+%.elf: LDFLAGS += $(arch_LDFLAGS) -n
- %.elf: %.o $(FLATLIBS) $(SRCDIR)/powerpc/flat.lds $(cstart.o) $(reloc.o) %.aux.o
- 	$(LD) $(LDFLAGS) -o $@ \
- 		-T $(SRCDIR)/powerpc/flat.lds --build-id=none \
-diff --git a/riscv/Makefile b/riscv/Makefile
-index 348a30a7..79a9c1ad 100644
---- a/riscv/Makefile
-+++ b/riscv/Makefile
-@@ -93,6 +93,7 @@ CFLAGS += -std=gnu99
- CFLAGS += -ffreestanding
- CFLAGS += -O2
- CFLAGS += -I $(SRCDIR)/lib -I $(SRCDIR)/lib/libfdt -I lib -I $(SRCDIR)/riscv
-+CFLAGS += -fno-pic
- 
- asm-offsets = lib/riscv/asm-offsets.h riscv/sbi-asm-offsets.h
- include $(SRCDIR)/scripts/asm-offsets.mak
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 97ed0b47..29bea5cc 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -88,7 +88,10 @@ CFLAGS += -O2
- CFLAGS += -march=zEC12
- CFLAGS += -mbackchain
- CFLAGS += -fno-delete-null-pointer-checks
-+CFLAGS += -fno-pic
-+
- LDFLAGS += -Wl,--build-id=none
-+LDFLAGS += -no-pie
- 
- # We want to keep intermediate files
- .PRECIOUS: %.o %.lds
-diff --git a/x86/Makefile.common b/x86/Makefile.common
-index 054e2391..a0201fcd 100644
---- a/x86/Makefile.common
-+++ b/x86/Makefile.common
-@@ -40,6 +40,11 @@ COMMON_CFLAGS += -Wa,--divide
- endif
- COMMON_CFLAGS += -O1
- 
-+ifneq ($(CONFIG_EFI),y)
-+CFLAGS += -fno-pic
-+LDFLAGS += -no-pie
-+endif
-+
- # stack.o relies on frame pointers.
- KEEP_FRAME_POINTER := y
- 
--- 
-2.56.0
 
