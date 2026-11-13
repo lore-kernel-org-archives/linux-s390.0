@@ -1,81 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794555333;
-	b=fyW9cjk6RIBUUMIB+seAUaluT3+ajF7glzVi87d+nZVJVm6ghGXFIirq/o1Byl9hgVk5
-	 Dj+T//O+bebYwLp/hi9D7pBiC4B13uR2tJDXwM0yiFp0p1xqBdy+kaSBFI6TtNEzBdmbx
-	 KbYI2NgUNdNDSpwny0HS036sWIKujha4tuuGJXgKm67en6Dr1Ipz/o6xFlLaCb8yPtAGF
-	 4hjsEILp1my+qxN7buz2d9wrQ5xXi27WCNYYKNIg293xTXRpkvdA670dQMjaRAsZdLSXe
-	 ixSZbMX4TSd7NxRPaWVwuf+Vet468LvDSND48Lqj+Q33zV7X1v+tSUHLWtN0TIkhCTw==
+	t=1794563701;
+	b=NKMAQ8cNVh6lNaWYG6TdbYlZrfPqSD5Va5LbxGE6vwbY+K72/qWnY3xBFqcaALc2E+YE
+	 MeGER8kbi0aeurgyQV1IwqsVBo9XmSstmOAow3KrEYwHskPzfHo3Tx7ftFQkJMWUOoSDU
+	 1pAxFdd8uF0Lx/U3IfSuqyR7CBMgiQXz9bRi02vIfrW57axquT7lMcwQ9SMkJW5escQrM
+	 YSdTU1+ajo3pnLqGqaevRJJactcZ6ARWD54fOwjrxOMoLIHn1bSCRJNkx/LwL+3qP+JRn
+	 00n/kP6uwqZyYvKSBl3wt4Uja4Eqma6X2sKBNKvF9zcD0x2DsTvWsPD2148F8l5iF6A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794555333;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=qTnig7zC5pLjxm9m59TXQlChEZTk5WYxI0U3w8qOtMc=;
-	b=2oeWDOU/jk+Da1vuEHPQnM+E061+H7cgpti1XS1b9PYK7cxBifvFvNxUdRxek2qvCgKb
-	 BnrkeMZm9NLkD4opcVeo53cCcMBxEc4uJzcycJ/V7MefKW2eMNKhOTg9hPMPZO7ENzJcO
-	 i0IOBp7TI/mWFV3tOFV1vuYqAt5Wdg3djR1mAM1psGYsJRtjMlnWDSKw1Jz8vZw7eL5qk
-	 3JfB5T+KejEqRFwKt6kTzhlIhgspO/O9zLerhSw1a0zFpW3QyiYtVQHvqfh+OTyXKdPjR
-	 blgRMz5VL6WQrDrdLd03GS9GFTNalBPLeZwkCpid2UrNewQjVn6uIde+VR1+BGa73VA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794563701;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=G8DmFU4pJwAPCJlqHBF8SKasEEThxtJNlC1sg/CSkLw=;
+	b=RNxe2KIpIXA3yQhyqUuybIZW7imRxmitvUwMfZ4uAIys3fN8AtSQkyHq7Wmi0o0GrJzX
+	 WrxNQcmoj8Ar0sgqrAbkz9ESgriNOSWegZrKkEgA9fbOgenFL4hTYfMfHbp/VqgNQ1JIx
+	 4kDopAlbsg4aRCfcksamcqh51eLQBKTpGJ6oELBzvORJ5PuFrFPp2p/b86Wo8TDLvUwts
+	 0oq3ysi+Xo/WboiwUeP8WBBeJNn+FahWdmhXr2h5szmGZcK1NXwOqN/E/MIZwAky/jGIP
+	 QhN4zweU/2lZcuietAD0HMJEpQzGPHRk9xoBhINNaHzASndubW36ej4ip2tPl9MqJKQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=RkKjHsjV;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=none header.from=amutable.com;
+	spf=pass smtp.mailfrom=amutable.com;
+	dkim=pass header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=sk58W6sW;
+	arc=none smtp.remote-ip=209.85.208.43
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51758606A321;
-	Fri, 13 Nov 2026 07:35:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 51758606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D51360A2601
+	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 09:55:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3D51360A2601
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amutable.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amutable.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=RkKjHsjV
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AD7Kxju2377190;
-	Fri, 13 Nov 2026 07:35:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=qTnig7
-	zC5pLjxm9m59TXQlChEZTk5WYxI0U3w8qOtMc=; b=RkKjHsjV2w05G1ksKcnQES
-	SfpKOQ/B0Or6l5SAUBYN3YiALsYonmbLGPG2O2S/fVfm/m8SkqZ+NzyAISNvpKts
-	OAt5YHixn9aD7zf6LNvwelsDrFeCst90geQ4zKR5FW1dOWpI886yqpApccsivFUQ
-	iHPQJbQjdz/NJ3Er+Sr3DgsNbxK7ZaUR7zYEfLC2briqOogv2vbX1+HoWjP/ECPF
-	+90va3dRHlEaPu4CH6HiY132aD0kU0HDr46zw9q7Qn6tgjNll/N64IZYpJPquI4C
-	RXuJvrey7zhA53LNtA6nEW3cS1rp/ZfboOlBjoQKyl9anFBvs1Mu4U1fgg57OOnQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsug6jf5p-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 13 Nov 2026 07:35:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AD5JvT21741183;
-	Fri, 13 Nov 2026 07:35:31 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hwegfawwb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Nov 2026 07:35:31 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AD7ZTbv19792562
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Nov 2026 07:35:29 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9917858056;
-	Fri, 13 Nov 2026 07:35:29 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2117658052;
-	Fri, 13 Nov 2026 07:35:29 +0000 (GMT)
-Received: from [9.61.250.111] (unknown [9.61.250.111])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 13 Nov 2026 07:35:29 +0000 (GMT)
-Message-ID: <6df96ce4-7065-4c2c-b3d0-1874bedefdd1@linux.ibm.com>
-Date: Fri, 13 Nov 2026 02:35:28 -0500
+	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=sk58W6sW
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6b2237b596cso1754431a12.0
+        for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 01:55:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794563698; x=1795168498; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=G8DmFU4pJwAPCJlqHBF8SKasEEThxtJNlC1sg/CSkLw=;
+        b=sk58W6sWmN4ERo+6S+koVh/BM/TVuc998Smvb7+dAHAHasLoIxA1PyH7SpTb2sphTs
+         qaL8BceJIK/C5zTluK59TXAg0t7i18MIhSXKzAc74GDtFkVBtJ5XexxofTn2ErTCpEyw
+         wBL0ZIwSoD+QdFLNUYuAtp3uhttIIU+8CcgeY50Q9BuPcdVkRSxffNnvhBi5q+TOT3Z0
+         N0fPVcnw8avDa7R0wdKzwUNoVC/3vPRCD1SmgKjZfrkNv7BBIugYP8aqCryl3mRTzhIm
+         nyzLSOhSkS/Bye+QA00IM2MsjhnUA408QIyungJaHYxvuyXbuTeC6K0dJcKnUnQNsCLo
+         BJGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794563698; x=1795168498;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=G8DmFU4pJwAPCJlqHBF8SKasEEThxtJNlC1sg/CSkLw=;
+        b=Ecpbn57DNq1qX0cUvZuN+ZQn0FvofmODh07iPe8nrER/8p5+0rYNf/RO7uUOs5ugRj
+         2gopD40fUACHgb7VaiFeP8/asdx8ORQCz+h9fELOUgOZvSR7esfrfwhgK3RBSuaabPP3
+         FZkWIiiz31ZX/zcno9RM+PLbR6pWGa6lgoCngBqpuScSayKYcUJ69Vsv/oZumtvR7zWW
+         uVGtE2Za1DaTsvOve5cnS1L+f5FF4NREGV8DjDhi+pNCe1Rxz35tlG/Is5wXrebDA6ih
+         MP4PPi5BY/mGmjvsYmZSL8nm6nKoU5j4bdHci/62w+qMGF6CemJopP9AAvwUCPMwyyYt
+         2uCA==
+X-Forwarded-Encrypted: i=1; AL+hErGfN1zvbnqf2/+B7ZDow/JId3cRrh932rcpnDHwdZ5ECeDHemnIHjr5Lilqw5T+ti1ZOH5rSEM34B34@vger.kernel.org
+X-Gm-Message-State: APuU4Z+oYE6X6+ybUbPNktsE8PdHP9qpcjZYxuFyLr5Jq+9s8IItNMIP
+	y7iaOr1FLDgSrZULnkoAOKZqRuNUDcpcewAbU3Y/y/zm36JHK8mxJVo4yasqeIC3cku4
+X-Gm-Gg: AYBFou0pq4HIv+W68pq5AdmrXkRcv9hC74BuWUVa/AnCBkT/45i0EZmcLCyyNXbUwvm
+	gjUrO0886wdTfn45ddeg4SvF+46xPH8rDBIFzAGBXqzQSiZND3T/+OkRGuc8xAKkmjqi31cxYJv
+	zLDRSU9Zy37n6iQzxcSERZmyWWNZoX4HZWPImRRQrqgC06faHV4UrRpCVLV8KJjbcUgbXEmZmtU
+	xCcwXlTEWOxJELN4sx6cbdacMQYtIXNwdYaDtra0ZImWQKanWrv3PDFXzHuuNyqpVXx+rxqagwx
+	tidDpRcuu2WHysmFWiiLVsc42mRQUXTysBUvVuK+Xy/+2ZI1R0KN2ZjS8PgZbjTqJOTjx9U+ncA
+	LSNsf6NGLS/qt55csftltWfUrtjrbxhz5dOeggJzbcvzmp95rbFgNOgeslWeEWhlyOF8Yyu2BZa
+	NcSMkiHI80SGWg8/DRQghGpQvAkgHS9i/dGq1LpTOSZq2m2Y0vwrca+5cGglKjGM/U/9u3OGlMY
+	wqMHM/y9uEjj0rdLpe3DjFdFvp7WcNe0BuEvxVFmpOPv+bt9E/AVjPCL8H6rFCNZatcH1mlgixN
+	wVLYuQabzeLuOLV7jkswXQ0QW2YTqtsUn4cLXZMtShzhSYsvy3zorI/XJOPIPI4=
+X-Received: by 2002:a17:907:ea93:b0:c41:4c20:5a80 with SMTP id a640c23a62f3a-c50963bdb9bmr198299566b.44.1794563698514;
+        Fri, 13 Nov 2026 01:54:58 -0800 (PST)
+Received: from [10.0.0.233] (tmo-086-54.customers.d1-online.com. [80.187.86.54])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c50957c6c1fsm75151566b.0.2026.11.13.01.54.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Nov 2026 01:54:58 -0800 (PST)
+Message-ID: <b42c9f4d29a9cbea66929c95cc8f736f12703c72.camel@amutable.com>
+Subject: Re: [PATCH RFC 01/41] loop: refuse backing files that aren't open
+ for reading
+From: Alexander Mikhalitsyn <alex@amutable.com>
+To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
+Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
+ Bacik	 <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, 	driver-core@lists.linux.dev,
+ linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org,
+ netdev@vger.kernel.org, 	fuse-devel@lists.linux.dev,
+ linux-efi@vger.kernel.org, 	xen-devel@lists.xenproject.org,
+ ocfs2-devel@lists.linux.dev, 	linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, 	linux-usb@vger.kernel.org, Amir Goldstein
+ <amir73il@gmail.com>, 	linux-erofs@lists.ozlabs.org,
+ linux-kselftest@vger.kernel.org, 	stable@vger.kernel.org
+Date: Fri, 13 Nov 2026 10:54:56 +0100
+In-Reply-To: <20261110-work-loop-pseudo-v1-1-4c998976c6c7@kernel.org>
+References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
+	 <20261110-work-loop-pseudo-v1-1-4c998976c6c7@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-0+deb13u1 
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,335 +115,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/6] KVM: s390: selftests: Add kvm_exit test for
- instruction intercepts
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Nitya Khamar <nkhamar@linux.ibm.com>
-References: <20261110111619.61760-1-aaronmbr@linux.ibm.com>
- <20261110111619.61760-2-aaronmbr@linux.ibm.com>
- <90cf2229-af79-4f08-b001-753dc7a86aa2@linux.ibm.com>
-Content-Language: en-US
-From: Aaron Brown <aaronmbr@linux.ibm.com>
-In-Reply-To: <90cf2229-af79-4f08-b001-753dc7a86aa2@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dOg5tRj4iga1cXHeFW9lWm-pVDEBIvrN
-X-Authority-Analysis: v=2.4 cv=PeVqFShd c=1 sm=1 tr=0 ts=6af6bdc4 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=owjdTxqFgtlei93qGv4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: dOg5tRj4iga1cXHeFW9lWm-pVDEBIvrN
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEzMDAyOCBTYWx0ZWRfX645K7Nx8EV9J
- 2wekf7MB06pMl9/qbSVyTCwLgr9HC/Peq2xv8iqCkDzcymutPxBPMv+xhVvxQAzx7r41FCXgWlH
- ilxSK+udO23d6saxb+733Ay+XSpZ/gmBu1xWnKfXWHtldpun5Z1jD1Gq4FeVdY260Du6MKqdRSM
- 7PqhdQuoPP1YeWJT7j4hrEWzR87kwST1G5CVR7xLstO3ftFAZdWC1vcl6HKOgMnmb758JizQVso
- dXRyW6b0wL54iyAFnjyLTT0WM7HewhMh/bfuizRmtQ3eEIXfH2hI2j8dcqx3iPeYKTkSdKgBANG
- yMPKc7alGDGLvP8Hiwibla/rXjhNxdaSBJ3lICoj5WVbOXV5TzLUkkJInJQ9Gp+4WTadnusuiRS
- uWvCwXuFiZWMWdsu0QUhT0MWkBVJdMgE2bN9i8lsI1SSj1jinkh+pTzKgbRw75DVOgw5VyrzAM0
- lg7Wq2sr7yf9p+zhMhA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEzMDAyOCBTYWx0ZWRfX49E147FwrMyx
- dqhAFF6BRE9fA/kh1NrglYWEtIyT73XEUkPpQ4bN9ANpm0lpT0NACNjeszArtjtpBaC7sZUkEgG
- SyMRvT2Ndfzq9LSHXxt08FleYHNUujg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-13_02,2026-11-11_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 phishscore=0 suspectscore=0 impostorscore=0 priorityscore=1501
- lowpriorityscore=0 spamscore=0 malwarescore=0 clxscore=1015 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611130028
 
-On 11/12/26 8:45 AM, Janosch Frank wrote:
-> On 11/10/26 12:16 PM, Aaron M. Brown wrote:
-[...]
->> +++ b/tools/testing/selftests/kvm/include/s390/kvm_lifecycle.h
->> @@ -0,0 +1,35 @@
->> +/* SPDX-License-Identifier: GPL-2.0-only */
->> +/*
->> + * Definition of structs for KVM lifecycle tests.
->> + *
->> + * Copyright IBM Corp. 2026
->> + *
->> + * Authors:
->> + *  Nitya Khamar (nkhamar@linux.ibm.com)
->> + *  Aaron Malik Brown (aaronmbr@linux.ibm.com)
->> + */
->> +#ifndef SELFTEST_KVM_LIFECYCLE_H
->> +#define SELFTEST_KVM_LIFECYCLE_H
->> +
->> +#include "kvm_util.h"
->> +#include <stdbool.h>
->> +
->> +struct kvm_lifecycle_testdef {
->> +    const char *name;
->> +    bool (*test)(void);
->> +};
->> +
->> +struct kvm_parameters {
->> +    struct kvm_vm *vm;
->> +    struct kvm_vcpu *vcpu;
->> +    void *guest_code;
->> +    struct kvm_run *run;
->> +    unsigned int interrupt_type;
->> +    struct kvm_s390_irq *irq;
->> +    struct kvm_s390_irq_state *irq_state;
->> +    struct {
->> +        bool immediate_exit_condition;
->> +    } manual_parameters;
->> +};
-> 
-> In this patch I don't see any benefit in having this struct.
-> I'm hoping there's some use for it in later patches.
+On Tue, 2026-11-10 at 10:14 +0100, Christian Brauner wrote:
+> loop_configure() takes any file as long as it implements -
+> >read_iter().
+> Loop itself never checked whether the file was actually opened for
+> reading. Buffered I/O went through vfs_iter_read() which refuses
+> files
+> without FMODE_READ. Direct I/O has called ->read_iter() of the
+> backing
+> file directly ever since loop grew support for it.
+>=20
+> Since commit f2fed441c69b ("loop: stop using vfs_iter_{read,write}
+> for
+> buffered I/O") buffered I/O calls ->read_iter() directly as well.
+> That
+> commit was about O_DIRECT handling and the FMODE_READ check went away
+> as a side effect.
+>=20
+> So whoever can set up a loop device can read a file it was only
+> allowed
+> to open for writing. Open the file O_WRONLY, configure a loop device
+> with it and read the contents through the loop device.
+>=20
+> Refuse backing files that aren't open for reading. Loop always reads
+> from its backing file so a write-only backing file never made sense
+> in
+> the first place.
+>=20
+> Fixes: bc07c10a3603 ("block: loop: support DIO & AIO")
+> Fixes: f2fed441c69b ("loop: stop using vfs_iter_{read,write} for
+> buffered I/O")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-Yeah I may have added it a bit prematurely, as most of these fields are 
-only used by the ucontrol tests later in the series, so patch 1 doesn't 
-need them. I'll drop the struct from this patch and use local variables
-in the next version, thanks
+Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 
-[...]
->> +
->> +static struct kvm_parameters create_vm_kvm_exit(struct kvm_parameters 
->> parameters)
-> 
-> Why aren't we using a pointer to the argument?
-> 
->> +{
->> +    parameters.vm = vm_create_with_one_vcpu(&parameters.vcpu,
->> +                        parameters.guest_code);
->> +    return parameters;
->> +}
->> +
->> +static void cleanup_kvm(struct kvm_parameters *parameters)
->> +{
->> +    kvm_vm_free(parameters->vm);
->> +}
-> 
-> These two function generate >= 4 lines for a single line of useful code.
-> 
-
-Good point, I'll remove these helpers as well and just call
-vm_create_with_one_vcpu() and kvm_vm_free() directly
->> +
->> +static void compare_regs(struct kvm_regs *regs, struct kvm_sync_regs 
->> *sregs)
->> +{
->> +    int register_number;
->> +
->> +    for (register_number = 0; register_number < NUM_GPRS; 
->> register_number++)
->> +        TEST_ASSERT_EQ(regs->gprs[register_number], sregs- 
->> >gprs[register_number]);
->> +}
->> +
->> +static void guestcode_instruction_intercept(void)
->> +{
->> +    asm volatile("diag 0,0, 0x500\n" :::);
->> +    GUEST_DONE();
->> +}
->> +
->> +static bool test_instruction_intercept(void)
->> +{
->> +    struct kvm_parameters param = {
->> +        .guest_code = guestcode_instruction_intercept,
->> +        .interrupt_type = KVM_S390_INT_EXTERNAL_CALL,
->> +        .manual_parameters.immediate_exit_condition = false,
->> +    };
->> +    struct kvm_s390_irq_state irq_state = {};
->> +    struct kvm_s390_irq irq = {};
->> +    struct kvm_regs regs;
->> +    int interrupts;
->> +
->> +    ksft_print_msg("Testing Instruction Intercept Exit\n");
->> +    param = create_vm_kvm_exit(param);
->> +    vcpu_run(param.vcpu);
->> +    param.run = param.vcpu->run;
->> +    irq.type = param.interrupt_type;
->> +    irq.u.extcall.code = param.vcpu->id;
->> +    irq_state.len = sizeof(irq);
->> +    irq_state.buf = (unsigned long)&irq;
->> +    param.irq = &irq;
->> +    param.irq_state = &irq_state;
->> +    TEST_ASSERT_KVM_EXIT_REASON(param.vcpu, KVM_EXIT_S390_SIEIC);
->> +    TEST_ASSERT(param.run->s390_sieic.icptcode == ICPT_INST,
->> +            "Failed with Unexpected icptcode of 0x%x\n",
->> +            param.run->s390_sieic.icptcode);
->> +    interrupts = __vcpu_ioctl(param.vcpu, KVM_S390_SET_IRQ_STATE,
->> +                  param.irq_state);
-> 
-> Why are we doing two things at the same time?
-> What does the IRQ code add to the test?
-
-You're right, we should focus on only  testing the exit, moreover 
-irq_injection has gotten its own test file now, ill drop this
-in v2 >> +    TEST_ASSERT(interrupts >= 0, "Cannot Inject Interrupt 
-(%d)", errno);
-> 
-> That should be a == 0, no?
-> Documentations says "0 on success".
-> 
-
-Indeed, this can also go away in v2, lets keep it simple
->> +    irq_state.buf = (unsigned long)&irq;
->> +    irq_state.len = sizeof(irq);
->> +    interrupts = __vcpu_ioctl(param.vcpu, KVM_S390_GET_IRQ_STATE,
->> +                  &irq_state);
->> +    TEST_ASSERT(interrupts > 0,
->> +            "Expected pending interrupt after injection, got %d", 
->> interrupts);
-> 
-> Here it's fine since the rc returns the number of bytes KVM copied.
-> But we could actually check for a number being at least len(irq_state)
-
-Good point, I will note that for possibly extending the irq tests in the 
-future! >> +    TEST_ASSERT_EQ(irq.type, KVM_S390_INT_EXTERNAL_CALL);
->> +    TEST_ASSERT_EQ(irq.u.extcall.code, param.vcpu->id);
->> +    vcpu_run(param.vcpu);
->> +    TEST_ASSERT_KVM_EXIT_REASON(param.vcpu, KVM_EXIT_S390_SIEIC);
->> +    TEST_ASSERT(param.run->s390_sieic.icptcode == ICPT_INST,
->> +            "Expected ICPT_INST from GUEST_DONE after inject, got 
->> 0x%x\n",
->> +            param.run->s390_sieic.icptcode);
->> +    vcpu_regs_get(param.vcpu, &regs);
->> +    compare_regs(&regs, &param.run->s.regs);
->> +    cleanup_kvm(&param);
->> +    return true;
->> +}
->> +
->> +static void guestcode_diagnose_hypercall(void)
->> +{
->> +    asm volatile("diag 0,0, 0x501\n" :::);
->> +}
->> +
->> +static bool test_diagnose_code(void)
->> +{
->> +    struct kvm_parameters param = {
->> +        .guest_code = guestcode_diagnose_hypercall,
->> +        .manual_parameters.immediate_exit_condition = false,
->> +    };
->> +    ksft_print_msg("Testing Diagnosis Hypercall Exit\n");
-> 
-> Instruction is called diagnose according to the POP.
-
-I will update that accordingly, thanks !
-
->> +    param = create_vm_kvm_exit(param);
->> +    vcpu_run(param.vcpu);
->> +    param.run = param.vcpu->run;
->> +    TEST_ASSERT_KVM_EXIT_REASON(param.vcpu, KVM_EXIT_S390_SIEIC);
->> +    TEST_ASSERT(param.run->s390_sieic.icptcode == ICPT_INST,
->> +            "Failed with Unexpected Exit Reason of %u and icptcode of 
->> 0x%x\n",
->> +            param.run->exit_reason, param.run->s390_sieic.icptcode);
->> +    TEST_ASSERT(param.run->s390_sieic.ipa >> 8 == IPA_DIAG,
->> +            "Failed with Unexpected Opcode of %u\n",
->> +            param.run->s390_sieic.ipa >> 8);
->> +    TEST_ASSERT(param.run->s390_sieic.ipb >> 16 == DIAG_ASSEMBLY_CODE,
->> +            "Failed with Unexpected Diagnose Code of %u\n",
->> +            param.run->s390_sieic.ipb >> 16);
->> +    cleanup_kvm(&param);
->> +    return true;
->> +}
->> +
->> +static void guestcode_diagnose_conditional(void)
->> +{
->> +    asm volatile("lghi %%r3,0x3333\n"
->> +        "lghi %%r5, 0x555\n"
->> +        "lghi %%r6, 0x3333\n"
->> +        "cgrjne %%r6, %%r3, 1f\n"
->> +        "diag 0,0, 0x501\n"
->> +        "1:\n"
->> +        :
->> +        :
->> +        : "r3", "r5", "r6"
->> +    );
->> +    GUEST_DONE();
->> +}
->> +
->> +static bool test_diagnose_conditional_code(void)
->> +{
->> +    struct kvm_parameters param = {
->> +        .guest_code = guestcode_diagnose_conditional,
->> +        .manual_parameters.immediate_exit_condition = false,
->> +    };
->> +    struct kvm_regs regs;
->> +
->> +    ksft_print_msg("Testing Diagnosis Hypercall for Conditional Code 
->> Exit\n");
-> 
-> What is this testing?
-
-It is only testing that r3-r6 survive the intercept, so I think I can 
-merge it into the DIAG 0x501 test for v2 >> +    param = 
-create_vm_kvm_exit(param);
->> +    vcpu_run(param.vcpu);
->> +    param.run = param.vcpu->run;
->> +    TEST_ASSERT_KVM_EXIT_REASON(param.vcpu, KVM_EXIT_S390_SIEIC);
->> +    TEST_ASSERT(param.run->s390_sieic.icptcode == ICPT_INST,
->> +            "Failed with Unexpected Exit Reason of %u and icptcode of 
->> 0x%x\n",
->> +            param.run->exit_reason, param.run->s390_sieic.icptcode);
->> +    TEST_ASSERT(param.run->s390_sieic.ipa >> 8 == IPA_DIAG,
->> +            "Failed with Unexpected Opcode of %u\n",
->> +            param.run->s390_sieic.ipa >> 8);
->> +    TEST_ASSERT(param.run->s390_sieic.ipb >> 16 == DIAG_ASSEMBLY_CODE,
-> 
-> Which diag assembly code?
-> There's a huge number of them and this test already uses 2.
-This is for the virtio notify hypercall (500) in particular, I will be 
-more explicit with the variable names in v2 ! >> +            "Failed 
-with Unexpected Diagnose Code of %u\n",
->> +            param.run->s390_sieic.ipb >> 16);
->> +    vcpu_regs_get(param.vcpu, &regs);
->> +    TEST_ASSERT_EQ(regs.gprs[3], 0x3333);
->> +    TEST_ASSERT_EQ(regs.gprs[5], 0x555);
->> +    TEST_ASSERT_EQ(regs.gprs[6], 0x3333);
->> +    cleanup_kvm(&param);
->> +    return true;
->> +}
->> +
->> +static void test(void)
->> +{
->> +    int i;
->> +    struct kvm_lifecycle_testdef testlist[] = {
->> +        {
->> +            .name = "Testing Instruction Intercepts",
->> +            .test = test_instruction_intercept,
->> +        },
->> +        {
->> +            .name = "Testing DIAG Code",
->> +            .test = test_diagnose_code,
->> +        },
->> +        {
->> +            .name = "Testing Conditional DIAG Code",
->> +            .test = test_diagnose_conditional_code,
->> +        },
->> +    };
->> +
->> +    ksft_print_header();
->> +    ksft_set_plan(ARRAY_SIZE(testlist));
->> +
->> +    for (i = 0; i < ARRAY_SIZE(testlist); i++) {
->> +        if (testlist[i].test())
->> +            ksft_test_result_pass("%s\n", testlist[i].name);
->> +        else
->> +            ksft_test_result_skip("%s\n", testlist[i].name);
->> +    }
->> +}
->> +
->> +int main(void)
->> +{
->> +    TEST_REQUIRE(kvm_has_cap(KVM_CAP_USER_MEMORY2));
->> +    TEST_REQUIRE(kvm_has_cap(KVM_CAP_SYNC_REGS));
->> +    test();
->> +    ksft_finished();
->> +}
-> 
-thanks for the constructive comments Janosch, I will get to updating this,
-
-Aaron
+> ---
+> =C2=A0drivers/block/loop.c | 3 +++
+> =C2=A01 file changed, 3 insertions(+)
+>=20
+> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+> index a3325ceab484..c96e35c3ef42 100644
+> --- a/drivers/block/loop.c
+> +++ b/drivers/block/loop.c
+> @@ -528,6 +528,9 @@ static void loop_assign_backing_file(struct
+> loop_device *lo, struct file *file)
+> =C2=A0
+> =C2=A0static int loop_check_backing_file(struct file *file)
+> =C2=A0{
+> +	if (!(file->f_mode & FMODE_READ))
+> +		return -EBADF;
+> +
+> =C2=A0	if (!file->f_op->read_iter)
+> =C2=A0		return -EINVAL;
+> =C2=A0
