@@ -1,85 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.17
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794531724;
-	b=YOmeX3+tVuSVHw2UxrgYmDkaZ/d9jUfBK4GZoVzSNOlFfSy8A1iYY8rj5CA8ZhootSmA
-	 puJKFS8Dn4n8YcCWY2OZAxc76tICWrfbl1MTWTsrafsVB9X+D+3jvlyLybR3d6GSdcUh5
-	 677NTjweNF1Osidk2M5clsCd6rRiruMJIvU0hW/YuV7UjiDkMgPJUqlbWzGzsHpB+tSnw
-	 7fFEIS/zRuanxBT8PAEAcoEKHFwVHaI7JsRt0560qk/PF0uZGtbOy9UgbWN51oGnkSnRv
-	 TK/zXDXUNKysn0hoX4du3NMfwE7vwg2xV/WXYyiVbe1voE6k0CXjfSSpAJXmrVLQHhw==
+	t=1794531773;
+	b=07E9KfIxnW+Oh0Zs7F39a5I71eIkGou6kap9x/c3RzDiFAZ9fVgXbQJdMRh909NGZ38V
+	 qe2bQRrANJL/Zd+4NKeMZLgCJu6xtLmBZRSSminFWe2OcAU4A6CxzdgXgjl/xrbf75rDB
+	 Tb29anVoUN401WW9igrGSTX3K9umuDs9xs8kO1NGmyUmG3yIOt8dsB4yFL6LtBYX2PNn4
+	 9Jg9NTxJCFofYJVv7CP7WMxlWHEtpWUePdEmEkGAL5lYHojZ/0beHjMcZnrJpxiUYwwAF
+	 YJ4BIG3kdglf3DyksyRmOEIGJXYGpm5DQfm/6KIacmQIAGqimEo1gUywvUjfNm5vQyA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794531724;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
-	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
-	bh=QuB4gRralS9yFslodv3QC7A77JieK5X8DdVq10Sbwss=;
-	b=vbVycShHicgv/ICEhcWUTxKt6DFN82sBQnBK7UL8cEHymxZR/b0qFQJOVKRnM2z7NJeI
-	 B8CXAbfbp4ZM8/0p3e67CkOZ9UOeA5TC/BahEPtaSreeS2F6RuvkSUTz0wAIEvsjtFq7W
-	 M5RFhywTZSLyek6DIaOsetEvVd7va3D3rT/4W8xxIZtENh9ha4ED/zTc2hyhNQCRJF46p
-	 p1hzdhtfTPZL0tmRgJmIe1EmcCFBRRDdpbXbGJZC3RqNSdNT+GCiKUK26v9vDEUkQNzyC
-	 ID7P6dLgW+AyPZaTyVS4CmZ+HpRCF6MCI9lkNzFBUOo2R69Z1CUFQZWsKfcXB7z3nMA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794531773;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=nIAyxgbc0dBhpCr5slLCIJwaBkTcRa7SaWQgrgx1Si8=;
+	b=rISfMceMKb8Jlvx+JyZycq/PGGlcob2uuA5JfRR0qP/O753wwOP7v7oC5iqWFOe2+QKH
+	 i5MoZP0YKIXROIfLLaOheIxWLH+1eRDorzdhHvxXT8oGhl5BetLB1imwz9JoCSQgJOUFK
+	 U1mC1v34jmTNloMOc2N87WBX64nBvEc5ttrkgOnbUpRh90PW7fGEwFxpy3qiYjvrsbPeH
+	 oeI1z65K5I175gBA11M4CHZjm10sWLqgmDWpQqH7hJgZTVJ65O2ItjTti1yxsIuMA81UT
+	 bfa+YmwwvxLw0dD3S+w8vY4q80EhHTkNhfj4HoaQs+DhqmaYiEk/nPBRcz8P4sX7T1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rujr5uv4;
-	arc=none smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=proton.me;
+	spf=pass smtp.mailfrom=proton.me;
+	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=UPoJn0rz;
+	arc=none smtp.remote-ip=109.224.244.17
+Received: from mail-24417.protonmail.ch (mail-24417.protonmail.ch [109.224.244.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AAA8606A32D
-	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 01:02:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1AAA8606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3856B606A331
+	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 01:02:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3856B606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rujr5uv4
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-36e90071735so72771eec.0
-        for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 17:02:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794531723; x=1795136523; darn=vger.kernel.org;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=QuB4gRralS9yFslodv3QC7A77JieK5X8DdVq10Sbwss=;
-        b=rujr5uv4KHlwWU2yiG5TIjDlYxdpRT7n72g+1OQ3nBEPBHqnw9DubRlOabZkuOrKMh
-         RwfFkjuDDnX7TWjdUqMie9mWpjujh4a1Al5OR4HTAi7FRlpGGpH/Ny70IthtWL0BTMmQ
-         C8ZKswI8HOW0CBBj01MtiKKGiu2h27KGiS5u9NmZ0VftDPmEmCtk1pfybuWaKwfGGDQH
-         3on5gn2jm4O1IKNZ6D+xgFEOygeTUpXV/eeU/cWP5KZuvNsunYs3KLrD1k1XJGl7T4pu
-         0QyGlue/SdNYX6yT4haGJRiefjE6BE8b3PV+6JUF96BFNu3V7swh6kdDZygjonIOBur6
-         JtmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794531723; x=1795136523;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QuB4gRralS9yFslodv3QC7A77JieK5X8DdVq10Sbwss=;
-        b=AYG2YOfWDW9trrZdOSKIf18PIp+TeGn1LSRvjNm1wb9QfdA9XMjgjngK1LJmCf4SNJ
-         bEBWsCcb+PnGJMRNJZ3pNxl4WnvF6BrfySRxla6SvCdNu30Y8V8VaflKou1HK3W+uqKW
-         1o9JbWH3xB2GcdHhFfkUiJaZmKYwPij6j/a+u3Av0aAn9pLZHQiyd86BtZcLzK3htYPS
-         3xqZJSUcqkkICxtfV3BwlHJXjNb4FZ2wt8n3bLtVGW9PSE1abUFfBTyMAMNtbDdkAYls
-         g1xtBpa1GwuHEurFCxc1XgCkiGo3MlDPs0kmpLds4KmciYGzsSUPseo/8CBTQ/PhSuRP
-         VAfA==
-X-Forwarded-Encrypted: i=1; AL+hErFeWVmUHNS9shzf87vAmQXi9slmLV678scoOw3hvwlmXzbaOp8YEj/ZQKBwXQQWwYoPkhFSKzBmLp/y@vger.kernel.org
-X-Gm-Message-State: APuU4Z9g/NbRNuA0xmqLFX+WO79zIMYP/oOuqmSCHISisOLkItrCq3BU
-	scLMtb1K1JupGi3+Ca34j/ZHmlvj3We+QC2zeb6sm/ZtmzOlMkVse7/o
-X-Gm-Gg: AYBFou0yooGIhkY2E3BzeLVW4XgyZWzFd/LIB3WQRTdS+7l8QbzqYj+9UXJLDJWzKFV
-	K7iNSuFoW944hTipXpuzsqHWdq7SnTewWchfAeVji8rW5MgD3q5fo8Y16T2Dh4HZOMiWmNpcjUu
-	zre3TBPqiImgAxjFARH+/JI505ocKF2DC50uqphuCn7/Z+yFtZtD5pjzJVB74NkwjXRMmk4iIon
-	k5aro/fEg9d0EvN4DPA7X7px95N43lwdmjUlkoifrnRULtXjsxGb5jQ45ysfT1CnAYe1a6XpQ0j
-	xz4GMCeILJ+W+MAyXN+crOeyAtflF2KwRZO0IqQP8F+cOB4wL/R0P6iEAy5R6WioRQIlBv7EuOv
-	DHWWJcxHm257n2adBNwpi4+fAwHLvhjRzL0kUoAASV4Upib/81ofRPjmN6vBupbxKvP12u/ZK7R
-	Jpd03ON9OnCNSDuizwlqyd2Gf3GNZxGo4wTwbSeP0aD8um6BAtS9/HmG7Q0aeHvLoG9icc+yyNW
-	UXrbQbx7PNSkvVUF/IqJoEzeMxZxDAtaB04VrGR8plB1kP3lg61SMRyVVdDQrNjHBFd4Vrd8PeW
-	t5w0DINW2Xy5CHhfzUXLS/NLd1h7QMU0MyJ9rtREmDW4VjYKX54DTosGwVPh8PdWXP9RAhQmZe+
-	8stynxQKer4tJ
-X-Received: by 2002:a05:7300:c00e:20b0:35e:d21c:f33e with SMTP id 5a478bee46e88-379651ecb3emr1356356eec.1.1794531722833;
-        Thu, 12 Nov 2026 17:02:02 -0800 (PST)
-Received: from o6.lan ([2602:fce1:44f:115e::])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37955332ae7sm4453590eec.8.2026.11.12.17.01.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 17:02:02 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=UPoJn0rz
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail2; t=1794531769; x=1794790969;
+	bh=nIAyxgbc0dBhpCr5slLCIJwaBkTcRa7SaWQgrgx1Si8=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=UPoJn0rzmtHUnLQ3O/nDivcaaFknqIJOpiUP6CguPaEYrsZf9c4+VWjk9lh8C1RQ0
+	 U6UdFKyG5ILHNkFJtK40fc/kPVF9udi3XKUxhZIV/IBnUvgHg4wzUzW8SNoiZPP08Y
+	 UCluRZj4JY7xfr4a2jMkmx1GaJIY29RQcEGwbr5F7zdRmIRc7iQ9mqBzvRMhYWVp2l
+	 Cj/St8K+v3rNSvmk/FCJ06oPLBfCUy9Sq/0ecwro+jy4dQvhOT1p+Q7jm4Gvf4MHB8
+	 utS7d8+rT29949okFa++22lapjfVSay/+HbGqObp0nPgnhe1F2qNieLlfu4fctyTD3
+	 ugaaZWpYtmmww==
+Date: Fri, 13 Nov 2026 01:02:45 +0000
+To: Paolo Abeni <pabeni@redhat.com>, netdev-bot+sashiko@kernel.org
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Sidraya Jayagond <sidraya@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Mahanta Jambigi <mjambigi@linux.ibm.com>, "D . Wythe" <alibuda@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, Guangguan Wang <guangguan.wang@linux.alibaba.com>, Ursula Braun <ubraun@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, linux-s390@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org, Hidayath Khan <hidayath@linux.ibm.com>, Simon Horman <horms@kernel.org>, Wenjia Zhang <wenjia@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>
+Subject: Re: [PATCH net v8 4/4] net/smc: bound the link failover cursor advance to the send buffer
+Message-ID: <20261113010235.418440-1-hexlabsecurity@proton.me>
+In-Reply-To: <fc454b46-b66c-4a16-aa1c-3ea0c2e91d15@redhat.com>
+References: <20261029-b4-disp-33001ace-v8-4-f9bb96e17827@proton.me> <179364387382.3131.13471253186660322977@kernel.org> <fc454b46-b66c-4a16-aa1c-3ea0c2e91d15@redhat.com>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: 3134a679630143b5913b128635697a100cf4272a
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -89,99 +64,81 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
-From: Xueyuan Chen <xueyuan.chen21@gmail.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Xueyuan Chen <xueyuan.chen21@gmail.com>, 
- Minchan Kim <minchan@kernel.org>, 
- Sergey Senozhatsky <senozhatsky@chromium.org>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, Alex Shi <alexs@kernel.org>, 
- Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Helen Koike <helen.fornazier@gmail.com>, 
- Vignesh Raman <vignesh.raman@collabora.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- linux-mm@kvack.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-s390@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- Nhat Pham <nphamcs@gmail.com>
-In-Reply-To: <d812b71d-b7ec-496f-9404-add2282105a6-agordeev@linux.ibm.com>
-References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
- <d812b71d-b7ec-496f-9404-add2282105a6-agordeev@linux.ibm.com>
-Date: Fri, 13 Nov 2026 09:01:51 +0800
-Message-Id: <179453171134.2553194.3867422839676762696.b4-reply@b4>
-X-Mailer: b4 0.16.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 2026-11-12 13:29 +0100, Alexander Gordeev wrote:
-> On Wed, Nov 11, 2026 at 08:41:26PM +0800, Xueyuan Chen wrote:
-> > CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
-> > counters are updated regardless of this option.
-> > 
-> > Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
-> > stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
-> > debugfs is unavailable.
-> > 
-> > Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
-> > settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
-> > documentation to match, and clarify the pool name in the debugfs path.
-> > 
-> > Suggested-by: Nhat Pham <nphamcs@gmail.com>
-> > Reviewed-by: Nhat Pham <nphamcs@gmail.com>
-> > Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
-> ...
-> >  arch/s390/configs/debug_defconfig                |  2 +-
-> >  arch/s390/configs/defconfig                      |  2 +-
-> ...
-> > diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-> > index d44674b63715..83193ef8efb9 100644
-> > --- a/arch/s390/configs/debug_defconfig
-> > +++ b/arch/s390/configs/debug_defconfig
-> > @@ -100,7 +100,7 @@ CONFIG_UNIXWARE_DISKLABEL=y
-> >  CONFIG_IOSCHED_BFQ=y
-> >  CONFIG_BINFMT_MISC=m
-> >  CONFIG_ZSWAP=y
-> > -CONFIG_ZSMALLOC_STAT=y
-> > +CONFIG_DEBUG_FS=y
-> >  CONFIG_SLAB_BUCKETS=y
-> >  CONFIG_SLUB_STATS=y
-> >  # CONFIG_COMPAT_BRK is not set
-> > diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-> > index e00e252d4694..694a309377d5 100644
-> > --- a/arch/s390/configs/defconfig
-> > +++ b/arch/s390/configs/defconfig
-> > @@ -94,7 +94,7 @@ CONFIG_UNIXWARE_DISKLABEL=y
-> >  CONFIG_IOSCHED_BFQ=y
-> >  CONFIG_BINFMT_MISC=m
-> >  CONFIG_ZSWAP=y
-> > -CONFIG_ZSMALLOC_STAT=y
-> > +CONFIG_DEBUG_FS=y
-> >  CONFIG_SLAB_BUCKETS=y
-> >  # CONFIG_COMPAT_BRK is not set
-> >  CONFIG_MEMORY_HOTPLUG=y
-> 
-> So DEBUG_FS is selected unconditionally? Please, drop this for s390.
-CONFIG_ZSMALLOC_STAT used to select DEBUG_FS, so I added
-CONFIG_DEBUG_FS=y to keep the stats available.
+On 11/3/26 11:22, Paolo Abeni wrote:
+> On 11/2/26 19:24, netdev-bot+sashiko@kernel.org wrote:
+> > - [Medium] The patch adds a cons.count < peer_rmbe_size gate to
+> >    smc_switch_cursor().
+> > - [Medium] The new bound in smc_switch_cursor(), diff <=3D
+> >    smc_curs_diff(len, &tx_curs_sent, &prep), is computed from a snapsho=
+t...
+> I think the above are the last 2 comments standing that need to be addres=
+sed,
+> (the high one in patch 1 is addressed by patch 2, the high one in patch 2=
+ is
+> addressed by a separate patch).
 
-OK, I'll drop those lines from the s390 defconfigs in v4.
-> 
-> > --  
-> > Best regards,
-> > Xueyuan
-> 
-> Thanks!
-> 
-> 
+Both are right; v9 [1] changes the code for each.
 
+> > - [Medium] The patch adds a cons.count < peer_rmbe_size gate to
+> >    smc_switch_cursor().
+
+For a count past the RMBE, v8 turned a stalled connection into a write
+past the peer's RMBE. A check in smc_write_space() isn't enough:
+smc_cdc_msg_recv_action() credits peer_rmbe_space from the next
+consumer cursor, so one more CDC after the switch opens the window
+again. A conforming peer gets the same write if it keeps reading across
+the end of its RMBE before the resend.
+
+v9 bounds the write where its length and destination are computed (new
+5/6): at most one RMBE per call, and the first chunk ends no later than
+the RMBE whatever the wraps say. On rxe with a 16K RMBE and the count
+forged at RMBE + 4096, v8 posts 16384 bytes from offset 1 and the link
+goes down; v9 posts 16383 + 1 and the link stays up. With a conforming
+peer, 9000 bytes unconfirmed at the failover and read before the
+resend, then 2000 more sent, unpatched and v8 post the 11000 bytes in
+one chunk from offset 12001 and the surviving link goes down; v9 posts
+4383 + 6617 and the peer reads the stream intact.
+
+5/6 turns one-chunk writes into two, so it sits on a fix for how
+smcr_tx_rdma_writes() sizes the second chunk's source (new 4/6, the
+pre-existing [High] on the source SGE in the review of v7's 4/4). A
+conforming peer reaches that one: a completion handled between the
+first two cursor copies of smc_switch_cursor() leaves tx_curs_sent 600
+bytes behind prod, and unpatched and v8 then build a source SGE that
+ends 4536 bytes past the send buffer (KASAN splat on the unpatched
+run).
+
+> > - [Medium] The new bound in smc_switch_cursor(), diff <=3D
+> >    smc_curs_diff(len, &tx_curs_sent, &prep), is computed from a snapsho=
+t...
+
+6/6 (v8's 4/4) sets tx_curs_fin and local_tx_ctrl_fin from the advanced
+tx_curs_sent and local_tx_ctrl.prod, which change only under send_lock,
+instead of adding to the live cursors: the first of the review's two
+options. With a completion handed to smc_cdc_tx_handler() inside the
+switch (test hook), v8 leaves local_tx_ctrl_fin at count 16713 for a
+16384-byte RMBE; v9 leaves it on prod.
+
+The switch still isn't serialized against smc_cdc_tx_handler(): a
+completion handled inside it is still credited to sndbuf_space more
+than once (the pre-existing [High] on that race) and can make the next
+write hand the peer bytes it has already read. 3/6 keeps send() inside
+the send buffer, but send() can then overwrite data the peer has not
+received (by inspection). Serializing the switch means taking the
+socket spinlock around send_lock in smc_switch_conns(); v9 doesn't do
+that. In two races with a completion inside the switch v9 ends worse
+than unpatched; the cover has both.
+
+The [Low] of that review, on the new comment in smc_switch_cursor():
+6/6's comment no longer says "else that peer stalls", and the message
+no longer says "still sizes".
+
+[1] https://lore.kernel.org/all/20261112-b4-disp-0287c16e-v9-0-e5e8fa688177=
+@proton.me/
+
+Thanks,
+Bryam
 
