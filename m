@@ -1,81 +1,81 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794566237;
-	b=k1Y93ibwYBSFsVv/V+451/pF4mBDt6bNoG+06utWk/CE2BL73n7AQdvIvt7RiMNvFBOP
-	 spHaTH0rw9R1Pc6hhT1WgMpdu81d60QHPJu56Ym/AFcantuWuyCJDXPgPG1mMRqpAFaav
-	 4JVvI5rRF8nccMScsaHqamPXDDLQEWV4WSGJ/tG1iLkZ5QDmzUEGlbaPaBCHnk0TRSr8Y
-	 4v2QHhSe77st7E9jZwrPGTaInrIT448VrBFS7MYBkE3sjtjfihCu8T6CXVQdAjGMma2zo
-	 NdK3m0AZKJoEv3gio1xwGPWvW/oM/bmHCIhbEC3N6nZll01os3LeGmoUCcv8toywurA==
+	t=1794566847;
+	b=2YsjoM4OLtH09srX9h5ShVWCE+Se9r8xcYgS+9DJsNU+cAbxJT8DwlEk4hc+2j48S1l8
+	 Bj/TUFpW80CZMZ5Rqw5Q20Fo/tmIybWNMlfBiLbfhy79B8w6oceTdwQ5Fx5kQ7nHpBTRn
+	 oe7ftSxhZk2mmUg9DCMt8ybCYYqtnJ99yaYx71q6PNmSA0ZQdn82f8MMxjkOCiDi47JGu
+	 Gegg3FJOG3ctcqPt9a6G2E4U8Ug0idHXVMx+MeIF0I/BxGylUXPw2kDEck2el9Qrumuay
+	 dl8vAAOiVXmFrhU+unlAFpioDQjgRz3OG7CyHL0BKbRGbZgU3rT6FkSSUFdXghR+u8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794566237;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794566847;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
 	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-GUID:
 	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=CU/bJu8/OViteQViORWfiZjqIc4ONxeHouLSmWJTqVs=;
-	b=CfxSguR17uyloGKrl7ms4b3HI4dm7G+4fyBJeBNOnJL1wv+OKeJ1/OljriftDnGkiUoP
-	 aStKuPW7RGyeFXi9ygnXUBVKoKP6hbEzo2ArX/wPVO+IdKUj0zBrPaWtbyf4FRafw+W7P
-	 lHQTvSSt3l/cDcTLMPqX9L8x2j3vz1lNePP7N266Dc+MHi3I5RasuD+oXzVoNapJyH+x3
-	 Z3mIhahe6FPa+u0a+tPm/EH83JeT9HdUoeWWPv+iOfe2QdXAVho2leZJS43k1OV8v8iCx
-	 id3NU8yDK8ejJ3ku3sDYRlQJ0fSTqv9EKaxWXZGa9fzYe2OqCBfRlD0pEMD8NocUX8A==
+	bh=PDrr01F8zEi2bfwy8RiWD/Vfd6hVMWs3NzZENSUK8DM=;
+	b=vzmvj6ulo7HYv7zewfhfZ41Kb+yj6b2xujCfagiTr68z9UOqJl3S6mM0cVKXrEQE44v2
+	 ICVniMGvWSwjKT8BbM5uDCafp8jVwGtiR7RDa0JxwHhYis6iUyQ3UPlzO4gOgpw38o/fI
+	 EfzwZLdE0NLNwbgqL8/p0crmAHqwavL7bTeBlIrAlMrHPb2hZK5ECLS1kp/YjDdnxr/NH
+	 4qvxXXfDalxxSnYfNMPIXtdmzthbp41X0MGiev+QObS5sW4UGxnwAhQMftxpe1DUbaSKq
+	 75jSAOUvFLLif15OjVB2VVTIwYSumfdHbY1kaMKxjXnVV9ZYwO6jp5/4Yyo1BUisI5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZqnwEa8y;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=qCXZ5U6R;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81333606A323;
-	Fri, 13 Nov 2026 10:37:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81333606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C89B606A323;
+	Fri, 13 Nov 2026 10:47:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3C89B606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZqnwEa8y
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AD9ZAFv2491315;
-	Fri, 13 Nov 2026 10:37:15 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=qCXZ5U6R
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AD8iQ66735030;
+	Fri, 13 Nov 2026 10:47:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CU/bJu
-	8/OViteQViORWfiZjqIc4ONxeHouLSmWJTqVs=; b=ZqnwEa8yUJCfWVojJ2GvlC
-	1in3Q9AjD3R3OWozA2HfFbpjJ+BhgGp+/JTrmWhI3J3UNpWdLMJS2UFtrl9937A9
-	rGlGKtcT5mV5T7FweaZp4blVybv2d0wWmxE1qGyY/OGNQHj5jhUgUwAmNGtLqJtz
-	ua9lvytY4wNtnQj390zLLKX4ATeGZ3zQ0Upg3+LPcpEX6FkGJCJIZKBc/msrs1XX
-	QQROwh66S8Ia23lMba32DuYNUOB7W58JJcbN4ZRcDxnGJYHjvoiRxEwaIBIj+uGY
-	1TqoF/wIr+IpORnxNLPfpPUk5gg9vZJ3ff0ukoj3wzBT2c66yjOnNCScpqLax1QQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=PDrr01
+	F8zEi2bfwy8RiWD/Vfd6hVMWs3NzZENSUK8DM=; b=qCXZ5U6RKznhVjxaNakzzt
+	RvCjXLi6iLTpjmzOotiQwwzCkJS7KHohuQRAuLouD/5dM4FXTdXyf+DLgIZV0tEK
+	Xl0j14x0Wl7S7zOJvRgXChhZzOYOByZkrI04xxhhmNjXIEb+WZkMxn1AZyFkQjzn
+	3ZxMqeAmNyy8CwYgoJai7fae/XVdWSLaT28kIbR2ggjQD+yIXlsTDvV3YBH3zVkk
+	y3c+a/g0NZhBKh5XrVJsbDws3i++q4Ww/S9z8bG5ouwIFgIr3gipgHmH7F+N83Z9
+	NqzJB5Qdwpo6/4LTwvFMjrLN1sbrJybWAr/EOLFEloHeOAUrW/bqEG9jwkCxgUjA
 	==
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsuq7anew-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hsuntjtyf-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 13 Nov 2026 10:37:15 +0000 (GMT)
+	Fri, 13 Nov 2026 10:47:26 +0000 (GMT)
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AD8Z4Ru2008374;
-	Fri, 13 Nov 2026 10:37:14 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hwd85bk9w-1
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AD8Z5bX2008611;
+	Fri, 13 Nov 2026 10:47:25 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hwd85bkvf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Nov 2026 10:37:14 +0000 (GMT)
+	Fri, 13 Nov 2026 10:47:25 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ADAb9Pi44040622
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ADAlKCx38273346
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Nov 2026 10:37:09 GMT
+	Fri, 13 Nov 2026 10:47:20 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 63E4F20043;
-	Fri, 13 Nov 2026 10:37:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2909420043;
+	Fri, 13 Nov 2026 10:47:20 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2818620040;
-	Fri, 13 Nov 2026 10:37:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E998F20040;
+	Fri, 13 Nov 2026 10:47:19 +0000 (GMT)
 Received: from [9.111.25.141] (unknown [9.111.25.141])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Nov 2026 10:37:09 +0000 (GMT)
-Message-ID: <e7ab806c-97ab-4e41-8649-bff248fd7c86@linux.ibm.com>
-Date: Fri, 13 Nov 2026 11:37:08 +0100
+	Fri, 13 Nov 2026 10:47:19 +0000 (GMT)
+Message-ID: <9ac3d4fd-3bdb-4570-a294-47ed73114463@linux.ibm.com>
+Date: Fri, 13 Nov 2026 11:47:19 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,15 +86,15 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/6] KVM: s390: selftests: Add wait state and VM lifecycle
- tests
+Subject: Re: [PATCH 4/6] KVM: s390: selftests: Add ucontrol helpers and
+ instruction tests
 To: "Aaron M. Brown" <aaronmbr@linux.ibm.com>, kvm@vger.kernel.org
 Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org,
         Nitya Khamar <nkhamar@linux.ibm.com>
 References: <20261110111619.61760-1-aaronmbr@linux.ibm.com>
- <20261110111619.61760-4-aaronmbr@linux.ibm.com>
+ <20261110111619.61760-5-aaronmbr@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -139,169 +139,55 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20261110111619.61760-4-aaronmbr@linux.ibm.com>
+In-Reply-To: <20261110111619.61760-5-aaronmbr@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEzMDA0MCBTYWx0ZWRfXxoxI33ssD+cP
- I0J+v4njVVV1te3bNu9eis9v+yH6isapY1v/Oh1DJCsCL4npZwxWXsZ9t9TwZV39oUEYXjmg2Ll
- 0EJS2gpRFIVCGR3GPUhQU4zeTk3CK1U=
-X-Authority-Analysis: v=2.4 cv=HbCB3SE8 c=1 sm=1 tr=0 ts=6af6e85b cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEzMDA0MiBTYWx0ZWRfX8Zno7FJhSWx0
+ Cfrw9ldAyvCk+vDi5IjBuuWWzRtPWtnNB5zf87ygT7CJcmi17oYRxWB8YdGeAp9QexN/MAdojVH
+ i7PYxTaF+0q8nLWLGXnwtsKMM/Vij/jpiaJm+vbD61wJQ5JHB55O5lIQGxVoUMk2MX55CHnKmMr
+ 3B5Qzdun8TmQrefUcbfaHVS+KX/1BtIVKB03KG+HDbQqrxMmBYoyTOFodzriwy0Rt5/fT17t/BH
+ 8u+rcDX1ErS9K7CyivCUCIyQNnTngtLzQCpESCCY9AmoDk4MXaIN332owz032kC5CEYBzfxIEX5
+ EVu/UxPAVN3zX9DOvYcij795CaTjYEaL5q0SPoW59Q75VASYpiHD6EMmWMnq8ufUpisf2E4wJ0z
+ uml4CEt8Oi7vzrfL9R5yue2qzk+yYJ9VLLKgc1YII/+QOKEV6VfDfa6YpiE6AbyrnPYxbKKun+N
+ NEs7qBFw0sa0aAGwd9w==
+X-Proofpoint-ORIG-GUID: uZGDG5WStga6aGL4dutLzxir8GSfBQHk
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEzMDA0MiBTYWx0ZWRfX6e3BnwDsAQm5
+ YziSqNMli5BA1dW+23Ts9zg24rBRwu926OBG3BSMdsE+YP36To/IMO+ZWGKJtdvijYSKWvFZMoD
+ 4L5PM7wjl6aYkOQBMFXiOwB6iptJubs=
+X-Authority-Analysis: v=2.4 cv=euZKXYpX c=1 sm=1 tr=0 ts=6af6eabe cx=c_pps
  a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=qQmIUtfkHXCNvzcoEsAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: nLQS2xMAnZrxXbGmMAlHt8U3bVemHGq7
-X-Proofpoint-GUID: nLQS2xMAnZrxXbGmMAlHt8U3bVemHGq7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEzMDA0MCBTYWx0ZWRfXz7iuKPCI3FGV
- u1ajOHugwjD72i7Nug+seP5/w0msXrf+tAKb6Z1fr2YEOjJBzxdSfwD8VHpI2DVExVb7UoXptik
- q3bsLY5/86AETOsei2Wbel0dvfJ59HtvYRbrAhVL2WpCm6plBu1b/ECtNLwullhYN609+RZWJwA
- W7IB28XPLVzElsA1b7G3cnve6k4uEGnOlSj/vTvp0aub8O2Rwx/80wIM06mj3+eSUdK/m/X5D/0
- tHTWjM5v7q8zLFfDFb+z0W/ngSETwVWI1PFnEHbzOQp5h71cUvMU6sqaepJs0xIFlKMTuuId+98
- VE94mReM7CoWMgfolS6l6bZBJsqvUlUux8Xv1JFFqlvs6rSBrc3UcSwwCcIBjH9p0VRfSz52eWM
- 4K9SckoLsRA1LfCeY2f6xyxdqPEScy5akuLh2QEIJjFL7Z78NL4qyrM9yeF8xJbttFclwK7oJVS
- FzJw+70LOsxFfp+GdZA==
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=qosI_CU9wHyCTK_ckBMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: uZGDG5WStga6aGL4dutLzxir8GSfBQHk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-13_03,2026-11-11_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 spamscore=0 bulkscore=0 phishscore=0
- impostorscore=0 priorityscore=1501 clxscore=1015 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611130040
+ phishscore=0 clxscore=1015 suspectscore=0 spamscore=0 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 adultscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611130042
 
 On 11/10/26 12:16 PM, Aaron M. Brown wrote:
-> Add two tests:
+> Add helpers to run a guest on a ucontrol VM and use them to test
+> instruction intercepts handled in userspace.
 > 
-> - Wait state: the guest loads a PSW with the wait bit (bit 14) set and
->    the I/O, external and machine-check masks (bits 6, 7, 13) clear.
->    Check for ICPT_WAIT and the wait bit in the PSW.
-> - VM create and destroy: before the first KVM_RUN, check that
->    exit_reason is KVM_EXIT_UNKNOWN and immediate_exit is clear.
+> manual_kvm_creation_execution() creates the VM and vCPU, maps 4 MiB
+> with KVM_S390_UCAS_MAP, sets the PSW and r15, and runs the vCPU. r15
+> must be valid because C guest functions adjust it in their prologue.
+> 
+> ucontrol_available() checks KVM_CAP_S390_UCONTROL and CAP_SYS_ADMIN.
+> Tests that need it are skipped, with a reason from the new skip_reason
+> field.
+> 
+> Tests added: STSI, TSCH and STSCH. Each must cause ICPT_INST with the
+> expected opcode.
 > 
 > Co-developed-by: Nitya Khamar <nkhamar@linux.ibm.com>
 > Signed-off-by: Nitya Khamar <nkhamar@linux.ibm.com>
 > Signed-off-by: Aaron M. Brown <aaronmbr@linux.ibm.com>
-> ---
->   tools/testing/selftests/kvm/s390/kvm_exit.c | 78 +++++++++++++++++++++
->   1 file changed, 78 insertions(+)
-> 
-> diff --git a/tools/testing/selftests/kvm/s390/kvm_exit.c b/tools/testing/selftests/kvm/s390/kvm_exit.c
-> index 4a6f01ff14ca..2f73eae1954a 100644
-> --- a/tools/testing/selftests/kvm/s390/kvm_exit.c
-> +++ b/tools/testing/selftests/kvm/s390/kvm_exit.c
-> @@ -27,6 +27,7 @@
->   #define IPA_DIAG 0x83
->   #define PSW_MASK_64BIT_DAT_OFF  0x0000000180000000ULL
->   #define PGM_CODE_SEGMENT_TRANSLATION 0x10
-> +#define PSW_WAIT_BIT_MASK (1ULL << (63 - 14))
-
-ptrace.h should have this covered, it even seems to typedef the psw.
-
->   #define PGM_CODE_GPA_ADDRESS 0x8e
->   #define PGM_CODE_MASK        0x7f
->   #define PGM_NEW_PSW_GPA 0x1d0
-> @@ -308,6 +309,75 @@ static bool test_translation_exceptions(void)
->   	return true;
->   }
->   
-> +static uint64_t psw_save[2] __aligned(16);
-
-LPSWE needs a DW alignment, not a QW one, so 8 should be enough.
-
-> +
-> +static void guestcode_wait_state(void)
-> +{
-> +	register uint64_t *psw_ptr asm("r4") = psw_save;
-> +
-> +	asm volatile(
-> +		"lghi  %%r3, 0x3333\n"
-> +		"lgrl  %%r7, 1f\n"
-> +		"stg   %%r7, 0(%%r4)\n"
-> +		"xgr   %%r5, %%r5\n"
-> +		"stg   %%r5, 8(%%r4)\n"
-> +		"lpswe 0(%%r4)\n"
-
-That's convoluted.
-Have a look at the kernel's __load_psw_mask() and friends.
-
-> +		".align 8\n"
-> +		"1: .quad 0x0002000180000000\n"
-> +		:
-> +		: "d"(psw_ptr)
-> +		: "r3", "r5", "r7", "memory"
-> +	);
-> +}
-> +
-> +static bool test_wait_state(void)
-> +{
-> +	struct kvm_parameters param = {};
-> +	struct kvm_regs regs;
-> +
-> +	ksft_print_msg("Testing Wait State Exit\n");
-> +	param.guest_code = guestcode_wait_state;
-> +	param = create_vm_kvm_exit(param);
-> +	vcpu_run(param.vcpu);
-> +	param.run = param.vcpu->run;
-> +	TEST_ASSERT(param.run->exit_reason == KVM_EXIT_S390_SIEIC,
-> +		    "Expected KVM_EXIT_S390_SIEIC, got %u\n",
-> +		    param.run->exit_reason);
-> +	TEST_ASSERT(param.run->s390_sieic.icptcode == ICPT_WAIT,
-> +		    "Failed with Unexpected Exit Reason of %u and icptcode of 0x%x\n",
-> +		    param.run->exit_reason, param.run->s390_sieic.icptcode);
-> +	vcpu_regs_get(param.vcpu, &regs);
-> +	TEST_ASSERT(regs.gprs[3] == 0x3333,
-> +		    "Expected 0x3333 but got 0x%llx\n", regs.gprs[3]);
-> +	/* Check PSW wait bit (bit 14 from MSB = bit 63-14 from LSB) */
-> +	TEST_ASSERT((param.run->psw_mask & PSW_WAIT_BIT_MASK) != 0,
-> +		    "PSW wait bit not set, PSW Mask = 0x%llx\n",
-> +		    param.run->psw_mask);
-> +	cleanup_kvm(&param);
-> +	return true;
-> +}
-> +
-> +static void guestcode_nop(void)
-> +{
-> +	GUEST_DONE();
-> +}
-> +
-> +static bool test_vm_create_and_destroy(void)
-> +{
-> +	struct kvm_parameters parameters = {.guest_code = guestcode_nop};
-> +
-> +	ksft_print_msg("Testing VM Closure without Running vCPU\n");
-> +	parameters = create_vm_kvm_exit(parameters);
-> +	TEST_ASSERT(parameters.vcpu->run->exit_reason == KVM_EXIT_UNKNOWN,
-> +		    "Unexpected Exit Reason Before vCPU Execution: %u\n",
-> +		    parameters.vcpu->run->exit_reason);
-> +	TEST_ASSERT(parameters.vcpu->run->immediate_exit == 0,
-> +		    "Immediate Exit Unexpected Behavior: %d\n",
-> +		    parameters.vcpu->run->immediate_exit);
-
-Does the setup code even sync kvm_run?
-Are we testing zero initialization of memory?
-
-> +	cleanup_kvm(&parameters);
-> +	return true;
-> +}
-> +
->   static void test(void)
->   {
->   	int i;
-> @@ -336,6 +406,14 @@ static void test(void)
->   			.name = "Testing Translation Exceptions",
->   			.test = test_translation_exceptions,
->   		},
-> +		{
-> +			.name = "Testing Wait State",
-> +			.test = test_wait_state,
-> +		},
-> +		{
-> +			.name = "Testing VM Create and Destroy",
-> +			.test = test_vm_create_and_destroy,
-> +		},
->   	};
->   
->   	ksft_print_header();
-
+We already have ucontrol tests which have a working fixture handling, so 
+check what code is missing in ucontrol_test.c and move that code over 
+instead please.
