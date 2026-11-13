@@ -1,85 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794606154;
-	b=uSBOvr5YwUIWOB9DrecClb1U4ooQAA7J4MA3z0IDmupWAIeATZPAZBuIwAALNn0NoGLv
-	 qd8UoXq3KxvN1r3Axr9c6hFpjQywbUJyirwOVaU2GaXqwasObLg/qMF/otbyNz98/mtOT
-	 GSsNxgYsXvetJtVwpGXXzB6QKh9lMvWy/RRJtvmAb+u5HCYv7IFAzAC1SSg4TYKB5LsHY
-	 mJc54JVZQwKHLkko4EN5KsyTjMiw4C6Q3PufAzAo4U36BYGXUZrCaA73b5elLTEUbENRB
-	 3J1Cv5ABplpHgAFVe6Hg0dzyUCKGlTivFx28iRJFDKo9kdLUDuVktjHFrRPL05KhRNg==
+	t=1794606434;
+	b=GbOaJZej5jgMyBGfiavB/c5biAHkNkplxmuRdp6EKWnRMZfAwohCTxZqp4GbMqc/yrl9
+	 C4ZgKihsZUXu10cTwOxNbfdj+guVUmA8cHcKEHzXrrpOzug6cFoKqd3IZSOTFaf9to5rH
+	 GmFYvye18eCkseSFkvk5ktCsTRFuF4/FXHH+NFtaYCKxSDLTErESlJ45ZfuQZZMjchQYD
+	 6tRZbS5OBFV69GYQxfbbrOqGDKbaxEptV2snHGm+gZhKl6NQcLda0boxSB0AzXDmYud64
+	 bc1BfwtKE0UA3jCz3p0sagEEzE3A5Bhq+JurssoEYvPgywlTevPhKN+p5WmE0BYbMYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794606154;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794606434;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
 	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
-	bh=RwPRyHP2zyVmejGR1uh4JtlvqhjIfEODs3w+QBRfcJQ=;
-	b=gwogXx2kKECusKaUQC3gEU9PJ8R4Sg65zADiCAyskvofm9vM2wbY9wBuI6AmnHFo5BX3
-	 rChEZ57ydoFJ/PMBw3xi+632uod69oDxQ3etqDPpMhkok0S1ndgXIwtNGmAaseRYos5fj
-	 myJWMNOYiTGQe1DzvYcuGUGo2ENsG4HFcdDvbc7RqYe7qptOrH5EgijOEni/7TqapQb7l
-	 id58ZR4OvwzMkcXv4MEynGkK6dyk0OuY5ZtV6wzyinm6z288V1TOOvO7XSZj1FIihz3MF
-	 YSvSGxXa0rRBoKVazyotU9/CySnFYeUP2fC806YIC1alnrSdhGpKbjYtBmzkq4Dg+Zw==
+	bh=kmWJl7xpM9EiZrdM4st9QmllTAXM7O1m5Iu9qvicGyw=;
+	b=F2gISarrMLCrr+Vhh4op/Jdj0dwsP+l3zAqJCQPOH/rQ5dphfVQ9DQ9pXvmbYZB7EljP
+	 dBSsbp/HgezTUYLGzvEzpJDHXkks25ct8CIVPHe/jaXapd+/2mnQJV7OXLp86zV5RrpJk
+	 8HXxg3prHeohqvfT0EyAirMq8nD6LB7bgAMdO/3UPwB0g/rAil6D1B440GTCP8Rn5LlGs
+	 SyOCsUEg6sqd86hoZRbs0PKc3gSgrsmmEFTWLb4K+JSbimSZlwRjYjqWNZkd60M3o/46i
+	 Ugsa3cRcTJVNqSP//LBVnndAekUQqFkvwMxuSQppMpALF4kfqI6kQF7mutVNJGvJJ1g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=gourry.net;
 	spf=pass smtp.mailfrom=gourry.net;
-	dkim=pass header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=EKNhbxkk;
-	arc=none smtp.remote-ip=209.85.160.181
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+	dkim=pass header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=eaa0H2aL;
+	arc=none smtp.remote-ip=209.85.222.178
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23BE5606A33A
-	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 21:42:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 23BE5606A33A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B3FB606A33A
+	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 21:47:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3B3FB606A33A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=EKNhbxkk
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-533861a59b8so27900981cf.1
-        for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 13:42:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=eaa0H2aL
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-93ece7a73b9so333581885a.3
+        for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 13:47:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1794606152; x=1795210952; darn=vger.kernel.org;
+        d=gourry.net; s=google; t=1794606432; x=1795211232; darn=vger.kernel.org;
         h=message-id:date:references:in-reply-to:cc:to:from:subject
          :content-transfer-encoding:content-type:mime-version:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=RwPRyHP2zyVmejGR1uh4JtlvqhjIfEODs3w+QBRfcJQ=;
-        b=EKNhbxkkQMORETffHCHxv+E20muavs46wHH6TSQgkwOKnkMBWgo3BRqE9adDNYWjJy
-         zQvDt0u803Js/yQ/xoqMXeSOKFrPFOOfSJoo4mM3wToNSHCQYLMW01UMv2NrALxHTu5h
-         1BKsWm9UIk97Oq6GlYqwEE9cIn2GNrup/GEMawiM0oNLiEcTbAAlcoNRt+Y3u+jnhl7q
-         Ff+CjlTIZlIH6YG34N3i7rGeKp+IjYW/FeYl20DzdxfeXsbexBmN7BiSt5uKr6EoNKuM
-         /dW15GIGFRQ4M8aVHf6ioFgdIR2GphR1luRLbU/sLdpNwfOidADbdAlqrJzVjjLlQ4ap
-         SzmQ==
+        bh=kmWJl7xpM9EiZrdM4st9QmllTAXM7O1m5Iu9qvicGyw=;
+        b=eaa0H2aLTwIv1fF9DlES7zpndhp3z4IRgePEZs2NN4KH8l196BoqVtJMOQoreLCYNB
+         pOsyMZrWiiWWEYh99FWQcRzLwUkmUQG0Z6hXXczle32dIaNGY3hVRAwAZF4u+LqQGeDl
+         HW/Qi7lP/gayyA5HyH4yHz9T2KcK3IAp4jj2dA1Q8qWqf67B8DNQa36x3Wf1p+BqoYeV
+         09E1Oth2PXXi3zYvT0jz0Q46Ub14UsGzxUIXD4+zxf0zDuIBi9HdIfF7bPAV5OJw1wez
+         IQ1H4vTfGvCU94LsWlmfOA1MvRSD4iIueptYlFuflsyzxqnZzZl++fo1JvUP6RClXRoD
+         h3pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794606152; x=1795210952;
+        d=1e100.net; s=20260707; t=1794606432; x=1795211232;
         h=message-id:date:references:in-reply-to:cc:to:from:subject
          :content-transfer-encoding:content-type:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=RwPRyHP2zyVmejGR1uh4JtlvqhjIfEODs3w+QBRfcJQ=;
-        b=s044FSWlTHRUBh99W8skcyVGK0GnDJDfO1+BWT6plFL3skdirmUca6IQglCYhQRX8y
-         9TB6/+Okp4h6AgJEMM4kO5/ps3q1+O4y12CDA0iaHMUzSoqoOmbRjTkkzwsMsDFFvc/R
-         I6+nAcOh0pjPu3HlD386HdL1azjEsqaftx3B2mSdFRGDeloLNXxxRfZ/00BtdyGibFba
-         4TWBDEb3/45uUQ4T2zoMqewgHqzks58C0RKDNTJln1VNY0X7JVHQZKO0xuu4yZ/uMAur
-         yU8eyGzdu2mMNXxxldFDM/oM4Xa0C+SuubD4TAxfJ509Gwdio9YlEpt/wAzv4Mufow74
-         3Ecw==
-X-Forwarded-Encrypted: i=1; AL+hErHZPRDIgH/etwfvxg1YHHV62cQHYc8aJyrE+LNK0om6Nq3JqLuz+F5sZKvEgcLbktYHs8I39apxwNG8@vger.kernel.org
-X-Gm-Message-State: APuU4Z8wPYvx4eYWJ34zaDl6eGY6B5hPtahC8DZClDfIXazQFgQwn1uQ
-	id/Bym+wONr11n1ny1OB1zESxYOANEcqvA8IiClz//RuGaijb9Je5jYGSHPa/0xwQaU=
-X-Gm-Gg: AYBFou3ccEHsygVlSImieUj45NAA7ZkL1gP9beW3oZHGz3CUaIPqwyk57oVsy7RaQ8R
-	pCwKmc6odzZzsMm24VmbuFxliguS+u7Gwy4mWTSWhvlmdJ8N7PWUyjJmp1/6CA+MfiKBu+1uo+Q
-	CgALz2mecOupWjuFtc4mJl7umaztcE36IDULusRrIZ9wP9miH0UUbEzpy2IprvSCBJGXnoXfQoS
-	dBahfuu5nGuChvA0xGhOEUfxpgGAyfCYaP3pLJWhrPR5DSbUWwfzKQZKGD1UgqTjBnl3mb4IT7N
-	B2DnQJORCIpbyy3iu59iYAR+n766udhgwhq7ZRIHcA6RclSbFd3lPsFZ0LLEiw5yJ/OXWZgPS09
-	UfCqWIhe9Lb5x/5F7m459ZC1W8ZEQSWxx2Uy8JhH5Wmub5ISw0NFP08KKvxHgohyj58vudPAuJu
-	RO53+TGW5KuVPoi/27pGFWR1bSbiHNAGxIioW6ewGtIx/lEeSv0hnXFzJ2Wb2MMyuH6PQ4wrQyM
-	j84eReXnrXQrMq3kHLvGtNdubh3QZgyBZtuqqVqV8CSx3dXC9I3NdkYjb13C+fFgax1OEKEYz1W
-	VOhUdbUmOW8RbiJKU5wdWL8qBygt8G0S7MBkxojrD6O1U0xr1RP0ZXfz86lbmztBVrHt+A/bRWD
-	z7yP0RNU=
-X-Received: by 2002:a05:622a:598e:b0:536:566e:6b52 with SMTP id d75a77b69052e-55ac7564a85mr62222541cf.27.1794606152109;
-        Fri, 13 Nov 2026 13:42:32 -0800 (PST)
+        bh=kmWJl7xpM9EiZrdM4st9QmllTAXM7O1m5Iu9qvicGyw=;
+        b=VIOPY7kbMv5zxDvQK2jfYJDZXhb824TeE2swTCsJcWM6iM45CjyyIeOeER9JHCtnS3
+         zfRnuA8l3nxNCH45Crz6qxsOa3O/+seL7G80J3QuWowXZtvOjWgntoFAzLqlq1HlqUsu
+         NrGKFWBznnzNuS/l773ra1zpCp9kKNrwYW1zXDkQu1nxuw774hjMGLHumZRO/7NhcHZ3
+         9xdTGqRNsRqjMHRID4qRB4m7TXojyGWJoJnFB7ZlUPje6I1KVRiw1pI0hsOAFBi9nKxF
+         jbPUAOi7b6bohO9SO1RDd7gsu9DUjS97s80wrSiAl7utTKzYNwHFZduad7L++xfQqKFT
+         A8fA==
+X-Forwarded-Encrypted: i=1; AL+hErG/78pm1chntjJYbC1oiEEzYXFdd390Z31xR81pDB3Zwelzsql1VQvXM5xO2m3xtWewC/L5f8XE0RBa@vger.kernel.org
+X-Gm-Message-State: APuU4Z83gVPdJ1ajkAxuWmzInK0qe9Hhy2FT3AOCOXo0s80rEm2UpdpH
+	GJUz2ng4jEI8jD0eFxNWJsrWFIYft+7g3yUyKMH88zkpaZe4mXVo0hcCD1DrNMtkEWE=
+X-Gm-Gg: AYBFou0ecMulYCWEXYO04a0jPFwRT8mwL+quqMaTw//4UzTkXl1FUqLt8WYN4Ln5l7F
+	P8h5T1EMvWLXMK2vbTOGCoQlnk8wNSjuftBRkbfZQnWYiUREb0afQkOf9sf90HogpORHutCTXTb
+	BrkfLhq8pzB6tdMTsgohvCkhLh5E2K959ZWxbjJ9koehcRdptRc2nRqvdw120tRctDficSkz0Lk
+	qK/bOR0HXa3+KhLrJqPsgrEIUQQ0b5++qnvMe09BMdG11HETtK2Y/rqnlMwqCJzFhriuxQ3J7UI
+	iUIgAJHaFfvlod1wBEhTlD3nuP7oT8cSplNgXGpqPjvsnyYblr0cTeRpCD1xA+L4sPM57FL3/0t
+	z4Af3wDdzDxGYUK/oAdAtqJt8QI6Lge/xpp3A8hWUnyYivqz0lpflBY0/Yo94FdYCHo7MJE+mIF
+	4nc9WkElCAPJ2d+9HPdh4dbVZVOWhD/XOlItRPrY5Cwb38ZJou4m6vsa42ab/AKRlRXi20PLQPN
+	OUHdPL8MmP28xvfER1r594KXe99SPIFxu0HWGpFxUxoAuMLjR4wox5WlEvAodddG92ihjDfS/4Y
+	qi1rnLgGE0qHymE3OiAxjWjna2jA2g5o222j+TlX0kV1YRE/b1QHlBhgGZiOccge9b4z/SvTL60
+	VT9aP8DU=
+X-Received: by 2002:a05:620a:4042:b0:93f:3120:6c6d with SMTP id af79cd13be357-9494bb56dfbmr651566785a.35.1794606432092;
+        Fri, 13 Nov 2026 13:47:12 -0800 (PST)
 Received: from [192.168.50.231] (pool-71-191-145-202.washdc.fios.verizon.net. [71.191.145.202])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55ad0349423sm27363181cf.7.2026.11.13.13.42.30
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c8b5c1dsm279333985a.33.2026.11.13.13.47.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 13:42:31 -0800 (PST)
+        Fri, 13 Nov 2026 13:47:11 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -91,7 +91,8 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH 01/15] hugetlbfs: fix integer overflow in fallocate()
+Subject: Re: [PATCH 05/15] mm/hugetlb: keep surplus folios when the pool
+ shrinks
 From: "Gregory Price (Meta)" <gourry@gourry.net>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
@@ -118,47 +119,56 @@ Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
  linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
  Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- luojiajun <luojiajun3@huawei.com>, Josef Bacik <josef@toxicpanda.com>, 
- stable@kernel.org
-In-Reply-To: <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+ Josef Bacik <josef@toxicpanda.com>, stable@kernel.org
+In-Reply-To: <20261028-fixes_hugetlb-v1-5-a0a033db180f@kernel.org>
 References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
-Date: Fri, 13 Nov 2026 16:42:30 -0500
-Message-Id: <179460615000.482102.14809359037930927808.b4-reply@b4>
+ <20261028-fixes_hugetlb-v1-5-a0a033db180f@kernel.org>
+Date: Fri, 13 Nov 2026 16:47:10 -0500
+Message-Id: <179460643069.482102.17806419339613384754.b4-reply@b4>
 X-Mailer: b4 0.17-dev
 
 On 2026-10-28 21:13 +0100, David Hildenbrand (Arm) wrote:
-> hugetlbfs_fallocate() rounds the range end up by adding hpage_size - 1
-> to offset + len. vfs_fallocate()'s existing overflow check only makes
-> sure that offset + len does not overflow.
+> From: Josef Bacik <josef@toxicpanda.com>
 > 
-> Once we overflow for valid endpoints near LLONG_MAX, we can get a
-> negative temporary result that is then converted to a very large
-> huge page index.
+> Surplus folios are accounted per node. When shrinking the pool,
+> set_max_huge_pages() removes free folios through
+> remove_pool_hugetlb_folio() and accounts them as persistent folios.
 > 
-> A one-byte allocation ending at LLONG_MAX can therefore consume all
-> available huge pages. Pages added beyond LLONG_MAX are skipped during
-> inode eviction, leaking them and triggering the BUG_ON() in clear_inode().
+> It can select a node whose folios are all surplus and leave its surplus
+> count larger than its total count. Free surplus folios can back
+> reservations created by gather_surplus_pages().
 > 
-> To fix it, calculate the end index in a simpler way that cannot
-> overflow. This also fixes the signed overflow reported by luojiajun in
-> 2019.
+> For example, with nr_overcommit_hugepages = 8 on two nodes:
 > 
-> Backporting notes: without commit a08c7193e4f18 ("mm/filemap: remove
-> hugetlb special casing in filemap.c"), remove_inode_hugepages() must
-> include the final huge page during truncate and eviction.
+>   (node columns show total/free/surplus)
 > 
-> Reported-by: luojiajun <luojiajun3@huawei.com>
-> Closes: https://lore.kernel.org/all/1554775226-67213-1-git-send-email-luojiajun3@huawei.com/
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
-> Fixes: 70c3547e36f5 ("hugetlbfs: add hugetlbfs_fallocate()")
+>                                       total free surp   node0   node1
+>   mmap() of one page, bound to node 0     1    1    1   1 1 1   0 0 0
+>   node1/nr_hugepages = 7                  8    8    1   1 1 1   7 7 0
+>   nr_hugepages = 6                        7    7    1   0 0 1   7 7 0
+>   munmap()                                7    7    1   0 0 1   7 7 0
+>   nr_hugepages = 0                        1    1    1   0 0 1   1 1 0
+> 
+> After shrinking to six persistent folios, node 0 has no folios but its
+> surplus count is still one. Releasing the reservation cannot clear that
+> count, and shrinking the pool to zero leaves one free page on node 1.
+> 
+> A later write to node0/nr_hugepages underflows the unsigned per-node
+> persistent count: 0 - 1, resulting in allocation of many folios.
+> 
+> Use persistent_huge_pages_node() to skip nodes with no persistent folios,
+> as adjust_pool_surplus() does. This also excludes temporary folios.
+> 
+> Fixes: e4e574b767ba ("hugetlb: Try to grow hugetlb pool for MAP_SHARED mappings")
 > Cc: stable@kernel.org
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> [ david: cleanup code and description ]
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Reproduced the BUG_ON() and validated the fix.  LGTM
+Reproduced the total=0, surplus=1 issue and subsequent underflow, and
+verified this patch fixes the issue.
 
 Tested-by: Gregory Price (Meta) <gourry@gourry.net>
-Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
 
 -- 
 ~Gregory
