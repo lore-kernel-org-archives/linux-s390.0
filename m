@@ -1,96 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.44
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794500311;
-	b=xjTUXn+vmV4ejHUcHloiPMc9N3FEtbhMGRM5mgB0m8ZyipEaMDsm+L51VOfsFbz/wUMH
-	 5Eku4geavub8V/cfU1IDBlGj+VW3fZ4+kQ03XXdLkiejSuM7cqzKSE2RCXrBR29dQuTAK
-	 3trg8TZOPUYmbFxOQPX+GKz4s6IAKZTooTscTKWjd0HBG75g38Ag1KgRzHta7kV0WAGiJ
-	 UKlwrZvHqoQMPR07KkR9kJUb08FwIZXrif1QEBrnGVBuYg9aavCENGOUQHmR19m228OhF
-	 EVpY0PRSAiUI8SJMH0fymuQT4BFRpuaWgqZ3VDtGGax/O79NaG02GSGGHhFKNfKU1Ew==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794500311;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-Mailer;
-	bh=D+wwjazAct4IZB2YuQKwqi24Rar1lXO2vO79SPb/nCE=;
-	b=k+Z2YnGzXPA6kpnfF718iwtDsPmZ7eYl8eTaSMFWPOlXsfJyQo6531B6IUthaQVECRZo
-	 dL3x1/i1fCobeUOGhEDTM3uCJexFfiP1RhLatIK5I7npzDj+zM1u2hIL1QyP1JpeMDxSg
-	 oJA1MmN5twfAfeQSuVwO/ShDi/Bi0lc+NJu4Hu6HUf82K0bMDplRKn7heMKjIrTIpXn+g
-	 EbHAYDC4sw8SSAPqj69P1F3oybIfJdam9w7FOLV5ePHD9Rz6lVsHrOxJUW1zzHxi6BFLH
-	 GJZOADIFzPIpqmDIH2pMa4q1mgRbBnCtzgnCtLDXW6lnilPn8OTvlTIZAch+HTPFWCw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=kernel.dk;
-	spf=pass smtp.mailfrom=kernel.dk;
-	dkim=pass header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=XIDnrxIo;
-	arc=none smtp.remote-ip=74.125.82.44
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794529975;
+	b=cWpjEMd3EfIS+iNMt2A8a15iIpZSdDd24aO5Mmj0WvCb99NAlcx5SUlPHMxMIFr3m3yI
+	 xuppD1bB+6K9fwjI2Qfgp734+odBH1EL4VXf91DQmuTSmV5IUUC5xLSvLatgbDxr05HlO
+	 7azbtJnjUnYm+Kl95LtXZgBe7FGEWE3vwc0bVsOproyX/mo3N8XI9OI/P4wnvAhow542n
+	 fUjwz3G4eiOPyPuV+qil+Rb5lXxul8XAYFt8v6ESOfJPyQzasEESq8vVrbv6Qq2IbXCks
+	 3DHq8Uvi4MbiqdW2gBS+0fn8nMCUIck0xPL0sMBrG6pn2aUiPzBJTEWjdhcj8u2dyJg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794529975;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Mtj30gCYayK+JwtzXHe1p2z7x7R9Wrp3nE5TVuAXld8=;
+	b=U0kRlWxEkCnrn0yYlRKNXF/2uDBdfKI7gywt8JrdaxC0YX/Ao2mkmLubByGSGihcna6M
+	 JoSu788mh8QoU7lYkvV3OI7uz+ZK2LmJWNXviX2j0qgVUHyUAP6+sH0gKiEwjEmNoUNIF
+	 yOaL50ml64187Qmk6oz5eZX3TBO1M0Nb1hdCT1kW/AwJ/qn5escb4Wc8FuMPaw4EeP0qA
+	 GV5/HQVUgraVtAJmBWVTXYBCOot1V9E9EM3JPvxmU0HbrwK8ApeGxQmE+WnAbsgej1B5D
+	 DhD54S7+i9/DJXtHpZdf70cK9u4pdRl3QeFjTuHTI9NVXHfLE56xiWc/8jZ92VhyX+A==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X4FCOXAJ;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8929960A6F7F;
+	Fri, 13 Nov 2026 00:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X4FCOXAJ
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794529975;
+	b=UuS/Z2VoLEm2l/wWtFPS2xcieKc+ud7pdm7uO20FVemmdA95JW0HYTkh8Ta2aXPXDgdR
+	 lI84XKFN1NY8ld/qhDElBEAjwvBB3fKK/csP3iYWXQwA+Y9KjzI+iTLgoLdc750sV6yfH
+	 FS3hBDbr+Z7RuSjuFJVAs1jvDYgyLnrTcNCgrmAishkEClwZtYDF8tlPrhRQMmM0pTSP1
+	 nWKHPEBCKF/lPpTznE4V0uSacsW+3FnC2FRKlZnYQvjL3MFDTLLQM++4BefzkETwIfb67
+	 G7H1MBJP5yIpw9dZp/UG0Vk2oCIUCbPc0WglQyGT6tq8XjT/Of+rL4FhQIDT0ny87yg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794529975;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Mtj30gCYayK+JwtzXHe1p2z7x7R9Wrp3nE5TVuAXld8=;
+	b=at0+P2PbQTCHojgA+6LAyPChI+c4d1thpJxCUjFFKjtrM4S+EW43amLadvGusRcGEWK2
+	 FZF2wct6FQP1WpTogqLVvM9FgT8RlH1q9kJblxjd8rxTUNQbkXJfIv8WF3uc26NX48Z/h
+	 dwRMNvoLJycf3BeuTW5bjigHj3DAriq5XG7xUh3VTVuvJhrjd2Y338JwlpPirvAYYnz0z
+	 KYHZkDurMHkaWX2z35zMZCCCfrSzGUEiL83NhJYke5DXYX0YuQ4Qp7h8CMFHbG0orteQK
+	 OPDl1E4OQCfMyHYA+s5JNDYbjzFo6kExWSkgcAgVggm9qvmG2EWI9xkesb9A9ypQRlQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFD91606A32A
-	for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 16:18:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DFD91606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20260707.gappssmtp.com header.i=@kernel-dk.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=XIDnrxIo
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-1b3b4bcbfc9so2492189c88.1
-        for <linux-s390@vger.kernel.org>; Thu, 12 Nov 2026 08:18:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20260707.gappssmtp.com; s=20260707; t=1794500309; x=1795105109; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:date:message-id
-         :subject:references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=D+wwjazAct4IZB2YuQKwqi24Rar1lXO2vO79SPb/nCE=;
-        b=XIDnrxIo8sdAfxBpG12mCoHmS3PnwLDutuMW741oRA+n9e4WbIIvTqMp09b9XX+s4w
-         QSbiYy99el4yMTlCueAcpwrBbT1woLxB5HEXiSpt0WUh174EE8//peCgTpTg5gcQSCJX
-         2Rg5y4uJVRHqrj66Qz6uqfGwI9uwy2nHgTkG8PCe2fVAZ/gY4byMVm1FEbRFDBzyC2+Z
-         m6EJNf6UCceuTC3cdgeCVDtir/QZ6N3RkyZXKJz/z+zXXL5VaApjALhpCqLMF6MlG9JN
-         4qkvZPUFw0v8dB0LXziaWteP82Lg6O0UINHqU+CQ7wCRfG4I4/Ms5fd/nLIXB2MF7NcZ
-         nskg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794500309; x=1795105109;
-        h=content-transfer-encoding:content-type:mime-version:date:message-id
-         :subject:references:in-reply-to:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=D+wwjazAct4IZB2YuQKwqi24Rar1lXO2vO79SPb/nCE=;
-        b=u+0iAWpLRlEPkgZrPUSikro8B5D//yRm1pwYQZ72P6Ic2blAg9sq1zGarJrwPmQDvC
-         u7q+iy+uxAayn/734siTg4SH1ZZqSVCllVp3dGYZgl71+/44Z46CUf0f88hkB6/LjAGv
-         TGV1jQE3pkgftz5qHjobBCJp7pKkqVViT4/e5EOOLWtZyW3girCxSybH9PLU2qpPksX6
-         UlCENSnxcWszAmUMMHeEUJDGHuYz6BkUlTCriKtyFKWUvnmfevI7bXgLwpbOrSl2dVHj
-         NJtZHU2MWC7W8dNppnuSHoIx/sP4NCv+GAtVZO9ltQktVjA7qTKdIq8NmMKxli/tkaEX
-         2oLQ==
-X-Forwarded-Encrypted: i=1; AL+hErHStjdWBg0ATMGpbRpLzFxNQhqui/QH2iY0HTHIrKC125RXrZlzfapwvSQe77ZumliE7XmNmbTUJwRC@vger.kernel.org
-X-Gm-Message-State: APuU4Z9YG/xGb2/Pt3VpXPK2viEeuOuKAptodpOIs9FagWlLqpZAU2ic
-	sPTqWhIP4MRZAdb91UTCscHdwnqJK80jJhfQE81sJOzhUXDq67FQvbT+B08jXBqNFa0=
-X-Gm-Gg: AYBFou3gGo2BPBDXro4Wuj9elkDVRKBN7IfVLJ4L5/c+L+K0c5wyE+lHRDIinu9vBp4
-	CZgBl2I8UsxErRxra8XFONavRxtbDgztBYNvznZnThkDOraJfHP1Az9CFIXmi1IkUoWxEhjT7vx
-	+IqDPAyvVq58rMRvBm72FFU1TZjMSbn2B/j8jIY6FIfgX8bH44n5HRuqUbXA8Fi827j6OxalIqS
-	ZEFts7Rt8bOZ9rOjQ0JufiyMoP1wu9AVL3QFHtD6Aeqlc5g4u6eUNdN+z5Z4NRGVvl5KZjC9SNq
-	26Xh5DS1YZW8RJarYfRIi0Cpe1h4t28lLgEejyMplBLdkEjX3NtrGTxAqbfBOKG+lP3VSLLM/Df
-	TQ8xhW7JjRDS4XzkK0lDeet0AdnpK97QkqxsABzdajg02HMdi3uSDD6ESY2k4VnU99b0m17lue0
-	kuy1e9l2hqWTZr1oVzae86v44c2Q9m1PAg25j++/nB8ddAtfWUN5Ng7O39KE40Bi9DrALz4mzBK
-	j5fgrG7othBwqTKBDufECSYgJVgwI4dPKLRkrnN6vkKLU7ygh/pL8LcuNeQ+tpP/GPOuKoMwBDK
-	cLK+ToeIZmqBesLXheEEa5H2la2Wcl5fvYgeFGwMOj8BFGRaBCecnYOZCUFm10BGNHjsRbsCqBL
-	nd7jLi0RbH90DcTwL1IM+VPpBROPaUXUZQg==
-X-Received: by 2002:a05:701b:4554:10b0:19b:39f4:88c9 with SMTP id a92af1059eb24-1b503115701mr40021c88.10.1794500308848;
-        Thu, 12 Nov 2026 08:18:28 -0800 (PST)
-Received: from [192.168.1.142] ([198.8.77.135])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5031918c7sm63092c88.9.2026.11.12.08.18.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 08:18:28 -0800 (PST)
-From: Jens Axboe <axboe@kernel.dk>
-To: Stefan Haberland <sth@linux.ibm.com>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, 
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20261112102608.1057852-1-sth@linux.ibm.com>
-References: <20261112102608.1057852-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/4] s390/dasd: fixes for RCD retry and BIODASDCHECKFMT
-Message-Id: <179450030814.6809.12199806849669724692.b4-ty@b4>
-Date: Thu, 12 Nov 2026 09:18:28 -0700
+	by smtp.kernel.org (Postfix) with ESMTPS id 043511F01573;
+	Fri, 13 Nov 2026 00:32:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794529975;
+	bh=Mtj30gCYayK+JwtzXHe1p2z7x7R9Wrp3nE5TVuAXld8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=X4FCOXAJjARl2yI0kl25AXmlYRvs30rN3mTw/+iuaC6iCcz7uwZ0hPC65iBwY3wHH
+	 r9Vi7iVmtfO4IAgRQOCYn9xYqF6kVCg7lvBYYHcBhSJGpmYvTzUBefac+9knhBMlb2
+	 fIEbc3Duh5SQ+fDDOy+RGJq9Nqmvto6WR5hKH8+mM2xkoL8DWNqJCLOZAzMfgFK6PX
+	 I3N7vTz2TwcxSYW5EyHK5rQMsn3XehGA9J2MrXwxJ8DIzYyBhgo+o1ur1F/vWmJwle
+	 BtBrwV3dNihd3HG4Xmt54t8blu3/6qP3ugl1ddgHkgV0xg8fjspmeI3/B8wdQHUpD4
+	 62qFbQyt3qofA==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 81F1A47579;
+	Fri, 13 Nov 2026 00:32:48 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Thu, 12 Nov 2026 19:32:49 -0500
+Subject: [PATCH net v6 2/3] net/smc: clear the buffer pointers before
+ registering a connection
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -101,39 +84,127 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Message-Id: <20261112-b4-disp-1c8d3a53-v6-2-36a38ae35021@proton.me>
+References: <20261112-b4-disp-1c8d3a53-v6-0-36a38ae35021@proton.me>
+In-Reply-To: <20261112-b4-disp-1c8d3a53-v6-0-36a38ae35021@proton.me>
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Dust Li <dust.li@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Sidraya Jayagond <sidraya@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: Hans Wippel <hwippel@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+ Wenjia Zhang <wenjia@linux.ibm.com>, netdev@vger.kernel.org, 
+ Hidayath Khan <hidayath@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, 
+ Tony Lu <tonylu@linux.alibaba.com>, linux-rdma@vger.kernel.org, 
+ Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org, 
+ Simon Horman <horms@kernel.org>
 X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794529967; l=4207;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=bG+MdtaWg2DbS51xfN4NR/c6TdcQBHG7qU+o+c2GvIg=;
+ b=JFCZVpCVOyTE6TV+qBWePlJO5xSk/u6QKeZzP2ZohBWsv7te65w/rzwDU2V1sTeP/wi7khLjN
+ xzZb1KEuz5kAmS6MqbAL2L0qasxJONmalyy7B8fD87UL4Vi7KZRDYNY
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
+Content-Transfer-Encoding: 7bit
 
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-On Thu, 12 Nov 2026 11:26:04 +0100, Stefan Haberland wrote:
-> please apply the following DASD fixes.
-> 
->  - Re-initialize the RCD buffer magic "V1.0" before every start of the
->    request to fix a condition where z/VM omitted the UIT and the paths
->    were wrongly reported as leading to different devices.
->  - Two fixes for the BIODASDCHECKFMT ioctl, both reported by Sashiko:
->    a wrong free plus a refcount leak in the dasd_eckd_build_check_tcw()
->    error path, and an info leak caused by trusting the userspace-supplied
->    result field.
->  - A typo fix in a function name, dasd_sleep_on_immediatly(). It is a
->    prerequisite for the RCD patch.
-> 
-> [...]
+smc_conn_abort() releases the buffers of a failed handshake attempt
+and leaves conn->rmb_desc and conn->sndbuf_desc pointing at them.
+When the SMC-Rv2 attempt of the listen worker fails in
+smc_listen_rdma_reg(), which a peer forces with a negative
+CONFIRM_RKEY response, the SMC-Rv1 retry registers the connection
+under a new token with the stale pointers; a client can do the same
+with further connect() calls after a failed non-blocking one. A CDC
+with that token then passes the rmb_desc test in
+smc_cdc_rx_handler() and is handled on a buffer the connection no
+longer owns, and a retry that cannot create its buffers releases the
+stale ones a second time.
 
-Applied, thanks!
+Clear both pointers in smc_conn_create(), which every registration
+goes through, under the socket spinlock, and let
+smc_cdc_msg_recv_action(), which runs under it, return while
+rmb_desc is unset: a handler that found the connection before the
+clear then does not dereference NULL.
 
-[1/4] s390/dasd: Fix typo 'immediatly' -> 'immediately'
-      commit: ae6f19236b5ae4eef4df2780d51bee19add0eba8
-[2/4] s390/dasd: Re-initialize RCD buffer with "V1.0" before every start
-      commit: 25cdc1f63227a1ea69a1ec823a8a860e33299169
-[3/4] s390/dasd: Fix wrong free and refcount leak in build_check_tcw error path
-      commit: df56f7a6c20a5eb2794c0a7391bde50ba7c8c54b
-[4/4] s390/dasd: Don't trust userspace-supplied result field in format check
-      commit: 7cc2dda4f7aaf596c1796184649007151ff98f8d
+Fixes: 35112271672a ("net/smc: Reset connection when trying to use SMCRv2 fails.")
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/all/179241208347.3135.18021879529736748765@kernel.org/
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+---
+The Fixes tag names the listen retry, which a remote peer reaches.
+The connect() re-entry needs the local caller and is older (by
+inspection); I have not dated it.
 
-Best regards,
+The clear takes the slock with spin_lock_bh(): smc_conn_create() runs in
+process context with the socket owned, and the CDC handlers take the
+same lock with bh_lock_sock(). Lockdep is silent on it, and reports an
+inconsistent lock state with spin_lock() there.
+
+After the second test the function loads rmb_desc plainly: the clear
+needs the lock it runs under, so a pointer seen set stays set. The
+SMC-D tasklet loads rmb_desc before that lock and the clear cannot
+meet it: the connection is unpublished from the device, and its
+tasklet killed or the connection marked killed, before a retry
+reaches smc_conn_create().
+---
+ net/smc/smc_cdc.c  | 7 ++++++-
+ net/smc/smc_core.c | 9 +++++++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index ee5ba6c7a5b4..b3bcc206efe3 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -334,6 +334,10 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 	struct smc_connection *conn = &smc->conn;
+ 	int diff_cons, diff_prod, diff_tx;
+ 
++	/* smc_conn_create() can have cleared rmb_desc */
++	if (!smp_load_acquire(&conn->rmb_desc))
++		return;
++
+ 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
+ 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
+ 	smc_cdc_msg_to_host(&conn->local_rx_ctrl, cdc, conn);
+@@ -484,7 +488,8 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ 	read_lock_bh(&lgr->conns_lock);
+ 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
+ 	/* The connection is in the token tree before __smc_buf_create()
+-	 * sets its RMB: drop a CDC that comes earlier.
++	 * sets its RMB: drop a CDC that comes earlier. rmb_desc is cleared
++	 * under the socket spinlock; smc_cdc_msg_recv_action() tests it there.
+ 	 */
+ 	if (!conn || conn->out_of_sync || !smp_load_acquire(&conn->rmb_desc)) {
+ 		read_unlock_bh(&lgr->conns_lock);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 02269cede641..9ef9019bc497 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -2024,6 +2024,15 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	spinlock_t *lgr_lock;
+ 	int rc = 0;
+ 
++	/* A retried handshake comes back with the buffer pointers of the
++	 * failed attempt still set: clear them before the connection is
++	 * registered. smc_cdc_msg_recv_action() tests rmb_desc under this lock.
++	 */
++	spin_lock_bh(&smc->sk.sk_lock.slock);
++	WRITE_ONCE(conn->rmb_desc, NULL);
++	WRITE_ONCE(conn->sndbuf_desc, NULL);
++	spin_unlock_bh(&smc->sk.sk_lock.slock);
++
+ 	lgr_list = ini->is_smcd ? &ini->ism_dev[ini->ism_selected]->lgr_list :
+ 				  &smc_lgr_list.list;
+ 	lgr_lock = ini->is_smcd ? &ini->ism_dev[ini->ism_selected]->lgr_lock :
+
 -- 
-Jens Axboe
-
+2.56.0
 
 
