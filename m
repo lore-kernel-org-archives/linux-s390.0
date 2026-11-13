@@ -1,60 +1,41 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.17
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=13.76.78.106
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794531773;
-	b=07E9KfIxnW+Oh0Zs7F39a5I71eIkGou6kap9x/c3RzDiFAZ9fVgXbQJdMRh909NGZ38V
-	 qe2bQRrANJL/Zd+4NKeMZLgCJu6xtLmBZRSSminFWe2OcAU4A6CxzdgXgjl/xrbf75rDB
-	 Tb29anVoUN401WW9igrGSTX3K9umuDs9xs8kO1NGmyUmG3yIOt8dsB4yFL6LtBYX2PNn4
-	 9Jg9NTxJCFofYJVv7CP7WMxlWHEtpWUePdEmEkGAL5lYHojZ/0beHjMcZnrJpxiUYwwAF
-	 YJ4BIG3kdglf3DyksyRmOEIGJXYGpm5DQfm/6KIacmQIAGqimEo1gUywvUjfNm5vQyA==
+	t=1794535991;
+	b=ij+ypZ1LZCBB1pENCRUimva9WhLOc+9dvnDgYuous6YGL2/il1Xnp2xBBrMITrnIJX0O
+	 rlEuAQCjpPwLwpcWzOhDF27vVT3AW802BesE3J7iYEWUBiX0DwPh6/MkorZJAm+xsKtvz
+	 kq3S1Y1HAmQVo+yq5LHCsP43digMLOG7nFE4Ca2yILUtZpr3snkstOFT6/1xZeAUtDC7a
+	 hlIuCYbJYz29/J5i7+Fy0MRsGvyS3XZncnyFw/QcpwrOT/7a5UW7k+e81djsN9oUlkudA
+	 tJwwXT0FqhrpJBz9kFk4Fnk2fD0rajMrfrqYpxihwesEJ208TOOwyrm/9k6Rj+BTw2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794531773;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=nIAyxgbc0dBhpCr5slLCIJwaBkTcRa7SaWQgrgx1Si8=;
-	b=rISfMceMKb8Jlvx+JyZycq/PGGlcob2uuA5JfRR0qP/O753wwOP7v7oC5iqWFOe2+QKH
-	 i5MoZP0YKIXROIfLLaOheIxWLH+1eRDorzdhHvxXT8oGhl5BetLB1imwz9JoCSQgJOUFK
-	 U1mC1v34jmTNloMOc2N87WBX64nBvEc5ttrkgOnbUpRh90PW7fGEwFxpy3qiYjvrsbPeH
-	 oeI1z65K5I175gBA11M4CHZjm10sWLqgmDWpQqH7hJgZTVJ65O2ItjTti1yxsIuMA81UT
-	 bfa+YmwwvxLw0dD3S+w8vY4q80EhHTkNhfj4HoaQs+DhqmaYiEk/nPBRcz8P4sX7T1Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794535991;
+	h=DMARC-Filter:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
+	 X-CM-SenderInfo;
+	bh=2Y84LlsZe6rgvKsWJlLFsVqJRljJBA8w4SWbN4DVpek=;
+	b=mfLVgUFGMpRNQL9BrKcYgMYmNU8W7xzJ7o5uul7axofs88zMNhUceLEAgZxPxjVCt8lD
+	 hau4jYNdA7xcJUcNuTeVpa+hlbPw669rmQ30JiC+NCmEUKVDQXj2/UkKnKgUvn5pxDvaR
+	 oX0f4Fl2G69VXDleH4y4ePBf4yuS0Q/7Uh3zpXkWS+ynUnHyjbyVePzPM8VnNNYDbmQgM
+	 vr2/mb0R1nZ9Zw4mp51k7RcWPs/da4SgFc11bsbOeqObs+ssf2yUZp+xkyp0Zj9FegOtx
+	 CfENUiNzIiNr5HvQYx+tcF9Hqju77HEh1E2t0fN2hmcj/aCRtNrc1EnjyXdBpxwJ7ug==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=proton.me;
-	spf=pass smtp.mailfrom=proton.me;
-	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=UPoJn0rz;
-	arc=none smtp.remote-ip=109.224.244.17
-Received: from mail-24417.protonmail.ch (mail-24417.protonmail.ch [109.224.244.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3856B606A331
-	for <linux-s390@vger.kernel.org>; Fri, 13 Nov 2026 01:02:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3856B606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=UPoJn0rz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail2; t=1794531769; x=1794790969;
-	bh=nIAyxgbc0dBhpCr5slLCIJwaBkTcRa7SaWQgrgx1Si8=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=UPoJn0rzmtHUnLQ3O/nDivcaaFknqIJOpiUP6CguPaEYrsZf9c4+VWjk9lh8C1RQ0
-	 U6UdFKyG5ILHNkFJtK40fc/kPVF9udi3XKUxhZIV/IBnUvgHg4wzUzW8SNoiZPP08Y
-	 UCluRZj4JY7xfr4a2jMkmx1GaJIY29RQcEGwbr5F7zdRmIRc7iQ9mqBzvRMhYWVp2l
-	 Cj/St8K+v3rNSvmk/FCJ06oPLBfCUy9Sq/0ecwro+jy4dQvhOT1p+Q7jm4Gvf4MHB8
-	 utS7d8+rT29949okFa++22lapjfVSay/+HbGqObp0nPgnhe1F2qNieLlfu4fctyTD3
-	 ugaaZWpYtmmww==
-Date: Fri, 13 Nov 2026 01:02:45 +0000
-To: Paolo Abeni <pabeni@redhat.com>, netdev-bot+sashiko@kernel.org
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Sidraya Jayagond <sidraya@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Mahanta Jambigi <mjambigi@linux.ibm.com>, "D . Wythe" <alibuda@linux.alibaba.com>, "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, Guangguan Wang <guangguan.wang@linux.alibaba.com>, Ursula Braun <ubraun@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, linux-s390@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org, Hidayath Khan <hidayath@linux.ibm.com>, Simon Horman <horms@kernel.org>, Wenjia Zhang <wenjia@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>
-Subject: Re: [PATCH net v8 4/4] net/smc: bound the link failover cursor advance to the send buffer
-Message-ID: <20261113010235.418440-1-hexlabsecurity@proton.me>
-In-Reply-To: <fc454b46-b66c-4a16-aa1c-3ea0c2e91d15@redhat.com>
-References: <20261029-b4-disp-33001ace-v8-4-f9bb96e17827@proton.me> <179364387382.3131.13471253186660322977@kernel.org> <fc454b46-b66c-4a16-aa1c-3ea0c2e91d15@redhat.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 3134a679630143b5913b128635697a100cf4272a
+	dmarc=none header.from=hust.edu.cn;
+	spf=pass smtp.mailfrom=hust.edu.cn;
+	arc=none smtp.remote-ip=13.76.78.106
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [13.76.78.106])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DAE7A606A323;
+	Fri, 13 Nov 2026 02:13:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DAE7A606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hust.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hust.edu.cn
+Received: from hust.edu.cn (unknown [172.16.0.50])
+	by app1 (Coremail) with UTF8SMTP id IAEQrMCmbGgqcvZqjcZEAA--.42040S2;
+	Fri, 13 Nov 2026 10:12:58 +0800 (CST)
+Received: from [100.81.40.43] (unknown [10.12.191.55])
+	by gateway (Coremail) with SMTP id _____wC3sN8gcvZqqfo_AA--.64337S2;
+	Fri, 13 Nov 2026 10:12:53 +0800 (CST)
+Message-ID: <f9ee662a-4da0-4204-89ce-33704044c88c@hust.edu.cn>
+Date: Fri, 13 Nov 2026 10:12:47 +0800
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,81 +45,300 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] mm/zsmalloc: remove CONFIG_ZSMALLOC_STAT
+To: Xueyuan Chen <xueyuan.chen21@gmail.com>, Minchan Kim
+ <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
+ <rdunlap@infradead.org>, Alex Shi <alexs@kernel.org>,
+ Yanteng Si <si.yanteng@linux.dev>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Helen Koike
+ <helen.fornazier@gmail.com>, Vignesh Raman <vignesh.raman@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>
+Cc: linux-mm@kvack.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, Nhat Pham <nphamcs@gmail.com>
+References: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
+From: Dongliang Mu <dzm91@hust.edu.cn>
+In-Reply-To: <20261111-zsmalloc_stat-v3-1-2d85ed51570e@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:IAEQrMCmbGgqcvZqjcZEAA--.42040S2
+Authentication-Results: app1; spf=neutral smtp.mail=dzm91@hust.edu.cn;
+X-Coremail-Antispam: 1UD129KBjvJXoW3AF17KrWUuF48AF4DZw1DJrb_yoWfGFy3pa
+	18Jr4xCryxtF15J3yUArykur9xt3ZrWFW8Gw1DW34rZFn2yw4FyFyDKryYv3yDXrWkAa1x
+	GF9agFna93Wjy3JanT9S1TB71UUUU87qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUQEb7Iv0xC_KF4lb4IE77IF4wAFc2x0x2IEx4CE42xK8VAvwI8I
+	cIk0rVWrJVCq3wA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjx
+	v20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1l84ACjcxK
+	6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1ln4kS14v26r
+	4a6rW5M2vYz4IE04k24VAvwVAKI4IrM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI
+	12xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj64x0Y40En7xvr7AKxV
+	W8Jr0_Cr1UMcIj6x8ErcxFaVAv8VW8uFyUJr1UMcIj6xkF7I0En7xvr7AKxVW8Jr0_Cr1U
+	McvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCY1x0262kKe7AKxVW8ZVWrXwCY02
+	Avz4vE-syl42xK82IYc2Ij64vIr41l42xK82IY6x8ErcxFaVAv8VW8uFyUJr1UMxC20s02
+	6xCaFVCjc4AY6r1j6r4UMxCIbckI1I0E14v26r1q6r43MI8I3I0E5I8CrVAFwI0_Jr0_Jr
+	4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vI
+	r41lIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr
+	1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07bY0edUUUUU=
+X-CM-SenderInfo: asqsiiirqrkko6kx23oohg3hdfq/
 
-On 11/3/26 11:22, Paolo Abeni wrote:
-> On 11/2/26 19:24, netdev-bot+sashiko@kernel.org wrote:
-> > - [Medium] The patch adds a cons.count < peer_rmbe_size gate to
-> >    smc_switch_cursor().
-> > - [Medium] The new bound in smc_switch_cursor(), diff <=3D
-> >    smc_curs_diff(len, &tx_curs_sent, &prep), is computed from a snapsho=
-t...
-> I think the above are the last 2 comments standing that need to be addres=
-sed,
-> (the high one in patch 1 is addressed by patch 2, the high one in patch 2=
- is
-> addressed by a separate patch).
 
-Both are right; v9 [1] changes the code for each.
+On 11/11/26 8:41 PM, Xueyuan Chen wrote:
+> CONFIG_ZSMALLOC_STAT only controls the debugfs interface. The class
+> counters are updated regardless of this option.
+>
+> Remove the CONFIG_ZSMALLOC_STAT guards and rely on the debugfs API
+> stubs when CONFIG_DEBUG_FS=n. Skip statistics setup silently when
+> debugfs is unavailable.
+>
+> Remove the Kconfig entry and replace the existing CONFIG_ZSMALLOC_STAT
+> settings with CONFIG_DEBUG_FS=y. Update the English and Chinese
+> documentation to match, and clarify the pool name in the debugfs path.
+>
+> Suggested-by: Nhat Pham <nphamcs@gmail.com>
+> Reviewed-by: Nhat Pham <nphamcs@gmail.com>
+> Signed-off-by: Xueyuan Chen <xueyuan.chen21@gmail.com>
 
-> > - [Medium] The patch adds a cons.count < peer_rmbe_size gate to
-> >    smc_switch_cursor().
+|The documentation changes look good to me. Acked-by: Dongliang Mu 
+<dzm91@hust.edu.cn> # Documentation|
 
-For a count past the RMBE, v8 turned a stalled connection into a write
-past the peer's RMBE. A check in smc_write_space() isn't enough:
-smc_cdc_msg_recv_action() credits peer_rmbe_space from the next
-consumer cursor, so one more CDC after the switch opens the window
-again. A conforming peer gets the same write if it keeps reading across
-the end of its RMBE before the resend.
-
-v9 bounds the write where its length and destination are computed (new
-5/6): at most one RMBE per call, and the first chunk ends no later than
-the RMBE whatever the wraps say. On rxe with a 16K RMBE and the count
-forged at RMBE + 4096, v8 posts 16384 bytes from offset 1 and the link
-goes down; v9 posts 16383 + 1 and the link stays up. With a conforming
-peer, 9000 bytes unconfirmed at the failover and read before the
-resend, then 2000 more sent, unpatched and v8 post the 11000 bytes in
-one chunk from offset 12001 and the surviving link goes down; v9 posts
-4383 + 6617 and the peer reads the stream intact.
-
-5/6 turns one-chunk writes into two, so it sits on a fix for how
-smcr_tx_rdma_writes() sizes the second chunk's source (new 4/6, the
-pre-existing [High] on the source SGE in the review of v7's 4/4). A
-conforming peer reaches that one: a completion handled between the
-first two cursor copies of smc_switch_cursor() leaves tx_curs_sent 600
-bytes behind prod, and unpatched and v8 then build a source SGE that
-ends 4536 bytes past the send buffer (KASAN splat on the unpatched
-run).
-
-> > - [Medium] The new bound in smc_switch_cursor(), diff <=3D
-> >    smc_curs_diff(len, &tx_curs_sent, &prep), is computed from a snapsho=
-t...
-
-6/6 (v8's 4/4) sets tx_curs_fin and local_tx_ctrl_fin from the advanced
-tx_curs_sent and local_tx_ctrl.prod, which change only under send_lock,
-instead of adding to the live cursors: the first of the review's two
-options. With a completion handed to smc_cdc_tx_handler() inside the
-switch (test hook), v8 leaves local_tx_ctrl_fin at count 16713 for a
-16384-byte RMBE; v9 leaves it on prod.
-
-The switch still isn't serialized against smc_cdc_tx_handler(): a
-completion handled inside it is still credited to sndbuf_space more
-than once (the pre-existing [High] on that race) and can make the next
-write hand the peer bytes it has already read. 3/6 keeps send() inside
-the send buffer, but send() can then overwrite data the peer has not
-received (by inspection). Serializing the switch means taking the
-socket spinlock around send_lock in smc_switch_conns(); v9 doesn't do
-that. In two races with a completion inside the switch v9 ends worse
-than unpatched; the cover has both.
-
-The [Low] of that review, on the new comment in smc_switch_cursor():
-6/6's comment no longer says "else that peer stalls", and the message
-no longer says "still sizes".
-
-[1] https://lore.kernel.org/all/20261112-b4-disp-0287c16e-v9-0-e5e8fa688177=
-@proton.me/
-
-Thanks,
-Bryam
+> ---
+> Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional. The
+> option only controls the debugfs interface, while the class counters are
+> updated unconditionally. Removing it simplifies the code.
+>
+> Following Nhat's suggestion, remove CONFIG_ZSMALLOC_STAT and rely on
+> the existing debugfs API stubs when CONFIG_DEBUG_FS=n.
+> ---
+> Changes in v3:
+> - Squash the three patches into one (Nhat, Sergey).
+> - Add Nhat's Reviewed-by.
+> - Update the documentation wording.
+> - Link to v2: https://patch.msgid.link/20261109-zsmalloc_stat-v2-0-caee41684aba@gmail.com
+>
+> Changes in v2:
+> - Drop CONFIG_ZSMALLOC_STAT instead of making the counters conditional.
+> - Update configuration files and documentation.
+> - Link to v1: https://patch.msgid.link/20261106-zsmalloc_stat-v1-1-b574f4714adf@gmail.com
+> ---
+>   Documentation/mm/zsmalloc.rst                    |  4 +--
+>   Documentation/translations/zh_CN/mm/zsmalloc.rst |  2 +-
+>   arch/s390/configs/debug_defconfig                |  2 +-
+>   arch/s390/configs/defconfig                      |  2 +-
+>   drivers/gpu/drm/ci/arm.config                    |  2 +-
+>   drivers/gpu/drm/ci/arm64.config                  |  2 +-
+>   drivers/gpu/drm/ci/x86_64.config                 |  2 +-
+>   mm/Kconfig                                       |  9 -------
+>   mm/zsmalloc.c                                    | 33 ++----------------------
+>   9 files changed, 10 insertions(+), 48 deletions(-)
+>
+> diff --git a/Documentation/mm/zsmalloc.rst b/Documentation/mm/zsmalloc.rst
+> index d2bbecd78e14..4c0786378dc3 100644
+> --- a/Documentation/mm/zsmalloc.rst
+> +++ b/Documentation/mm/zsmalloc.rst
+> @@ -33,8 +33,8 @@ proper handle-based APIs.
+>   stat
+>   ====
+>   
+> -With CONFIG_ZSMALLOC_STAT, we could see zsmalloc internal information via
+> -``/sys/kernel/debug/zsmalloc/<user name>``. Here is a sample of stat output::
+> +With CONFIG_DEBUG_FS, we could see zsmalloc internal information via
+> +``/sys/kernel/debug/zsmalloc/<pool-name>``. Here is a sample of stat output::
+>   
+>    # cat /sys/kernel/debug/zsmalloc/zram0/classes
+>   
+> diff --git a/Documentation/translations/zh_CN/mm/zsmalloc.rst b/Documentation/translations/zh_CN/mm/zsmalloc.rst
+> index 4c8c9b1006a9..b555a07ac871 100644
+> --- a/Documentation/translations/zh_CN/mm/zsmalloc.rst
+> +++ b/Documentation/translations/zh_CN/mm/zsmalloc.rst
+> @@ -32,7 +32,7 @@ zs_unmap_object()解除映射。
+>   stat
+>   ====
+>   
+> -通过CONFIG_ZSMALLOC_STAT，我们可以通过 ``/sys/kernel/debug/zsmalloc/<user name>``
+> +启用CONFIG_DEBUG_FS，我们可以通过 ``/sys/kernel/debug/zsmalloc/<pool-name>``
+>   看到zsmalloc内部信息。下面是一个统计输出的例子。::
+>   
+>    # cat /sys/kernel/debug/zsmalloc/zram0/classes
+> diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+> index d44674b63715..83193ef8efb9 100644
+> --- a/arch/s390/configs/debug_defconfig
+> +++ b/arch/s390/configs/debug_defconfig
+> @@ -100,7 +100,7 @@ CONFIG_UNIXWARE_DISKLABEL=y
+>   CONFIG_IOSCHED_BFQ=y
+>   CONFIG_BINFMT_MISC=m
+>   CONFIG_ZSWAP=y
+> -CONFIG_ZSMALLOC_STAT=y
+> +CONFIG_DEBUG_FS=y
+>   CONFIG_SLAB_BUCKETS=y
+>   CONFIG_SLUB_STATS=y
+>   # CONFIG_COMPAT_BRK is not set
+> diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+> index e00e252d4694..694a309377d5 100644
+> --- a/arch/s390/configs/defconfig
+> +++ b/arch/s390/configs/defconfig
+> @@ -94,7 +94,7 @@ CONFIG_UNIXWARE_DISKLABEL=y
+>   CONFIG_IOSCHED_BFQ=y
+>   CONFIG_BINFMT_MISC=m
+>   CONFIG_ZSWAP=y
+> -CONFIG_ZSMALLOC_STAT=y
+> +CONFIG_DEBUG_FS=y
+>   CONFIG_SLAB_BUCKETS=y
+>   # CONFIG_COMPAT_BRK is not set
+>   CONFIG_MEMORY_HOTPLUG=y
+> diff --git a/drivers/gpu/drm/ci/arm.config b/drivers/gpu/drm/ci/arm.config
+> index d7c51670da2f..fc0a8a4bfb18 100644
+> --- a/drivers/gpu/drm/ci/arm.config
+> +++ b/drivers/gpu/drm/ci/arm.config
+> @@ -5,7 +5,7 @@ CONFIG_CRYPTO_ZSTD=y
+>   CONFIG_ZRAM_MEMORY_TRACKING=y
+>   CONFIG_ZRAM_WRITEBACK=y
+>   CONFIG_ZRAM=y
+> -CONFIG_ZSMALLOC_STAT=y
+> +CONFIG_DEBUG_FS=y
+>   
+>   # abootimg with a 'dummy' rootfs fails with root=/dev/nfs
+>   CONFIG_BLK_DEV_INITRD=n
+> diff --git a/drivers/gpu/drm/ci/arm64.config b/drivers/gpu/drm/ci/arm64.config
+> index c46125c1f80f..10b01b55a66d 100644
+> --- a/drivers/gpu/drm/ci/arm64.config
+> +++ b/drivers/gpu/drm/ci/arm64.config
+> @@ -5,7 +5,7 @@ CONFIG_CRYPTO_ZSTD=y
+>   CONFIG_ZRAM_MEMORY_TRACKING=y
+>   CONFIG_ZRAM_WRITEBACK=y
+>   CONFIG_ZRAM=y
+> -CONFIG_ZSMALLOC_STAT=y
+> +CONFIG_DEBUG_FS=y
+>   
+>   # abootimg with a 'dummy' rootfs fails with root=/dev/nfs
+>   CONFIG_BLK_DEV_INITRD=n
+> diff --git a/drivers/gpu/drm/ci/x86_64.config b/drivers/gpu/drm/ci/x86_64.config
+> index 7ac98a78691e..8225b806dad8 100644
+> --- a/drivers/gpu/drm/ci/x86_64.config
+> +++ b/drivers/gpu/drm/ci/x86_64.config
+> @@ -5,7 +5,7 @@ CONFIG_CRYPTO_ZSTD=y
+>   CONFIG_ZRAM_MEMORY_TRACKING=y
+>   CONFIG_ZRAM_WRITEBACK=y
+>   CONFIG_ZRAM=y
+> -CONFIG_ZSMALLOC_STAT=y
+> +CONFIG_DEBUG_FS=y
+>   
+>   CONFIG_PWM=y
+>   CONFIG_PM_DEVFREQ=y
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index afff1b25b543..4a77cda7f1d7 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -130,15 +130,6 @@ menu "Zsmalloc allocator options"
+>   
+>   comment "Zsmalloc is a common backend allocator for zswap & zram"
+>   
+> -config ZSMALLOC_STAT
+> -	bool "Export zsmalloc statistics"
+> -	select DEBUG_FS
+> -	help
+> -	  This option enables code in the zsmalloc to collect various
+> -	  statistics about what's happening in zsmalloc and exports that
+> -	  information to userspace via debugfs.
+> -	  If unsure, say N.
+> -
+>   config ZSMALLOC_CHAIN_SIZE
+>   	int "Maximum number of physical pages per-zspage"
+>   	default 8
+> diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+> index 7ef80e0da626..104ccf3aa170 100644
+> --- a/mm/zsmalloc.c
+> +++ b/mm/zsmalloc.c
+> @@ -222,9 +222,7 @@ struct zs_size_stat {
+>   	unsigned long objs[NR_CLASS_STAT_TYPES];
+>   };
+>   
+> -#ifdef CONFIG_ZSMALLOC_STAT
+>   static struct dentry *zs_stat_root;
+> -#endif
+>   
+>   static size_t huge_class_size;
+>   
+> @@ -279,9 +277,7 @@ struct zs_pool {
+>   	/* Compact classes */
+>   	struct shrinker *shrinker;
+>   
+> -#ifdef CONFIG_ZSMALLOC_STAT
+>   	struct dentry *stat_dentry;
+> -#endif
+>   #ifdef CONFIG_COMPACTION
+>   	struct work_struct free_work;
+>   #endif
+> @@ -565,14 +561,10 @@ static inline unsigned long class_stat_read(struct size_class *class, int type)
+>   	return class->stats.objs[type];
+>   }
+>   
+> -#ifdef CONFIG_ZSMALLOC_STAT
+> -
+>   static void __init zs_stat_init(void)
+>   {
+> -	if (!debugfs_initialized()) {
+> -		pr_warn("debugfs not available, stat dir not created\n");
+> +	if (!debugfs_initialized())
+>   		return;
+> -	}
+>   
+>   	zs_stat_root = debugfs_create_dir("zsmalloc", NULL);
+>   }
+> @@ -650,10 +642,8 @@ DEFINE_SHOW_ATTRIBUTE(zs_stats_size);
+>   
+>   static void zs_pool_stat_create(struct zs_pool *pool, const char *name)
+>   {
+> -	if (!zs_stat_root) {
+> -		pr_warn("no root stat dir, not creating <%s> stat dir\n", name);
+> +	if (IS_ERR_OR_NULL(zs_stat_root))
+>   		return;
+> -	}
+>   
+>   	pool->stat_dentry = debugfs_create_dir(name, zs_stat_root);
+>   
+> @@ -666,25 +656,6 @@ static void zs_pool_stat_destroy(struct zs_pool *pool)
+>   	debugfs_remove_recursive(pool->stat_dentry);
+>   }
+>   
+> -#else /* CONFIG_ZSMALLOC_STAT */
+> -static void __init zs_stat_init(void)
+> -{
+> -}
+> -
+> -static void __exit zs_stat_exit(void)
+> -{
+> -}
+> -
+> -static inline void zs_pool_stat_create(struct zs_pool *pool, const char *name)
+> -{
+> -}
+> -
+> -static inline void zs_pool_stat_destroy(struct zs_pool *pool)
+> -{
+> -}
+> -#endif
+> -
+> -
+>   /*
+>    * For each size class, zspages are divided into different groups
+>    * depending on their usage ratio. This function returns fullness
+>
+> ---
+> base-commit: fa4ad798f6f681031775266044ba1b0cf3c670bd
+>
+> --
+> Best regards,
+> Xueyuan
 
