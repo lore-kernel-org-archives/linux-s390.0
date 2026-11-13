@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794595267;
-	b=CxdTWDlWcEJP6A9rMF7hZh4Wel+8q0jHbkXEvQFIKSOxD3AGi90XAfOyy2Heg4CkNqIz
-	 8LPapM4GWXk1qmACBxUHjOJiHb/8xUpeRsw6LSgbv424eeiqcLj6IyaIS7GtSnL60W3XB
-	 ZDsvX1OXkCI73xmAU6uA4F1iySYRjNakmq5QA8EwyNJ0BdUBQNkBLylu1AojP0cOvWkPP
-	 8OkD3zg/cSPbIKVnaVzSOYf6r08wLyn6LUiYbEC478CZvz+Td3YK1fklGve+Fue0vxDgv
-	 xOazKQ219UT/eDO5QWUnci4JJ2MP8xxFqTylV8onls5pqBXhhsSNo8FiLSvqQxaRNpA==
+	t=1794595919;
+	b=wwT44mCmJAXujwHOBTwoySBWXm59QPo2XSLnuUta0aPTR6cAciX8kGIAvQPKZXaYG5hb
+	 23vocNa3ZwghGlmoZ3XeM4B9A93Bcr03ZeQbV+JJRUkxh7LGhc+hMusz6kUm3S2/C+IP3
+	 vDmvPFv2xJMr8E72/vdxjFYyC2tRtLl1wdSa5lkdWuJdlqDPm7u1CxmCzvdYMK7AHFJ9C
+	 BC71Jvh8hfxEexktnZoxx3nZKy4ngkO9tmDpD9kS0FsFWtPpZGwA5U1CvkJdPpgQTQS5R
+	 Qg5yCNZi+XG9WyWr8EzWphVGgCy6FCyMecaNQ7fx8o/GFuB/Qd8qFVn295VZmmdp64A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794595267;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794595919;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:From:To:Cc:References:Content-Language:Autocrypt:In-Reply-To:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=XpptrgK2l80VgLjm5xpa2pL7+GMcRlYHRpTi5z7EAjU=;
-	b=1jnBwPn/aMtY6THcM29mqClR8vPH5BQioBoFUncfsIRMJvFzR+4wR5FneJ3uqhxvFWaK
-	 agjDtTgoLWBdgWMvyhoVwkbNzTfyoBUjSEikF6nmsbv52+7lIc6xqqELnWj7kGxny9FMh
-	 fTuWzoYZWFpklX/Qb2sRZqk4gu0lGEO6nor6BrZ3mlYHtTLehj6Xu4OFumDbWnZ1fCsZ+
-	 7N6zZzU4qFbG4KFn9iiyRi9honipb44C37NNM5JBeETPVCljVdrI9QTmauIKXnxwbrdAH
-	 czSbl1SjoBE0rCHWs7z1g82gcz7cZ6D0BJJZrVJ1acJ+KscddbTjbm7H+kyRbJ0knWg==
+	bh=5muRXWS1rFjtRwmxUHcdPdK+9QBRwjjtk/I3ke8eqss=;
+	b=v+atrSPL295N4ACiyTOZlPvhatfk6lRidnFbe2yD7c8jGM+TPnFe0KCu4tvKy2Rn1nAF
+	 rLp79Ttkpgjj1RTMidHxlPsuFfmomifgBL/mA0nStASLdURjfSS7lCgBfcmiXfL3DCok6
+	 lFbP90DmJpQj9O257/NQoHx6UzdJi+8kquSFUGK1unAn58Nv4mFSeFfP18Y75DQB46TnV
+	 MWGMA9lL65KHBkI+S6yjmbIaofwnekU29uqMros0MCopX8JVGfOFeBst/RG/D4hIW+omc
+	 RV5YSyShiKp72Vd6tr2vjEuSBiDMvC0ANtuHGuA1/sDP8qfmH+G1bhOa7L1fMT4ygOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UPltpBH5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XzAFPkN7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27CD0606A33F;
-	Fri, 13 Nov 2026 18:41:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26038606A323;
+	Fri, 13 Nov 2026 18:51:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UPltpBH5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 050CF1F000C5;
-	Fri, 13 Nov 2026 18:40:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XzAFPkN7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91B0F1F000C4;
+	Fri, 13 Nov 2026 18:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794595266;
-	bh=XpptrgK2l80VgLjm5xpa2pL7+GMcRlYHRpTi5z7EAjU=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=UPltpBH5YLh1QQnrefheBr7BYwXIXoWGQCLJA1Zdq5XfCsvRTcbVSjBjmckRpr6gj
-	 p1mSYPsTCxeL93RU9a6/RHPQeqqwzwr71lDQiLJigcyNIASreO27Us2sljcDA/txMt
-	 l9bN2KgqB0xysRCnnIH+h6RnzBFZZAb6oDHgThHQMshrJd32N32hC55ooTjVb5ir1K
-	 J+cJ2azt+UXtcfuPAbjFaH4x3AFFdzQWl02/ZP8G92warfRjI97NymrClN1xsJeVkn
-	 AWqDLNOI8WVqN8AUUxubqgV9rG1I2dgahcOH4WA8R5GfCoTQQfmm+rFiJ99iLkA16e
-	 J64/nx+9hlzyQ==
-Message-ID: <8b186ea8-7a3b-4bb6-9354-de4b8892799f@kernel.org>
-Date: Fri, 13 Nov 2026 19:40:55 +0100
+	s=k20260515; t=1794595918;
+	bh=5muRXWS1rFjtRwmxUHcdPdK+9QBRwjjtk/I3ke8eqss=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=XzAFPkN7MUXlKgAkmPOQRLSCSAt2PwqC0Kcv+HnyUqadeayf26mt5dOB87zAhmnsL
+	 rCM/LOn1v4X8mo04YABi6kewxSg+rOZSdDxrb5UOebeOVDzcvlJzot+uNTf8h7Ixtr
+	 dhn82CAc62qemGvmxq0ChSKEdR1156L63Gfde8CamKm69f2i7gWALhNCtLos241caU
+	 SMUSWuXj2DhPLnm+iDL0xVjmBG9PQVccC5ep41dBb7XuYBjXOcqMPAR+VbhxURTeMW
+	 Ivqjv+vG9iPHvq9/l7fzKDH3I7PS44kkVRvz88GIIpeGHqch7+hqspqTFss6NGgs+4
+	 90lFUZKzvLglA==
+Message-ID: <3314e44d-dbfe-45da-a1b0-8337784a5e86@kernel.org>
+Date: Fri, 13 Nov 2026 19:51:49 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,26 +52,20 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 5/9] mm/mprotect: keep writable entries writable on
- permission upgrades
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: Re: [PATCH v3 5/9] mm/mprotect: add MM_CP_PERM_UPGRADE
 To: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>, kvm@vger.kernel.org,
  linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  linux-riscv@lists.infradead.org, seanjc@google.com, pbonzini@redhat.com,
  akpm@linux-foundation.org, peterx@redhat.com, ljs@kernel.org,
  imbrenda@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
- Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>
-References: <20261105165004.2663799-4-clopez@suse.de>
- <20261105165004.2663799-9-clopez@suse.de>
- <60c4f0a0-e3c9-42dc-b2e0-0860ab6e30f0@kernel.org>
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>
+References: <20261112142039.907090-2-clopez@suse.de>
+ <20261112142039.907090-7-clopez@suse.de>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -117,103 +111,65 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <60c4f0a0-e3c9-42dc-b2e0-0860ab6e30f0@kernel.org>
+In-Reply-To: <20261112142039.907090-7-clopez@suse.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 11/5/26 18:06, David Hildenbrand (Arm) wrote:
-> On 11/5/26 17:50, Carlos López wrote:
->> change_protection() applies vma->vm_page_prot, which lacks the write bit
->> for CoW and write-notified mappings, so it write-protects every entry
->> in them. When an entry would simply be made writable on fault without
->> further checks (e.g. dirty PTEs in shared mappings, exclusive anonymous
->> pages), MM_CP_TRY_CHANGE_WRITABLE makes the entry writable again to
->> avoid the future fault.
->>
->> However, writable entries in shared mappings that are not dirty still
->> become read-only. For example, a uffd-wp unprotect makes clean shmem
->> PTEs read-only even if they were never write-protected, e.g. when they
->> were mapped by a read fault before uffd-wp was registered. The next
->> write to each of them causes a fault that only restores the write bit.
->>
->> Now that MM_CP_PERM_UPGRADE indicates whether mprotect() only adds
->> permissions, change_protection() can tell, together with the
->> userfaultfd unprotect flags, when a change revokes no access. Keep
->> writable entries writable in these cases, at the PTE, PMD and PUD
->> levels. This is consistent with the write fault handler, as an entry
->> that is already writable needs no write fault.
->>
->> Signed-off-by: Carlos López <clopez@suse.de>
->> ---
->>  mm/huge_memory.c | 7 +++++++
->>  mm/internal.h    | 7 +++++++
->>  mm/mprotect.c    | 4 ++++
->>  3 files changed, 18 insertions(+)
->>
->> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
->> index 506e1e61c0fd..6e23d0e4ae66 100644
->> --- a/mm/huge_memory.c
->> +++ b/mm/huge_memory.c
->> @@ -2809,6 +2809,10 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
->>  	if (userfaultfd_rwp(vma) && pmd_uffd(entry))
->>  		entry = pmd_modify(entry, PAGE_NONE);
->>  
->> +	/* See change_present_ptes(). */
->> +	if (mm_cp_is_perm_upgrade(cp_flags) && pmd_write(oldpmd))
->> +		entry = pmd_mkwrite(entry, vma);
->> +
->>  	/* See change_pte_range(). */
->>  	if ((cp_flags & MM_CP_TRY_CHANGE_WRITABLE) && !pmd_write(entry) &&
->>  	    can_change_pmd_writable(vma, addr, entry))
->> @@ -2885,6 +2889,9 @@ int change_huge_pud(struct mmu_gather *tlb, struct vm_area_struct *vma,
->>  	 */
->>  	oldpud = pudp_invalidate(vma, addr, pudp);
->>  	entry = pud_modify(oldpud, newprot);
->> +	/* See change_present_ptes(). */
->> +	if (mm_cp_is_perm_upgrade(cp_flags) && pud_write(oldpud))
->> +		entry = pud_mkwrite(entry);
+On 11/12/26 15:20, Carlos López wrote:
+> Add a change_protection() flag for changes that only add permissions,
+> so that MMU notifier users can keep their mappings and fault in the new
+> permissions later. mprotect() sets it when the new VMA flags only add
+> read, write or execute permissions, or VM_ACCOUNT, which does not affect
+> the page tables. Any other change, such as a different protection key,
+> is not an upgrade.
 > 
-> That looks completely hacked on. We do have can_change_pud_writable() below to
-> make such decisions.
+> Signed-off-by: Carlos López <clopez@suse.de>
+> ---
+>  include/linux/mm.h |  2 ++
+>  mm/mprotect.c      | 13 +++++++++++++
+>  2 files changed, 15 insertions(+)
 > 
-> Whaatever you propose here is either wrong or way too shaky, sorry.
-For some reason, your reply neither reached my inbox through CC nor the
-mailing list folder through the mailing list.
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 6af3b7008f1a..001829a61405 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -3585,6 +3585,8 @@ int get_cmdline(struct task_struct *task, char *buffer, int buflen);
+>  #define  MM_CP_UFFD_RWP_RESOLVE            (1UL << 5) /* resolve rwp */
+>  #define  MM_CP_UFFD_RWP_ALL                (MM_CP_UFFD_RWP | \
+>  					    MM_CP_UFFD_RWP_RESOLVE)
+> +/* Whether this change only upgrades/adds permissions */
+> +#define  MM_CP_PERM_UPGRADE                (1UL << 6)
+>  
+>  bool can_change_pte_writable(struct vm_area_struct *vma, unsigned long addr,
+>  			     pte_t pte);
+> diff --git a/mm/mprotect.c b/mm/mprotect.c
+> index 84bcfe0281d3..8c0fcd10f5a3 100644
+> --- a/mm/mprotect.c
+> +++ b/mm/mprotect.c
+> @@ -767,6 +767,17 @@ static const struct mm_walk_ops prot_none_walk_ops = {
+>  	.walk_lock		= PGWALK_WRLOCK,
+>  };
+>  
+> +static bool vma_flags_is_perm_upgrade(vma_flags_t old_vma_flags,
+> +				      vma_flags_t new_vma_flags)
 
-I see that you send a v3 where you keep it simple for now, good.
+Two tab indent.
 
->> 
->> That looks completely hacked on. We do have can_change_pud_writable() below to
->> make such decisions.
->
-> Okay, for v3 I can pass the old entry to can_change_{pmd,pud}_writable()
-> and return true if it was writable, after the existing write-tracking
-> checks (uffd-wp/soft-dirty). For PTEs, can_change_pte_writable() is not
-> used on the change_protection() path, so the same check would go in
-> set_write_prot_commit_flush_ptes().
->
-> Does that sound more reasonable?
+> +{
+> +	vm_flags_t old = vma_flags_to_legacy(old_vma_flags);
+> +	vm_flags_t new = vma_flags_to_legacy(new_vma_flags);
+> +	/* VM_ACCOUNT does not affect page tables */
+> +	vm_flags_t mask = VM_READ | VM_WRITE | VM_EXEC | VM_ACCOUNT;
 
-Let's keep it simple for now. Whenever we mess with protection changes
-there is the chance that we mess up and cause more trouble, either now
-or in the future when we change calling code.
+Why is VM_ACCOUNT a permission upgrade? At best it's "no change".
 
->
-> Whaatever you propose here is either wrong or way too shaky, sorry.
->
-> The idea is that MM_CP_TRY_CHANGE_WRITABLE relies on the dirty bit to
-> make entries in shared mappings writable, which misses clean entries
-> that were already writable (e.g. shmem read-faulted before uffd-wp
-> registration). Such entries can stay writable, as anything that relies
-> on write faults write-protects the entry first.
+What am I missing?
 
-Right, but that should be optimized separately with a clear motivation why
-we even care about optimizing this.
+Also, what you really care about is "no permission downgrade", and "no
+permission upgrade" is not the inverse of that ;)
 
-Not hidden in a patch set that tries to achieve something completely different.
 
 -- 
 Cheers,
 
 David
-
