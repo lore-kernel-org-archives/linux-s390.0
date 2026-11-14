@@ -1,79 +1,107 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794683369;
-	b=03IjXrtYQbAz2gQcXSHnLY+JKQdcyZ1tOQAuSLZhDukCGvwyAbx0QAf96FNrz9t2NGdu
-	 I4RMCm4NHv4JALJa28M+c6AWrpSVQW4Wl3peqct0Gs7ygMgEfQ3o9EhGufspAa7mPJyPR
-	 IqBPb52iQwn+flILmQRzpmrj1ADK7MUslknyi4IyNbobmuWHxEdwQJhty0C25c05PnwPO
-	 9LPzL/sC21Gn3qE9nHzkjlr5D41ve2xrvCW41hG2Eg0Am27K/cFhCJCY3CC95Invpy1uw
-	 HvuT8YErYeg+Z/7pevqba7UE4jFTHEqQCGVxkyMfkka6YMO5trwdHaqs7TM60GwR1hg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794683369;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=s+aiMjctAiHJQXwqtY6POx3oc38E/xM+Ptz2zRA6gls=;
-	b=J2W87GAOEXQLtdHU7MeEO3CfYCW0H3/F7J58BeJ8M1ytM30RV6oicmpDphkGfTpO4QVt
-	 A5yciTnKDQO3pHF0cCKlYCmOQOkPnO+s7Wt9aAiWBGDOreIjWSBOfo8kM2pBZbFdFpZk+
-	 oAvXjnFF0mITPwhFoTiXQeOL7v6+nkrEvl/v0Jg/ikoNWYfITFYzcq/MiS9dA7v14TvEF
-	 466A+ngSscOI4I0kKG4CSWNyQuzhXzbS9ytK48MJpOUpq3ma9PHJD4sE8O/NtXI5j/BMj
-	 Cwm2bCGz3og/6a2vUykznf7FMDOmQ8Q69P8Noa18VIPr1TxqBUWJfRwtty1w/MytqOA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T34TNpTX;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D22A3606A336;
-	Sat, 14 Nov 2026 19:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T34TNpTX
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794683369;
-	b=1ybSYnPwKGp/VTd+HUQUL91nFn9NNJm4b+at1J1F3+Ov3LmsaNtlEh322bI7//pmsSEA
-	 wzZkLu6f7/zngAs9whLdtKg2OXfZ6MZbn31BkO24TTsXnimK81lrU0/LTFmV1qn8rZ7ui
-	 r0ouUQTuOsjozTnxQ2KqaZFzUqUVwVeaspq92LoMnDvSrtRq6I5DVm9I5M4AcGVbMxFww
-	 6oMvWOA8nanFQwveS2Jr6Y5/hR+RERHn0yRyberWEo/cCIeJ1OPyU0u2dmewqoWa4FCGz
-	 smwHQVFxLRP+fV1hFMEkhFvOT5LyO80s3uev+bj4H8q8HFG1MD0WoTcU7ZzOt59RYHg==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794683369;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=s+aiMjctAiHJQXwqtY6POx3oc38E/xM+Ptz2zRA6gls=;
-	b=wHtKaVHpetdquvO6wlsOjMHg93S2j6XA0hlX/xFyVn0kDBEwQw5r7vE/iSBfJeKeY0Yq
-	 b2LUs2/6KKDgPE6IFyk8Rz80pQn18Ib7vlOSZIzAvT12uOkmCTlqW9+nz4sr+7w1wyvA6
-	 jZRbL5ZG32FztX17w9DIS2wo9iVoyLaBtluv0jguEm82zvSK7EL/nmVlcfvblwaplGnUv
-	 v5kGdgZd8ftSj46nBxx95jmvQbD9ADjuvb/jAkwwBIeo947INHjLVFU8reMBkKgWG3iCt
-	 ABLuB+XlNnE/HQ5W0Xs8ebI13HlNB1uG0r8hACUmVqwe3Km7SI6tyuFOVSTLhENCIZg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.170
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794686757;
+	b=HbN+vWTM0FmTH0Ueb4feCLDGh/JLx6NvrSkR8EJw/YhpqT3HIsnG+rljeOmV5gxOBmdR
+	 U5eChk5NGTxR1cZ2gVk1l4+jHFaV1PfVqO/T1x7q2+mLYFNQ8kEO3lfQ6QfCqcS3XtAOA
+	 3Yjaz1XLDC6/J8mtAbIinmCEW9WdUUQDPT0NbZa9+8MMM8SqmdAZhez0aNIKChWqQFUNy
+	 Liq59jC8MWfSVOfUxqNeleq4qKBUjEaI1CZjXHUrxiq97pJHRQIM1dUvG+1LqeANuipsY
+	 6HdeMTenevSGq29Nf77FZv33p3+F002SNQE0ltxpp6bEr7n1tD+ePDPODJZLFVTdH8w==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794686757;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:In-Reply-To:References:MIME-Version:
+	 Content-Type:Content-Disposition:Message-ID:User-Agent;
+	bh=SncZUWGrBOxT9WurRufkDIe8hGFcWm37DANGybHY+fQ=;
+	b=bChirzrfanavFCUb4ymWWVAQ6VFAv5JAKDVmtGqwQO6WNL8LzDaXJUQFiZcA/Wn/SGY/
+	 oDmiwWhGMOqppuJKVaZ9Ek7++AW36WeTQ0f4g8zDD5Z3D6aYUZ7txV+HVKTcTdXKaHigK
+	 B9ZEdILvNfiaO3NTU4z7DLB/Xk9af3VmZjlIA/AB5yrVndyvWowW3tm1xjLYSwvgoNQYM
+	 CFT9OoE7yhHLmEToEUQ0cg8/Dv3G20nlHYLK9JcJurjZPqFbeM8PvtPGBt7jdqRPb8oiM
+	 +41I4HYMtoLIRq+rcfHJd1txQZn7TzAJ+gFifSxMyvERfYm0M3WapWyTgLvbiDc3LsQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=chrisdown.name;
+	spf=pass smtp.mailfrom=chrisdown.name;
+	dkim=pass header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=ZNpsvJMi;
+	arc=none smtp.remote-ip=209.85.210.170
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id C6C351F000C6;
-	Sat, 14 Nov 2026 19:09:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794683369;
-	bh=s+aiMjctAiHJQXwqtY6POx3oc38E/xM+Ptz2zRA6gls=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=T34TNpTX7VfS3wYkQy1Hren/C66m1Lquj/uY8bqi3XvSdCoRqCBSbD0lec7WcKSXG
-	 7eTyJRVsHQU9PK64C8J+No2U2kJ9A+i7xssTKwjbyMB3tV6v+SOBblYj9qbe8kUwMs
-	 K2sGkogeGPvi+xdOs+KG/tJ0CbtTmTZh2Salh3Mtt+SJf9zzTt/st1npw2VCMtuQbd
-	 IhXL8jz0MGI6u2KUzjnBDTmWTsCuKAD4K41Ry044jBwjVWBjX0sNcfd44y9VlE5/ps
-	 4lCGS72SYxyukbEfOmul5bfnSPSBiL5gjqMLT01K158nT/aiHcm7bNR8mDZrr+7Vjb
-	 SvteUw3flJ4jQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 5352749E72;
-	Sat, 14 Nov 2026 19:09:28 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Sat, 14 Nov 2026 14:09:29 -0500
-Subject: [PATCH net v2 2/2] net/smc: do not reuse the DMB of a nocopy
- device
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA25D606A33E
+	for <linux-s390@vger.kernel.org>; Sat, 14 Nov 2026 20:05:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA25D606A33E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=chrisdown.name
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chrisdown.name
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=ZNpsvJMi
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8a070755c8cso1295172b3a.0
+        for <linux-s390@vger.kernel.org>; Sat, 14 Nov 2026 12:05:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chrisdown.name; s=google; t=1794686756; x=1795291556; darn=vger.kernel.org;
+        h=user-agent:message-id:content-disposition:content-type:mime-version
+         :references:in-reply-to:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=SncZUWGrBOxT9WurRufkDIe8hGFcWm37DANGybHY+fQ=;
+        b=ZNpsvJMizOoFFuviUq3R3I7xBszXKHR6f+dU2Lhp8+AdJOsuucW/Jpjz4DKxOc01P8
+         7Bf2gXYBYorSyL2ypHSps7l13uEx7uOW/BQ3oCjgyM7fn4nszFId/ZhifmOhhkUhMak/
+         Krv6vg2ZKrT882kZ97nfZeCj+rR5WiJ1p/wW0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794686756; x=1795291556;
+        h=user-agent:message-id:content-disposition:content-type:mime-version
+         :references:in-reply-to:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SncZUWGrBOxT9WurRufkDIe8hGFcWm37DANGybHY+fQ=;
+        b=N6Y8Nt2Q/asMG9Fwm+zPIR9L4q+NHtkYkDY4HvBPu90+jk8hyO4CxQl4Kvrrs8gkDY
+         sk2gWYn9d2EQth/BRvKNCoayUqIwWL+0habr9hzJOjI8bASFVu5yyT7TtOymHsnLo2sl
+         VgeJwk05864KqJRf75Vf32pnq6ReByh4wNJ8YbT9eC+Ynsc8tMbdbKQ2DIVkIhOA7LS9
+         02qL+Rz0y841omy+o36yPX5dnsO3vhlIzMfycgSp6Lrfs0wzbz58e9FjLET1KGa0UiJt
+         ZySie3jB3wXornPBckDibDq6tp65QCe21yBy9JGW46vOGhTzHEObj8tqnm/aNSQf5JOW
+         5TbQ==
+X-Forwarded-Encrypted: i=1; AL+hErFi5ArwV/Ks3bxmsnWs0wcy1RgHiNRnwKm+IoQ+KjhtcN5YUlWJZE0TEezLX/wepcbCdNslRjagXGET@vger.kernel.org
+X-Gm-Message-State: APuU4Z/DGdm4ogY6ZP0Jt6t2faWfpp8zt6XpoEmtqn/4zAi4PLrh7VPt
+	gfoezBqxsNn5RdGzNWtI0mNaTxWUNk7srNbm2KrXv7HREYoECjBwrKo/cNqyt9z0XRo=
+X-Gm-Gg: AYBFou2m86GYW09ntya4rpqBdwP/OyznBbGMNqBfCMyrjZxnWYg5HP3Gf0H53jStreR
+	jYl9vhlg1tRAyV9aCDYsKs6XTtcEdgBf/Ts1SftFwIMZuRVHgDsR8BDUel3L8aNHhNZjMzN7JG4
+	RH3+ZbTtVlUlC+nl0BgiPdrdEKLuL+EKCNbTAVnWn0iXz7n7Ol5ByLIDUS9rn901akdSk3YTkKr
+	NWSNANnU8+ycymWsMYQsosMobJI7Xo9Z6b2xICzujUTU8dKcGkWATIKVOX6mrqrjnBYDKRe8+Vf
+	w8qcq/raRy1AZteFecV4mJEKEm//BldxyLSk527XFBR71UWKxRWEYMR5ty7jI0b9bsm3Qr0es+A
+	y1+dyZXJLZSb1JJ43FKYpLJsfW+9ho8/USsPXxDWkOha1mtVW0NAKX0NBYHPH5ltTYqCQaah22a
+	k1vWufyQKSoaCA0i0qWIxgnvXPcqN5QyHTUOdgeJlX7jkC9NevMvxIg51+sZd+Rq/+CdecbitKl
+	3CZ+up6j2Blu3ZZrAZiKG+ncAG0OE2qdONUzCPxkAIW1JDH23xjtdILJC8/DyOBj9mc0CUarjIL
+	4/vf3ul+dwTM/VQRc6EXOSTlGlY2zbC/s9C+Stk3ZmovV4+/yhZyhTkwB3291DpRfOB7IZ9/FMZ
+	aqayRAKWEH3Qk8Etsrv/Ix/TEYzw2O6KqBEMv93Imk4P91MSzq1oul6W4005nZxH/VzTPoUYarw
+	n1j+BDceuEduO5SSHxicieMtGDx9dv0JezP8BmvHUP+jjjkhaor4fNeG+b
+X-Received: by 2002:a05:6a21:748b:b0:3e3:37ff:3795 with SMTP id adf61e73a8af0-3f7a4dbfbbfmr5517650637.7.1794686756009;
+        Sat, 14 Nov 2026 12:05:56 -0800 (PST)
+Received: from [172.22.0.2] ([64.16.22.130])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bed12a8172sm2271197b3a.13.2026.11.14.12.05.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Nov 2026 12:05:54 -0800 (PST)
+Date: Sat, 14 Nov 2026 12:05:50 -0800
+From: Chris Down <chris@chrisdown.name>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>,
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+	linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
+	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org,
+	xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev,
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-usb@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org,
+	stable@vger.kernel.org, Alexander Mikhalitsyn <alex@amutable.com>,
+	Breno Leitao <leitao@debian.org>, Casey Schaufler <casey@schaufler-ca.com>,
+	Chuck Lever <cel@kernel.org>, Sashiko <sashiko-bot@kernel.org>
+Subject: Re: [PATCH RFC v2 00/42] fs: don't use pseudo filesystem files as
+	storage
+In-Reply-To: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
+References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -83,114 +111,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261114-b4-disp-4e6374c2-v2-2-3b7050bddef7@proton.me>
-References: <20261114-b4-disp-4e6374c2-v2-0-3b7050bddef7@proton.me>
-In-Reply-To: <20261114-b4-disp-4e6374c2-v2-0-3b7050bddef7@proton.me>
-To: Dust Li <dust.li@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, 
- Alexandra Winter <wintera@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, 
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
- Sidraya Jayagond <sidraya@linux.ibm.com>, 
- "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: Hidayath Khan <hidayath@linux.ibm.com>, linux-kernel@vger.kernel.org, 
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org, 
- Simon Horman <horms@kernel.org>, Tony Lu <tonylu@linux.alibaba.com>, 
- Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org, 
- Wenjia Zhang <wenjia@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794683367; l=2946;
- i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=uSm6fhhRSfpsta/rzRA93yjdtBG1K7WKe2FGd/O7Mb0=;
- b=2azoCofFqckc4LR3zOLCrZEl8/IZsQpGG/vIJbCUOKmSdLHCQW6Gdjk61r/P6uOjCDn0SFKVO
- Ncsb1ElCVCsBD2DKCa0Fby6mLrP9k5+iV6LwvxEZbAdKCR2XL42ioJ1
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
- auth_id=893
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Message-ID: <20261114120550.0c9e73aa12a3072c@chrisdown.name>
+User-Agent: Mutt/2.4.3 (cc9e3943) (2026-10-09)
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Hi Christian,
 
-With DMB nocopy (the dibs loopback device) the peer writes into the RMB
-through its own attachment, and it can attach late. smc_buf_unuse() puts
-the DMB back in the link group's pool with its token still registered
-while the old peer can still write to it: the next connection that takes
-it gets the old peer's CDCs, and a peer that attaches after the other
-end gave up lands in another connection's DMB.
+Patches 1-11, 13-16, 18-26, 28, 31, 32, 34-37 and 39-42 look good to me,
+so for those please feel free to add:
 
-Unregister a nocopy DMB when the connection ends instead of pooling it,
-including when smc_conn_free() finds the link group off its list and
-skips smc_buf_unuse(). The next connection gets a new DMB and token, a
-peer still attached keeps the old DMB until it detaches, and a later
-attach fails. Clear conn->rmb_desc, which a retried connect() would
-otherwise use after the free. Devices without nocopy keep their pool.
+Reviewed-by: Chris Down <chris@chrisdown.name>
 
-Fixes: ae2be35cbed2 ("net/smc: {at|de}tach sndbuf to peer DMB if supported")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
- net/smc/smc_core.c | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+I've also tested 5, 6, 34-37, 41 and 42. The selftests all pass with the
+series applied, and a uid 0 without capabilities can no longer change
+/sys/kernel/reboot/mode through a loop device. So for those, please also
+feel free to add:
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index a3164201c142..6a673ce74937 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1243,6 +1243,22 @@ static void smcd_buf_detach(struct smc_connection *conn)
- 	kfree(buf_desc);
- }
- 
-+/* With DMB nocopy the peer writes into the RMB through its own
-+ * attachment, which can outlive this connection: unregister the DMB
-+ * instead of pooling it, so the next connection gets a new one.
-+ */
-+static void smcd_rmb_drop(struct smc_connection *conn,
-+			  struct smc_link_group *lgr)
-+{
-+	struct smc_buf_desc *rmb_desc = conn->rmb_desc;
-+
-+	down_write(&lgr->rmbs_lock);
-+	smc_lgr_buf_list_del(lgr, true, rmb_desc);
-+	up_write(&lgr->rmbs_lock);
-+	WRITE_ONCE(conn->rmb_desc, NULL);
-+	smc_buf_free(lgr, true, rmb_desc);
-+}
-+
- static void smc_buf_unuse(struct smc_connection *conn,
- 			  struct smc_link_group *lgr)
- {
-@@ -1266,8 +1282,13 @@ static void smc_buf_unuse(struct smc_connection *conn,
- 			smcr_buf_unuse(conn->rmb_desc, true, lgr);
- 		} else {
- 			bufsize += sizeof(struct smcd_cdc_msg);
--			memzero_explicit(conn->rmb_desc->cpu_addr, bufsize);
--			WRITE_ONCE(conn->rmb_desc->used, 0);
-+			if (smc_ism_support_dmb_nocopy(lgr->smcd)) {
-+				smcd_rmb_drop(conn, lgr);
-+			} else {
-+				memzero_explicit(conn->rmb_desc->cpu_addr,
-+						 bufsize);
-+				WRITE_ONCE(conn->rmb_desc->used, 0);
-+			}
- 		}
- 		SMC_STAT_RMB_SIZE(smc, is_smcd, true, false, bufsize);
- 	}
-@@ -1306,6 +1327,9 @@ void smc_conn_free(struct smc_connection *conn)
- 	 */
- 	if (!list_empty(&lgr->list))
- 		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
-+	else if (lgr->is_smcd && conn->rmb_desc &&
-+		 smc_ism_support_dmb_nocopy(lgr->smcd))
-+		smcd_rmb_drop(conn, lgr);
- 	smc_lgr_unregister_conn(conn);
- 
- 	if (!lgr->conns_num)
+Tested-by: Chris Down <chris@chrisdown.name>
 
--- 
-2.56.0
+I've replied separately to 17 and 33.
 
+Thanks!
 
+Chris
