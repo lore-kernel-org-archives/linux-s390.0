@@ -1,60 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794662650;
-	b=g+MLhO2DPU4EdcjR76OOi110Yycm3b3TIc7pFuMPKnjf/7uSBSWPcsmVY9iZfRpKUh5U
-	 CIwaouBn6kKYOmzggQZ3lf48TApb0dTkopVWBSSW4NvTjJ1rBVSA4qVjmxk/lfCmAD4IC
-	 z2U6m0iLwLkDVoO5eSqY65hiQkjh+WMv5xSHhU1Ycs6OURHthWAc2rGnKQcPHxEL1vpO3
-	 NIttc0LwQNvG8S6wvGG+zNqKB7r3P08MSaY05dhStLn+YILl6Qdt0hyweLEvh6pRd8Dst
-	 PL+ygNmbBaRL5AeMyZsjQ+7BctJxw+Mt3EYWmsov9GTmq4gq/vdFF5g7cUtKLsXn3Vg==
+	t=1794662779;
+	b=ZGPMaUEuSMUgT235UYk1CtSnX9NDikjTV65Wf4GnGaTZzUGP03fCRf9XEZVkk5RQZC8f
+	 ewe4xP5nEZQiyf4TKOyc4sittjXkdBneyzVg1vXjQPwrsBX0SaCzqg37dQafhyWcorqE9
+	 GIh8jWgO72eZjdCrj0BdPSGtHw9LPKXMOkhCAZJpLeCwH2xMKzQD/wVYrYWcRxzSm7z8X
+	 655dTo3c4o1DN6lec1IdWF8IFJIQzWoBXWeDZl6rUp59K7UhnnEJo5qvEVOZkdpsdB7l7
+	 gjyjZ3WRSp1+pu/5dXNRFKZ6O1yQ5hwrxKqKn/Buo52jy0y0cNOKdQpFRNTNCtcxAvg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794662650;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794662779;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=+V8r4ayNzrlink2djkXu/RvouFdNuvqL0RnYeJZiyBo=;
-	b=5WR7WHWOPhm0CE29bSvxnLJ2e1ajqgTKdOvlIpFYZr36KAHeAF+dEy+JRNOkDXqUIXZD
-	 txi0oghu/GXx/P7tp8y0jLXx2tpVUiF8aTrw08N7HHJq0miKvtBtZqff5cEDla2/UmeoD
-	 KtvAJo3CufnAO4YSHpwnGuRj/fknhb5OIFtWMMXZHs9GWQE5hUzrz2E6ypvfWliAHMxnw
-	 PBNr5z8YiAPyPFoN7ZxdQgqaza4PnbVzaAVcA1vRQM5f5NhYarf7LC5e+0lZnE8xFlS2R
-	 UrCrFJ5zH6OEBWGajK4ENLNpE4+h06ak3aB4RkL1o07gpdneBKlEEEqmu5jHCzkhXpg==
+	bh=7rPR1p85cvydH1hs1wSICTtRTXltMx3EEwn5hogIXEA=;
+	b=mZjlxjzPOhB2fWBTa7XK0PsJGZkqlyZW0QHcBT0fnbJOtQjEjwoaq5vLZCUpFMmst8ym
+	 2eX4MFjNqcvX/GUC74cWi6qhiHbWh6lump39wXBg6frC+IDizAgOEIjAzjX65hLoaNn4i
+	 an9UaVw5W7KuZnAAYrJe2+x719VEHqqWgqiFhi2gwAXXnmnqz4tmQiqZUVAXsFCg2eR6y
+	 z2FGq8hJzvLHEdo74jlByo3zba8Q2Cpov7CZAjF+GauFOwoz7PbrT6rjq7yNI5aEiloTi
+	 rDhS722/ooP9uuxWJE5V6oOUgWUD+cYJSCcQcBF74acAUmuNOAFSoJzYVvu4wYqEShw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UvHc++yD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DRouk5es;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85012606A323;
-	Sat, 14 Nov 2026 13:24:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3608A606A329;
+	Sat, 14 Nov 2026 13:26:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UvHc++yD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9006D1F000C4;
-	Sat, 14 Nov 2026 13:24:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DRouk5es
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C601F000C4;
+	Sat, 14 Nov 2026 13:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794662650;
-	bh=+V8r4ayNzrlink2djkXu/RvouFdNuvqL0RnYeJZiyBo=;
+	s=k20260515; t=1794662779;
+	bh=7rPR1p85cvydH1hs1wSICTtRTXltMx3EEwn5hogIXEA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UvHc++yDbvtxZ0l5aG5Ral/10bq7RfNgX3ryxGhrIrDjniuvRaOQF3Wx0HoyBrU+7
-	 4CeCqupzl0ceJLrHdz2eCur2Q8MOzbdZ2xB1P6SuiYjCAFTzEI11vX2k5Uqbt7rpmk
-	 JpabvlLPYK7bBuN7VhqDiOPb4qBcKB198ihXYTw5npm3FToFGA5/4u97WdDT9+QEoL
-	 0V9EPsF+eQPvcir2H+Jxbhz3FwolmBSUBZTInMokXzYgVm3bMjTyIqq0MDq+SyLUcP
-	 YAhDQfC4NrSPgB/+EtILSAVYbyY6RGuQxIYsD3WQKJmaRQnjpsg3TazcmjI2lOYlkq
-	 PKSSTuwBAekLg==
-Message-ID: <sashiko-outbox-214562@kernel.org>
+	b=DRouk5esj9Wg1wFugfQi/BQX2xQjuoAU6Ds9wQIuYTSinrihgpWJqZwY9qNBRkAC2
+	 siQ4lKu4jLs2J/bCkRfV88Tg44NI6TtMqvZ7ZF4AGjcRTNwJtQVYV11h1nSwBXcvQr
+	 2lRssaFIgqJ65n3qjNiNWqGpHCHxEO9T3LhkrDPWdzeQLl0rvu7E76K3/XNVSlcx1K
+	 GGo2osjNmGinHOXPLt4Qruf3Pyo5hmyDiSXOvZ2dWCYz9oNd9Z8uRBvFwg7aUNe1A2
+	 Vi5E4DkSY5lLkTpKo0qmqvZ94kr5lo5/ANwtvCVlaQ2/Hpm2/qJKnBlrTHo91O0ta5
+	 R9ODifSAbSu5A==
+Message-ID: <sashiko-outbox-214566@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v2 40/42] erofs: refuse files on pseudo filesystems
- as backing files
+Subject: Re: [PATCH RFC v2 30/42] powerpc/spufs: use fc_init_pseudo()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261114-work-loop-pseudo-v2-40-98639a2286fb@kernel.org>
+In-Reply-To: <20261114-work-loop-pseudo-v2-30-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
- <20261114-work-loop-pseudo-v2-40-98639a2286fb@kernel.org>
+ <20261114-work-loop-pseudo-v2-30-98639a2286fb@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 13:24:09 +0000
+Date: Sat, 14 Nov 2026 13:26:17 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,15 +63,13 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> File-backed mounts take any regular file as the image and the same goes
-> for the extra devices of such a mount. erofs reads them with the
-> credentials of the mounter so this doesn't hand out anything the mounter
-> couldn't read anyway. But files on pseudo filesystems aren't images.
-> Refuse them just like loop does.
+> Initialize spufs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. spufs never holds executables or
+> device nodes.
 >=20
-> file_check_backing() also checks that the file is open for reading. So
-> a source file descriptor that erofs can't read from fails the mount
-> right away instead of on the first read.
+> SB_I_NOEXEC also refuses PROT_EXEC mappings. The spufs files that can
+> be mapped expose local store and problem state areas of the SPU,
+> nothing the PPU executes.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -80,5 +77,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114-work-loop-=
-pseudo-v2-0-98639a2286fb@kernel.org?part=3D40
+pseudo-v2-0-98639a2286fb@kernel.org?part=3D30
 
