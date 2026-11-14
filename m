@@ -1,59 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794662311;
-	b=MikrJy4Lzytj5xI2EZOqvem+anGAMLxX3uLjqCfqgpgZi7W2cnKtMlNzLEWcY0uz2vIg
-	 tczxwEEd/dPVpVYUm9pHgJXQLCbU5ZVyn/Th667G/+IDL3WNPPmj451AXE0WraaJU3xXL
-	 Bl5jOG6J1hJy747ZNcKrkU31vIbkJ7aWc2qskH3aV8eo3n2y5lazhVUGJCbdKdRD3/KUr
-	 jaoISvmw0dLQI+RCAwseve5s+Z7+hshFoGvqMoLT9P6w+Nr7cLSvw96edEqiCUooCGj3P
-	 skbA2HQdJaz70pboDxJ7vlzkIV64UUY3EsDbzAKKuGaCW4bFlaZQTdr5X/vX/Eu4LVA==
+	t=1794662318;
+	b=0PNZB+sKdgmkBCCiSHz8fYz/tcOjmGycdE3UcM4Fp2AZiNfsKgl14v9TkdBYIw8XyxW/
+	 1KP2PB/3SqfBU9Ri8ge3o3LmMmRrjbdlBRx2UWHvI9SvjeL8SRdQlSZHofSQUE9cAY/mY
+	 i2rI+1Rp6hnvjrS5ifRoiTmIDB9c2L0RidJxZJc1KQrCQXq4c3krkE7wg4tZPCzjFeeA7
+	 OYGB/kDchY0rwselZUjy4RCcbBFYTHJb9pC8ljtY31zKyQ4Yqsz+DbeZbIhm1svZrxz1c
+	 PAmglZv56aVlOIcmBsPsHm5PMW8sgVuP0J1wty0W6a3K+Xk3piQ5nveNs05q1czSUbQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794662311;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794662318;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=crdZaV8zQVZguOgCDJWt8yNgVjZ1d+iSK5g/GPZabR4=;
-	b=4VFxfoIhwmIi0VYTmeUqqu7QRnJ5ANJdshMqAWMbdnPhZ/p+N7i207G9eTSaSgmoHgKu
-	 U4r1XGTQ/OUcvidnxcFmxk+NpALZNeaxL3eg9+oRzsHn/doXGnLLBRQAu0yY1aKGG+h97
-	 GgYSeQVGRtja34s7kv0/AxeI2cREi/cgKxbDGKJ2nNb5CDCwssiuKvVKf+Ty3fVmKklyL
-	 tBPi4hSlrpL5QJ39zmFo0J7VX3itXJ5gM1tN+NC1jfzGV+hlzdoa/6BolHc+8GNCceW+/
-	 xT0SewivScxI1zIFV8bIEvtaaBcxi5tohoTUsxV8aKg6BUPbi6UGAiy3QuYqdUbI1Ew==
+	bh=OkVowIU8hVXY+qNzcXXij8aQ+UukCoKTHOZ1vDRC1SE=;
+	b=3mlhbWPmo2hYIbQm43wvv379aBn5P6hYizymA9YNANLXjDVu8RvGLwpMJFYQagpGRNd7
+	 Jcw+VkIOyG9zrGYspfweKAqOONT7y8Bz6koA0pu+reVyRiL8Y+Tmtku2A+FEDLo8iM3Ml
+	 2Rd3N9a5HMM1PUb6EqBOlc7GWr4pjh6z1QAjUJxYSOJwa9g5oLXcZbX9msdJO/I9eJpFZ
+	 hy+wzSF0q0Jp362bLwX5G5ZjaCt0nlwcqEiXMJkcFfm3rhehF6dGezK3Euy+pip+o5F/D
+	 PP/3zGrKKUQtF9q5t2gfqDzjd8cm+W4mcaR63Ay0oOuoBWy6rOO8QGtVF3bhNAXY+Dg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SjQCPo0t;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CMDXPEmn;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB02606A88F;
-	Sat, 14 Nov 2026 13:18:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82579606A330;
+	Sat, 14 Nov 2026 13:18:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SjQCPo0t
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA7911F000C4;
-	Sat, 14 Nov 2026 13:18:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CMDXPEmn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB4321F000C4;
+	Sat, 14 Nov 2026 13:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794662311;
-	bh=crdZaV8zQVZguOgCDJWt8yNgVjZ1d+iSK5g/GPZabR4=;
+	s=k20260515; t=1794662318;
+	bh=OkVowIU8hVXY+qNzcXXij8aQ+UukCoKTHOZ1vDRC1SE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SjQCPo0t2mvF9zXnJFQNYvILeMYgdc6Dw9BisJZLDCRfnCy2iBz1skkbHPyFaXsgF
-	 ZVmju0nP1M9MWBr9xF0bMZulGBoZAqQ0CWX21eyOekuhr355RQ14mszxv/KXw33CeV
-	 kR0cq51EC+MszF7AsQJ+4+0dQbkL9JZKcWuFDXJnTwANarCB2bDB8L//LM2PrqsBrN
-	 3Q2S/jik1vT7MRRipK39NRN+NkXgYjveEO7zxKCEh+PlUdwAAqHcHCoRToQQnwMji7
-	 qSapCK7bP8hzXvxUsUZtX1YAUxWMjKvv17EDHAM59nnzUTKCQadxThV4lJy7Rhz7Ie
-	 0bOsJwg3LpCdw==
-Message-ID: <sashiko-outbox-214529@kernel.org>
+	b=CMDXPEmnFLOB0pS3CDbJlXw0/pGGBLCfDIbOVdJIZvVchpQF9Klws6eo80CcG0fAz
+	 nqs3mfXoQzGTOUzy7vx+fjVDtFiifoiYxoDcxziTCt4I38IoOZ67CpcRjEpOpGM8+X
+	 ACboPn7VtYvWPm2/dTviSfC762Tb2oQ1+bCMCwf4lqG5V8qzeuvsE+KwdDT+ccMYKO
+	 Qg8RQjqdaja3GAASbmkuvIvKWrrRmL2mJWx3WJJuiDIfjbHGBRLhxO2ej3C7bwXqXN
+	 +fSCynsGBdgcG2QtLMD1V48g0FlzHkLNTR1zNRELdH0Z3ip+NTz+vLJoUTtzJlbz+W
+	 f0Qjk+Wphv+1g==
+Message-ID: <sashiko-outbox-214531@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v2 04/42] fs: add SB_I_PSEUDO
+Subject: Re: [PATCH RFC v2 03/42] target: fileio: check that the backing
+ file supports ->{read,write}_iter
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261114-work-loop-pseudo-v2-4-98639a2286fb@kernel.org>
+In-Reply-To: <20261114-work-loop-pseudo-v2-3-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
- <20261114-work-loop-pseudo-v2-4-98639a2286fb@kernel.org>
+ <20261114-work-loop-pseudo-v2-3-98639a2286fb@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 13:18:30 +0000
+Date: Sat, 14 Nov 2026 13:18:37 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,38 +64,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Currently, there's no way to tell whether the files of a filesystem
-> store data or whether they are kernel interfaces. Files on pseudo
-> filesystems such as procfs or sysfs generate their contents when they're
-> read and writes to them are commands to the kernel.
+> With fd_async_io=3D1 the fileio backend calls ->read_iter() and
+> ->write_iter() of the backing file directly. The synchronous path goes
+> through vfs_iter_read() and vfs_iter_write() which check for them but
+> the aio path doesn't. So a backing file without them calls a NULL
+> pointer on its first I/O.
 >=20
-> But a few places in the kernel take an arbitrary file and use it as
-> storage: loop, zloop, the nvme target's file backend, the scsi target's
-> fileio backend, fuse passthrough, the usb mass storage gadget and erofs
-> file-backed mounts. At most they check the file type and whether the
-> file implements ->read_iter() and ->write_iter(). That's not enough.
-> kernfs provides both for every sysfs attribute for example.
+> Refuse such files when configuring the device. On the synchronous path
+> every read or write that needed the missing method failed with EINVAL
+> anyway.
 >=20
-> Add SB_I_PSEUDO so a filesystem can state that its regular files are
-> kernel interfaces and must not be used as storage.
->=20
-> Pseudo filesystems also never hold executables or device nodes. But
-> currently each of them decides on its own whether to raise SB_I_NOEXEC
-> and SB_I_NODEV. Some do, most don't. Add fc_init_pseudo() as the common
-> initialization point for all pseudo filesystems that raises all three
-> flags and switch init_pseudo() over to it. The following patches
-> convert the mountable pseudo filesystems.
->=20
-> Nothing checks SB_I_PSEUDO yet so no functional changes.
->=20
+> Fixes: 769031c92c8b ("scsi: target: target/file: Add support of direct an=
+d async I/O")
 > Reviewed-by: Jan Kara <jack@suse.cz>
 > Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114-work-loop-=
-pseudo-v2-0-98639a2286fb@kernel.org?part=3D4
+pseudo-v2-0-98639a2286fb@kernel.org?part=3D3
 
