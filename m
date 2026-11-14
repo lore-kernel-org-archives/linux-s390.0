@@ -1,85 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.174
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=130.136.161.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794679204;
-	b=rnvHI2PrglqgXLK1Q9UvCrek7qG8E1KI2FEbLsxIHh9IvVYtsG5wDS1/+5qnoIjQAhd9
-	 jlJrUNkS7uv5wlGHuC8wyv/wo/cLu669t4Aq2/uoVPU7yzgMn8hLaFPnDhd9M7i8JiEdE
-	 Grq05FRnLb9pSZy6zdVNTHg0J36AYb0TShgrkeZqkbZ71vuYp4zB1FWwSjXwRTnlzPsfL
-	 sj3SY0QfqsEIzsfJ3a2HtQ6WIXh8BkM6ragF5BU5fPw2Gm0nBWuhziRuH7wlRO9NPGxax
-	 vRjhgijPe9leroLQspfQcExUgpEU3HwXRn17sgvNUPx+8Dvr6jghGTkr0RbxF/ocIAA==
+	t=1794680384;
+	b=VSFJIel98aZZ6j5md8SD8BCHD9dsVvIofjdNOGCQtzNrPpilrbeCu2DO1oLaK449FTa5
+	 66+Kn3dEDFn/orJ7SzDaS4KJ5JO3W4PoNauhTrtfAtQ9qkcqUi3iXpDQ4+N1tpaBH9aeW
+	 y+5AtNGRnqufPWWhnZ2Z3x/Z1EKBn9cLHwdm0vanrDyvdTVWWZJzgAV2KQTFoFsGtWFm+
+	 NhHhgublE9f1h9804dEkG/jAYNxwbWJisFYkGoZ5uKcpj3awcDud/C1s7b7nSUKTprDo1
+	 kQMcltxgat1XKKCg64RtU8A5Pzx/n8YVP4m0zIU9b1l6pNgItoQ7duyI3myjZE/w3yw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794679204;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
-	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
-	bh=/31rYS+RTknGml0ZJpQj3HlEE/4E8Z8X4z83aN0X9Bw=;
-	b=RjMnvXj+/ckwi7IkTqZ0sEs3CMi7lx/dgu1TY1VJFUtpXxxgHvvoKKRrwZx8lUfc97cb
-	 fQoTlM0sxjLdRRBR5xFEhvqvWhiaEwconYnv7goy/Zq74bMbHTzD+fyJOg7qncd9O7xPu
-	 JYTlEioqUEz2nw7gyDczguDcarJWcT7PX0/c/IWzhemz1LspSE4+pwYiUhcIOw2A1nRWL
-	 GIgCcfZiYWp8ZePEW1Cc8HGwKfTqlYj8DUBP45au5WzbqK2HfszuevrqnFjPQldXqrkjf
-	 593NqnNTyB3ZSJ/xFgOdTxqC0gGJsAsphYw8EDUmG/QX1WIZtnzo+SrQCpeK/tGrfig==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794680384;
+	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=fneCtoft1jE/z5cQICLaBJ4/CSSYpKeQ7A9soDkriNI=;
+	b=ZUQisef8YsIwBcn7UDXxKU2AC2ez3NsjEv3oD2/VRcxKvFZ8T3yL3V14qcAVpOkLMe2X
+	 Z44wkhNj1svWcCa98QMUXgBSHU8ZwD0Efy9Q1Ids9qmUd2eeRjeuG71Z/UbSBxH+qs8xN
+	 Q8e9hOjD97XIyZLFOB2Pii6uPZwji2miC1sw352HKnRAMltx5AUOepADXxQhrRK+8cZLs
+	 W8BbuPcTnRA+fNTiDiCqyXGM0Hpyqt8RA+gfnOcOPZYgNolH8J1tT+9AOEoSJjxeF82Kg
+	 9x8Bv8/KxOmLgGS2H8v5UiIdFVcnksKlQ2h7WrW9uUHzFXSt7j05lK3UzVSN5auRUYw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=gourry.net;
-	spf=pass smtp.mailfrom=gourry.net;
-	dkim=pass header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=eFKbHIse;
-	arc=none smtp.remote-ip=209.85.160.174
-Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43199606A334
-	for <linux-s390@vger.kernel.org>; Sat, 14 Nov 2026 18:00:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 43199606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	dmarc=pass header.from=cs.unibo.it;
+	spf=pass smtp.mailfrom=cs.unibo.it;
+	dkim=pass header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=aP3HwpnO;
+	arc=none smtp.remote-ip=130.136.161.50
+Received: from mail.virtlab.unibo.it (mail.virtlab.unibo.it [130.136.161.50])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9B9FC606A329;
+	Sat, 14 Nov 2026 18:19:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B9FC606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cs.unibo.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.unibo.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=eFKbHIse
-Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-55c5b6584ceso5652301cf.2
-        for <linux-s390@vger.kernel.org>; Sat, 14 Nov 2026 10:00:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1794679201; x=1795284001; darn=vger.kernel.org;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=/31rYS+RTknGml0ZJpQj3HlEE/4E8Z8X4z83aN0X9Bw=;
-        b=eFKbHIse9b3So+Vb3z6hrfoJA1N2APapW8mJ7i2EFoMQRcCmR+NEEgUdKI9HHlj6g6
-         Lva+HFJGVODnzNDRNQ+kDEtaU7zXTePFpo7lP+deuTueXmIt+iXaC6tkikE3WZqSyD4/
-         s39ceJW0dwEtp3SE2Cf69EpD8SYIs20fFyDyUgK80HH1ohgJY9z7DyatSQKVEei4Xx/d
-         X+tZ1YmB2pwLKGkFEIsQFc1hTkqCMc+47X3aKK7sXdz8cOg8BO+SGJspPb4MLlbIxd88
-         tXYXZsOosNho23tqr7Cnv55MLiM4vDx5E/RqMitrGguCOVxxzjwXmoyF2uzTPb2VmuTv
-         KQLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794679201; x=1795284001;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/31rYS+RTknGml0ZJpQj3HlEE/4E8Z8X4z83aN0X9Bw=;
-        b=rI8vB4v9vP16m2IiB4QwaOBYIhLveUe1es5sQLSfFQuz6DtMY2ANfAhzcwoNfOpGJ+
-         evYmvIwJa1WtZ3Slb3Xno9+Px3G5Xy7ul/vb6CnTPOdEQn3sHPEA42KOAa2YaM63Iq87
-         RRuIPb+csV2RHtltDNLE4MqQAGfJ7qed/mcykY+PSLdw+0klEQMq44jAoANQxehY6eyi
-         CLzkFJxAp1qOpGMTmlYdUe3GYcr8pYej9LzhipkhwgXhZDukwhSN2kH9u3K1ZGy+uyp6
-         9Mx2cEV7z5y+IrhQ8s+yZ0RZyHF+5OGgswyD7A5sJbp79Km0g1zuy997CVDrdyViu0uX
-         R+Dw==
-X-Forwarded-Encrypted: i=1; AL+hErEK+AWvs0xg+/aDQ5QCv37jZBNl3VSjYnc8pJQDGx00vhVnwGWGm3jQvPa43JsEK8iRKc3tp4EpzVBP@vger.kernel.org
-X-Gm-Message-State: APuU4Z/PrcefC0H6kvBlt9LkYIFoS77P00OozomrvtgwDWLWRl9/x2Ne
-	IPdUwniwAhhj9ABoux5LxA8bCLR+VR/chd6Gd96Mdw50gS4pBJXF73WGZqVZjcFAWPQ=
-X-Gm-Gg: AYBFou3xqoYC02zIpICkyWZuNgD10ZUIHCM995K6Rfp1jLqkOatWNwCaZ2bWga7ofTG
-	aKyBYt03UNeD+0eJAa1xfQfl4wchA8RP8Tv73/0YAmLNDeBRNzM8iOgQR3XqSY7eeWZEszzHhH2
-	HdaNPPNO18ObqdQ9AOabipCCE+NDWKYaeESamT1FuRGeHHmNH4q2bgO7m+508mzLpsLckh/UXFU
-	w0TFX0NTieyfSwWTsRbXyp+SDXiRWpmerP9Vtk0j92rWsgEYPYDvziqcR1H/ftRhmqPBQ5pp+T9
-	L6xP2T49PKYkizVwlvfz2L7OKQSNW+2A/n2JhzNQakulG/l3sB7nwQ9LOFAfXhxc9cFGVQQg34T
-	vt2Ncw82BbgkG81ohwG2ccg6B/wMltsxN0fWR3OnyA67yS53tDqpJTjk+n2uVoXXU5EneuIfJmZ
-	jNxGPDUKJpdZKwAReY32jfZHgrcVFYMbApZcj0pZN7sE9aSFTk8Syqzls4TLkUT8sUqi62QMAm7
-	MXFnrqEwKecyxBV61OsmBjaPuxwUaa/hPwgP6DtaacvPl4OljTvoE4wpstHMXB4QRYm59aCnZIg
-	+ETQ6JhWJwAznrRT5PTXDLqqWge0ceZwyt2V15zjDxqigkNY4QEkqb/RPVTPx+oNWXzoxj9P0kZ
-	j0ujGpdI=
-X-Received: by 2002:a05:622a:349:b0:55c:abad:a72c with SMTP id d75a77b69052e-55cc6d16ad3mr26820281cf.56.1794679201165;
-        Sat, 14 Nov 2026 10:00:01 -0800 (PST)
-Received: from [192.168.50.231] (pool-71-191-145-202.washdc.fios.verizon.net. [71.191.145.202])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91f23d614b4sm47945926d6.18.2026.11.14.09.59.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 10:00:00 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=aP3HwpnO
+Received: from eipi10.cs.unibo.it (host0.studiodavoli.it [109.234.61.1])
+	by mail.virtlab.unibo.it (Postfix) with ESMTPA id 1A4041C0145;
+	Sat, 14 Nov 2026 19:19:34 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=cs.unibo.it;
+	s=virtlab; t=1794680374;
+	bh=/jZX3I3Baf9Yzk43cr+jSHpUEb9Hel2mhebb/m9ZUaM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=aP3HwpnOX9fpF9+uRHGXvdKP7vUX16c4N10VZUiROLKfGMrX+NF/miPeZY0ddycCi
+	 y9PtbcODQIs8a7Kr+psTN05b3stH+J4nI/Sb76lKX22TQhwm/XKe/1+hWzgaSI667G
+	 SHcQKQ5oWYN4513oBF60P4YDEtzE2tB26K6+hEbE=
+From: Renzo Davoli <renzo@cs.unibo.it>
+To: linux-kernel@vger.kernel.org
+Cc: Renzo Davoli <renzo@cs.unibo.it>,
+	Oleg Nesterov <oleg@redhat.com>,
+	=?UTF-8?q?Michal=20Such=C3=A1nek?= <msuchanek@suse.de>,
+	Kees Cook <kees@kernel.org>,
+	Andy Lutomirski <luto@amacapital.net>,
+	Will Drewry <wad@chromium.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Shuah Khan <shuah@kernel.org>,
+	"Dmitry V . Levin" <ldv@strace.io>,
+	Alexey Gladkov <legion@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	strace-devel@lists.strace.io
+Subject: [PATCH v11 0/3] PTRACE_SET_SYSCALL_INFO: add support for seccomp syscall skipping
+Date: Sat, 14 Nov 2026 19:19:19 +0100
+Message-ID: <20261114181923.370930-1-renzo@cs.unibo.it>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -89,122 +76,147 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH 13/15] mm/hugetlb: fix reservation leak on min_size=
- mounts
-From: "Gregory Price (Meta)" <gourry@gourry.net>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
- Naoya Horiguchi <nao.horiguchi@gmail.com>, 
- Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, 
- Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>, 
- Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>, 
- Hugh Dickins <hughd@google.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- Vivek Kasireddy <vivek.kasireddy@intel.com>, 
- Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
- Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
- Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>, 
- Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>, 
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
- Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
- linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
- Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
- linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- Chris Mason <mason@kernel.org>, stable@vger.kernel.org
-In-Reply-To: <20261028-fixes_hugetlb-v1-13-a0a033db180f@kernel.org>
-References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-13-a0a033db180f@kernel.org>
-Date: Sat, 14 Nov 2026 12:59:59 -0500
-Message-Id: <179467919954.482102.5381456550239958011.b4-reply@b4>
-X-Mailer: b4 0.17-dev
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 2026-10-28 21:13 +0100, David Hildenbrand (Arm) wrote:
-> From: Chris Mason <mason@kernel.org>
-> 
-> Failed allocations for CoW mappings can leak reservations on hugetlbfs
-> mounts with min_size= and no size=. The leaked reservations survive
-> unmount.
-> 
-> HPG_restore_reserve makes free_huge_folio() restore the global
-> reservation without returning it to the subpool. This assumes the
-> reserve map holds the reservation. However, a CoW mapping may have no
-> reserve map, or the map may already account for another folio at the
-> same index.
-> 
-> Commit 58db7c5fbe7d ("mm/hugetlb: fix avoid_reserve to allow taking
-> folio from subpool") allowed owner CoW allocations to consume subpool
-> reservations. Commit 51e1de00acdb ("mm/hugetlb: simplify
-> vma_has_reserves()") later extended this to CoW mappings without a
-> reserve map.
-> 
-> For example, with a subpool minimum of one page and a
-> MAP_PRIVATE|MAP_NORESERVE mapping:
-> 
->                                       subpool       global
->                                       rsv_hpages    resv_huge_pages
->   1. Mount                             1             1
->   2. Allocate using subpool reserve    0             0
->   3. Free on error with flag set       0             1
->   4. Allocate without a reservation    0             1
->   5. Free and return to subpool        1             2
-> 
-> Call folio_clear_hugetlb_restore_reserve() for CoW mappings when
-> map_chg != MAP_CHG_REUSE, meaning no reserve-map reservation was consumed.
-> This lets free_huge_folio() return subpool reservations to the subpool
-> on error.
-> 
-> Do not set the flag again if region-cache allocation fails during
-> rollback: that would undo the flag clearing and skip returning the
-> reservation to the subpool. This also fixes the older case where setting
-> the flag invents a reservation for an unreserved allocation for a CoW
-> mapping.
-> 
-> The doc still mentions PagePrivate at various places: future work should
-> clean that up.
-> 
-> Fix generated by an LLM and sent by Chris Mason in private.
-> 
-> Fixes: 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error functionality")
-> Fixes: 58db7c5fbe7d ("mm/hugetlb: fix avoid_reserve to allow taking folio from subpool")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Chris Mason <mason@kernel.org>
-> [ david: simplify comments and improve description; updated Fixes ]
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
+PTRACE_GET_SYSCALL_INFO by allowing a tracer to modify details of a
+system call in which the tracee is currently blocked.
 
-Commit message is still hard to read :| (or maybe HugeTLB is just awful
-and no amount of massaging the message will ever help this).
+This patch set extends PTRACE_SET_SYSCALL_INFO with support for
+skipping a system call at a PTRACE_EVENT_SECCOMP stop and setting its
+return value.  To do this, the tracer changes 'op' from
+PTRACE_SYSCALL_INFO_SECCOMP to PTRACE_SYSCALL_INFO_EXIT and fills in the
+exit union fields (rval and is_error).
 
-Maybe note - this is an accounting error only, the pages do not leak.
+Michal pointed out in the review of v7 [1] that the register state alone
+cannot tell whether a syscall has to be executed or skipped with a
+preset return value, since on some architectures the return value
+shares a register with the syscall number or the arguments, and that
+the "already dispatched" information should be architecture
+independent rather than an architecture-specific thread flag.
 
-Was able to reproduce the issue with a UFFDIO_COPY the provides an invalid
-invalid source address (src=0).
+v8 does exactly that: the tracer no longer sets the syscall number to -1
+and relies on syscall_get_nr() reading it back as negative.  Instead,
+patch 1 adds a per-task flag owned by seccomp, which the tracer sets
+while the tracee is stopped.  When the tracee resumes, seccomp skips the
+system call just like for SECCOMP_RET_ERRNO, a path every architecture
+already handles without touching the return value.  This also fixes
+skipping on s390, where -1 is read back as syscall 65535.
 
-1. Create the pool and mapping (hugetlbfs w/ pagesize=2M,min_size=2M)
-2. invalid UFFDIO_COPY  (kernel allocates, fails the, rolls back)
-3. Close uffd, cause a normal fault
-4. Unmap and truncate the file
-5. Remove the file and unmount
+On powerpc, a separate fix has been posted [2]:
+syscall_set_return_value() currently sets TIF_SYSCALL_RET on the
+*caller*, i.e. on the tracer when called from PTRACE_SET_SYSCALL_INFO,
+and skipped system calls lose non-error return values.  These problems
+are already present in the source tree and break the existing
+set_syscall_info selftest and seccomp_bpf user_notification_basic on
+ppc64le independently of this series, which therefore no longer
+depends on [2].
 
-                  Base                    Patch
-step 2:  total=2 free=2 rsvd=1     total=2 free=2 rsvd=1
-step 3:	 total=2 free=2 rsvd=2     total=2 free=2 rsvd=1*
-step 5:  total=2 free=2 rsvd=1     total=2 free=2 rsvd=0*
+[1] https://lore.kernel.org/lkml/apWFHkZnCMfxQCEk@kunlun.suse.cz/
+[2] https://lore.kernel.org/lkml/20261030084926.1068384-1-renzo@cs.unibo.it/
+[3] https://sashiko.dev/#/patchset/20261113165509.229869-1-renzo@cs.unibo.it?part=2
 
-Result looks correct to me.
-The code hurts my brain but looks reasonable.
+Testing (tools/testing/selftests/ptrace/set_syscall_info and
+tools/testing/selftests/seccomp/seccomp_bpf):
 
-Tested-by: Gregory Price (Meta) <gourry@gourry.net>
-Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
+v11, QEMU, v7.4-rc2:
 
+                               x86_64 (KVM)
+  ptrace/set_syscall_info      2/2
+  seccomp/seccomp_bpf          142/142
+
+v9, QEMU, v7.3-rc6 (the v11 change is architecture independent):
+
+                               x86_64 (KVM)   ppc64le (TCG)   s390x (TCG)
+  ptrace/set_syscall_info      2/2            2/2             2/2
+  seccomp/seccomp_bpf          111/111        111/111         110/111 (*)
+
+  Build-tested also with CONFIG_SECCOMP=n and CONFIG_SECCOMP_FILTER=n.
+
+  Skipping getpid() at a PTRACE_EVENT_SECCOMP stop, with a filter that
+  kills the process on unknown syscall numbers:
+
+  op=SECCOMP, nr=-1 (before)   error          r3 left as is   SIGSYS kill
+  op=SECCOMP->EXIT (this)      -ESRCH         -ESRCH          -ESRCH
+
+  (*) user_notification_wait_killable_after_reply timed out under TCG
+      while another VM was running; it passes 5/5 both with and without
+      this series on an idle x86_64 KVM guest.
+
+  ppc64le results were obtained with an earlier version of the powerpc
+  fix [2] applied.
+
+  Not tested: MIPS, arm64, riscv, loongarch, real hardware.
+
+Changes in v11:
+* once the system call is skipped, PTRACE_GET_SYSCALL_INFO reports the
+  stop as a PTRACE_SYSCALL_INFO_EXIT one, as the syscall number and
+  arguments may have been overwritten by the return value (reported by
+  Sashiko [3]); a later PTRACE_SYSCALL_INFO_SECCOMP update is still
+  rejected, now by the generic check on the stop type
+* selftests/ptrace/set_syscall_info.c: check PTRACE_GET_SYSCALL_INFO
+  after the system call is skipped
+
+Changes in v10:
+* rebased to Linux 7.4-rc2
+* no longer depends on the powerpc fix [2], which addresses a bug
+  already present in the source tree
+
+Changes in v9:
+* selftests/ptrace/set_syscall_info.c: check for seccomp filter support,
+  fix failure report
+* rebased to Linux 7.3
+
+Changes in v8:
+* skip the system call via a seccomp per-task flag instead of
+  syscall_set_nr(-1), as suggested by Michal Suchánek
+* new helper ptrace_set_syscall_info_seccomp_skip() instead of a bool
+  argument to ptrace_set_syscall_info_exit() (Michal Suchánek)
+* once the system call is skipped, reject further
+  PTRACE_SYSCALL_INFO_SECCOMP updates during the same stop
+* selftest: also test an error return value and the above
+* dropped the Reviewed-by tags of Oleg and Dmitry, as patch 2 changed
+  significantly
+
+Changes in v7:
+* rebased to Linux 7.3-rc1
+
+Changes in v6:
+* selftests/ptrace/set_syscall_info.c: improve messages in case of failure.
+
+Changes in v5:
+* reworded the explanation for not supporting PTRACE_SYSCALL_INFO_ENTRY yet.
+* selftests/ptrace: removed a redundant check.
+
+Changes in v4:
+* Reworded the commit messages for clarity.
+* Renamed the local variable child_op to op in ptrace_set_syscall_info()
+* Clean up and improve the coding style of selftests/ptrace/set_syscall_info.c
+  (suggested by Dmitry V. Levin)
+
+Changes in v3:
+* restrict the syscall skipping feature to PTRACE_SYSCALL_INFO_SECCOMP
+
+Changes in v2:
+bugfix: _NONE -> _EXIT transition was erroneously permitted
+
+Davide Berardi (1):
+  seccomp: let the tracer skip a syscall independently of its number
+
+Renzo Davoli (2):
+  ptrace: add PTRACE_SET_SYSCALL_INFO syscall skipping support
+  selftests/ptrace: add a test case for PTRACE_SET_SYSCALL_INFO syscall
+    skipping
+
+ include/linux/seccomp.h                       |  33 +++
+ include/linux/seccomp_types.h                 |   4 +
+ kernel/ptrace.c                               |  49 +++-
+ kernel/seccomp.c                              |  11 +-
+ .../selftests/ptrace/set_syscall_info.c       | 249 +++++++++++++++++-
+ 5 files changed, 342 insertions(+), 4 deletions(-)
+
+base-commit: 7e1392a42ea288d70a266f6553fe06f57f8647ea
 -- 
-~Gregory
+2.55.0
 
