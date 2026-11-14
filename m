@@ -1,45 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794664501;
-	b=cLGcvge92KiX02qJXq7uxyR91ydJhYBePS75pKy/BcgvyWG0Mvc8dn9ki/8lU6dNV/qt
-	 Fo55TModoHknaWL6aiBzxaKXfhTq0pt3GBnPWfQI9x91xFRdjGc04GqatfDKKD42DUqJw
-	 m5pkkpjj6qb+kKEtrqzP5unnEkHArMzJvH9jIymZsJHRk73uq9mlS5JrX41JCkdThkP9y
-	 C1GU/S5jMfYS0BoTp6D7A8AQFrtc+6wvALCiPc3s2tOarcy1NaMTjKqPLLigVBzG7eoC/
-	 8DYaV52B19AxPBJFNGhfcVDf4h5htYV4sf8FFaUJe67Zxp85D+RfQ8L1QvQS+nxe9jQ==
+	t=1794664655;
+	b=H1oeZbpfV4P7GOrtpuk73yYWm4slIhU18n2w7CRDYbD0V1qLYYTKTpkQr4Suc/tgS8C1
+	 9U8X8RCiy+fEZn6BkiBhPdDpsOPR+5X1/O0LQyPc9y82WPYBukyw9qnewr0LAj59W/51X
+	 MjXoqS0SfNOTBLHDVm/NfnEi6/qMC5GcF+nBWiDyn8QyrUWnvUmN3ykkA1gvsAF+gaNQ/
+	 7Od+ELLAaFPQ/b1UkHMy+sdR1uL7NN8Gma2Mvnp3VXs5amyvlY+aGR6UnUQgHE7UksQQw
+	 CbxZYGsaOQUjAvK0hDOYlFcri6CMVijKpnK3i5m0Lwyp14EHy/bOSSvMwy2HPqRKrLA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794664501;
-	h=Received:DKIM-Signature:Content-Type:MIME-Version:Message-Id:
-	 In-Reply-To:References:Subject:From:To:Cc:Date;
-	bh=Xi+Jp34UVw8n6rWUcn3QcZPlSKYiPMqX7yCNJrzL8oU=;
-	b=V5R/exzs30werKTVaB6ZQc3TTKRigA6AvPUuUBGkEjUzmYfhFLBhm7eo+ZDi9HLGCmqj
-	 2NKSL3pWWn6Yw+wKvZEWD6ofmstErSLauaEeMF88x0YZblQnbV8zVEnH2ou6Oe25aOuuS
-	 OoewL4srl9D025D5TkE+J0RCBrRp4y7MVfhRXoerGAtL6NVj/rSIaPBI32Vbj0KB0RtpA
-	 ekG2pMVTSe4lVtDE98jviAgy9LbNQ6XA/2eE3oHNdCqXN5lIYK47C6Fc0JsWHRhNi2thF
-	 R0+ALYwgRdX8JcW23gHIYtu0K65Hrp8tfE2eHDChoyoVeP+6DjW9QsMMZfcCS6lnW8g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794664655;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=GBG9nadfxLM37oSVYTr8sHdFX+MWrjDr+WcgPcdUHR4=;
+	b=TB93kqL7wdIxhTKRsQi2jueY3rabpE2yobvcG29doM2g/LcvTeW0zRQE21Ya5N/Fo/Av
+	 lD3QSty49UkBEvMJt930bogpZb0XAZ/HB0c7VSKIyf99ukgCZJRWkWVTBR72UGgkZau51
+	 wRSZmjbWkRpf/fvmwu7Lpm8R8zVyeM/HDi9q25/vCoEoPO3Q4yqr+DdnEFBKvvDkbmmoa
+	 dPna+bjJpV+bCNXLzlLhBShq4jPGd+YsvdWoCqFAthd4TM/aLBwkXjLhNAycDsDvP6kfB
+	 9HNf5VL4Y9Cqac8ST7+CUEJz9Mn2KWyIcaOtZcFQSugql0UJGChwVCP9YN88jKBwHIA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bfkXAKnv;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="YHGxtW/h";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 918CF606A330;
-	Sat, 14 Nov 2026 13:55:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC72606A334;
+	Sat, 14 Nov 2026 13:57:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bfkXAKnv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E36F01F000C6;
-	Sat, 14 Nov 2026 13:54:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YHGxtW/h
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AB991F000C4;
+	Sat, 14 Nov 2026 13:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794664501;
-	bh=Xi+Jp34UVw8n6rWUcn3QcZPlSKYiPMqX7yCNJrzL8oU=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=bfkXAKnvyN3NrzfYhrVigeGIKvr/8evEe0tQ8KwSyEafhDf3+AXVoqojleCZ7/Qdh
-	 2b013ZilynaxVntPTxgtS9Fyq3b+7yXhPeXkFfQ9ONM2J9MEOM/JQ3B/znTjkCUpqc
-	 r0tlhXctgE98kfAt1ITbmi9H0tApXPCL2XTcrVOM5qnz/NrX0rxwji+SmXMUOe8YHy
-	 kRbhgqC/kLnhpgS61Qu7Lfu7BuXDWJsHjF+zOY5u5KKN5rR5uvcX/zOV7QTiz8dq9Z
-	 GTd5PKapaf6tpFoOvo6qdgngRWS5W1FIZVvnJWAJ8F5DAYQTkJUN/Wbu5kFv6IHajV
-	 XPu1vrQEYpCgg==
-Content-Type: multipart/mixed; boundary="===============1687560790659556623=="
+	s=k20260515; t=1794664654;
+	bh=GBG9nadfxLM37oSVYTr8sHdFX+MWrjDr+WcgPcdUHR4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YHGxtW/hLtBwV4nSAK7WIvP6n1I3uzth9VyWfN9qwwQ1irdX+FNKqL4O1T5gVUod+
+	 FeJgnwWhto/ClaFsllKj7WcgRylQWiov6kosyUrh+xa23vANMzNmTHzYkwz8x1Xokl
+	 ZBtVe+7E+zloXOKKhQ7aycpqSq81SJHoOGBW3uwWzJH40wBvk3n5xCyF4gv2M9UeVn
+	 AqQacVnwKfS8ITPzpYtp9pR/l9Lgei7uIp1zuJfvf4MjXLY9Lk5yXOQRrokF8okw6O
+	 rEAJ/c2PWhSjwV0jzjhjcJ+4yNxUQjD4554hyBhxzFpmW+64vMEZ7QZny8vKKArJxj
+	 ZyEdDZ3x35Img==
+Message-ID: <sashiko-outbox-214598@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net 2/2] net/smc: do not reuse the DMB of a nocopy
+ device
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas" <hexlabsecurity@proton.me>
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261113-b4-disp-19244662-v1-2-39b256b70ca7@proton.me>
+References: <20261113-b4-disp-19244662-v1-0-39b256b70ca7@proton.me>
+ <20261113-b4-disp-19244662-v1-2-39b256b70ca7@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 14 Nov 2026 13:57:33 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -48,80 +62,98 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Message-Id: <df03e637354be695652a787563af21ac77b4c61f813ae4491a3397a91df7688e@mail.kernel.org>
-In-Reply-To: <20261114-work-loop-pseudo-v2-17-98639a2286fb@kernel.org>
-References: <20261114-work-loop-pseudo-v2-17-98639a2286fb@kernel.org>
-Subject: Re: [PATCH RFC v2 17/42] securityfs: use fc_init_pseudo()
-From: bot+bpf-ci@kernel.org
-To: brauner@kernel.org,linux-fsdevel@vger.kernel.org
-Cc: jannh@google.com,mason@kernel.org,josef@toxicpanda.com,hch@lst.de,linux-block@vger.kernel.org,linux-kernel@vger.kernel.org,linux-nvme@lists.infradead.org,viro@zeniv.linux.org.uk,jack@suse.cz,linux-scsi@vger.kernel.org,target-devel@vger.kernel.org,driver-core@lists.linux.dev,linux-mm@kvack.org,bpf@vger.kernel.org,linux-security-module@vger.kernel.org,selinux@vger.kernel.org,apparmor@lists.ubuntu.com,linux-nfs@vger.kernel.org,netdev@vger.kernel.org,fuse-devel@lists.linux.dev,linux-efi@vger.kernel.org,xen-devel@lists.xenproject.org,ocfs2-devel@lists.linux.dev,linux-s390@vger.kernel.org,linuxppc-dev@lists.ozlabs.org,linux-usb@vger.kernel.org,amir73il@gmail.com,linux-erofs@lists.ozlabs.org,linux-kselftest@vger.kernel.org,brauner@kernel.org,alex@amutable.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,mason@kernel.org,ihor.solodrai@linux.dev
-Date: Sat, 14 Nov 2026 13:54:57 +0000 (UTC)
 
---===============1687560790659556623==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] net/smc: UAF of conn->rmb_desc when lgr is terminating in
+  smc_conn_free()
+--
 
-> securityfs: use fc_init_pseudo()
+commit 1d775feb06a42c02b472b41cc9bc4f7bca488d91
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-TL;DR: Setting SB_I_NODEV on securityfs may make reopening AppArmor's
-inherited .null fd (e.g. open("/dev/stderr")) fail with -EACCES, which used to
-work; the commit message may also be inaccurate about device nodes.
+net/smc: do not reuse the DMB of a nocopy device
 
-> diff --git a/security/inode.c b/security/inode.c
-> --- a/security/inode.c
-> +++ b/security/inode.c
+This commit adds smcd_rmb_drop() and calls it from smc_buf_unuse() to
+unregister and free the RMB DMB of a nocopy SMC-D device and clear
+conn->rmb_desc instead of returning the buffer to the link group pool.
 
-[ ... ]
-
-> @@ -64,6 +65,7 @@ static const struct fs_context_operations securityfs_context_ops = {
->
->  static int securityfs_init_fs_context(struct fs_context *fc)
->  {
-> +	fc_init_pseudo(fc);
->  	fc->ops = &securityfs_context_ops;
->  	return 0;
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index a3164201c1420..88855d9f66173 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1243,6 +1243,22 @@ static void smcd_buf_detach(struct smc_connection =
+*conn)
+>  	kfree(buf_desc);
 >  }
+> =20
+> +/* With DMB nocopy the peer writes into the RMB through its own
+> + * attachment, which can outlive this connection: unregister the DMB
+> + * instead of pooling it, so the next connection gets a new one.
+> + */
+> +static void smcd_rmb_drop(struct smc_connection *conn,
+> +			  struct smc_link_group *lgr)
+> +{
+> +	struct smc_buf_desc *rmb_desc =3D conn->rmb_desc;
+> +
+> +	down_write(&lgr->rmbs_lock);
+> +	smc_lgr_buf_list_del(lgr, true, rmb_desc);
+> +	up_write(&lgr->rmbs_lock);
+> +	WRITE_ONCE(conn->rmb_desc, NULL);
+> +	smc_buf_free(lgr, true, rmb_desc);
+> +}
+> +
+>  static void smc_buf_unuse(struct smc_connection *conn,
+>  			  struct smc_link_group *lgr)
+>  {
+> @@ -1266,8 +1282,13 @@ static void smc_buf_unuse(struct smc_connection *c=
+onn,
+>  			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+>  		} else {
+>  			bufsize +=3D sizeof(struct smcd_cdc_msg);
+> -			memzero_explicit(conn->rmb_desc->cpu_addr, bufsize);
+> -			WRITE_ONCE(conn->rmb_desc->used, 0);
+> +			if (smc_ism_support_dmb_nocopy(lgr->smcd)) {
+> +				smcd_rmb_drop(conn, lgr);
+> +			} else {
+> +				memzero_explicit(conn->rmb_desc->cpu_addr,
+> +						 bufsize);
+> +				WRITE_ONCE(conn->rmb_desc->used, 0);
+> +			}
+>  		}
+>  		SMC_STAT_RMB_SIZE(smc, is_smcd, true, false, bufsize);
+>  	}
 
-The commit message says "AppArmor puts a .null device node into securityfs
-but only ever opens it via dentry_open() which doesn't care about
-SB_I_NODEV."  Is that the whole picture?
+[Severity: High]
+Can conn->rmb_desc still be used after free if lgr is already terminating
+when smc_conn_free() runs?
 
-aa_inherit_files() installs that dentry_open()ed file into the task's fd
-table:
+smcd_rmb_drop() is only called from smc_buf_unuse(), which smc_conn_free()
+skips when lgr->list is empty or the connection was already unregistered:
 
-    devnull = dentry_open(&aa_null, O_RDWR, cred);
-    ...
-    replace_fd(n - 1, devnull, 0);
+net/smc/smc_core.c:smc_conn_free() {
+	...
+	if (!smc_conn_lgr_valid(conn))
+		goto lgr_put;
+	...
+	if (!list_empty(&lgr->list))
+		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
+	smc_lgr_unregister_conn(conn);
+	...
+}
 
-The fd is not O_CLOEXEC, and its f_path.mnt is the internal mount from
-simple_pin_fs() in aa_mk_null_file(), which never has MNT_NODEV.
+If a handshake fails after smc_clc_wait_msg() calls
+smc_lgr_terminate_sched() (which unlinks lgr->list), smc_conn_abort() ->
+smc_conn_free() skips smc_buf_unuse(), so conn->rmb_desc is not cleared to
+NULL before __smc_lgr_free() frees the buffer.  If connect() is then
+retried on the same socket and fails in smc_buf_create() after
+smc_conn_create() attaches to a new link group, smc_conn_free()
+dereferences and double-frees the dangling conn->rmb_desc.
 
-Opening /proc/<pid>/fd/N, or /dev/stdout or /dev/stderr, resolves to that
-same path and goes through the normal open path:
+Skipping smcd_rmb_drop() on those paths also leaves the ended connection's
+nocopy DMB registered in lgr->rmbs until every remaining socket in the
+terminating link group is closed.
 
-    do_open() -> may_open()
-        case S_IFCHR:
-            if (!may_open_dev(path))
-                return -EACCES;
-
-may_open_dev() checks path->mnt->mnt_sb->s_iflags & SB_I_NODEV.  That bit
-was clear on the securityfs superblock before this patch and is set now.
-
-Can this make open("/dev/stderr") fail with -EACCES for an unconfined task
-that inherited the .null fd, for example a helper exec'd through a ux/Ux
-transition from a confined task?  That open used to succeed.
-
-Should the commit message say that this reopen path is intended to fail, or
-does .null need separate handling?  The statement that "securityfs never
-holds ... device nodes" also seems to conflict with the .null node described
-in the next paragraph.
-
-
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/43599461726
---===============1687560790659556623==--
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261113-b4-disp-19=
+244662-v1-0-39b256b70ca7@proton.me?part=3D2
