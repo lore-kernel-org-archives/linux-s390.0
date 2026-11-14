@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794662424;
-	b=R48PzCSfT0gaKh6Fbo57yaAhkRJu/4KQpg8JtXrpL1zawwAmWpG+uk9DJz9/UCZXqSDA
-	 2B+IFbMf8JO/6DFoUG3lCLSTWPNkv6gwy4LMD4PiXU0kPvb93ydq2koCMTpgkJL5kKCgv
-	 nrxF8B5XHAcMd0wsfcfI1XR5ucv7KV3v/uGkoOY4kzAn7DuNU2+067ezJVIRl3LmKHDVH
-	 gqWV40/O13xxGYrENYZKwjU2x2ccXYHQk3Zg9NbxL19er4ExKw46ZBKp8VREZQmGl/0sN
-	 MMv1/l3ymPXe4KzjttbswoA7MYJjTtsbLVADxH3ggQJO56zlKAA7EFim4DfyqeNxqaQ==
+	t=1794662437;
+	b=Wf/qEFxvSpbb0P7nh0WxlBwzhDT6IE0vtO5NwepWdTtEoev/tXa3mqY008nK8cAhipVZ
+	 SAPQ3ODLdRprrAL4aSS+V1mtHBz3FNfnNGQwiepS4uaVfuvVj5Ryd/r2/1lCGLJReOMXq
+	 4CFjAIhJstTc7CVhoKBr6Bi7xmUoq9KGKrqo71+qylujhZ4NlJ2LyevpE0zVlQoKySLET
+	 LCmVb5EIB3qyfidwrV8kx5mBI4qRZGGSzzuCv9rirYHVmcWDsHGAjR/X7HFDxAAYFvfwa
+	 fWCeglP/0CDk/GRIXufiS248FxA9g3J40Oyn3zXr4JfXDRASxYrxJxCOCaCwWr8M1Hg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794662424;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794662437;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=uTuI3gVFdh3FiUjUSPIMhb47qJMc9ROccF2HS1s54tY=;
-	b=xEbB8pD+zqmJ38QnI0x5fGhHKnF0LPQXCLL+Fv2ZmxSNKJTNazDa7EbVt4G9sxYDdHKB
-	 /jeuyDXhtkpAbYMDnHN/tlPMjztYkyJ83Fb3fVjFQQAbmTXTHfIkjOEONXTCUSXH0/XLJ
-	 F29rRLmJhFoZIjWmatZ6fsXipegQtxDvUEa5v+LMaYjTfdEk57+zTW4Lq6/1ipo2MbuzG
-	 rlxBXN4OJ37HeOkkIS0IvPwstdabjFF6N+1LrD+uobYGoYso6h2DgY7SEm4oCMcwIYCXU
-	 +lNEPNaLuGxScNk6EzfbolwU1N6vFgOrty0Oi+2WJP5HQsUoqvrRxfNZ/DsMXRK4nrw==
+	bh=UzYv/g06vmEKd7xr31TKziNmDfgIzGCnXrSCg8tbYgM=;
+	b=oYlTIOnWwCMy59J0tCxkb1odEX/juorT7ZyBZ5zp7+OizzkkyLgZTrvXUsVpPI1+8YCB
+	 6FH4/gSRcfgCZKghO5vFvhuCDM1BAQenO2U5jxRIsXDWmEupbvU0uLsksMJGBuXSWUhnt
+	 54se51oH8SEcI/N0k4n7o5Ewf+rxsqmG5OyjNX+1uEjBxlD8nXL8xNN56b6HlQHrpf5rG
+	 oinXKRZ82TDywER2a/7OP6B31ycyidf8/ERJ1LOnvXvb2ITVOj2p/C5+yxF37mE3euwfk
+	 b8S1/Kk/LQVLthH2Zh0ZbgXw/j982F0bLITp5sTPWk/kZ+YH9SVrHxbtQyC/wv0VZmg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EIxCiDu1;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=maQnprN2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A041606A331;
-	Sat, 14 Nov 2026 13:20:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05C07606A323;
+	Sat, 14 Nov 2026 13:20:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EIxCiDu1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 489CB1F000C4;
-	Sat, 14 Nov 2026 13:20:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=maQnprN2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B6CA1F000C4;
+	Sat, 14 Nov 2026 13:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794662423;
-	bh=uTuI3gVFdh3FiUjUSPIMhb47qJMc9ROccF2HS1s54tY=;
+	s=k20260515; t=1794662436;
+	bh=UzYv/g06vmEKd7xr31TKziNmDfgIzGCnXrSCg8tbYgM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EIxCiDu1H7+V3/m3yd+mtNpaGWU0+PPrz6mK88T9kFBsDxnxlFFszYMoC5ctGmLka
-	 atvUcJZ5YsDRxXyv/Q3W2pjt0YtFvBJgzWl3PuGJous5qTM66TKUncpkBPhJxpJgjA
-	 o6cq8AuLGgPm3mSgzo/qvnhUk51pz9Ge8LnCkEMnmiRiFSV2oOTzYp/UM54HILjspc
-	 /B3kwS1G1bpT+18UrPgUm/yyKX6JXcDYwz5HmuQFklg/LUBbSyucfKj6ySBr8AifZi
-	 ME7vZDyRFpE0tIaSWMeMmq3tJ3PWjFtL/IlwUI25y41V8gmDZHg6TeUZZ4BUIuOTG7
-	 wx+zmQ4aTcIig==
-Message-ID: <sashiko-outbox-214551@kernel.org>
+	b=maQnprN2zL0hABNIxP134zh4vmkBiH/RZ9VagPJQqF+8EvetgwzfZ+77zGVTD26/K
+	 s5/0ZjWMlhYHzF8lpDMOb30qtNgucKCWZgTZAko5ycvTPU8UPxFPdiAauyOKAxIYKq
+	 p1JP0uasbheQg9DU7lYxGFdw1nEywXPsyopIeulB6D36Upik/zjgaB2LZWFwehfoZI
+	 5chd8f1iFT5mLFmfL+WUphRwU2hb79UMpYrGMhSO1zybgAu9+staBE6/btZKH7iiJx
+	 9JlnmLxB5LLa4quEchkNjGOPe2acsObbLeedmr+ETIJ2wtNmfhX7SBqi56mJ5vvjhl
+	 8rcP//JXRaPUg==
+Message-ID: <sashiko-outbox-214552@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v2 31/42] usb: gadget: f_fs: use fc_init_pseudo()
+Subject: Re: [PATCH RFC v2 26/42] xenfs: use fc_init_pseudo()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261114-work-loop-pseudo-v2-31-98639a2286fb@kernel.org>
+In-Reply-To: <20261114-work-loop-pseudo-v2-26-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
- <20261114-work-loop-pseudo-v2-31-98639a2286fb@kernel.org>
+ <20261114-work-loop-pseudo-v2-26-98639a2286fb@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 14 Nov 2026 13:20:22 +0000
+Date: Sat, 14 Nov 2026 13:20:35 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,9 +63,12 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Initialize functionfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> also SB_I_NOEXEC and SB_I_NODEV. functionfs never holds executables or
+> Initialize xenfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. xenfs never holds executables or
 > device nodes.
+>=20
+> SB_I_NOEXEC also refuses PROT_EXEC mappings. xenfs maps the xenstore
+> page and guest memory through privcmd, both data.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -73,5 +76,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114-work-loop-=
-pseudo-v2-0-98639a2286fb@kernel.org?part=3D31
+pseudo-v2-0-98639a2286fb@kernel.org?part=3D26
 
