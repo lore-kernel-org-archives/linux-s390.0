@@ -1,116 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794726812;
-	b=wIDt4XjqAdctczBXViXfVSilCfy1rwEV4DnqjexTaA9P4c2myHC9dlWqVeqEK42yQxBB
-	 J6rHY9oHsxQN5YLT6qZasa3c/SQXC1C89HmFCs7ErKLVZz5JJ0bYTkYFMPhhxsPnAQ8Sj
-	 yysV5tvp23u5JmHSnzoj2z+c7Fnbvh9EeWrD+d6eg7WeoYPGa4ulR4FBQvERojWVVBq4E
-	 QdKmAj40r1ZsMx4AQy6VMiuz7xidzuUHMoIM668j4bQH+UDlp0g0UsqhHuPGb1sW/jKEQ
-	 j9unYrk8f4XM++9cJ9KG48slRFzqcj3qQ9q42frCi2tK/ud2BoZVXedQiS/FjFpcOug==
+	t=1794743271;
+	b=BdK9H1y+HNRqD/jOpQfiJ8CK50RxEZMCjwgIS48DNkylfGZf+h7yYt+dLR/rohWShFPk
+	 wfY+Vi1XUiR4xQoz/9dl0reIiXKOG5wLW7gkB4jYbbvKAp0onbjRpWAq3h6DDbAxHfbTR
+	 5/PaQlaVaf7TtFwba6zsHiW9KlQbLjzo0EerdKKIi48ZFuJLc3WH+ltRAnMLBo+gAqRpL
+	 ov61lFfeKEVmTbros4bY5hLqTBfdHKhysZz363XUX2UJKA7MroJWDEdJE++rHrOfqDHYG
+	 NlZSY4qxT1OqOgEdTD541oNseZI8+FDCzpXM+gOKg5I+2qmGEiQp5Da0bFa+VHsozfA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794726812;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=i0sztYeDoa78GRxByi5DPGRDZ13zK/I8mczcB1W5Z+o=;
-	b=rMKXThKGTUXlQU4NbXqKGJQh/004ynmGHik5axkIRiP0AhWuWK5/JyNqgFVn71DneeCr
-	 XR8KviHi2yh+z97tWrFe77HguXq+cjIISFKcwEXe8o+nWAi/EVPgbH19u0msP2n5pf6yY
-	 IlncE6WwZf+o3JMqDldLN9BsAk3KyGISqCWMZzNE2wmzVL58UYGC/ye+150dQbukmZNuw
-	 0mDP1ynvq8ttkJLarUXE5WSIYNPZH2ZMIenNbBdSgGgPM+ZgB5gh2go+S8ftDe6oOZpZu
-	 cGkWNXQWAOYwhI0aXxCHEefzGXCtasMxtwbg97dfVivlvop/L/lhM5OkWDnIR4YLICw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794743271;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=dUUoDFkPJkBg6tiiX+gwUNqdlWB0vRGU4J1TlhHh7ZE=;
+	b=iuKSIOwNdjXAi2+nKsqu7pIfpzXuLtuj3wXCa1g9MN5BFnFnH+efqOzfUtJXvT2zUGGl
+	 V9IfHEzKQzynFa9Fuo1ssXUF+7C+Eoevg9R/uDVp3b207QzEgfuu6a4+z5JoRhmzh2QN0
+	 9vJY2NJZgqRfrAE94UuSb7lSNUhcz8q8wGqjWRw5n7k7BXCLYZBSkg22ZgvSiHJnnwpNY
+	 2bXzqhTqJYzU82V3hEswRLXZDMXOPwMPocN2bf1yYrFAEINhs1DN1LNIND4gakdX7BwOF
+	 /NBQXI11IeC+qk96wRGrOuIRB815lx2fweUabl5k2cTyNpurMwEGTlfjb0o79097iFQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=f0EKiv+f;
-	arc=none smtp.remote-ip=74.125.82.169
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O5UCROmp;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6373C606A32E
-	for <linux-s390@vger.kernel.org>; Sun, 15 Nov 2026 07:13:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6373C606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5C6D606A32E;
+	Sun, 15 Nov 2026 11:47:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=f0EKiv+f
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-36f8cdd30beso3116741eec.1
-        for <linux-s390@vger.kernel.org>; Sat, 14 Nov 2026 23:13:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794726811; x=1795331611; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :message-id:date:in-reply-to:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=i0sztYeDoa78GRxByi5DPGRDZ13zK/I8mczcB1W5Z+o=;
-        b=f0EKiv+f25sXRcQmBoiK+WsCsclD9PQHa+U5z3sGf3KR1sS3ZNEEroqRh6RNiac07P
-         vGJPEugwLNmQaWqJhCPHikaN8XT33PRVwWCxE9PqkkLJA6butk39sYE2ryU8qCsIMdGI
-         yo50td1Os6it0j1WrNa5HxnLEw4W7aO/qgSsYPJply/RpIro6UCSg0Mbr4ks/thyRkDc
-         jq1OBKLqGUt/bM6QVBsbrIsF1mbjoO/AbvtSri1zHl8+S2Sf3KoNhgqJldsJW2yIuTc5
-         6FJrXgJQKS6UwdWBKS3YQ4l597qJpRKbmN+vGilzta6Rl47F1I/gy3R+i3U13Lj6DU+d
-         z+8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794726811; x=1795331611;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :message-id:date:in-reply-to:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=i0sztYeDoa78GRxByi5DPGRDZ13zK/I8mczcB1W5Z+o=;
-        b=bBO2vf0kxKhHjrlTVjgO6ECA/beiym0CeB4RTitbP5MuWB6v4SwOhLw/zDv6EFuvqL
-         evO9NhL2XfTKYPywnYsjBCX3Va+PMJotNGCSNfzcb01xqwcsI697ARvxAE0L7wDibFCx
-         Fyl3tV/Ql0wAYFZhSFmsVRcQvgamtKjVPDO7jOpHN3HsPoMa8h+R9TyC/hRnM2Xiwkua
-         zpAGhEcIyRNV0MjZ++pflmxqSUtFImm83XFomPEn8LvSfTbmmDBms1qP5ieh86yi2CcN
-         ywBjJ8Ohf7F9eU1ulnKjIn1K8AWn20bFxtgmN/dkCuDpgZO1mKXeRhXeXNjDquGmA7y4
-         /nXA==
-X-Forwarded-Encrypted: i=1; AL+hErE59sixzBGk9omszzxpkQRK/lWP7zUuFLYyeR43+Gr9qJLW6LKZwIxZy88udDNvRpHrQPDd1HolmPl5@vger.kernel.org
-X-Gm-Message-State: APuU4Z/32k14JAGt3zCTJhiEPitEreBZOaZmGqN7D+St/vvNf6zo6Zo+
-	YVEIWD9AcC3IgDMe0QklBb0ellIW/D18usSKeCv8XFN+p3LLha3Y08l5
-X-Gm-Gg: AYBFou1HZj0NxylIiQZ0GDVlr+IZbGSHw786HAkKEl29A+4MNFDJDnXXnVFN9kZb6ea
-	cxURnTX/Vo1Mf+WZ4Wr1ssdoM+HhtCS4UA+8DzTW7QN4c+EKGhrGd0K+Q6qvAW+6yf9m1Kxayi5
-	Juq/ekw9a3+0aaKnsenH9eZQQ2GsN0nGjdLfapMvipm9PefRpxR3QFnvRfdJtsIufOhv+6DygUY
-	9938VA9bNVUOIDxyrMAJAXFhX1KcebEy/l+0xsg4ysSJgq0y5V+7I4jSXHMUllH2uHVN9A7PIT3
-	S4ddgJ+JlZw62dcp203yJ06/StelJ0+4pw6Uxwa8Nbo1QFu2GPgLMM2TBeryUnoRy5gFkIaBn2g
-	avVl8J1B/xr0HplECJAik9q7BTgWMsOid1eS15mCNPX1iSprb74hyVLZij1WQg5f+0Frrw2eO/4
-	uSTwMyaFZpNb5VAa22kQlvSEtRZfPuXdKYDsnp8GlwD7GVENlpBpY8z3n4AlRwwnrjPpYyE/Jle
-	pwIf7YK8ZE1ueE91mPNwZMHf03nHtq6hgd6tpMMIDIVm5cwA542+032tfb1/nVk1dVcIXOz76GA
-	hcpWeuk/oUGNSnStVJqA3SR0EJw=
-X-Received: by 2002:a05:7300:6148:b0:36a:7bb7:4609 with SMTP id 5a478bee46e88-37967dd7e1dmr11471490eec.34.1794726811302;
-        Sat, 14 Nov 2026 23:13:31 -0800 (PST)
-Received: from pve-server ([49.205.216.49])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-37956bad134sm27441185eec.27.2026.11.14.23.13.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 23:13:30 -0800 (PST)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: Mike Rapoport <rppt@kernel.org>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Alexandre Ghiti <alexghiti@rivosinc.com>,
- Andrew Morton <akpm@linux-foundation.org>, =?utf-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, "David S.
- Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, Donald
- Dutile <ddutile@redhat.com>, Eric Chanudet <echanude@redhat.com>, Heiko
- Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen
- <chenhuacai@kernel.org>, Kent Overstreet <kent.overstreet@linux.dev>,
- Liviu Dudau <liviu@dudau.co.uk>, Luis Chamberlain <mcgrof@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Masami Hiramatsu
- <mhiramat@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Nadav Amit
- <nadav.amit@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>, Peter
- Zijlstra <peterz@infradead.org>, Philippe =?utf-8?Q?Mathieu-Daud=C3=A9?=
- <philmd@linaro.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Russell
- King <linux@armlinux.org.uk>, Sam Ravnborg <sam@ravnborg.org>, Song Liu
- <song@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner
- <tglx@linutronix.de>, Will Deacon <will@kernel.org>, bpf@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mips@vger.kernel.org, linux-mm@kvack.org,
- linux-modules@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- loongarch@lists.linux.dev, netdev@vger.kernel.org,
- sparclinux@vger.kernel.org, x86@kernel.org, Madhavan Srinivasan
- <maddy@linux.ibm.com>
-Subject: Re: [PATCH RESEND v8 11/16] powerpc: extend execmem_params for kprobes allocations
-In-Reply-To: <avlTdlK9ErlqVRYl@kernel.org>
-Date: Sun, 15 Nov 2026 12:33:31 +0530
-Message-ID: <4idi8tks.ritesh.list@gmail.com>
-References: <20240505160628.2323363-1-rppt@kernel.org> <20240505160628.2323363-12-rppt@kernel.org> <3f7af771-87a7-4ae7-9919-bc4c23bd31c9@kernel.org> <avlTdlK9ErlqVRYl@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O5UCROmp
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FF671F000C4;
+	Sun, 15 Nov 2026 11:47:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794743270;
+	bh=dUUoDFkPJkBg6tiiX+gwUNqdlWB0vRGU4J1TlhHh7ZE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=O5UCROmpYOxPof//EVMXlzhE8CwpBAuLxySuhjVJTwgdWIcUjDEHfxQDjag+uTRua
+	 Z+qDIjnj4mqHBNrUw8Ko1zjkZMcqAeFq8ldvZlzCVbByFB+ptCuml13g6R68XiAcOc
+	 tTmUPUcRTu4mDvyiHtXFi/q4pZoMhhtkVDTdv1WqLRxEzoDBelkcsk5jYXJt2EAUob
+	 xjg6qsjtw4gR2WGGuYhHVN3Y9VjEoACQTHM3FtneMm5yNVilA99bE1xWageT1rHDiS
+	 UNAqlNNFNjgatsQNOofsxEUu3m18tcJw6JldfrHIojxyBAVmlXl979klg5KOmmNJfI
+	 Ivyq26TJMKVYg==
+Date: Sun, 15 Nov 2026 12:47:41 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Amir Goldstein <amir73il@gmail.com>
+Cc: Chris Down <chris@chrisdown.name>, linux-fsdevel@vger.kernel.org, 
+	Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, 
+	Josef Bacik <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, 
+	target-devel@vger.kernel.org, driver-core@lists.linux.dev, linux-mm@kvack.org, 
+	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, 
+	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	ocfs2-devel@lists.linux.dev, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-usb@vger.kernel.org, linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC v2 33/42] fs: add file_check_backing()
+Message-ID: <20261115-boxen-mundschutz-jacht-0ab871beca58@brauner>
+References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
+ <20261114-work-loop-pseudo-v2-33-98639a2286fb@kernel.org>
+ <20261114120557.4bc1eb6e57218cdc@chrisdown.name>
+ <CAOQ4uxhGxpBtMZ5kfuzR1tQAewiecoX7UjXQRo91QjJHH9T_Yw@mail.gmail.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -121,75 +70,69 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOQ4uxhGxpBtMZ5kfuzR1tQAewiecoX7UjXQRo91QjJHH9T_Yw@mail.gmail.com>
 
-Mike Rapoport <rppt@kernel.org> writes:
+On Sun, Nov 15, 2026 at 12:19:57AM +0100, Amir Goldstein wrote:
+> On Sat, Nov 14, 2026 at 9:06 PM Chris Down <chris@chrisdown.name> wrote:
+> >
+> > Hi Christian,
+> >
+> > Christian Brauner writes:
+> > >+      /* Look through stacking filesystems at the inode with the data. */
+> > >+      if (d_real_inode(file->f_path.dentry)->i_sb->s_iflags & SB_I_PSEUDO)
+> > >+              return -EINVAL;
+> >
+> > This looks good in general, but what the bots said about O_PATH files
+> > here is real. With FMODE_PATH this is reached for a file that was never
+> > opened, so on overlayfs nothing has been through ovl_open() to look up
+> > the lowerdata of a metacopy file yet. ovl_d_real() then does the lookup
+> > itself, and when that fails it hits the WARN(1) at its end and returns
+> > the overlayfs dentry, so the check passes as well.
+> >
+> > Only fuse passes FMODE_PATH, so it takes CAP_SYS_ADMIN to get there, but
+> > it's easy to trigger with that. From a quick test with a metacopy file
+> > whose redirect into a data-only layer points at nothing, registering an
+> > O_PATH fd of it with FUSE_DEV_IOC_BACKING_OPEN gives
+> >
+> >      ovl_d_real(/f, 0): real dentry not found
+> >      WARNING: fs/overlayfs/super.c:79 at ovl_d_real+0xc9/0x210
+> >      [...]
+> >       file_check_backing+0x308/0x5e0
+> >       fuse_backing_new+0x219/0x4a0
+> >       fuse_backing_open+0xe8/0x390
+> >       fuse_dev_ioctl+0x53a/0x7d0
+> >
+> > and the ioctl still succeeds. A normal open of that file fails with
+> > ENOENT, so nothing could have used it as a backing file anyway, but with
+> > panic_on_warn this is now a panic.
+> >
+> > Maybe ovl_d_real() should just stop warning when the lookup fails, now
+> > that it has a caller that isn't trace_uprobe?
+> 
+> Yeh I guess that this needs to be a Fixes for lazy data lookup.
 
-> Hi Christophe,
->
-> On Fri, Nov 13, 2026 at 03:36:01PM +0100, Christophe Leroy (CS GROUP) wro=
-te:
->> Hi Mike,
->>=20
->> Looks like I missed this change ...
->>=20
+I have a fix for that.
 
-I didn't initially get what Christophe meant here. Then I came across this
-reply of from him[1]. So looks like somehow between v3 to v8, something got
-changed?=20
+> The correct fix would be to teach all the callers to deal with an error.
 
-    On powerpc book3s/32, vmalloc space is not executable. Only modules=20
-    space is executable. X/NX cannot be set on a per page basis, it can onl=
-y=20
-    be set on a 256 Mbytes segment basis.
+I've also implemented that. It wasn't that hard and it's also a bug. Not
+a bad one but still.
 
-    See commit c49643319715 ("powerpc/32s: Only leave NX unset on segments=
-=20
-    used for modules") and 6ca055322da8 ("powerpc/32s: Use dedicated segmen=
-t=20
-    for modules with STRICT_KERNEL_RWX") and 7bee31ad8e2f ("powerpc/32s: Fi=
-x=20
-    is_module_segment() when MODULES_VADDR is defined").
+> > The check would still pass
+> > for an O_PATH file whose lowerdata couldn't be looked up at that point,
+> > though.
+> 
+> One observation relevant to this patch set is that a datadir layer has no
+> business being a pseudo fs and that can and should be blocked explicitly
+> at overlayfs mount time.
 
-    So if your intention is still to have an executable kprobes, then you=20
-    can't use vmalloc address space.
+I agree.
 
-[1]: https://lore.kernel.org/all/1cb41761-29d0-5d33-b7c1-0ca3acaa810d@csgro=
-up.eu/
+> The other observation is that fuse_passthrough_open() should probably
+> check the backing_file that was opened for io in addition to checking
+> in fuse_backing_open(), which could have different FMODE and specifically
+> could be FMODE_PATH.
 
->> Le 05/05/2024 =C3=A0 18:06, Mike Rapoport a =C3=A9crit=C2=A0:
->> > From: "Mike Rapoport (IBM)" <rppt@kernel.org>
->> >=20
->> > powerpc overrides kprobes::alloc_insn_page() to remove writable
->> > permissions when STRICT_MODULE_RWX is on.
->> >=20
->> > Add definition of EXECMEM_KRPOBES to execmem_params to allow using the
->> > generic kprobes::alloc_insn_page() with the desired permissions.
->> >=20
->> > As powerpc uses breakpoint instructions to inject kprobes, it does not
->> > need to constrain kprobe allocations to the modules area and can use t=
-he
->> > entire vmalloc address space.
->>=20
->> Using breakpoint means the segment must still be executable.
->> On book3s/32 VMALLOC segment is not executable, while module segment is.
->>=20
->> See commit 6ca055322da8 ("powerpc/32s: Use dedicated segment for modules
->> with STRICT_KERNEL_RWX")
->>=20
->> See report and fix at https://lore.kernel.org/all/ed03d290d440d579a81ae0=
-b7de5243721291d903.1794543909.git.ritesh.list@gmail.com/
->
-> I'll take a look, thanks!
->=20=20
-
-Thanks Mike for taking a look. Sorry, I should have ccd'd you there, I
-guess I missed it. However, the changes are these one here [2][3]
-
-[2]: https://lore.kernel.org/linuxppc-dev/82c4973addebd82923c460cb44221f5b7=
-6146afe.1794572365.git.ritesh.list@gmail.com/
-[3]: https://lore.kernel.org/linuxppc-dev/f75f2cf97f44375fd2c8820e0caeab703=
-cdb371c.1794572365.git.ritesh.list@gmail.com/
-
--ritesh
-
+Sounds good.
