@@ -1,49 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794853811;
-	b=qWRrQ6gPC1fRzj5PJyCS8vwvM+nqt4pOGbRje69ekE3GcVvjGP3iyyj57EndOtZBc4fv
-	 GYq+wHChEkLq/6kPGK04Zziw3HJIbOn0IdPmZOErXi0k7Oc37uErEnlONSV2cFQT5PE4t
-	 At7LSm75I6RjrMBiYtLcGEb65XSpDv176w6M3xKRdynMEo8z8Gd7wLwNBTqkXgPP/ZVHi
-	 yVY+C6Qyyxs+NqeAL1JX2+y+jzGz1vrt3uNxtXV61pcY8d8kh9/+8AjmbrzEm/KoaYqPU
-	 G/0c4OePQgRQRn7r1lBu9WXIiwG8zniZJABQ5m90nwp8LKlUHVOsw7NYOQn4RJ+BxXw==
+	t=1794853821;
+	b=ERZxVtpSa5dMAUUdbaCJPfDlOabxVZXH4W3d8taZQ5HzNLfq9KreysX4+Gsukjsds/25
+	 MOxcyHBqvRvtwAyXZnp/xBBYmYmKIksbssbca6MTy6V9Uu1n6J40H0f8oWC6cuUM/6x+8
+	 Vv+du141OwMV4u5fsEwmoXDJUHgmj2V1SHaGxHa9xSHXs/JI9jdvYVn5pbB/AG3a/ox+1
+	 GZgfr6MN6mjREpDKELBIM87DyzSBm5sooZqcdbua2nf7cSo9Y8u/t8LOhcTVXHakNaJnU
+	 RgkfSulaRCPSO8KXvguvwqztYuukLDSFYXL8OU6qJpxRy/m2nWX9Kfb1/e108UUZ3wg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794853811;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794853821;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=2bxc7Y1o0IJUNu9aa9tdWaFfEPqOd6AjiRxCSLgH+Bo=;
-	b=JmkD4sb/HxShiyW52KyXC/pbq0/7zLXf6Ug//jgwkLHHO/+69a9jzCl/NN5L41L6oKkW
-	 c/+LO+5X7sRqviY3A+HkyuB3fRXXZPXztmbm3XxyeslEdiKhXEr80vkZx+sTazaZPtmEG
-	 1kKUmXJHw1Wr27idkXzc5ApTSGJZohTnQirVEG3Z062foP7Jle4pQ76Hs5giFxy8gQ4rZ
-	 RsL1SCer6F62IuYTdYVUKbX0DI7c9xyfDysqqMh0WIEQ1YHCNLsiQIsHZIzgRSMTDFsCm
-	 wWs8kOUXKtYLvS1BoQCqyZ+RN56QlpnqEkNxXl5bvB6aDpsDfAFFfjy/6H/Ec5J9sNg==
+	bh=60r2Hy1OQ6q2qCI9QU1AVO4xWJsPeUzpCHelxn0nYYw=;
+	b=XszXZkvK5HXN58V8OKdiqw6jbGR4cmUaBbfr++WTwBXU4fHWVuWKM5C6P4TL5MjMNHIt
+	 Bn/rRH8uPUQC+WKr45ciE6NXH+BA0F7fTjQOR8dI3AEVVt3K4SSUq/G/y5v989DWeebk6
+	 L/LmkM9rheNAfYJg+4wWwxW3INHy5+VHDgjXIAg0yMmvWzbkqb7GgkRAw1baM7i7FFqdK
+	 alVcN7bFKYr/Cas52rxY531U8zzuvpTYPRy6UieXZyLHqRWbunCUugvxcA2F3zFFtXYrG
+	 UF3IXMf6qdH/G5gbT4gBEJvPyYqWp4mIo1VdhiGGdMESughN3MrxOqHGffnuH7Tw+OQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cS47NPSf;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NQmtDO3o;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 529C6606A331;
-	Mon, 16 Nov 2026 18:30:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5178A606A31C;
+	Mon, 16 Nov 2026 18:30:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cS47NPSf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACA51F000C4;
-	Mon, 16 Nov 2026 18:30:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NQmtDO3o
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF661F000CA;
+	Mon, 16 Nov 2026 18:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794853810;
-	bh=2bxc7Y1o0IJUNu9aa9tdWaFfEPqOd6AjiRxCSLgH+Bo=;
+	s=k20260515; t=1794853821;
+	bh=60r2Hy1OQ6q2qCI9QU1AVO4xWJsPeUzpCHelxn0nYYw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=cS47NPSf1gAw5oMwK36MhxFKNNMf0Zf5rdwGjatdYMRI4cfCx+8fa3l77UfCcKdE6
-	 ApXuBPsF8x9XYTR/ZlwZ4qpaoFpf+aV1r+5qlHrnb89jyTZH9sHwrfZjRRjZuozltj
-	 CHVv5vqW8n6bo6vNBMk/4+8d+4rgu+UUvXcRA1zxUVMiBUl0XFXlqRZBukIl9HsYqq
-	 MCJu/2N4PS8/dwGA8fnkL0laB4ZETSk3FlO6nrmpjDXkl23Eeh0hJ6aKZGKhfabLPD
-	 yDcKtQ13hEGwYOaNmU7XyaE1+Wkj2dK73LJl17F+ExoV7wJ5jiCSoNA77M89afE6fC
-	 8M6yv/UgoCSpw==
+	b=NQmtDO3okVfVTVHAxx36OhYItqGYKuBz6ClClwsl0Cb3+DwVkxjTZStaSMgdQ6T5+
+	 8zkhIj9p8ZOOU3PVi+PUOheA+597J7D9R0tapGfp9HhniWwljHW431QfpNYHV1Hva9
+	 /PD/Vs9DyLEGIdD7EAAcK+wRXa/8yxBWEbOh/uNQJqE4sjITJp5pqFhR1XZZT5H0nl
+	 qnuzOpfhn6AgQviSot5KwzgO/2fMiHuqP692lgnxoVWkw+PyIDCQCNGFPaB2oRqMCc
+	 5cTohRI8RiqDVb4OJW7ZJgrGdtFAxDbmRbgU6YfbmAabDt0jQhr30Z104R5yVv112/
+	 Bwm9NFqOKRPXw==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Mon, 16 Nov 2026 19:29:24 +0100
-Subject: [PATCH v2 03/15] mm/hugetlb: preserve reservations when shrinking
- on HIGHMEM
+Date: Mon, 16 Nov 2026 19:29:25 +0100
+Subject: [PATCH v2 04/15] mm/hugetlb: account temporary folios separately
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-fixes_hugetlb-v2-3-4dd9e94ea9ac@kernel.org>
+Message-Id: <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
 In-Reply-To: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
@@ -82,93 +81,251 @@ To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
  Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- "David Hildenbrand (Arm)" <david@kernel.org>
+ "David Hildenbrand (Arm)" <david@kernel.org>, stable@kernel.org, 
+ Josef Bacik <josef@toxicpanda.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2610; i=david@kernel.org;
- h=from:subject:message-id; bh=LLOzrq96DN9yt2OFJ2ZyOmBcDl7+i0ip7px3+VJMlgc=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLJ+e3f4i3Qb/bjD9n9Fy+ekbrGTTP7VWhvCBK6qPEgw5
- Ho23/lnRykLgxgHg6yYIktQ8H2Dly/X1Va78THDzGFlAhnCwMUpABPxMWf4n2f6IXbVt8MXIn7n
- Bq2aufvR3oecydOeaAWKHbnvuu3A2XOMDMtTl2svmu14P6O1SHj1rnWHDlapSO/wWFb6uNLPQMX
- yLQMA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8810; i=david@kernel.org;
+ h=from:subject:message-id; bh=e9zl9SoNkFhZsZMegJuB4Uar/yJQrySYnGO4SS5tfRc=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLJ+e3dIz+zyMdBQSHLbtsL5Q/rxX8XVBpOS/DI7XjT8r
+ LY67H6no5SFQYyDQVZMkSUo+L7By5fraqvd+Jhh5rAygQxh4OIUgImw5zL8L/v08nP+hI52i31t
+ rvefR7gt2B25dKb4+hlXhR0W7OTTzWT4X6+8eOoSs+rFlxQvs0ZOazp5+u3rz68dazcILF2cfzd
+ AgxUA
 X-Developer-Key: i=david@kernel.org; a=openpgp;
  fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
-try_to_free_low() drops the hugetlb_lock while freeing lowmem folios.
-set_max_huge_pages() then resumes freeing folios using the
-min_count computed before that unlock. Reservations created in between
-can consequently lose their backing.
+Hugetlb migration might have to allocate a temporary folio through
+alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
+"nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
+can mistake them as persistent huge pages, as it merely calculates the
+difference.
 
-Collect lowmem folios on the caller's existing page_list instead. Keep
-the hugetlb_lock held through both selection passes, and free the combined
-list at the caller's existing unlock point.
+If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
+hugetlb folios into surplus folios until persistent_huge_pages() returns
+the desired number.
 
-Likely not stable-worthy.
+After the migration (successful or unsuccessful) either the new (temporary)
+folio or the old folio gets freed: this will reduce "nr_huge_pages" but
+not "surplus_huge_pages", to undo what was done when allocating a
+temporary folio.
 
-Fixes: 1121828a0c21 ("hugetlb: call update_and_free_page without hugetlb_lock")
+This can result in having more surplus folios than actually allocated
+folios:
+
+  HugePages_Total:       0
+  HugePages_Surp:        1
+
+From then on persistent_huge_pages() returns garbage.
+
+To fix it, add internal temporary counters and subtract them when
+calculating persistent pool sizes. Update persistent_huge_pages() and add
+persistent_huge_pages_node() to make the code easier to read.
+
+Count migration targets and rejected surplus allocations as temporary.
+Transfer the per-node temporary count along with the temporary flag on
+migration, such that folio freeing will always do the right thing.
+
+Take care of calling account_new_hugetlb_folio() only after setting the
+folios to be temporary.
+
+For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
+Hugetlb continue to include them and overcommit accounting remains
+unchanged. The new temporary counters are internal for now and are not
+exported to userspace.
+
+Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
+Cc: stable@kernel.org
+Reported-by: Josef Bacik <josef@toxicpanda.com>
 Acked-by: Muchun Song <muchun.song@linux.dev>
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- mm/hugetlb.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ include/linux/hugetlb.h |  3 +++
+ mm/hugetlb.c            | 65 +++++++++++++++++++++++++++++--------------------
+ 2 files changed, 42 insertions(+), 26 deletions(-)
 
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index 58f755e70e966..80ae65c7849b9 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -698,6 +698,8 @@ struct hstate {
+ 	unsigned long free_huge_pages;
+ 	unsigned long resv_huge_pages;
+ 	unsigned long surplus_huge_pages;
++	/* Included in nr_huge_pages; not exported separately to userspace. */
++	unsigned long temporary_huge_pages;
+ 	unsigned long nr_overcommit_huge_pages;
+ 	struct list_head hugepage_activelist;
+ 	struct list_head hugepage_freelists[MAX_NUMNODES];
+@@ -705,6 +707,7 @@ struct hstate {
+ 	unsigned int nr_huge_pages_node[MAX_NUMNODES];
+ 	unsigned int free_huge_pages_node[MAX_NUMNODES];
+ 	unsigned int surplus_huge_pages_node[MAX_NUMNODES];
++	unsigned int temporary_huge_pages_node[MAX_NUMNODES];
+ 	char name[HSTATE_NAME_LEN];
+ };
+ 
 diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 349d45b932d9b..0b071bef226ac 100644
+index 0b071bef226ac..d7c71025d166b 100644
 --- a/mm/hugetlb.c
 +++ b/mm/hugetlb.c
-@@ -3712,39 +3712,31 @@ static void __init report_hugepages(void)
+@@ -115,7 +115,7 @@ early_param(str, func##args)
  
- #ifdef CONFIG_HIGHMEM
- static void try_to_free_low(struct hstate *h, unsigned long count,
--						nodemask_t *nodes_allowed)
-+		nodemask_t *nodes_allowed, struct list_head *page_list)
+ /*
+  * Protects updates to hugepage_freelists, hugepage_activelist, nr_huge_pages,
+- * free_huge_pages, and surplus_huge_pages.
++ * free_huge_pages, surplus_huge_pages, and temporary_huge_pages.
+  */
+ __cacheline_aligned_in_smp DEFINE_SPINLOCK(hugetlb_lock);
+ 
+@@ -1341,7 +1341,13 @@ static unsigned long available_huge_pages(struct hstate *h)
+ 
+ static unsigned long persistent_huge_pages(const struct hstate *h)
  {
- 	int i;
--	LIST_HEAD(page_list);
- 
- 	lockdep_assert_held(&hugetlb_lock);
- 	if (hstate_is_gigantic(h))
- 		return;
- 
--	/*
--	 * Collect pages to be freed on a list, and free after dropping lock
--	 */
-+	/* Collect lowmem pages to free after dropping the lock. */
- 	for_each_node_mask(i, *nodes_allowed) {
- 		struct folio *folio, *next;
- 		struct list_head *freel = &h->hugepage_freelists[i];
- 		list_for_each_entry_safe(folio, next, freel, lru) {
- 			if (count >= persistent_huge_pages(h))
--				goto out;
-+				return;
- 			if (folio_test_highmem(folio))
- 				continue;
- 			remove_hugetlb_folio(h, folio, false);
--			list_add(&folio->lru, &page_list);
-+			list_add(&folio->lru, page_list);
- 		}
- 	}
--
--out:
--	spin_unlock_irq(&hugetlb_lock);
--	update_and_free_pages_bulk(h, &page_list);
--	spin_lock_irq(&hugetlb_lock);
+-	return h->nr_huge_pages - h->surplus_huge_pages;
++	return h->nr_huge_pages - h->surplus_huge_pages - h->temporary_huge_pages;
++}
++
++static unsigned long persistent_huge_pages_node(const struct hstate *h, int nid)
++{
++	return h->nr_huge_pages_node[nid] - h->surplus_huge_pages_node[nid] -
++	       h->temporary_huge_pages_node[nid];
  }
- #else
- static inline void try_to_free_low(struct hstate *h, unsigned long count,
--						nodemask_t *nodes_allowed)
-+		nodemask_t *nodes_allowed, struct list_head *page_list)
- {
- }
- #endif
-@@ -3939,7 +3931,7 @@ static int set_max_huge_pages(struct hstate *h, unsigned long count, int nid,
+ 
+ static struct folio *dequeue_hugetlb_folio(struct hstate *h, gfp_t gfp_mask,
+@@ -1426,6 +1432,10 @@ void remove_hugetlb_folio(struct hstate *h, struct folio *folio,
+ 		h->surplus_huge_pages--;
+ 		h->surplus_huge_pages_node[nid]--;
  	}
- 	min_count = h->resv_huge_pages + persistent_huge_pages(h) - persistent_free_count;
- 	min_count = max(count, min_count);
--	try_to_free_low(h, min_count, nodes_allowed);
-+	try_to_free_low(h, min_count, nodes_allowed, &page_list);
++	if (folio_test_hugetlb_temporary(folio)) {
++		h->temporary_huge_pages--;
++		h->temporary_huge_pages_node[nid]--;
++	}
  
  	/*
- 	 * Collect pages to be removed on list without dropping lock
+ 	 * We can only clear the hugetlb flag after allocating vmemmap
+@@ -1768,9 +1778,15 @@ void free_huge_folio(struct folio *folio)
+  */
+ static void account_new_hugetlb_folio(struct hstate *h, struct folio *folio)
+ {
++	const int nid = folio_nid(folio);
++
+ 	lockdep_assert_held(&hugetlb_lock);
+ 	h->nr_huge_pages++;
+-	h->nr_huge_pages_node[folio_nid(folio)]++;
++	h->nr_huge_pages_node[nid]++;
++	if (folio_test_hugetlb_temporary(folio)) {
++		h->temporary_huge_pages++;
++		h->temporary_huge_pages_node[nid]++;
++	}
+ }
+ 
+ void init_new_hugetlb_folio(struct folio *folio)
+@@ -2117,13 +2133,6 @@ static struct folio *alloc_surplus_hugetlb_folio(struct hstate *h,
+ 		return NULL;
+ 
+ 	spin_lock_irq(&hugetlb_lock);
+-	/*
+-	 * nr_huge_pages needs to be adjusted within the same lock cycle
+-	 * as surplus_pages, otherwise it might confuse
+-	 * persistent_huge_pages() momentarily.
+-	 */
+-	account_new_hugetlb_folio(h, folio);
+-
+ 	/*
+ 	 * We could have raced with the pool size change.
+ 	 * Double check that and simply deallocate the new page
+@@ -2133,11 +2142,18 @@ static struct folio *alloc_surplus_hugetlb_folio(struct hstate *h,
+ 	 */
+ 	if (h->surplus_huge_pages >= h->nr_overcommit_huge_pages) {
+ 		folio_set_hugetlb_temporary(folio);
++		account_new_hugetlb_folio(h, folio);
+ 		spin_unlock_irq(&hugetlb_lock);
+ 		free_huge_folio(folio);
+ 		return NULL;
+ 	}
+ 
++	/*
++	 * nr_huge_pages needs to be adjusted within the same lock cycle
++	 * as surplus_pages, otherwise it might confuse
++	 * persistent_huge_pages() momentarily.
++	 */
++	account_new_hugetlb_folio(h, folio);
+ 	h->surplus_huge_pages++;
+ 	h->surplus_huge_pages_node[folio_nid(folio)]++;
+ 
+@@ -2159,17 +2175,17 @@ static struct folio *alloc_migrate_hugetlb_folio(struct hstate *h, gfp_t gfp_mas
+ 	if (!folio)
+ 		return NULL;
+ 
++	/*
++	 * Count temporary folios separately so that pool resizing does not
++	 * mistake them for persistent pages.
++	 */
+ 	spin_lock_irq(&hugetlb_lock);
++	folio_set_hugetlb_temporary(folio);
+ 	account_new_hugetlb_folio(h, folio);
+ 	spin_unlock_irq(&hugetlb_lock);
+ 
+ 	/* fresh huge pages are frozen */
+ 	folio_ref_unfreeze(folio, 1);
+-	/*
+-	 * We do not account these pages as surplus because they are only
+-	 * temporary and will be released properly on the last reference
+-	 */
+-	folio_set_hugetlb_temporary(folio);
+ 
+ 	return folio;
+ }
+@@ -3761,8 +3777,7 @@ static int adjust_pool_surplus(struct hstate *h, nodemask_t *nodes_allowed,
+ 		}
+ 	} else {
+ 		for_each_node_mask_to_free(h, nr_nodes, node, nodes_allowed) {
+-			if (h->surplus_huge_pages_node[node] <
+-					h->nr_huge_pages_node[node])
++			if (persistent_huge_pages_node(h, node))
+ 				goto found;
+ 		}
+ 	}
+@@ -3811,9 +3826,7 @@ static int set_max_huge_pages(struct hstate *h, unsigned long count, int nid,
+ 	if (nid != NUMA_NO_NODE) {
+ 		unsigned long old_count = count;
+ 
+-		count += persistent_huge_pages(h) -
+-			 (h->nr_huge_pages_node[nid] -
+-			  h->surplus_huge_pages_node[nid]);
++		count += persistent_huge_pages(h) - persistent_huge_pages_node(h, nid);
+ 		/*
+ 		 * User may have specified a large count value which caused the
+ 		 * above calculation to overflow.  In this case, they wanted
+@@ -7459,9 +7472,8 @@ void move_hugetlb_state(struct folio *old_folio, struct folio *new_folio,
+ 	 * be final while the old one will be freed so it takes over
+ 	 * the temporary status.
+ 	 *
+-	 * Also note that we have to transfer the per-node surplus state
+-	 * here as well otherwise the global surplus count will not match
+-	 * the per-node's.
++	 * Transfer the per-node temporary count to the old folio's node,
++	 * and any surplus count in the opposite direction.
+ 	 */
+ 	if (folio_test_hugetlb_temporary(new_folio)) {
+ 		int old_nid = folio_nid(old_folio);
+@@ -7470,13 +7482,14 @@ void move_hugetlb_state(struct folio *old_folio, struct folio *new_folio,
+ 		folio_set_hugetlb_temporary(old_folio);
+ 		folio_clear_hugetlb_temporary(new_folio);
+ 
+-
+ 		/*
+-		 * There is no need to transfer the per-node surplus state
+-		 * when we do not cross the node.
++		 * There is no need to transfer the per-node state when we do
++		 * not cross the node.
+ 		 */
+ 		if (new_nid != old_nid) {
+ 			spin_lock_irq(&hugetlb_lock);
++			h->temporary_huge_pages_node[new_nid]--;
++			h->temporary_huge_pages_node[old_nid]++;
+ 			if (h->surplus_huge_pages_node[old_nid]) {
+ 				h->surplus_huge_pages_node[old_nid]--;
+ 				h->surplus_huge_pages_node[new_nid]++;
 
 -- 
 2.56.1
