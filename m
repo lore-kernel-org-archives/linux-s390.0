@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794851893;
-	b=G81uJy1tO5bZI1pcc8eRdlPd2hQQXXKP6Kg/qqW4X36+160TVPCMMGILuBiYovlQJkR1
-	 VYEgSH0DnVqSMHSmUNeSIMbZM6NZzADJ52hadupK+zelYbZEp549WO1NFIPaxxoot8q7P
-	 cd+JtiSAjs5riZ76gVe2EuRGfLL3L3vKMZr0aqhSqzJipiU4xVb7nXKE9eh3KoBnVII/2
-	 KZSHvVXH5y561sLk1U7DzgEFDqeO3+eZ86aPgpCYYHIX/di5QymtGKUPNWyJEsSNr1ehn
-	 cUa6lLn/u/6+TshpAUqqKl44tl1wt8ZTcClOKux++A20mgD7wxzDcNTINEZ/TlUoHZA==
+	t=1794852013;
+	b=gH2GtrBXRPvEjVKZewjTPx9IeJk9/YdHEir/iUcxUdR6ZnDxFN4CoiJ3V4pZIHigqrFE
+	 f6irikRUJgZxmaY0M7GrcN1qqjosRMGos3ysZnCk85u9gFyQjHm2Xvecl5elmC4DxSoTa
+	 Ps2biHZUZGtu0KzOiFpAGXDp4rSfTJPjNRYw2aUEjkEevmkpUS2AnboGjz6mHVfKXZiUP
+	 qCCbl134hqsc2LckeP1hesaOKzG/Czb8IGXQywN5/pCCBtmU2ep+wsncxBfh5ONpYceok
+	 nAE22LdwXoFVPzMgGt09kthPiBYTHRuxqGNPSSkpdOv9yHyF2H8YPs5GKfQ5szLxrpA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794851893;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794852013;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=s+So4m+TUzNIoOESu5i4FpgEajSBnKuVH9Y5MNOz5yo=;
-	b=RaU0r1Z64wzYS5M7E64olyCBSn7OkXRQ3RiS3xZjM9jfiB3f525fYO7mzfLpaH9XTDmJ
-	 DINieNoi8UKzklOg6qSlQYb6uWaxZXXPe2BSgsVCBNQU4XbTMJ+9Lt/O7T7rhhTZbETdP
-	 0OPh5D6Yxm1tQhywkZrox52WjV+D8NobAgFh1ZKDb9kJI1lXPXixwAQjvaYF49CemjY7a
-	 5pJjCO2suBL2PVrgeT4FVkdArO0d6nCZ0Gpe1aNRlALJVySLtqWtYR9wikgKsFHEmH+DN
-	 S7grIr4cNb3UeBAGg4/bAPSa6slvFgSgD3XmXBxBuqWmfROMTRwkFC5lWWfo/MNGdJQ==
+	bh=Vgjpk/56U2QuegTVedNQAgTspsaaBlfOTSY97wcv/WI=;
+	b=2aIompgWKxAuNfRNhU2CB71Z+bCB/mI2J9DyQRIuHGBYx5QEeH4CATjBtRSfu8EMlmwc
+	 cB4/yrAxaePDz3ueHpwtncxPGTdyb+WKjy+NdKMLz1AmOy4cOvJ/lbmlp/yFew66ZatjB
+	 k6T3IRavLcP+7aORspcnzdYswb/q1iXtMc+GSC8+aGe6go8ZE6pad9KkkrgmqR75L6K6S
+	 Ukq2u+D8UqPaezrVam10SGI5D40leTQbRCiQ2OyaZ1y2IQkD1L3TLBxixNZ1jPKUpAuRW
+	 9oAd1Rl2HW8k3g4880n9wA8/6LnIt7DFrB7AiGbklo/9f5SBLorBYgfr73oz3hKmQSg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=euHjhzUi;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UY8FYJFS;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9ADB606A88B
-	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 17:58:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F623606A32A
+	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 18:00:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=euHjhzUi
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A0B51F000C4;
-	Mon, 16 Nov 2026 17:58:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UY8FYJFS
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4131F000CE;
+	Mon, 16 Nov 2026 18:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794851893;
-	bh=s+So4m+TUzNIoOESu5i4FpgEajSBnKuVH9Y5MNOz5yo=;
+	s=k20260515; t=1794852013;
+	bh=Vgjpk/56U2QuegTVedNQAgTspsaaBlfOTSY97wcv/WI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=euHjhzUiMMgXdPmTsM5RhH2Q9Di5HQU3wsWqv65gg2hBzLAPcDv14j/I2DE0mLok3
-	 mU/nU3n1dAaS2xZb/QYTR9XVxB4geP8Di/Ipc2aj0Lbl6hbka8NUC/q2ZJO3Wi2Cyq
-	 ILmj1uAHATZySH4oFjPqScUZ2lfAfcPSrWh5HhrZ4h2LG7Kx1JzdpuyFxy7QI6lTGu
-	 jN3wECYyImOt9pzKP8eCCrpnZXOe1oaK4A0efSOxrQjIyvp0pm10GStfnLyGnZd7yn
-	 QVXZuKNDekwPjEOIf1EHl5yrCewt7r2NsV4jhm7H6409cgHuQVHEr68NNUn3lRP99B
-	 /pZkyRrtxRFmA==
-Message-ID: <sashiko-outbox-217470@kernel.org>
+	b=UY8FYJFSRxlJ2ydA/nz+IujmpU6inqbsmg81k9ILegGDxVMmtEeak1apwp33OP2Q5
+	 94GFOMLJc2DNnRGBPXlzmktZVF2kSrnYXGZBhXVTDsK/f3rZ2lmoSrubM3myHcWhY4
+	 dZhSCwCplvRuphXbF/nOUUNaDsYhLmNUm9o4tgdik5VmAxguOai1ZB0RMIrCe5BxPI
+	 oDqC4ZK+ehkPSEAfh//lb2OEXzdnvfLYH2ZS1nv0fxiP4bPJhypV4y5IQjfA8yfD8w
+	 Zc6EMr7kMpli/oDXTGYxyckFcSSqMLno805ZspjnHC/6h5A9zXa4rt4GEE1baAOgdU
+	 YmRvHujkh2gqw==
+Message-ID: <sashiko-outbox-217475@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 09/15] s390/cert_store: Fix error handling of
- get_user_session_keyring()
+Subject: Re: [PATCH 07/15] s390/cert_store: Fix potential use-after-free
+ caused by find_cs_keyring()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261116143534.158375-10-hca@linux.ibm.com>
+In-Reply-To: <20261116143534.158375-8-hca@linux.ibm.com>
 References: <20261116143534.158375-1-hca@linux.ibm.com>
- <20261116143534.158375-10-hca@linux.ibm.com>
+ <20261116143534.158375-8-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 17:58:12 +0000
+Date: Mon, 16 Nov 2026 18:00:12 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,11 +62,13 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> create_cs_keyring(), cleanup_cs_keys(), and find_cs_keyring() all pass
-> the return value of get_user_session_keyring() to other functions without
-> checking it. This can lead to dereferencing an error pointer.
+> find_cs_keyring() drops the refcount of cs_keyring before returning it.
+> Which means that callers operate on potentially already freed memory.
 >=20
-> Check the return value before using it.
+> Let find_cs_keyring() return cs_keyring with a reference. Since
+> cleanup_cs_keys() now performs a balanced put via find_cs_keyring(),
+> remove the separate cleanup_cs_keyring error label in fill_cs_keyring()
+> and drop the reference unconditionally instead.
 >=20
 > Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
@@ -75,5 +77,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116143534.1583=
-75-2-hca@linux.ibm.com?part=3D9
+75-2-hca@linux.ibm.com?part=3D7
 
