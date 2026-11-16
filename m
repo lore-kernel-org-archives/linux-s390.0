@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794839755;
-	b=vZrLvU5JyssIXh08nyfZ6eyyyqTSkXiGKJAXu9B9swFdQVn25OdDvJMW/grZijWgYU2g
-	 fltdpbqqXutRYNnzlKn7+Kbwjut+/aPt1h+Lm6pVa+h88S4IoREwcjtH+ueW+F3h6WOOM
-	 VIsocHhytIfe3qql4zm89rzcui3xFKxw+Ln0fyVFNdElnjuON2VA1yAP10v+QRaUINDOI
-	 Kc4pNjNQgsRLeXDMahUf9KbHTkO/A3n7hlIwXan0EV7H27wgixiV3sGYq6T9H8dWuiNF3
-	 s3DSuuN1z9i+sJxGAFGkGcuzwtfHWKkb1FbCOVkjrMa/YIjAtp3a2FE8jbdItDsKHBg==
+	t=1794839760;
+	b=UQx5vbpU1xgBzhg7c5D3bKSyzrgJ+uaOkF+ZTvc+RiVxYaROrTQud9j4dxMGiF3Lxtz+
+	 Fgv92CrhjMcXJvegjBOtq91TpJmTGuZz45xh4hTG0jNIBH4NwqrQE7GtTBp+XdtEyJ8t7
+	 82KSLdhMXW68WF2fYFDZFMMI8eyw30kxucXtwjW1Mnc2JIKwaLyv8fR/74tYOOW+zVXoC
+	 /UK9YHPZi+zLT4H7So5o1P0l/nnys+3AGBmJJMrLnMHAI2aq0kE3fKVUAUxjjEvME7dQt
+	 k5Gph95IN7rSgS5J/UcWuPkW0GnQtzXRY8ouoDnmD+LMzC7rpkFbcx/VyjryH1TNZig==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794839755;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794839760;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
@@ -15,64 +15,64 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
 	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=IFfGupRSOM6RObjQsqq+1Bvj6vi1N0aWq+3O7ZbwXkY=;
-	b=TrQpAl5z5QG+rQmUnWhixnnYA1zZuSquGjVjUvnp2ZhQnviMuhDb/v2e0GMIlfB+4XRr
-	 U12ERUOhNiGMDu8esNH7Q9299ZvlDCSmTfWhTxBbVnW1xF+OqDXcYuN6aoNWHhAqt9CBn
-	 7yRndU2lc/W3fMIVqh97gVnDxPyWsuJGjhWKhK2j+TObVckl8Vo1PLlgY8/MNwTZzKLjO
-	 0Dtvs/8CbauxJbUvFQMagPYBwjd2cqG59Wf7t9MZWqxVP+RUl6zvzkdcymln5eU9hwVoA
-	 V1ONWlOh/H/wfM95ChEM6W5GMby8340qAiGs1QE/yUCdrQPrfc+6mzobxH/cnsfvE7Q==
+	bh=+e6HY9Ng1lrlIq96oijHHvlvCz0R3sjIAK3/RygsEGc=;
+	b=l3o6IXjatj/GBT7byq3lkXmGpGkUY3aLzmpFnY8dtfDBukUGPUZTWLl8DEYarY0jKV6v
+	 8BwkMURPOGSFYibIEArykGv3XNl3tyuK40O8YN39s8KyBiLAHKI0NpuvwJ/ua19C2lCdK
+	 gdr/nyGcKrZa1UHMqSwIHPPXWohSinbHnerW+CmUy1tFg6FRjX6tOvZA+gLJetNWDflkO
+	 pLGSt8Dd9usorYlskQThzDnB6m2qe7nq369c4UDxJLqr4/gXYwvqVEja32eGjo5MVbPAL
+	 Ufyi/dxfb8fZ1FbNQ5aSyuASbnxiK7QRPYXemzeaDtDA0+PdCE6W9RX94M3JHnLxmKA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=phsX+ihY;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="jAU8/Snd";
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DF15606A31C;
-	Mon, 16 Nov 2026 14:35:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8DF15606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CCF2606A32F;
+	Mon, 16 Nov 2026 14:36:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CCF2606A32F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=phsX+ihY
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jAU8/Snd
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGDuOr83631009;
-	Mon, 16 Nov 2026 14:35:52 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGDuhnD3631638;
+	Mon, 16 Nov 2026 14:35:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=IFfGupRSOM6RObjQs
-	qq+1Bvj6vi1N0aWq+3O7ZbwXkY=; b=phsX+ihYe8yPjOEZqP1mNscC0hu5UAj8o
-	p3De2jrg2uxBtnan/htV9gRhdSyCjqOI/9z8TIV48ff4WtgHBBblfFnPMS23t7ov
-	kjhcXAVa0PCWtO5cqD7ylPloFkGM/D3a+rRZZSCRlBN4WhKtpuMfi2fOqChUV2Um
-	i5UaIpWjivIIRWkMGX6Ve1thIvfemE4SxzZj0aR3/IaAHoKaewxqo0e962l44RCa
-	rxUYeT6+HB8B2ImWMf+XSE1/oxcoBJ0QU5WoztTmo75zKc2RRKqYm1OdLcDDTHtZ
-	W3i9gsP0jeIk3cPRrM+/jrv5G+iwC1jHcJqzCyhla9qt80/PXbwBg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hxf5665p4-1
+	:mime-version:references:subject:to; s=pp1; bh=+e6HY9Ng1lrlIq96o
+	ijHHvlvCz0R3sjIAK3/RygsEGc=; b=jAU8/Sndsx2Uwk8oyzm8xJA8MCH8AMdHg
+	fQ17UjHcYbec80ZJ4I7ub+EJ6zwxRn70wKjrchkoDJOVTDQ84OJebeRQmer34h9t
+	TBDjEiFqcx9RlYESA8GcyckowLn4s84QdINEeahUfN1puGQ3qQquSlxPkpIyibLZ
+	rYa9GGDGUl0N8pZlzNb2/u0xfXDupAxbuGl1NZHmbLcbP7EtwqyoT1EOQlwL0g6i
+	8xdKw+2XQwDh7RMar54fc3tnsl8TwuHVz7MReuSl6yntqaAparHPMp9mJ/Db256L
+	M8HOFoMzizvuxGVgs0OZ1g8D4I38j7awEzlgWJSOlqd8AaTkTg85Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hxf5665pf-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 16 Nov 2026 14:35:52 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGD54gq3095320;
-	Mon, 16 Nov 2026 14:35:51 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j02df8e9t-1
+	Mon, 16 Nov 2026 14:35:58 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGC4xxv1877637;
+	Mon, 16 Nov 2026 14:35:57 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hy46fymq5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Nov 2026 14:35:51 +0000 (GMT)
+	Mon, 16 Nov 2026 14:35:57 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AGEZaad40894942
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AGEZdmQ52691344
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 16 Nov 2026 14:35:36 GMT
+	Mon, 16 Nov 2026 14:35:39 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 077B52004D;
-	Mon, 16 Nov 2026 14:35:36 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 660B42004D;
+	Mon, 16 Nov 2026 14:35:39 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9BC9E2004B;
-	Mon, 16 Nov 2026 14:35:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 129D120040;
+	Mon, 16 Nov 2026 14:35:39 +0000 (GMT)
 Received: from osiris.ibmuc.com (unknown [9.111.42.169])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 16 Nov 2026 14:35:35 +0000 (GMT)
+	Mon, 16 Nov 2026 14:35:39 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Jarkko Sakkinen <jarkko@kernel.org>,
         Anastasia Eskova <anastasia.eskova@ibm.com>
@@ -82,9 +82,9 @@ Cc: Sven Schnelle <svens@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         keyrings@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 03/15] s390/cert_store: Fix potential use-after-free in invalidate_keyring_keys()
-Date: Mon, 16 Nov 2026 15:35:22 +0100
-Message-ID: <20261116143534.158375-4-hca@linux.ibm.com>
+Subject: [PATCH 11/15] s390/cert_store: Do not search the process keyrings for the cert_store keyring
+Date: Mon, 16 Nov 2026 15:35:30 +0100
+Message-ID: <20261116143534.158375-12-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261116143534.158375-1-hca@linux.ibm.com>
 References: <20261116143534.158375-1-hca@linux.ibm.com>
@@ -99,23 +99,24 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE2MDA1NyBTYWx0ZWRfX4wnFupbp4y9M
- jVA/+dtpbEmUxy0vUpQl1PWRk3Sb3kEQQ4NjxjtvFW3l1LaFETQrUERTiVIH+3l859ekFMvn7le
- 5oqy0/R8MopLayOOtAarnWrd2Ayp9wI=
-X-Proofpoint-GUID: HAAcoJ3OIXQQXIolekqN36c33koh4Rld
-X-Authority-Analysis: v=2.4 cv=ROImjIi+ c=1 sm=1 tr=0 ts=6afb14c8 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=mREcNca6LnAChypJpT4A:9
-X-Proofpoint-ORIG-GUID: HAAcoJ3OIXQQXIolekqN36c33koh4Rld
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE2MDA1NyBTYWx0ZWRfXy31OkDlkaMs8
- aXmj3/N3bgykt0M10IFW4XUlrIyhMNZ0x4OjTPqldp3FyfPRjJsIB22UWO4KK5TfuPz03Pfo6cx
- +8zAHe6WlWvurtZ7TGSMjhABtTe4jJB/CM3YErikDlJVmT+6l3xzSY9on10wJdAQ7ICnDLAdJf/
- OZhQX+k8vUeCblTo7kMh6uzJl5hltvLqif2bfNAdM/SHxWRabY2L0aUnNHrvNiPQ0UheKz6osjN
- 3Zcg/lO4TDJXQMTY5BOEKiJ3yHMh94opnXkpHqA487JKRNbDeOzTL7RSK1PhFhBt/fZmOdol0vS
- 1WkscoA51J6IQu+6aLNHRC1mG2LBfD+NPA7RvlFz8JLlPK0x2VpgRDJ/Ndjov7vciP0+Mi7/+lB
- roZY9aqeUWfIUIqa3OR57Ha4LPPRaLl409SSEDfQKao2k0naMqmITQQk3YIj1O75AQ3D6tke6qH
- fIWFRfHELUQ34O4p8xA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE2MDA1NyBTYWx0ZWRfX44TFJzrvRpIh
+ 69Z9Klpd4cUs+oc1CpmIi8/RKrpXkW6LU8+2PMJKolDGnfhXdMYAwNqHLy0RTmMru3lZz0455XP
+ 0XcYIYBvcnHPey3Fm+lktteGWyXB5ug=
+X-Proofpoint-GUID: l4f3LL1913f2Hg6PPIoIdPVoumgL1b6H
+X-Authority-Analysis: v=2.4 cv=ROImjIi+ c=1 sm=1 tr=0 ts=6afb14ce cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=0dunWCLzcPS5ikFJ:21 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=RULMvB_RHQLfq7f3AZIA:9
+X-Proofpoint-ORIG-GUID: l4f3LL1913f2Hg6PPIoIdPVoumgL1b6H
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE2MDA1NyBTYWx0ZWRfX67XMNVrlcTb/
+ MjmNVB5qL2CvORSBKkNEmZKXpnjjkjkmEmUVt9x5p9iU13oGiuV9mb4RJPReorSB5cFcchWy1WA
+ tqD3z69KHA4CDaTi+gJmDIIVCVqC9CBTTKKeCeoNxFRW2tt7XFFYRGm9YAc/FbJ2TYo12/q4j6B
+ EQpi69M6YkxKhG9TEyc7MPK9Skc8tvTUNCvZJjn0zhDvHAQ50RGF/6lZafkdS09iajl6z6KoDjH
+ DzNDDJGj0caH0tUbrZzsn01xZRHxMMn3mTmKCrf5ypfx2NIXmWy9WVRKSRpFzbJV3RcRs7Ry9C/
+ 7J44cOhndvwSvUNu37eK3SLjfAbuOemozL8zBwmDe0IoSUVovIwrugtAz+PrK3zQFFXCTGCq64j
+ lmvZOUucpDiU0O1SR5hf2bNd8N09N+X0BhFsSGvydEzLZqCetvG11J+2g7u+MxyZjmJ4SoTUd53
+ 88rU75WjBHPh0vA67ow==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-16_04,2026-11-16_01,2025-10-01_01
@@ -125,37 +126,53 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611160057
 
-Drop the refcount of current_key behind all users of current_key which
-dereference it, like e.g. error logging.
+find_cs_keyring() first searches the user session keyring for the
+cert_store keyring, and falls back to request_key(), which searches the
+thread, process and session keyrings of the calling task. Any keyring
+named "cert_store" found this way is accepted.
 
-Fixes a potential use-after-free bug.
+cleanup_cs_keys() then invalidates and unlinks all of its keys, and
+clears and invalidates the keyring itself, without checking permissions.
+If the refresh is triggered by a task which inherited a session keyring
+that contains a keyring named "cert_store" not created by this code, this
+keyring and its keys are destroyed.
+
+create_cs_keyring() always links the keyring into the user session
+keyring, so the first search is sufficient. Remove the request_key()
+fallback.
 
 Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/kernel/cert_store.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kernel/cert_store.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
-index 89cc3a1683a3..e5060777ce6f 100644
+index ec6352528a2b..551b538ea930 100644
 --- a/arch/s390/kernel/cert_store.c
 +++ b/arch/s390/kernel/cert_store.c
-@@ -344,12 +344,12 @@ static int invalidate_keyring_keys(struct key *keyring)
- 		pr_dbf_msg("Invalidating key %08x", current_key->serial);
+@@ -360,7 +360,7 @@ static int invalidate_keyring_keys(struct key *keyring)
  
- 		key_invalidate(current_key);
--		key_put(current_key);
- 		rc = key_unlink(keyring, current_key);
--		if (rc) {
-+		if (rc)
- 			pr_dbf_msg("Couldn't unlink key %08x: %ld", current_key->serial, rc);
-+		key_put(current_key);
-+		if (rc)
- 			break;
--		}
+ static struct key *find_cs_keyring(void)
+ {
+-	struct key *cs_keyring, *us_keyring;
++	struct key *us_keyring;
+ 	key_ref_t cs_keyring_ref;
+ 
+ 	us_keyring = get_user_session_keyring();
+@@ -373,11 +373,7 @@ static struct key *find_cs_keyring(void)
+ 		if (!IS_ERR(cs_keyring_ref))
+ 			return key_ref_to_ptr(cs_keyring_ref);
  	}
- out:
- 	kfree(key_array);
+-	/* Search default locations: thread, process, session keyrings */
+-	cs_keyring = request_key(&key_type_keyring, CERT_STORE_KEYRING_NAME, NULL);
+-	if (IS_ERR(cs_keyring))
+-		return NULL;
+-	return cs_keyring;
++	return NULL;
+ }
+ 
+ static void cleanup_cs_keys(void)
 -- 
 2.56.1
 
