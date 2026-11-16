@@ -1,95 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794834986;
-	b=wu9eqxP2CwMQnC+YMd4tVTL3H9iTv5MiNjxyB45RNaOmgDzOw/bxoYD1E5dFXOctLhfD
-	 zxf6a6+5kjqBVTnh9XeJMIWgY5vhB2LaThNPROYI7TJHpBeVaewlQr3PayWD7GGBCJog6
-	 mxVMrcGmWZUUKEMKMDrvPcAUKv0bLkK/OQ+2P0jKiV7o0JEFvlh4so3KBgaJGgfWmmguQ
-	 hbB1o/IL+NwqyUfEmkor2J+AOBeDv7LU8+gCB46SDGPJmv8PetokkBETwaPR41el76IwA
-	 g7NHoT9nbONWmkoSP19wW8/MGX3FdYJwpDUB+kxrTwy7qkGnSpgwvhBHZAHUwbOsfQg==
+	t=1794835257;
+	b=RNQMIb3w01lzLp2WACTSX6SQnebuI+4B7HYClxgieVBBTsg8S/kQiU+T29iB7HeA9GRw
+	 kpuN6spCF3aWtIKEnUKBSbOFB9m2+v0CfrWH3UNysJYuDtyENI+Yl0uK16Zvayek2iXgG
+	 Ws9PiS9jarGGGhgEikywgIa2749AO0YCWd0YCBkLTxMvnHZOxmUwjz1pGoDUO/Pz7gQk7
+	 HH+Mx365UryoKQMSurrw/Tw7gHo/G4fGTDzMQkWvoSnRrib79nXApKR7SFMsn/tu/gdEt
+	 UfoyIlJexR1GxRTZpmWKfSbiwk0JEl07Nt+VZaw6v2gO9zyBYYs1Jv8WjyyWQOtZgvA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794834986;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=irSzvd6rW8sUPYLpW1c1dglGknltWR9sWTeBGdFo7Zs=;
-	b=mcC2T036OtG2qfd3ZGyBD02ltCdwyer3OtQV1LntgEc2WYXsZyZuGivuEc0kPKQRNiVs
-	 Hqms/h+Q62Ab9htqJmEAcF+YB3Owjy39bDOMZCcqttUgjehFUAqIfI2iNMqEvg2VOwfJF
-	 r7+7kgHRW5CcfLCS66AdpdnE5PupnI5MNccA4hCZkrSKCgfylTi1x2FoMukJYT29H6wtp
-	 yVeF8pyI/PfZ+27aSJc0PLLzq57JyQpAYn1CrgH1xi5kWKqjcPRGsoPXBaiVcCseTKQM0
-	 8eGrZfMehRCbWIhILpWuUbleLC7u8/2WNXR+jr2l3suWg0jCptG9inA5+/bfpoE0ZbQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794835257;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=Zwp/b2OseRP/BP0MRnYEMv10Xx5652k/ysAi77DyTUk=;
+	b=NFCUE3XMe0UyCZhEGLrokSfcFWi5Iat1D+Qz+s3xnLC9zxlmzbF+1aEtCS2AUbAHMA3o
+	 FPJVfzREblqlqgzoKdLbYaFdHt4sy5r0fwk93YdutF6npCpYKm0xcSxRrO1fU5ownOqZh
+	 OZXf7aT5ouNYQWBaxprZALPMFrfBXHxnShhqF2SiCRqG6a7yccJTCFm4ZbjxteF69k7cz
+	 +39vhbv6gPJ+oBR9hBDfUxNM1f6J4znWx9UhxnCtWlD4i9dtpNhjm7Swbo9OThejo+MnH
+	 T44FTqk1YOmzJYMe7P1poalloVrewnUIB2mPjPL3JMq8OBl965HXPwL+1fDkooNXsnA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=CyqEYnvE;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MhEMPzkS;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A15606A32A;
-	Mon, 16 Nov 2026 13:16:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52A15606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA5B606A331;
+	Mon, 16 Nov 2026 13:20:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=CyqEYnvE
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGCQobW3269834;
-	Mon, 16 Nov 2026 13:16:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=irSzvd6rW8sUPYLpW1c1dglGknltWR
-	9sWTeBGdFo7Zs=; b=CyqEYnvEB12TBPq/yTRg+bKU5jNT0TfbnSC7aDHu010ShV
-	wisMMh5CaheyS5e6R51Isv16+BOWKykY3tpjyYFZtar0NbACWxYtFYa8co6lj4Eg
-	+sAEiaPphJCBY/OGllcb3lQ9ySmAn2lJfGWupM2TbRTM7Rw0Y3FyU7Hb2UO34DfR
-	YUMr+7aAAg/w3gxLdFIv+ksqjbvVYYzZYUqx+VZ8QlpG6XRFPi45QygifBfk53/7
-	8duwEcdPxUSGcdR5svEcuzOEdwNu0gh2yBL5YNVNTol0dDtWip4LR7uzYYXbb6+k
-	juF0Mcoe4vwaE5s8dSEHXHpuzgCBworkqxlPPbLw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hxf9vdaty-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 16 Nov 2026 13:16:06 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AGC4s8K2972461;
-	Mon, 16 Nov 2026 13:16:05 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j00ns8nen-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 16 Nov 2026 13:16:05 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AGDFV1645678852
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 16 Nov 2026 13:15:32 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD9952004D;
-	Mon, 16 Nov 2026 13:15:31 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6AB5D20040;
-	Mon, 16 Nov 2026 13:15:31 +0000 (GMT)
-Received: from osiris (unknown [9.111.42.169])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 16 Nov 2026 13:15:31 +0000 (GMT)
-Date: Mon, 16 Nov 2026 14:15:30 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Vlastimil Babka <vbabka@kernel.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 4/5] s390/uvdevice: Replace get_zeroed_page() with
- kzalloc()
-Message-ID: <20261116131530.125125E49-hca@linux.ibm.com>
-References: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
- <20261108-s390-char-ready-v1-4-3db507722530@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MhEMPzkS
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 287C11F000C4;
+	Mon, 16 Nov 2026 13:20:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794835256;
+	bh=Zwp/b2OseRP/BP0MRnYEMv10Xx5652k/ysAi77DyTUk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=MhEMPzkS8ELyUuZJvWfSoeeWuf7By4IL/aj2kb/a2OV4l4EgVqKXjiioyUz2RieNk
+	 XgpnwYQk+l7IQUQIb2TJG9rqwlNZZd2t4tSSz2FIOFgSK4qv3MUw+KnfbEysg8x4iS
+	 RMX98jFDrMhGiTX7izqJwsUslncHgd0fLN7Yyo0X4gX89YKFy614i608nuofc5428F
+	 SfK4Vb1AO45G7cvMjjgv1ixrvwKqD7DXpAnyYbrMZDnbnAmpR0a9mRVyF+s9eImB9m
+	 jgQn4Dmx1KWjFDTc0G8bS5OCGFot8PkE1fqYZHJngkkRDFtxZNJw9/svWtFGNRWRiW
+	 sc42i9H1mtjtg==
+Date: Mon, 16 Nov 2026 14:20:45 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: bot+bpf-ci@kernel.org, linux-fsdevel@vger.kernel.org
+Cc: jannh@google.com, mason@kernel.org, josef@toxicpanda.com, hch@lst.de, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	viro@zeniv.linux.org.uk, jack@suse.cz, linux-scsi@vger.kernel.org, 
+	target-devel@vger.kernel.org, driver-core@lists.linux.dev, linux-mm@kvack.org, 
+	bpf@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, 
+	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	ocfs2-devel@lists.linux.dev, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-usb@vger.kernel.org, amir73il@gmail.com, linux-erofs@lists.ozlabs.org, 
+	linux-kselftest@vger.kernel.org, chris@chrisdown.name, ast@kernel.org, andrii@kernel.org, 
+	daniel@iogearbox.net, martin.lau@kernel.org, eddyz87@gmail.com, 
+	yonghong.song@linux.dev, ihor.solodrai@linux.dev
+Subject: Re: [PATCH RFC v3 38/44] nvmet: refuse files on pseudo filesystems
+ as namespace backing files
+Message-ID: <20261116-geplagt-gemein-zufrieden-72c3817de2c6@brauner>
+References: <20261116-work-loop-pseudo-v3-38-8cbbea1cf34f@kernel.org>
+ <cb28f09c85a473a23f14c9bd6ef135950197c9fbf966c1f7055d791977d29286@mail.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -99,62 +68,13 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261108-s390-char-ready-v1-4-3db507722530@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: i2D_tlpxr72T_N2LxoY17nVBjcw2IKaF
-X-Authority-Analysis: v=2.4 cv=dtxOmFg4 c=1 sm=1 tr=0 ts=6afb0216 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=kt7I_EveaTZZBW9BUTwA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE2MDA1MSBTYWx0ZWRfX3O4PszTN79kD
- V0RMgSAt7OwvlsmoopAqtG6ODelN84sy/1sjneuQ/8EwrwqaxEZe6PAPYAyyLE49CNx4XLJcIYr
- goehKRvFg65rQ3WNlGd6hBmhuTRT84gNgkXFqgjdMqF/E2gHZkpr7K6XHJuKZXzb6d/+YHBU6Lu
- EyveSUg4mQy35BQqJdEz1fWmpw/+aL9iw/bVcu0QSXbfgT+7uzq7RhWHZP7t+a/JFDrutFOs9aG
- Stvd+9yamdskQjl614XMcN98BOwrUrqqL6ZOmBpCTfWLlhlPBahu39sy6LyV3b0t8VlJQG91nbs
- 2dQkoBpWK1CzSH4cTTKDAqbEmandMNirqqqzJ5qb2qq+J9pT/FQwCP8yoQyH5H0svvLYsBeGnZO
- gbLapLF5nwkPlATl021ol+eXZButHXopy78RFHWChM9uz+ydtCbDyDMZOo0ursduQhnGyYlu7gj
- RksWth9Xhpn+UcRp0KA==
-X-Proofpoint-ORIG-GUID: i2D_tlpxr72T_N2LxoY17nVBjcw2IKaF
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE2MDA1MSBTYWx0ZWRfX+XgafhIJRVE+
- 2QE73nd9PQoM3KUWBx/2ilhF4/JLt3Icgq2JPrwC9SfT/zz/lMJMOrUBL9S5zjY92K3M8QqICm2
- WHAQGA16oHKLrSDtPVbdnp4UYvzLS8I=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-16_04,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 priorityscore=1501 impostorscore=0 suspectscore=0
- spamscore=0 malwarescore=0 phishscore=0 clxscore=1015 adultscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611160051
+In-Reply-To: <cb28f09c85a473a23f14c9bd6ef135950197c9fbf966c1f7055d791977d29286@mail.kernel.org>
 
-On Sun, Nov 08, 2026 at 10:49:01AM +0200, Mike Rapoport (Microsoft) wrote:
-> uvio_list_secrets() allocates the buffer that receives the list of
-> secrets returned by the Ultravisor.
-> 
-> This buffer can be allocated with kmalloc() as there's nothing special
-> about it to go directly to the page allocator.
-> 
-> kmalloc() provides a better API that does not require ugly casts and
-> kfree() does not need to know the size of the freed object.
-> 
-> Performance difference between kmalloc() and __get_free_pages() is not
-> measurable as both allocators take an object/page from a per-CPU list for
-> fast path allocations.
-> 
-> For the slow path the performance is anyway determined by the amount of
-> reclaim involved rather than by what allocator is used.
-> 
-> Replace use of get_zeroed_page() with kzalloc() and free_page() with
-> kfree().
-> 
-> Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  drivers/s390/char/uvdevice.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Mon, Nov 16, 2026 at 12:00:14PM +0000, bot+bpf-ci@kernel.org wrote:
+> Is a prerequisite patch adding d_real_data_inode() missing from the series?
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+No. d_real_data_inode() comes from "fs: let d_real() fail" which is in
+the base-commit of this series (vfs-7.5.lookup). This was applied to
+bpf-next instead.
