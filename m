@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794828004;
-	b=HXsJMI2Pm/pdj6/T2jjfnMJ9w6ZPEaFJWiZd+JCO1pNY5uhyhi54Gx1a3UbEMqR7YxWa
-	 t0TYHx6LaH5mmHuzZHwhklQ61tFhV6vKD72/mCDzCWBb3rFmyAyQX1NQKWMod6gY69MZm
-	 pOlSAAXLYiE7N7kd5wGyRHfveJhH1laEUV7ktRSBKl1rv33DC5xqE/wSj7WLiQgCiKmUP
-	 5WFMgyB+Ms0IgUAVPnCruL6wMTNQHwVfqOkz39uiVyEBoGRc2rhRxeTQYhRmj1MBCEOBa
-	 l+zhAdqCh+hIW0OJ5xJkr9+1RAvpPjdF/IKqz/vPaE3K6kfvIHvdHScLJt/MBQgFlVA==
+	t=1794828021;
+	b=eZr7nnx+fKpBuCPUgVYYHO2GaCVRoOPL79ZQnrd5m1DOdp9aVHKx4LzDvMy5VT2sFm8I
+	 y5EvR6ydd9NXLqGD4mW+O1W0IBOyHiLg5yy4BZxLdncOgRH0QzEe29hEEdmCAniGGSA3u
+	 nmJsluSam91JRMpIENUtj6z8YBDPoIJRU//A8yqiSS0fiMJUPwjJyq5VmYm7/9Y9tOpri
+	 XqBhU/krKg29UXpg1SBPVvk37KhfbbUX+u6wk7GIaro4lNViJE5rccfYVspd66xaUT2oN
+	 aT1q7qoa37MLyhFcKo5NQEYW4vcwPsJWU9I4/PSwjCdmYNjeiLMDD2xm/ZrYAtHIB0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794828004;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794828021;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3qfSGLVIk5gExQqn63xk9giu2v+mPEbp1W5CN7wO6Fw=;
-	b=Vt/x/KCx++2uM4jwmXzPK2CCnGbG1g/EV7cDWELQJBhY0ACG8T+QJO7VK2DakvjZG3Kw
-	 N3jZSt9DF3WQ1AHXrtCWQu1TTi583kY5kmnaJeG0LTp8R7k1A3/IV/3vfhsO2o+3mNTmc
-	 jow0SCx1mMvYi9WH6tUe7TQXq8CQJ4Wjfl6PZfzAOI07FacKeAXVcNDdcR6TeL7c4if8f
-	 nsM3NsvETgf49LurAYaX4Yx8Gmzr7oNctitVF8kS5mtJlYXk4GhCyu2VvayswMZGRn9Hr
-	 cHD6Dm0NOKdwGtMfyWv2AF1NET8eWUutnisLoXC0KWnOSupoOnGrZ+RNPdRWIavaCCg==
+	bh=+PTqnZyUIJYnGs3s4HAL/sxs8uEwycItUCg4wOnEHqI=;
+	b=V2Hwqf7tXT1GG504dK08OaMqpIMoWhnrRzfvBBYy4YAhfwV6W01a281Orj/YunlfTOat
+	 nK9KF2jDI8C53j3Xg8vIbTGVvc6jHexx3f0W8Rv1utlvGolECXBm70lzPiczj9v/nni/d
+	 3jyC2XbOPMC5KoxxGw/aMPAlYwKw31lfuEiC5ZVIPLVMqhpBJkAeLR8+NPdL8HErOf293
+	 sDUEf6LenAxM6bXqUNQcOCKwxRgxInaAFBoZwQ0neVJtNBCgLwT5wdD5q186qI+QhDLqQ
+	 t745LnRG3QVLtxP9K+qSlrZpxAjAQZ6epJ6wZkMl54qBkagIpblsnodHuUPG0PEbpgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ls1q+2C0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=isnsMMnT;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE1F606A330;
-	Mon, 16 Nov 2026 11:20:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FB756071008;
+	Mon, 16 Nov 2026 11:20:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ls1q+2C0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0531F000C4;
-	Mon, 16 Nov 2026 11:20:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=isnsMMnT
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75EBF1F000C4;
+	Mon, 16 Nov 2026 11:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794828003;
-	bh=3qfSGLVIk5gExQqn63xk9giu2v+mPEbp1W5CN7wO6Fw=;
+	s=k20260515; t=1794828021;
+	bh=+PTqnZyUIJYnGs3s4HAL/sxs8uEwycItUCg4wOnEHqI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ls1q+2C0A6ZX/HtIGtTYzTyLCELF19/aSKReU4zTxkeXqkXERQnEs5f0/B+flKaOL
-	 N3THy8TGRM5PbhYgMA9NWP18ct03yBKxq13GRdNFDkTCaTrj0mlqVGGhwp0TiiBH6v
-	 RDakx2Rn0RTiVAxt2ljXnc/d+zpKJD3Jc9uuyd1ZQiOT0gihGHi5OYhzpRoaoC0IJK
-	 YBvLNZHk7CaRWcsE83H9JU7uAY4flGMVKaUYGziwVUfHlR06VNbMbZk0Es2v0yE9Q3
-	 u3oAwoDO+siAUM2yGYAbStFYyddbFBdaGKo4c2wcNIKTYr43l+wPyjq9orykazN6CL
-	 YqcTFZprghlsA==
-Message-ID: <sashiko-outbox-216890@kernel.org>
+	b=isnsMMnTnWkfzzQzasEe29WbSbO4R2ZJeqlu2/CHRVuxsFwWqK84DA+rG+fsGvlp0
+	 cptCr5u5tZ8Hia+zLwAk0pU2ujGjuUTPD07lKmkFW4Q8NrYp2NcRcHGoC3/LL6SrCr
+	 I4O36XQypWLQLMEROCL3jC+AHyoxkLnByYPxGmmVeE15jg6ZdYlRPan3E1eaNA1Bd9
+	 5truarYzU8qLdrORykZ8CgJVpD4lLqBL8uaigwzxpWXfOLJGeimOeCo599rfAVUubm
+	 mBnJZYq7Zxq3OU13f5dVm3s/uCwK1byRIkjU8+CU4r3DhAexXiKA6OySYI+hl0W5gv
+	 qKgCzstp1jGfQ==
+Message-ID: <sashiko-outbox-216892@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v3 27/44] openpromfs: use fc_init_pseudo()
+Subject: Re: [PATCH RFC v3 21/44] nfsd: use fc_init_pseudo()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261116-work-loop-pseudo-v3-27-8cbbea1cf34f@kernel.org>
+In-Reply-To: <20261116-work-loop-pseudo-v3-21-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
- <20261116-work-loop-pseudo-v3-27-8cbbea1cf34f@kernel.org>
+ <20261116-work-loop-pseudo-v3-21-8cbbea1cf34f@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 11:20:02 +0000
+Date: Mon, 16 Nov 2026 11:20:20 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,15 +63,17 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Initialize openpromfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> also SB_I_NOEXEC and SB_I_NODEV. openpromfs never holds executables or
-> device nodes.
+> Initialize the nfsd filesystem as a pseudo filesystem. This raises
+> SB_I_PSEUDO and also SB_I_NOEXEC and SB_I_NODEV. It never holds
+> executables or device nodes.
 >=20
+> Acked-by: Chuck Lever <cel@kernel.org>
+> Reviewed-by: Chris Down <chris@chrisdown.name>
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-work-loop-=
-pseudo-v3-0-8cbbea1cf34f@kernel.org?part=3D27
+pseudo-v3-0-8cbbea1cf34f@kernel.org?part=3D21
 
