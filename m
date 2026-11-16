@@ -1,48 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794853851;
-	b=fYrdHwzD4cYSyAaXle0YWyrQNlsIYZWqSnKznb+eHtojBkTmO7CtK11MisTCI/h/VTyw
-	 ukA1B07SIKgxfd6/qmhjhF24s8hfY/ZDmSbS2hqU6A+dZC97/6fqF/8+spIaxlCKMpOxZ
-	 15XjMS/0OqXDpHqF7fchaoURxfdKBhh8Awrqk2BPBIRL5s3793So01HqJHzJCbPb+nrnm
-	 7MELeLxQ6Gh8eZVUWzNW6JxJ9d2ws1VofJ1cgF7FASb9ALQROfUsvWePSZ3wMCPBnUC4T
-	 /Yyx7e37CqB8muekEtacDS4JxDhMnVz7ZLakev5HNCS5T2MO3ZJ/uZab03pi/9QMO8A==
+	t=1794853861;
+	b=5lxX5GdBUbys9LMI3BKRVs288wr55Zl4svvVTMLZeZiWyLKo9I3rkYKTPe6vw/kRRlh2
+	 yjXcu7Cg+WlEsT1RTFtx6vWu5nLUZXqbSvrjCq22kEGRRFLxPXKrwEVRCX2MF7lmcQj5h
+	 I2rSGCicqU8q0VWrSUxvvESfnc5h0D5H1yNLL2l8fVm7O57pFfpLEbJjg4tOdd0SrfvRv
+	 lXuQG0zXWx4o4fsd/U+z9WV4whEfYnwwz3/xEuNvU/l7qGSj+VLvMvbnVGoAIK3zA1EyA
+	 Ihujgn6ML8/PsJv04hk3CF8op92MDxHkoJEiH7925Z97DgkIGF21aheD54f8jxtBE0Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794853851;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794853861;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=o6PYS21e1qzhPD+clr29kXL1Odn23CBKU4MGaHVrsFk=;
-	b=hN9Cv5SpCDpBy58Nw1gReH+4HvE6TKqRa8NUaQ7i/7qvE4iS2UUlmGoHiEOvZCOQet+Q
-	 U8wpLmArjrVd+kteu3gcgf4OfuuTVN//UAIQTN4FIaCcITiF1uXlUDUb25uMPXqz6hLuF
-	 tEOLLWifT6O5nY+IEu9gyNI7tg05NmNQtbJGsGEk3fI2hXqit5lyyakcZ3FrLSsYhYzMK
-	 577TMa21eWyn4vkxHDoUHhESejaioMpHaWhBaufX5YXZ+l/w7MkGYN4rNwlXFAgADlfC8
-	 4A5q62CUplIJLRT3Yc+Zc8Z1as7c59mhaPoJd+0hv0yJ0LT3xJVdzwdLKQMX7CojZYw==
+	bh=8q5kmPUUla6tErFHjcVANn5bpZocet614lo1LZa83J8=;
+	b=x7YYkCsE73PmggZwEbSpMz5zD7BlYPlptmoxIrgtAx7oKnwkY+8cu6kJwJs+U/fRc6nO
+	 0DvIByRacoDBAX2OLVztfqhGY/lgGtXl6bzlnPwYZ6g9smJ8qF7xWHVIuLDospcJ3huGn
+	 7cKqJ6mc8C5ELOxxhpH/VNSvHl3xIW5QZltRLwD00h2LqZXAGpzk9y8R6xl52a95oadTb
+	 Q1ljm0pr+b/23U+CmOia5iJNHN4hLpnEwHYynTDhw4x8C8ojJ55jnCdMxHM24fsFqJFpO
+	 jjYEpa3JZv7zXtKzlpeCkrlW9NAPKFM2yOdgiYgYR5jKdq4BMpr5MZa98aMmOeoluzw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bVK4sRRn;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TRwuxZzu;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C34606A322;
-	Mon, 16 Nov 2026 18:30:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FB58606A322;
+	Mon, 16 Nov 2026 18:31:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bVK4sRRn
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A98A51F000D1;
-	Mon, 16 Nov 2026 18:30:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TRwuxZzu
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 786541F000C4;
+	Mon, 16 Nov 2026 18:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794853851;
-	bh=o6PYS21e1qzhPD+clr29kXL1Odn23CBKU4MGaHVrsFk=;
+	s=k20260515; t=1794853861;
+	bh=8q5kmPUUla6tErFHjcVANn5bpZocet614lo1LZa83J8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=bVK4sRRnGn+L+J2Am0Z/tsuoc8SgVowIBYkVQm+LzF9nmHc2edHX+oQ6uI12gLwRD
-	 fDqrkuaf+3EWHrMC8xRooDVX5Cp2Fo3kzJ5na/pV83SKF8S4+AptniblU/hbrSWrFo
-	 5iunhxjtSw2c31epVCKDoYcRq+WTWcBuT5j6nFAratLxghlFEgushz+NXMKyJSqRIq
-	 nt2euhGTGf9IcmJvQvz0oxrnt+ZYiUz77iQ2aU7jLIquJeSgmVQjCI6xzExnfuJevm
-	 1u+xtI7bqBDbuh5qEXtVqAbvY2IFij4n7rn3r+N0G4h6DcGRnooL2bDlWwHvtjD59h
-	 9NbiReDdEkCNQ==
+	b=TRwuxZzukgAMoPYPLWLtljlyfSI9BuopUy/Wa7NyXoqzkH4d4qq8KLJS2C3jDLI+2
+	 mxI+z2XGmp+3p3E59RysvUj/61AvTjPOTBwTEVFf81eUUS5BUL03vPZrPsYKrwSh7Y
+	 8kJ+kn04vCqOPuKTbFTaAQAOzHS7e4/6ZJHcfYPB08uin/u+yWpsKzaNJR7UkluL4h
+	 8xZ3pOP6H1jH8VPZKhyWDVnDEGBegctsz9+LWNl3Jl/J3tB9ZXRsLv+O5uOVstO4th
+	 qCYVuTWWIJaYGRWUpS8/Itaym2gyuXbhQnOlijJwO1I2j8dhv6YVP7jeZBiBwqKaEp
+	 OL/i0jFjQX7HQ==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Mon, 16 Nov 2026 19:29:28 +0100
-Subject: [PATCH v2 07/15] hugetlbfs: fix unmapping folios from private VMAs
+Date: Mon, 16 Nov 2026 19:29:29 +0100
+Subject: [PATCH v2 08/15] mm/hugetlb: serialize page-cache allocations with
+ truncation
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
+Message-Id: <20261116-fixes_hugetlb-v2-8-4dd9e94ea9ac@kernel.org>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
 In-Reply-To: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
@@ -81,65 +82,303 @@ To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
  Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- "David Hildenbrand (Arm)" <david@kernel.org>, 
- Josef Bacik <josef@toxicpanda.com>, stable@kernel.org, 
- Daehyeon Ko <4ncienth@gmail.com>
+ "David Hildenbrand (Arm)" <david@kernel.org>, stable@kernel.org, 
+ Josef Bacik <josef@toxicpanda.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1733; i=david@kernel.org;
- h=from:subject:message-id; bh=vYFnAW6yKXJXOaiP5JOgGjPOTzuMx6UkG09rimRGfuw=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLJ+e3foBZu0rNgZ68DGdFE4v/EIe8m+yd92OXkUF/vvP
- qAQLXGlo5SFQYyDQVZMkSUo+L7By5fraqvd+Jhh5rAygQxh4OIUgImoGjEyXKz8wH4i7cplmQn3
- U+fL3ry+w8Nlp1zhAw0zoznJqVd/3Gb4X53v+VnyXOnTieENTn0SE78qfIpRk2GMffPUXG7a7bY
- JrAA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10958; i=david@kernel.org;
+ h=from:subject:message-id; bh=B/fSPJ4V/9JmeAZF9RkznevkFZTGuP0X2xC5HdwbTrU=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLJ+e3esF1Sas9TZx7/x726tiNrEBZ31F66fPvRir7Nml
+ eHdJ/cPdpSyMIhxMMiKKbIEBd83ePlyXW21Gx8zzBxWJpAhDFycAjARlj6G/yU3t11b8GIFS1/+
+ jL0cSZdlMvR/CM15aHRMR2yu9TaPVyoM/50LbRqPXFd6I/R50sn6xz8nl1r9rzh3kmvOx7hzO94
+ 8mMwBAA==
 X-Developer-Key: i=david@kernel.org; a=openpgp;
  fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
-From: Josef Bacik <josef@toxicpanda.com>
+Truncation can remove an inode reservation while a fault is still
+allocating its folio. UFFDIO_COPY and memfd pinning can also consume
+reservations beyond the new i_size. This can underflow resv_huge_pages
+and leave folios beyond EOF.
 
-hugetlb_unmap_file_folio() assumes vm_private_data points to a struct
-hugetlb_vma_lock when hugetlb_vma_trylock_write() fails. Since hugetlb VMA
-locking was extended to private VMAs, this can also happen when
-vm_private_data contains a resv_map pointer; treating it as a
-hugetlb_vma_lock corrupts memory and can cause crashes or hangs.
+The main issue is that truncation takes the fault mutex for folios in
+the page-cache, but it has no clue about faults that are still being
+processed concurrently.
 
-Only take the VMA lock when a shareable lock exists, as additional locking
-is only needed for PMD table sharing. The fault mutex and i_mmap_rwsem
-already provide the required protection for private VMAs.
+Matthew Wilcox raised mapping->invalidate_lock in a different upstream
+hugetlb locking discussion:
 
-Fix generated by an LLM and sent by Josef Bacik in private.
+  "although I wonder if we still need the fault mutex array, given that we
+   now have mapping->invalidate_lock?"
 
-Fixes: bf4916922c60 ("hugetlbfs: extend hugetlb_vma_lock to private VMAs")
+While it likely cannot remove the mutex array entirely (concurrent page
+faults have to sync ... ), we can at least use it to fix this problem.
+
+Hold mapping->invalidate_lock shared across the size check, allocation
+and page cache insertion or reservation rollback. Truncation takes it
+exclusively around i_size_write() only for now: it waits for concurrent
+allocations to finish updating the page-cache or rolling back reservations
+before changing the size. Subsequent allocations see the updated i_size.
+
+Let truncation release the lock for now before unmapping and removing
+folios to preserve the existing lock ordering. Cached-folio faults and
+private allocations do not acquire the new lock.
+
+Use it to synchronize with truncation, keeping the fault mutexes to
+serialize allocations for the same index.
+
+Locking order is now:
+
+  fault mutex -> hugetlb VMA lock (read) -> invalidate lock (read) ->
+  folio lock -> PTE lock
+
+And on truncation:
+
+  i_rwsem (write) -> invalidate lock (write)
+
+Add hugetlb_pgoff_valid() to not repeat the same size check multiple
+times. Memfd needs a bit of care, as it traditionally allowed partial
+folios to be pinned: the size check in memfd_pin_folios() allows for
+that.
+
+Fixes: 1c9e8def43a3 ("userfaultfd: hugetlbfs: add UFFDIO_COPY support for shared mappings")
+Fixes: 188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
+Fixes: 89c1905d9c14 ("mm/gup: introduce memfd_pin_folios() for pinning memfd folios")
 Cc: stable@kernel.org
-Tested-by: Daehyeon Ko <4ncienth@gmail.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-[ david: simplify description and comment ]
-Acked-by: Muchun Song <muchun.song@linux.dev>
+Reported-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/all/ajMfdQf-Fspwmstr@casper.infradead.org/
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/hugetlbfs/inode.c    | 15 +++++++++++----
+ include/linux/hugetlb.h | 12 ++++++++++++
+ mm/hugetlb.c            | 45 +++++++++++++++++++++++++++++++++------------
+ mm/memfd.c              |  8 ++++++++
+ 4 files changed, 64 insertions(+), 16 deletions(-)
 
 diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index 9f502a456cdb0..1d0c35e639e80 100644
+index 1d0c35e639e80..7f64bdc07aa80 100644
 --- a/fs/hugetlbfs/inode.c
 +++ b/fs/hugetlbfs/inode.c
-@@ -401,6 +401,16 @@ static void hugetlb_unmap_file_folio(struct hstate *h,
- 		if (!hugetlb_vma_maps_pfn(vma, v_start, pfn))
- 			continue;
+@@ -546,10 +546,9 @@ static void remove_inode_single_folio(struct hstate *h, struct inode *inode,
+  * truncation is indicated by end of range being LLONG_MAX
+  *	In this case, we first scan the range and release found pages.
+  *	After releasing pages, hugetlb_unreserve_pages cleans up region/reserve
+- *	maps and global counts.  Page faults can race with truncation.
+- *	During faults, hugetlb_no_page() checks i_size before page allocation,
+- *	and again after obtaining page table lock.  It will 'back out'
+- *	allocations in the truncated range.
++ *	maps and global counts.  hugetlb_vmtruncate() updates i_size under
++ *	invalidate_lock to synchronize with new page cache allocations from
++ *	page faults, uffd, etc.
+  * hole punch is indicated if end is not LLONG_MAX
+  *	In the hole punch case we scan the range and release found pages.
+  *	Only when releasing a page is the associated region/reserve map
+@@ -623,7 +622,15 @@ static void hugetlb_vmtruncate(struct inode *inode, loff_t offset)
+ 	BUG_ON(offset & ~huge_page_mask(h));
+ 	pgoff = offset >> PAGE_SHIFT;
  
-+		/*
-+		 * We only need additional VMA locking here for PMD table
-+		 * sharing, which synchronizes on the shareable lock.
-+		 */
-+		if (!__vma_shareable_lock(vma)) {
-+			unmap_hugepage_range(vma, v_start, v_end, NULL,
-+					     ZAP_FLAG_DROP_MARKER);
-+			continue;
++	filemap_invalidate_lock(mapping);
+ 	i_size_write(inode, offset);
++	/*
++	 * The size check now prevents new page-cache allocations in the
++	 * truncated range. Existing folios and reservations are cleaned up
++	 * below.
++	 */
++	filemap_invalidate_unlock(mapping);
++
+ 	i_mmap_lock_write(mapping);
+ 	if (mapping_mapped(mapping))
+ 		hugetlb_vmdelete_list(mapping, pgoff, 0, ZAP_FLAG_DROP_MARKER);
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index 80ae65c7849b9..1d2dd10074d7a 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -820,6 +820,18 @@ static inline unsigned huge_page_shift(struct hstate *h)
+ 	return h->order + PAGE_SHIFT;
+ }
+ 
++static inline bool hugetlb_pgoff_valid(struct address_space *mapping,
++		pgoff_t idx, bool partial)
++{
++	struct hstate *h = hstate_inode(mapping->host);
++	u64 size = i_size_read(mapping->host);
++
++	if (partial)
++		size = round_up(size, huge_page_size(h));
++
++	return idx < (size >> huge_page_shift(h));
++}
++
+ /**
+  * hugetlb_linear_page_index() - linear_page_index() but in hugetlb
+  *				 page size granularity.
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 4a24819733730..3d8eebdca5136 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5887,6 +5887,7 @@ static bool hugetlb_pte_stable(struct hstate *h, struct mm_struct *mm, unsigned
+ static vm_fault_t hugetlb_no_page(struct address_space *mapping,
+ 			struct vm_fault *vmf)
+ {
++	const bool pagecache_folio = vmf->vma->vm_flags & VM_MAYSHARE;
+ 	u32 hash = hugetlb_fault_mutex_hash(mapping, vmf->pgoff);
+ 	bool new_folio, new_anon_folio = false;
+ 	struct vm_area_struct *vma = vmf->vma;
+@@ -5895,7 +5896,6 @@ static vm_fault_t hugetlb_no_page(struct address_space *mapping,
+ 	vm_fault_t ret = VM_FAULT_SIGBUS;
+ 	bool folio_locked = true;
+ 	struct folio *folio;
+-	unsigned long size;
+ 	pte_t new_pte;
+ 
+ 	/*
+@@ -5917,8 +5917,7 @@ static vm_fault_t hugetlb_no_page(struct address_space *mapping,
+ 	new_folio = false;
+ 	folio = filemap_lock_hugetlb_folio(h, mapping, vmf->pgoff);
+ 	if (IS_ERR(folio)) {
+-		size = i_size_read(mapping->host) >> huge_page_shift(h);
+-		if (vmf->pgoff >= size)
++		if (!hugetlb_pgoff_valid(mapping, vmf->pgoff, /* partial= */ false))
+ 			goto out;
+ 		/* Check for page in userfault range */
+ 		if (userfaultfd_missing(vma)) {
+@@ -5948,10 +5947,17 @@ static vm_fault_t hugetlb_no_page(struct address_space *mapping,
+ 							VM_UFFD_MISSING);
+ 		}
+ 
+-		if (!(vma->vm_flags & VM_MAYSHARE)) {
++		if (!pagecache_folio) {
+ 			ret = __vmf_anon_prepare(vmf);
+ 			if (unlikely(ret))
+ 				goto out;
++		} else {
++			/* Recheck EOF before consuming an inode reservation. */
++			filemap_invalidate_lock_shared(mapping);
++			if (!hugetlb_pgoff_valid(mapping, vmf->pgoff, /* partial= */ false)) {
++				filemap_invalidate_unlock_shared(mapping);
++				goto out;
++			}
+ 		}
+ 
+ 		folio = alloc_hugetlb_folio(vma, vmf->address, false);
+@@ -5972,13 +5978,15 @@ static vm_fault_t hugetlb_no_page(struct address_space *mapping,
+ 				ret = vmf_error(PTR_ERR(folio));
+ 			else
+ 				ret = 0;
++			if (pagecache_folio)
++				filemap_invalidate_unlock_shared(mapping);
+ 			goto out;
+ 		}
+ 		folio_zero_user(folio, vmf->real_address);
+ 		__folio_mark_uptodate(folio);
+ 		new_folio = true;
+ 
+-		if (vma->vm_flags & VM_MAYSHARE) {
++		if (pagecache_folio) {
+ 			int err = hugetlb_add_to_page_cache(folio, mapping,
+ 							vmf->pgoff);
+ 			if (err) {
+@@ -5993,8 +6001,10 @@ static vm_fault_t hugetlb_no_page(struct address_space *mapping,
+ 							folio);
+ 				folio_put(folio);
+ 				ret = VM_FAULT_SIGBUS;
++				filemap_invalidate_unlock_shared(mapping);
+ 				goto out;
+ 			}
++			filemap_invalidate_unlock_shared(mapping);
+ 		} else {
+ 			new_anon_folio = true;
+ 			folio_lock(folio);
+@@ -6419,14 +6429,15 @@ int hugetlb_mfill_atomic_pte(pte_t *dst_pte,
+ 			     uffd_flags_t flags,
+ 			     struct folio **foliop)
+ {
++	const int vm_shared = dst_vma->vm_flags & VM_SHARED;
++	const bool is_continue = uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE);
++	const bool alloc_pagecache_folio = vm_shared && !is_continue;
+ 	struct mm_struct *dst_mm = dst_vma->vm_mm;
+-	bool is_continue = uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE);
+ 	bool wp_enabled = (flags & MFILL_ATOMIC_WP);
+ 	struct hstate *h = hstate_vma(dst_vma);
+ 	struct address_space *mapping = dst_vma->vm_file->f_mapping;
+ 	pgoff_t idx = vma_hugecache_offset(h, dst_vma, dst_addr);
+ 	unsigned long size = huge_page_size(h);
+-	int vm_shared = dst_vma->vm_flags & VM_SHARED;
+ 	pte_t _dst_pte;
+ 	spinlock_t *ptl;
+ 	int ret = -ENOMEM;
+@@ -6454,6 +6465,18 @@ int hugetlb_mfill_atomic_pte(pte_t *dst_pte,
+ 		return 0;
+ 	}
+ 
++	if (alloc_pagecache_folio) {
++		filemap_invalidate_lock_shared(mapping);
++		if (!hugetlb_pgoff_valid(mapping, idx, /* partial= */ false)) {
++			if (*foliop) {
++				folio_put(*foliop);
++				*foliop = NULL;
++			}
++			ret = -EFAULT;
++			goto out;
++		}
++	}
++
+ 	if (is_continue) {
+ 		ret = -EFAULT;
+ 		folio = filemap_lock_hugetlb_folio(h, mapping, idx);
+@@ -6551,11 +6574,7 @@ int hugetlb_mfill_atomic_pte(pte_t *dst_pte,
+ 		WARN_ON_ONCE(!folio_test_uptodate(folio));
+ 
+ 	/* Add shared, newly allocated pages to the page cache. */
+-	if (vm_shared && !is_continue) {
+-		ret = -EFAULT;
+-		if (idx >= (i_size_read(mapping->host) >> huge_page_shift(h)))
+-			goto out_release_nounlock;
+-
++	if (alloc_pagecache_folio) {
+ 		/*
+ 		 * Serialization between remove_inode_hugepages() and
+ 		 * hugetlb_add_to_page_cache() below happens through the
+@@ -6626,6 +6645,8 @@ int hugetlb_mfill_atomic_pte(pte_t *dst_pte,
+ 	spin_unlock(ptl);
+ 	ret = 0;
+ out:
++	if (alloc_pagecache_folio)
++		filemap_invalidate_unlock_shared(mapping);
+ 	return ret;
+ out_release_unlock:
+ 	spin_unlock(ptl);
+diff --git a/mm/memfd.c b/mm/memfd.c
+index 0e3ff3eebfa82..f03d12aa71f7a 100644
+--- a/mm/memfd.c
++++ b/mm/memfd.c
+@@ -96,6 +96,12 @@ struct folio *memfd_alloc_folio(struct file *memfd, pgoff_t idx)
+ 		hash = hugetlb_fault_mutex_hash(memfd->f_mapping, idx);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
++		filemap_invalidate_lock_shared(memfd->f_mapping);
++		if (!hugetlb_pgoff_valid(memfd->f_mapping, idx, /* partial= */ true)) {
++			err = -EINVAL;
++			goto out_unlock;
 +		}
 +
- 		if (!hugetlb_vma_trylock_write(vma)) {
- 			vma_lock = vma->vm_private_data;
- 			/*
+ 		nr_resv = hugetlb_reserve_pages(inode, idx, idx + 1, NULL, EMPTY_VMA_FLAGS);
+ 		if (nr_resv < 0) {
+ 			err = nr_resv;
+@@ -131,6 +137,7 @@ struct folio *memfd_alloc_folio(struct file *memfd, pgoff_t idx)
+ 
+ 			hugetlb_set_folio_subpool(folio, subpool_inode(inode));
+ 			folio_unlock(folio);
++			filemap_invalidate_unlock_shared(memfd->f_mapping);
+ 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 			return folio;
+ 		}
+@@ -138,6 +145,7 @@ struct folio *memfd_alloc_folio(struct file *memfd, pgoff_t idx)
+ 		if (nr_resv > 0)
+ 			hugetlb_unreserve_pages(inode, idx, idx + 1, 0);
+ out_unlock:
++		filemap_invalidate_unlock_shared(memfd->f_mapping);
+ 		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 		return ERR_PTR(err);
+ 	}
 
 -- 
 2.56.1
