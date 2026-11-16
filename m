@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=96.67.55.147
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794870153;
-	b=TkF9CV/AWA0UwwLsnHuf/3MAvlru4j1BK/KaKQgtfbt9EGWk8i9ZadW46uCWmuvv5q/7
-	 FUbR1vdaoIukRzaz9CBlSECrEISR12fcmEMxzXlx/fqdHsNlcGK5GNC/LF4EpwdPyvYDO
-	 cR7kdVCiGFRioIhn/EiyLGdZNXUdpWI/uB0hWQ71bKpIMeQOwF6fiDXaX0Lrr5GpXgpeu
-	 V2LQrSdM1ASquWauf5CjKls+gFVBLnEbmguW7oGWaVZGaljePJIKeyJpjQN1kcXRQtYRp
-	 MJKTx5FRF7OxfpXPwtmzb05oH3SC2FiT0RHg/81P4FrRJwWfVfW2/qzF/t4D8JF2yOQ==
+	t=1794870223;
+	b=B9ATCpPjCtWGKFFYnS/l7Uv7jTbZGd2Nt/TdDUagc9YxH3RYkAgC0RpqbSo/MgGYlxTU
+	 On3lOkcTkeSUxVi9JE3J9KS+tm4zNsmPvY5z+ipcGPDP+ikcoRWC8mA9rTjgNC8zNsGtH
+	 /wFDvzxFk1iLJSphKfem++qOemtqFy+XBtyFkiIjRWY5OmE6B2nXncuhToEszhBuQdeoR
+	 vY7MOwgMqNM73/4M6nMQxY0QxGKsMCMsSZX1lgwKtnMk4sAduQw1SGvlNa4/FhRXA75MH
+	 w0cIvFdH7fPJJMM2AmGDg29h1H7iCzS9aCQt7kbZWI1pWqxDZPyXnC5FvpjSgxY1Bpg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794870153;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794870223;
 	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
 	 Date:In-Reply-To:References:Autocrypt:Content-Type:
 	 Content-Transfer-Encoding:User-Agent:MIME-Version;
-	bh=5WThR+UqE34o3lpC1ytNuiTjImnwIUnQa1repMccPxg=;
-	b=iRL4nRgr2TGL4+NkZKjCyl7T/dA+28c+3/GCsl7IIuSujRZm4os1ClF943s3DS6B/lK1
-	 8ujsTCW8y3xb1WrUIGe/YFyFy0ysQhYGJv3C6I5I85qqucdmRcnfVJdFmQ4B7SzHSUFqo
-	 6t5g8u9EzYmziJwUEvaWteirEZM0L9yWxRVYxmd3dq3Bq/jYkTDsArWyY8tshNltjWSPI
-	 hWDUYWbulmz7cvwd9VXn8UHehCGgXR3nbrV+Wb7dTsw6grcVdsb3ESFijMwzUaZFJE2al
-	 PYKfHXnRwM0Rc+kbj3eG7THfwmgNOW/gn5nEO7HIKY09J5lNgpreWep+ynVPVZuXgcA==
+	bh=IVgWDrzcdGHN1y6Zshz3gk11ql+dGTvhjArhMrYEQ6w=;
+	b=V8Bfa2eU5e+OTwNFXbqxhZLXKMxfgKVPMtmBln52WYhEQM/aZn9+rL6rDj9iScE1gf08
+	 5COrZ9+mgf/uTuhZo0rl49ucM4y3+Wnsv/ndV4mGr/OT4FiA3cptbEG/UnLyGdhNnaC67
+	 eT1fsri7SO/v4TGEJsSuJg6ajKsuhzhhlfa1IQg0nOU4B+APQSsQoV7TbQzFTN20flzL6
+	 vsf6ArdGqT3KDgOwPz2VAbbCU5KHRq387hqZLNFAIqBmpxY6WVDaKvDi3FUvmo2Tv8YjZ
+	 pF2eZQQqSCPMvVvZqbr+I2FWdwAF3oD/gW+tE33ZA00HX9HZacsZjY6gL7bST+sRp6Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=surriel.com;
 	spf=pass smtp.mailfrom=surriel.com;
-	dkim=pass header.d=surriel.com header.i=@surriel.com header.a=rsa-sha256 header.s=mail header.b=RmszHc0C;
+	dkim=pass header.d=surriel.com header.i=@surriel.com header.a=rsa-sha256 header.s=mail header.b=Dxk+QBhb;
 	arc=none smtp.remote-ip=96.67.55.147
 Received: from shelob.surriel.com (shelob.surriel.com [96.67.55.147])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475B7606A33F;
-	Mon, 16 Nov 2026 23:02:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 475B7606A33F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CE89606A31C;
+	Mon, 16 Nov 2026 23:03:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CE89606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=surriel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=surriel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=surriel.com header.i=@surriel.com header.a=rsa-sha256 header.s=mail header.b=RmszHc0C
+	dkim=pass (2048-bit key) header.d=surriel.com header.i=@surriel.com header.a=rsa-sha256 header.s=mail header.b=Dxk+QBhb
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=surriel.com
 	; s=mail; h=MIME-Version:Content-Transfer-Encoding:Content-Type:References:
 	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID; bh=5WThR+UqE34o3lpC1ytNuiTjImnwIUnQa1repMccPxg=; b=RmszHc
-	0CnOPJyqg+tKPcBjBhz42YOx3X1P8KCM7qlREN/a2q0VePJ6bbwZ1XDxOMA+O3vEMeR5SpSV57ef0
-	rQ+EoIPicylm5jWyeIlqJWCrf1koFnPGUflTUl2VxKWaaXokosqmEamc85QY5RMdjkXoaY9LN77Gh
-	EZzUnQFmYrfzWalegBAAo3FNepH1iapFTh+8StCMtGkWYiRLlLlR5+xpqJYjFmqWnQHUQ2aell1PX
-	yxs95QLzbQofCYE0Uw54aJpcA6padqu7/yqPdz6LHSCbXxwd9jIesHqHgCoWykqOA8e1fqmLyBeeK
-	7daeliVGFLW0sTbeXP3XtYph3cBg==;
+	:Resent-Message-ID; bh=IVgWDrzcdGHN1y6Zshz3gk11ql+dGTvhjArhMrYEQ6w=; b=Dxk+QB
+	hb6dZ6KmZa+hJakYWtYDdfO+tvoDqaBizMEnCmzLyhwBVwVYz+qkFYQbhbHuESub90ch9ATj9p92m
+	r41oe75ZGsnVznINep8+F60I+PKMXgR0cZjivLzb7YY/G35qq/spOd4dNeypHy1K1bQJiOj/kXD8V
+	BPApD/wz7RdeWQirTBxhAOhkr0XYCwwH55GJ5WxqOGh2tAnIGTbaTtl3riTso8KQ+yx4/U8WSc6OB
+	gjtsTpszWWcDn/VVkAIF1rJRitJLJEdz5u5WFfbam2Fq1PTMnO8co6cmPhUUvlf+XA+gtxG0QhedO
+	oZLGtUnKo9W2UEdMhnrH2A4fv8fQ==;
 Received: from [2601:18c:8100:a0e0:5a47:caff:fe78:8708]
 	by shelob.surriel.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.99.5)
 	(envelope-from <riel@surriel.com>)
-	id 1xT57N-00000007mDE-0p4b;
-	Mon, 16 Nov 2026 22:24:05 +0000
-Message-ID: <b2262da0652b467673109d12b5e244c15255a925.camel@surriel.com>
-Subject: Re: [PATCH v2 02/15] mm/hugetlb: compare against persistent count
- when freeing lowmem folios
+	id 1xT5Q5-00000007pj3-04ju;
+	Mon, 16 Nov 2026 22:43:25 +0000
+Message-ID: <4243e7f0873529106634ef3f720b7c7035750599.camel@surriel.com>
+Subject: Re: [PATCH v2 03/15] mm/hugetlb: preserve reservations when
+ shrinking on HIGHMEM
 From: Rik van Riel <riel@surriel.com>
 To: "David Hildenbrand (Arm)" <david@kernel.org>, Muchun Song	
  <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Naoya
@@ -75,11 +75,11 @@ To: "David Hildenbrand (Arm)" <david@kernel.org>, Muchun Song
  Bergmann <arnd@arndb.de>
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Gerd Hoffmann	
  <kraxel@redhat.com>, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org,
- 	linux-s390@vger.kernel.org, stable@kernel.org
-Date: Mon, 16 Nov 2026 17:24:04 -0500
-In-Reply-To: <20261116-fixes_hugetlb-v2-2-4dd9e94ea9ac@kernel.org>
+ 	linux-s390@vger.kernel.org
+Date: Mon, 16 Nov 2026 17:43:23 -0500
+In-Reply-To: <20261116-fixes_hugetlb-v2-3-4dd9e94ea9ac@kernel.org>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
-	 <20261116-fixes_hugetlb-v2-2-4dd9e94ea9ac@kernel.org>
+	 <20261116-fixes_hugetlb-v2-3-4dd9e94ea9ac@kernel.org>
 Autocrypt: addr=riel@surriel.com; prefer-encrypt=mutual;
  keydata=mQENBFIt3aUBCADCK0LicyCYyMa0E1lodCDUBf6G+6C5UXKG1jEYwQu49cc/gUBTTk33A
  eo2hjn4JinVaPF3zfZprnKMEGGv4dHvEOCPWiNhlz5RtqH3SKJllq2dpeMS9RqbMvDA36rlJIIo47
@@ -118,21 +118,22 @@ Precedence: list
 MIME-Version: 1.0
 
 On Mon, 2026-11-16 at 19:29 +0100, David Hildenbrand (Arm) wrote:
-> try_to_free_low() gets a target number of persistent folios, but
-> compares it with "nr_huge_pages", which includes surplus folios. As a
-> result, it can free lowmem folios below that target.
+> try_to_free_low() drops the hugetlb_lock while freeing lowmem folios.
+> set_max_huge_pages() then resumes freeing folios using the
+> min_count computed before that unlock. Reservations created in
+> between
+> can consequently lose their backing.
 >=20
-> For example, with two persistent folios and one surplus folio, a
-> target
-> of two can still end up freeing one persistent folio.
+> Collect lowmem folios on the caller's existing page_list instead.
+> Keep
+> the hugetlb_lock held through both selection passes, and free the
+> combined
+> list at the caller's existing unlock point.
 >=20
-> Compare against persistent_huge_pages() instead. Convert the macro to
-> a
-> helper function and place it before try_to_free_low().
+> Likely not stable-worthy.
 >=20
-> Fixes: 7893d1d505d5 ("hugetlb: Try to grow hugetlb pool for
-> MAP_PRIVATE mappings")
-> Cc: stable@kernel.org
+> Fixes: 1121828a0c21 ("hugetlb: call update_and_free_page without
+> hugetlb_lock")
 > Acked-by: Muchun Song <muchun.song@linux.dev>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
