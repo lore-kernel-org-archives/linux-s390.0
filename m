@@ -1,49 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794853841;
-	b=W/FzkVmPsjYgnI7vW2Okc1RkjkR+jKtmbWnPf9l/nYj/HMoXJNazEO/YHUPc47IbM4fk
-	 mwZUu6jkWIB1EBoTq9EM1fIAnWSDzKeBDv7mswliJF1pBNl9FLawjEcMrwPPsKWa6wbdY
-	 At7IrQdZ+7f9IpIL7uR57jOior2Ysy0rGd4+24vF+LHyYSzalE3mfbzzcRXNfN4PfK1c0
-	 ++jRPdcWGlcX+75CgM+nj5vNfI0qrFYcWb7DVciAI8/aNWA/mV9SI/jhl66uFhZ6/L4qy
-	 twRoe/iIT2LJO8neOltONL0ZbQrkP7jmHZuXaAUoeIuV1WF1wmpWj1HkOi6ea+y5xig==
+	t=1794853851;
+	b=fYrdHwzD4cYSyAaXle0YWyrQNlsIYZWqSnKznb+eHtojBkTmO7CtK11MisTCI/h/VTyw
+	 ukA1B07SIKgxfd6/qmhjhF24s8hfY/ZDmSbS2hqU6A+dZC97/6fqF/8+spIaxlCKMpOxZ
+	 15XjMS/0OqXDpHqF7fchaoURxfdKBhh8Awrqk2BPBIRL5s3793So01HqJHzJCbPb+nrnm
+	 7MELeLxQ6Gh8eZVUWzNW6JxJ9d2ws1VofJ1cgF7FASb9ALQROfUsvWePSZ3wMCPBnUC4T
+	 /Yyx7e37CqB8muekEtacDS4JxDhMnVz7ZLakev5HNCS5T2MO3ZJ/uZab03pi/9QMO8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794853841;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794853851;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=M/EvVqPPmCZCcKVeR3NdpNWETVcV9F4mtjWBr1K1Fac=;
-	b=c/i4GHhLJ9+usPymMfh8bZNpJInnZPA6vXeajhi/luDpxgQCLZpmlLnq7CrTUDz/5/xb
-	 cwJ+fxfOzpuDh+RKyb1SdB55QUygePLW/wnBCpv2zboSqWVTZS+BEisKus+rnwHH3+3Lr
-	 nIqw5QkzZ6JCifmYXOtr5xF5KWY2GquR2Zr/FHkPdTRMbPNNaB/fA21/0Xt/sDYWQrvYy
-	 YI+9T4TFLqDzhlOzky2N4heSd6PxpNsWtGiVsBJIE0ikNLgJGB71YOkggEsgCNrsqwd7S
-	 E8zlQGFxcd9L5R+/fxaj6AQyyq+HulAPeehOEC3QBBHkVSN80Hmlu5+tnr6EHyAs7JQ==
+	bh=o6PYS21e1qzhPD+clr29kXL1Odn23CBKU4MGaHVrsFk=;
+	b=hN9Cv5SpCDpBy58Nw1gReH+4HvE6TKqRa8NUaQ7i/7qvE4iS2UUlmGoHiEOvZCOQet+Q
+	 U8wpLmArjrVd+kteu3gcgf4OfuuTVN//UAIQTN4FIaCcITiF1uXlUDUb25uMPXqz6hLuF
+	 tEOLLWifT6O5nY+IEu9gyNI7tg05NmNQtbJGsGEk3fI2hXqit5lyyakcZ3FrLSsYhYzMK
+	 577TMa21eWyn4vkxHDoUHhESejaioMpHaWhBaufX5YXZ+l/w7MkGYN4rNwlXFAgADlfC8
+	 4A5q62CUplIJLRT3Yc+Zc8Z1as7c59mhaPoJd+0hv0yJ0LT3xJVdzwdLKQMX7CojZYw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BJX0St54;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bVK4sRRn;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BA0E606A337;
-	Mon, 16 Nov 2026 18:30:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C34606A322;
+	Mon, 16 Nov 2026 18:30:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BJX0St54
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A13BF1F000CB;
-	Mon, 16 Nov 2026 18:30:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bVK4sRRn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A98A51F000D1;
+	Mon, 16 Nov 2026 18:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794853841;
-	bh=M/EvVqPPmCZCcKVeR3NdpNWETVcV9F4mtjWBr1K1Fac=;
+	s=k20260515; t=1794853851;
+	bh=o6PYS21e1qzhPD+clr29kXL1Odn23CBKU4MGaHVrsFk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=BJX0St54r0eyFgfrrTGabY2Ky8SRdxy27FtZljILl7LSaa1m7IpomKvFfwQnugQDg
-	 f+Qppe5eJ7DKAENfq+CHom7h77RkbjprQtUQ2uPHrz5rgcA17y37plUUUuSo0biAA0
-	 O6JAPTMuN0CBQjA7NXdIKfBUp67mKfUUqu8+3iRLqJ2pULSmLoDhWcubfzdRqORkge
-	 3xu5VVS3Uiq6s46G3jEHfp86nGYSbsKuI0tJkk3xohc23ezvGGr2v3/UzDChxvZUPo
-	 2AyPOERdNDticSAW65tfGIreyPnk+68orni4JFQ3RqfM+TSlS60ve3ErRM90Z1RvUL
-	 SzhH89h+7likQ==
+	b=bVK4sRRnGn+L+J2Am0Z/tsuoc8SgVowIBYkVQm+LzF9nmHc2edHX+oQ6uI12gLwRD
+	 fDqrkuaf+3EWHrMC8xRooDVX5Cp2Fo3kzJ5na/pV83SKF8S4+AptniblU/hbrSWrFo
+	 5iunhxjtSw2c31epVCKDoYcRq+WTWcBuT5j6nFAratLxghlFEgushz+NXMKyJSqRIq
+	 nt2euhGTGf9IcmJvQvz0oxrnt+ZYiUz77iQ2aU7jLIquJeSgmVQjCI6xzExnfuJevm
+	 1u+xtI7bqBDbuh5qEXtVqAbvY2IFij4n7rn3r+N0G4h6DcGRnooL2bDlWwHvtjD59h
+	 9NbiReDdEkCNQ==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Mon, 16 Nov 2026 19:29:27 +0100
-Subject: [PATCH v2 06/15] mm/hugetlb: fix mremap() racing with page
- migration
+Date: Mon, 16 Nov 2026 19:29:28 +0100
+Subject: [PATCH v2 07/15] hugetlbfs: fix unmapping folios from private VMAs
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-fixes_hugetlb-v2-6-4dd9e94ea9ac@kernel.org>
+Message-Id: <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
 In-Reply-To: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
@@ -82,112 +81,65 @@ To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
  Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- "David Hildenbrand (Arm)" <david@kernel.org>, stable@kernel.org, 
- Chris Mason <mason@kernel.org>
+ "David Hildenbrand (Arm)" <david@kernel.org>, 
+ Josef Bacik <josef@toxicpanda.com>, stable@kernel.org, 
+ Daehyeon Ko <4ncienth@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3798; i=david@kernel.org;
- h=from:subject:message-id; bh=ffMP6p7X0B7O7y0oXzxGIwviCt5laHHSvycoU7Pl2jg=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLJ+e3ccXaNxO8NOT7ovct2mU49nMs0LtjqVHLFZzzv5/
- 7r97A4lHaUsDGIcDLJiiixBwfcNXr5cV1vtxscMM4eVCWQIAxenAEzEloXhn/XdA1u5e1PaLGzP
- cRfc/pgcdXNlRRPzcTZjrjntb9rfPGX4Z7Hk6rx7/Q/dpkhZyNSctv0atm/17kq2HWzsu4pCxI1
- iGQA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1733; i=david@kernel.org;
+ h=from:subject:message-id; bh=vYFnAW6yKXJXOaiP5JOgGjPOTzuMx6UkG09rimRGfuw=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLJ+e3foBZu0rNgZ68DGdFE4v/EIe8m+yd92OXkUF/vvP
+ qAQLXGlo5SFQYyDQVZMkSUo+L7By5fraqvd+Jhh5rAygQxh4OIUgImoGjEyXKz8wH4i7cplmQn3
+ U+fL3ry+w8Nlp1zhAw0zoznJqVd/3Gb4X53v+VnyXOnTieENTn0SE78qfIpRk2GMffPUXG7a7bY
+ JrAA=
 X-Developer-Key: i=david@kernel.org; a=openpgp;
  fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
-Migration of anon hugetlb folios walks the anon_vma, so the file's
-i_mmap_rwsem does not serialize it against move_hugetlb_page_tables().
+From: Josef Bacik <josef@toxicpanda.com>
 
-There are various issues with that. Most importantly, move_huge_pte()
-releases both page table locks before the TLB is flushed. Migration can
-then find the destination entry and finish migration, reusing the old
-folio while the TLB still has entries cached.
+hugetlb_unmap_file_folio() assumes vm_private_data points to a struct
+hugetlb_vma_lock when hugetlb_vma_trylock_write() fails. Since hugetlb VMA
+locking was extended to private VMAs, this can also happen when
+vm_private_data contains a resv_map pointer; treating it as a
+hugetlb_vma_lock corrupts memory and can cause crashes or hangs.
 
-Hold the anon_vma write lock across the move and the final TLB flush.
-This also prevents concurrent rmap walks from missing entries moved
-during rollback.
+Only take the VMA lock when a shareable lock exists, as additional locking
+is only needed for PMD table sharing. The fault mutex and i_mmap_rwsem
+already provide the required protection for private VMAs.
 
-When we must allocate a destination page table, flush the TLB before
-dropping the anon_vma lock, then reacquire it after allocation.
+Fix generated by an LLM and sent by Josef Bacik in private.
 
-Dropping the lock only works around lockdep: hugetlb folios are not
-reclaimed or migrated by allocation compaction, but their anon_vmas
-share the lock class used by ordinary anonymous memory. Having a
-separate lock class for hugetlb's anon_vma (like already done for
-i_mmap_rwsem via hugetlbfs_i_mmap_rwsem_key) requires more thought.
-
-There is a concern that this can block page migration of anonymous
-folios quite a while ... which is not really different to what happens
-to page-cache folios today. If ever a problem, we can temporarily
-release the lock.
-
-So let's keep it simple for now.
-
-It is a shame that hugetlb has to implement everything core-mm implements
-in a different way that just screams for problems.
-
-Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
+Fixes: bf4916922c60 ("hugetlbfs: extend hugetlb_vma_lock to private VMAs")
 Cc: stable@kernel.org
-Reported-by: Chris Mason <mason@kernel.org>
+Tested-by: Daehyeon Ko <4ncienth@gmail.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+[ david: simplify description and comment ]
 Acked-by: Muchun Song <muchun.song@linux.dev>
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- mm/hugetlb.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 3ffd87eb9e45f..4a24819733730 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5214,6 +5214,7 @@ unsigned long move_hugetlb_page_tables(struct vm_area_struct *vma,
- {
- 	struct hstate *h = hstate_vma(vma);
- 	struct address_space *mapping = vma->vm_file->f_mapping;
-+	struct anon_vma *anon_vma = vma->anon_vma;
- 	unsigned long sz = huge_page_size(h);
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long old_end = old_addr + len;
-@@ -5237,6 +5238,8 @@ unsigned long move_hugetlb_page_tables(struct vm_area_struct *vma,
- 	/* Prevent race with file truncation */
- 	hugetlb_vma_lock_write(vma);
- 	i_mmap_lock_write(mapping);
-+	if (anon_vma)
-+		anon_vma_lock_write(anon_vma);
- 	for (; old_addr < old_end; old_addr += sz, new_addr += sz) {
- 		const unsigned long offset_to_last_entry =
- 			(old_addr | last_addr_mask) - old_addr;
-@@ -5276,7 +5279,20 @@ unsigned long move_hugetlb_page_tables(struct vm_area_struct *vma,
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 9f502a456cdb0..1d0c35e639e80 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -401,6 +401,16 @@ static void hugetlb_unmap_file_folio(struct hstate *h,
+ 		if (!hugetlb_vma_maps_pfn(vma, v_start, pfn))
  			continue;
- 		}
  
--		dst_pte = huge_pte_alloc(mm, new_vma, new_addr, sz);
-+		dst_pte = hugetlb_walk(new_vma, new_addr, sz);
-+		if (!dst_pte) {
-+			/*
-+			 * We can allocate memory under anon_vma lock with hugetlb,
-+			 * but lockdep does not know about that. So for now we simply
-+			 * flush the TLB and temporarily drop the lock.
-+			 */
-+			tlb_flush_mmu_tlbonly(&tlb);
-+			if (anon_vma)
-+				anon_vma_unlock_write(anon_vma);
-+			dst_pte = huge_pte_alloc(mm, new_vma, new_addr, sz);
-+			if (anon_vma)
-+				anon_vma_lock_write(anon_vma);
++		/*
++		 * We only need additional VMA locking here for PMD table
++		 * sharing, which synchronizes on the shareable lock.
++		 */
++		if (!__vma_shareable_lock(vma)) {
++			unmap_hugepage_range(vma, v_start, v_end, NULL,
++					     ZAP_FLAG_DROP_MARKER);
++			continue;
 +		}
- 		if (!dst_pte)
- 			break;
- 
-@@ -5284,7 +5300,10 @@ unsigned long move_hugetlb_page_tables(struct vm_area_struct *vma,
- 		tlb_remove_huge_tlb_entry(h, &tlb, src_pte, old_addr);
- 	}
- 
-+	/* Flush pending moves before allowing migration to walk the entries. */
- 	tlb_flush_mmu_tlbonly(&tlb);
-+	if (anon_vma)
-+		anon_vma_unlock_write(anon_vma);
- 	huge_pmd_unshare_flush(&tlb, vma);
- 
- 	mmu_notifier_invalidate_range_end(&range);
++
+ 		if (!hugetlb_vma_trylock_write(vma)) {
+ 			vma_lock = vma->vm_private_data;
+ 			/*
 
 -- 
 2.56.1
