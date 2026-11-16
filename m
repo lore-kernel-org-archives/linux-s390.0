@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794855911;
-	b=pnZ5j1B7eOlpPeX2rCLDJcS675F6/a8sk1O8hPrl+7iltKgH1WsjyWfxPxIvqXPJ/H3n
-	 RaO+O9jnomhCHDWcbRMwTbkd7J7xeSV9SszECAyG4+qXpZlV7zyTY+XLLtY7Yz4hJ2H9y
-	 gomgyLUupGhIq/MLAiWDmgG65GXrqddcMXtIddYUzLwtqTHRzNdAjl/VF+coEx3VJIqAG
-	 SkjT6KtwZJ63j5Bcfu7kpusC8Ap5qjneEQXcFzm+gVGA0n78jd1AtQ0arLBE4a7aBMZow
-	 YqWIseazAFXX6Wb2C4kRSoSvl0oAhomuyamar3Sf1mWJZ1LUSrGStcQqRAG4AA9zIKQ==
+	t=1794855912;
+	b=2vwMaFQ8G4OwSU46DmtKGg/HHKzH/Vsrndg+G+rfh6OPj8YURlUsCyBm2xX8rIgkRXzs
+	 7azepvDeTm1wnqX15MTXRVbwVAyEEaBIw/KVGEDXhs8SrZSDU7Gpjeo09Kc+lWOzNttcg
+	 zw52z9hhaXsBkPbLp9NPHqBZeL8G3ttdSaxaLJ71dh7JN1QsUBQWDrZVbGpgB+K9ogxCW
+	 kajgXFDXWTQisN9U8BFJqzgcOTudB/lJfeMBkqgDIYnHJeh6308asP73EH4FVGjemHIOg
+	 XaJyv/hE4SJ78071lr7TOCqJ5yvp59+NV9HUVjKJWAU7GmOPrlEe2ii134Z+b4aw3Lw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794855911;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794855912;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=PRoXZAyVz4x5LOtte/0i7+AJy4XD6nKEa0RgBRRr8Wk=;
-	b=kFZcbr1IEuWaspqoWQ8hMb7mJv+3FYyxknS/3fhtsjSXIxyr8JsO5Zv0YdtplIVLizne
-	 Z4V9mE0G90EPObM8umrFK1n2NXIGjgYbRvWsrzd1Xdae42zwS/nuhXJoOsc48XPsjnn4q
-	 6uj7lLVxx9z0YOFkNx201qH8UadTqigVu2IsK4IK5TIIyUoTSOiEQTJ1OTNrRielXpFqP
-	 gR5cIRCYpaf6tw0Ptg7cl9/JC4dabK2nAyqHwmWzC+g1gnmNDQJuYIF3AG93dkat5rtS6
-	 VX71YM2ZaWxe49QBnd2hJq2lc4EKJfERpnmM7YQuQkW453zEx5I6V0PnybdtRnJ/pPQ==
+	bh=CiGCANF+Qs74asECfnBOPCPgHoNSEyQsFa2Z0ig7BsA=;
+	b=iXONUOxE0yEPEIsuY4UEF9TeSFgUFmYTzDZJgBtLYcrpNfCWBWZ9UbhOzpzLBgZeU7Yv
+	 gWk1GEXY7vEfTHsHfLSJNyHzKqR5dV6fMUUXSEny9xQlQTL0w+bTTABOkNbVhPq5OMJzD
+	 hul+NvkuYlzHZ/IffOvY4HAlk271dCwmmtIu2JdIsvOJ+ga5860Ngf0QbzE7uo8wD+A1q
+	 c+yCCxCv55PNMF3zp/FBbIhoo/5w8Y68NeRaTp9KF5HeI3EPRDa8ujt9wSgFgaKPeTumX
+	 1Z9tWaiVyddklHE0o34Jv+i5COxO6H2fhZPfOTvm/9Wy6UZG3lWa32Y7O9SQIHsFgqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Q/9RXJhI";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OUe5qK35;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A1F5606A339
-	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 19:05:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75CD5606A888
+	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 19:05:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Q/9RXJhI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB7E1F000C4;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OUe5qK35
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2CBD1F000C4;
 	Mon, 16 Nov 2026 19:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794855911;
-	bh=PRoXZAyVz4x5LOtte/0i7+AJy4XD6nKEa0RgBRRr8Wk=;
+	s=k20260515; t=1794855912;
+	bh=CiGCANF+Qs74asECfnBOPCPgHoNSEyQsFa2Z0ig7BsA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Q/9RXJhIaI/wwyovUrpcfZRYAok09XZSxYLDU1OE3LD/sxLswHbgMWagZ9DnoKmOj
-	 z9qSZ8xuHQH4yKmtIH4fsk0HeyyWZqA9nroD4/8dFrBWh/OeVP5SREsQk6ylbGSy4u
-	 R/zzHy/WXIaaHhkso9eAMKPQyQ1Ep3nAHIanSblxMahJXxESYlaBUdizLsbRwY9elm
-	 /7LY3geKwSuhyX+geTxlVYrJWuWBVbN2dYyt0+D/nPJ+G/6ZTNUYdtnaRYLeuVaaFy
-	 QM3u2jBoylKvF89EKlPGzzPTW71dF9el7sS4MC8N2t6Hv/TF9ZYM4vd9tJVOALNzNM
-	 n42A2PFWSTz/A==
-Message-ID: <sashiko-outbox-217534@kernel.org>
+	b=OUe5qK35tg8HAAdHBPtJe6rjx546UvQjLvN56ITbpXhdoeqMnb1tpRGBSANGdZp7W
+	 vtfMfB0c8UOpMD243koaOTBCXvupE/6Vv79Vv8IO2MHgrbLNALADtvhUZL0RPDhFEP
+	 So49JF9ulBOO0bBOePMP3Rn8UUMTxaSDrnGSzaJCFzCssunYVSJrVUcNFjsXRXYU+V
+	 7L2DigwlgpQ8N1ShvmzusKl0shG9y+kT48cykCe1rVAMDwfpS2PvYfpikI3E9snQcX
+	 QGHQQRTMWNIO7zqObm4O+YXPXeytZfrJ01x9bdTB25iPNJvQryyL/0eF3XQWORrN34
+	 DkdqWVTE7ja2Q==
+Message-ID: <sashiko-outbox-217535@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 10/15] mm/hugetlb: count again if the reserve map
- shrank
+Subject: Re: [PATCH v2 11/15] hugetlbfs: do not grow a sealed file in mmap()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261116-fixes_hugetlb-v2-10-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-11-4dd9e94ea9ac@kernel.org>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-10-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-11-4dd9e94ea9ac@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 19:05:10 +0000
+Date: Mon, 16 Nov 2026 19:05:11 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,32 +62,37 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> hugetlb_reserve_pages() asks region_chg() how many pages of the range are
-> missing in the reserve map, charges the cgroup, the subpool and the pool
-> for that many, and then lets region_add() fill the gaps.
+> From: Chris Mason <mason@kernel.org>
 >=20
-> It copes with region_add() adding less, because a concurrent fault added
-> an entry in the meantime; however, it does not expect it to add more.
+> hugetlbfs_file_mmap() grows a file when a writable mapping extends beyond
+> EOF. We are missing seal checks similar to hugetlbfs_setattr() and
+> hugetlbfs_fallocate(), allowing a user to grow a file that has F_SEAL_GROW
+> set.
 >=20
-> Since restore_reserve_on_error() can delete the entry of an allocation
-> that failed later on, entries also disappear without the inode lock that
-> mmap() holds. For a previously unreserved page, UFFDIO_COPY can do this
-> when the source is not resident: it allocates a folio, which adds the
-> entry, fails to copy with page faults disabled, and takes both back.
-> memfd_alloc_folio() does it when it has made a reservation and gets no
-> folio it may pin.
+> To fix it, skip the resize when F_SEAL_GROW is set; mmap() still succeeds
+> without growing the file.
 >=20
-> [ ... ]
+> We currently also allow CoW mappings to grow a file. Disallowing this,
+> maybe even only for read-only file descriptors, could break existing
+> userspace, so we have to be more careful. QEMU's file backend is an
+> example user that might rely on such things, and would suddenly start
+> getting SIGBUS when faulting in memory outside EOF.
 >=20
-> Fixes: 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error functio=
-nality")
+> So be careful and focus on F_SEAL_GROW for now.
+>=20
+> Fix generated by an LLM and sent by Chris Mason in private.
+>=20
+> Fixes: ff62a3421044 ("hugetlb: implement memfd sealing")
 > Cc: stable@kernel.org
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Signed-off-by: Chris Mason <mason@kernel.org>
+> [ david: drop comment; simplify+extend description ]
+> Acked-by: Muchun Song <muchun.song@linux.dev>
+> Tested-by: Gregory Price (Meta) <gourry@gourry.net>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-fixes_huge=
-tlb-v2-0-4dd9e94ea9ac@kernel.org?part=3D10
+tlb-v2-0-4dd9e94ea9ac@kernel.org?part=3D11
 
