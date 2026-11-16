@@ -1,101 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.221.42
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794859451;
-	b=EHWg/P+9vo6QRipWpIlBJY4+qFzgEToY5TAtnZ9Vy5Q2SvEuoWDj7mZbTFEAnW6dv8wY
-	 Yv5EUYnhOBqrUXAsRWUZbCzoa4wcZzOkoSkciLCT80ddZlHgJ17cPRu+gaibQJh3Pphf8
-	 n1QnP513dUj+71NdDAzHs6GO8RmCtKVI995lDrzrosNWJJUhG7KZiuhfaG8LkYMw/ksyr
-	 SXuJu/5Pm95jAnksN/o4SedMPgwIX4c8SA7pz/FgC6Hvg+uFl8atr42dCAgMks385eaSC
-	 gf8XPw1tlLjvubRypctjlN+Mf7EEuSIDP8jBTlR9CVKDErQZAVuJ2Rr3O/fao7zEmqw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794859451;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=FEtpE65JhLGyAYaL/FOW2ebUIws2WwBZ/4Zy8VNXUuw=;
-	b=mMbxodP7Cc0Yaci23vIs3gkqhAvM56R1OeDdFjIcS1HMriFIeyd+PyXVz1IqFKsToxm8
-	 /BE3skY1JkcTMkyI18KoVC5EvtbGUWF0n7AErUO/+YT1Ud07M3Cd5U/UladzByGI0oY5z
-	 Arb1Tt3hX7j4i08rD7KtjVnrm+5oQdz/0EkqE3r574Rdvx85MfIR0z9FakHZOwmylw8kS
-	 SXR+PbjJtW1fjC9AtTm06uEUtJHoxKN9dDXequsbww0MAsYLTHuulCe1y1UssZg5Rro/+
-	 ZF4H2VzvrNyfQtwAlH9t610RrGKnDkgDZEHXXNJKJjChdFmX/m+Q8dODCxWInegTnVw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=hnqDx80H;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.221.42
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=96.67.55.147
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794870153;
+	b=TkF9CV/AWA0UwwLsnHuf/3MAvlru4j1BK/KaKQgtfbt9EGWk8i9ZadW46uCWmuvv5q/7
+	 FUbR1vdaoIukRzaz9CBlSECrEISR12fcmEMxzXlx/fqdHsNlcGK5GNC/LF4EpwdPyvYDO
+	 cR7kdVCiGFRioIhn/EiyLGdZNXUdpWI/uB0hWQ71bKpIMeQOwF6fiDXaX0Lrr5GpXgpeu
+	 V2LQrSdM1ASquWauf5CjKls+gFVBLnEbmguW7oGWaVZGaljePJIKeyJpjQN1kcXRQtYRp
+	 MJKTx5FRF7OxfpXPwtmzb05oH3SC2FiT0RHg/81P4FrRJwWfVfW2/qzF/t4D8JF2yOQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794870153;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
+	 Date:In-Reply-To:References:Autocrypt:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=5WThR+UqE34o3lpC1ytNuiTjImnwIUnQa1repMccPxg=;
+	b=iRL4nRgr2TGL4+NkZKjCyl7T/dA+28c+3/GCsl7IIuSujRZm4os1ClF943s3DS6B/lK1
+	 8ujsTCW8y3xb1WrUIGe/YFyFy0ysQhYGJv3C6I5I85qqucdmRcnfVJdFmQ4B7SzHSUFqo
+	 6t5g8u9EzYmziJwUEvaWteirEZM0L9yWxRVYxmd3dq3Bq/jYkTDsArWyY8tshNltjWSPI
+	 hWDUYWbulmz7cvwd9VXn8UHehCGgXR3nbrV+Wb7dTsw6grcVdsb3ESFijMwzUaZFJE2al
+	 PYKfHXnRwM0Rc+kbj3eG7THfwmgNOW/gn5nEO7HIKY09J5lNgpreWep+ynVPVZuXgcA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=surriel.com;
+	spf=pass smtp.mailfrom=surriel.com;
+	dkim=pass header.d=surriel.com header.i=@surriel.com header.a=rsa-sha256 header.s=mail header.b=RmszHc0C;
+	arc=none smtp.remote-ip=96.67.55.147
+Received: from shelob.surriel.com (shelob.surriel.com [96.67.55.147])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DA8D606A329
-	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 20:04:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2DA8D606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475B7606A33F;
+	Mon, 16 Nov 2026 23:02:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 475B7606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=surriel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=surriel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=hnqDx80H
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-48e47347279so1838153f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 12:04:09 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794859448; cv=none;
-        d=google.com; s=arc-20260327;
-        b=J0iTYusFDwxmcVzqsqSkUH+Y6Sc6bIVd8U8I/w6QQMy3TIad6rnbPBItLjAGo5v6Yt
-         cHTLZT20I2w4zS4ku5pWZDWXFlTE9sxkzZhjMVEtiDav0RiY+s3e3l0sV4ksQDJOKI/e
-         w6G++w27m9M30hN37Trwypas5OOh2o5W1BffvIMl7KbOI+o//ESWnq4XMhZVLRp47f0M
-         7pK9QfJDvlqVza6lLH2Jpzcs1PaE1XCvQ3ssn2LeVJpDpWBeoOh4NUjzUNlq4YKBRL+j
-         PI43ENFE/Y15yWRqDTzXFaUI6E//A9nytOPQcS1sfvtLup6Oj6mb1n2vewAECFs4odOM
-         PeGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=FEtpE65JhLGyAYaL/FOW2ebUIws2WwBZ/4Zy8VNXUuw=;
-        fh=KXo791TrhRnp4FFqJBpKwjUUq39XFGavnP0MAzIZEAg=;
-        b=IU4CSXxfwcnjyJCESecvH5+ba+3S84NZG8Z53rHz8+2dOkhu3O5VKqe22bVxkForD4
-         fHa2dB7q5M/D2nGMrturEI/b1jKAxuzk71tozZis4h5q137cOUggmvg1JlM7cYH5MVLn
-         yWhs51Gjw4f16UQZx2UEraSqDRoXQJYygb1RLMhpYXoc/Ve/Em/vKSlG0iVNEJ86S4WO
-         yBY8iTCYbxvQimmEOjygx0aXvuFWuPdhIpq1eVr8ca8wNuO6YJZZ7Sxt3MGHGQklyJuF
-         vZw8Xb6rSdVGHuRPBl/uBgSKncYnvI3qvijolMxtDfQIQuDyPAHgkbA7VCTZmQ0XF/o+
-         jXkw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794859448; x=1795464248; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=FEtpE65JhLGyAYaL/FOW2ebUIws2WwBZ/4Zy8VNXUuw=;
-        b=hnqDx80H1BHGMZ+jCw863LQE2wm4hG6wTw//ziQNWkZpZIjdyNNCtFJNcbykSvuJWZ
-         RrqgQGru9l+9Rlw9NCoAO7RXSeH6CHzRwb+h6TsbT77V+vTLtC7o5AslWzWJ8+7yhciq
-         sbJxN7Yoz6y6VYO91QUyEDVlXVHt5e/uzOZriYhKEljZIduQH6pNfhdOY5sHlJFueOxf
-         bN/uTLfuNBjnHaTZ+WukZQS/Wa30tWyiKsfqEPmOKtkcPCgN1gGIeLsa9pfco/3ZvP3P
-         koo3Bb9/+esUnHdHS2hTd5qtXE/k/xctadMJUuU/zchcL0VDKvTRNofZgdIQ6mLOou9W
-         X5rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794859448; x=1795464248;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=FEtpE65JhLGyAYaL/FOW2ebUIws2WwBZ/4Zy8VNXUuw=;
-        b=0/IVW9qJfsX4R05JAJQ5CY3Z75rFBdHNvL223SXfZBgvF245pwGSmxkyklYqOzW8XM
-         0cXIqmuV52FTszhMeKBCLP418v+ygwrDSINsAuM/In1Kw7NWMmrrpPffmxNrN975/A+I
-         92Vu9ZtnRlO96bs5S6LCWpKewWHBHAMeaeY8BBZb6P5ibtFhxcV09R6lxtm4Hjf8Z5ZN
-         Qan0xYxZDNevGnQQCxLIL1rdhq12Q0BjCAKZEAXyJRHlWJ2cW+SUOytqsOAPzczPBJ8p
-         1E/mfildU+K/y73PncNb5N6572gvap4T6ONhIP56XGQDBEIcDkWJPzsOqLn4mYQ7Q66N
-         sR8A==
-X-Forwarded-Encrypted: i=1; AL+hErE4TkmW6yNw4Mxow6YDxTd+F2mHQnKQVoeSQ+dXUFDUdDvx/3VproVGQEBOAL6AuMSkA12X6DAMDM7c@vger.kernel.org
-X-Gm-Message-State: APuU4Z/Q/vKarcv6U5QPBV6phPnL1lZCfU7I2bABXz02lT6/BrlIwtw3
-	X5qT+IvXMGqKAIAmVv08c7083VMFGK7bJqEmDqTkoeCsZxxtXt0K4UfMUEzbS4yzgO8gXwz94g0
-	7AXT+SFHyn8BtBVLE6zlGcHXOOCp03j8=
-X-Gm-Gg: AZFdTZd+UoDY7/DpdOyR8QRdhkqdD+layu2lgoa7TRIxHM3MmInUY+hRsHBcme7zod9
-	jo004KPYi9nkm78wo/bA2sO8G1GknCh6W2vsR3U7OSzsVmF6SqEHOTCHakgnHI2nY8dU+50l6/V
-	xY9HnV3XFwmjwrvJkm+2EmJIQ7eyejnxdWf/Q5tPGM8eql9imm2qmVPzDxXuiHsYBsQbGmLRRzc
-	y6Ubd7iYNgh/Osyp97ATQ1SIbp7ny2KMpkOgaK1yYQAnnNpbo+gklFcBzPTzUZeGd0yp/ClcuNj
-	ELbzvyEKWgefnU6YkWBsxnhHUBexSI6j3j7YNy17tMnc5IRD0xZYFXVpreCtKrKuHvE7/mQ4G8s
-	wXNig5AQP+xOL85IsXZRLiTnjSs0Nj0XusmMk93/kL9P4JQZIqG8NwprDp+Ccr1ni2v++tkh6qP
-	YPHave7Itg0mvRqlisgzA=
-X-Received: by 2002:a05:6000:4692:b0:491:3fdd:af34 with SMTP id
- ffacd0b85a97d-49d61c80db3mr13343868f8f.36.1794859448335; Mon, 16 Nov 2026
- 12:04:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=surriel.com header.i=@surriel.com header.a=rsa-sha256 header.s=mail header.b=RmszHc0C
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=surriel.com
+	; s=mail; h=MIME-Version:Content-Transfer-Encoding:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID; bh=5WThR+UqE34o3lpC1ytNuiTjImnwIUnQa1repMccPxg=; b=RmszHc
+	0CnOPJyqg+tKPcBjBhz42YOx3X1P8KCM7qlREN/a2q0VePJ6bbwZ1XDxOMA+O3vEMeR5SpSV57ef0
+	rQ+EoIPicylm5jWyeIlqJWCrf1koFnPGUflTUl2VxKWaaXokosqmEamc85QY5RMdjkXoaY9LN77Gh
+	EZzUnQFmYrfzWalegBAAo3FNepH1iapFTh+8StCMtGkWYiRLlLlR5+xpqJYjFmqWnQHUQ2aell1PX
+	yxs95QLzbQofCYE0Uw54aJpcA6padqu7/yqPdz6LHSCbXxwd9jIesHqHgCoWykqOA8e1fqmLyBeeK
+	7daeliVGFLW0sTbeXP3XtYph3cBg==;
+Received: from [2601:18c:8100:a0e0:5a47:caff:fe78:8708]
+	by shelob.surriel.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <riel@surriel.com>)
+	id 1xT57N-00000007mDE-0p4b;
+	Mon, 16 Nov 2026 22:24:05 +0000
+Message-ID: <b2262da0652b467673109d12b5e244c15255a925.camel@surriel.com>
+Subject: Re: [PATCH v2 02/15] mm/hugetlb: compare against persistent count
+ when freeing lowmem folios
+From: Rik van Riel <riel@surriel.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>, Muchun Song	
+ <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Naoya
+ Horiguchi	 <nao.horiguchi@gmail.com>, Andrew Morton
+ <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, Andy Whitcroft
+ <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>,  Michal Hocko
+ <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>,  Vivek Kasireddy
+ <vivek.kasireddy@intel.com>, Dave Airlie <airlied@redhat.com>, Jason
+ Gunthorpe <jgg@ziepe.ca>,  Lorenzo Stoakes	 <ljs@kernel.org>, "Liam R.
+ Howlett" <liam@infradead.org>, Vlastimil Babka	 <vbabka@kernel.org>, Mike
+ Rapoport <rppt@kernel.org>, Suren Baghdasaryan	 <surenb@google.com>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan	 <skhan@linuxfoundation.org>,
+ Randy Dunlap <rdunlap@infradead.org>, Peter Xu	 <peterx@redhat.com>, Breno
+ Leitao <leitao@debian.org>, Will Deacon	 <will@kernel.org>, "Aneesh Kumar
+ K.V" <aneesh.kumar@kernel.org>, Nick Piggin	 <npiggin@gmail.com>, Peter
+ Zijlstra <peterz@infradead.org>, Heiko Carstens	 <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev	
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Arnd
+ Bergmann <arnd@arndb.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Gerd Hoffmann	
+ <kraxel@redhat.com>, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org,
+ 	linux-s390@vger.kernel.org, stable@kernel.org
+Date: Mon, 16 Nov 2026 17:24:04 -0500
+In-Reply-To: <20261116-fixes_hugetlb-v2-2-4dd9e94ea9ac@kernel.org>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+	 <20261116-fixes_hugetlb-v2-2-4dd9e94ea9ac@kernel.org>
+Autocrypt: addr=riel@surriel.com; prefer-encrypt=mutual;
+ keydata=mQENBFIt3aUBCADCK0LicyCYyMa0E1lodCDUBf6G+6C5UXKG1jEYwQu49cc/gUBTTk33A
+ eo2hjn4JinVaPF3zfZprnKMEGGv4dHvEOCPWiNhlz5RtqH3SKJllq2dpeMS9RqbMvDA36rlJIIo47
+ Z/nl6IA8MDhSqyqdnTY8z7LnQHqq16jAqwo7Ll9qALXz4yG1ZdSCmo80VPetBZZPw7WMjo+1hByv/
+ lvdFnLfiQ52tayuuC1r9x2qZ/SYWd2M4p/f5CLmvG9UcnkbYFsKWz8bwOBWKg1PQcaYHLx06sHGdY
+ dIDaeVvkIfMFwAprSo5EFU+aes2VB2ZjugOTbkkW2aPSWTRsBhPHhV6dABEBAAG0HlJpayB2YW4gU
+ mllbCA8cmllbEByZWRoYXQuY29tPokBHwQwAQIACQUCW5LcVgIdIAAKCRDOed6ShMTeg05SB/986o
+ gEgdq4byrtaBQKFg5LWfd8e+h+QzLOg/T8mSS3dJzFXe5JBOfvYg7Bj47xXi9I5sM+I9Lu9+1XVb/
+ r2rGJrU1DwA09TnmyFtK76bgMF0sBEh1ECILYNQTEIemzNFwOWLZZlEhZFRJsZyX+mtEp/WQIygHV
+ WjwuP69VJw+fPQvLOGn4j8W9QXuvhha7u1QJ7mYx4dLGHrZlHdwDsqpvWsW+3rsIqs1BBe5/Itz9o
+ 6y9gLNtQzwmSDioV8KhF85VmYInslhv5tUtMEppfdTLyX4SUKh8ftNIVmH9mXyRCZclSoa6IMd635
+ Jq1Pj2/Lp64tOzSvN5Y9zaiCc5FucXtB9SaWsgdmFuIFJpZWwgPHJpZWxAc3VycmllbC5jb20+iQE
+ +BBMBAgAoBQJSLd2lAhsjBQkSzAMABgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRDOed6ShMTe
+ g4PpB/0ZivKYFt0LaB22ssWUrBoeNWCP1NY/lkq2QbPhR3agLB7ZXI97PF2z/5QD9Fuy/FD/jddPx
+ KRTvFCtHcEzTOcFjBmf52uqgt3U40H9GM++0IM0yHusd9EzlaWsbp09vsAV2DwdqS69x9RPbvE/Ne
+ fO5subhocH76okcF/aQiQ+oj2j6LJZGBJBVigOHg+4zyzdDgKM+jp0bvDI51KQ4XfxV593OhvkS3z
+ 3FPx0CE7l62WhWrieHyBblqvkTYgJ6dq4bsYpqxxGJOkQ47WpEUx6onH+rImWmPJbSYGhwBzTo0Mm
+ G1Nb1qGPG+mTrSmJjDRxrwf1zjmYqQreWVSFEt26tBpSaWsgdmFuIFJpZWwgPHJpZWxAZmIuY29tP
+ okBPgQTAQIAKAUCW5LbiAIbIwUJEswDAAYLCQgHAwIGFQgCCQoLBBYCAwECHgECF4AACgkQznneko
+ TE3oOUEQgAsrGxjTC1bGtZyuvyQPcXclap11Ogib6rQywGYu6/Mnkbd6hbyY3wpdyQii/cas2S44N
+ cQj8HkGv91JLVE24/Wt0gITPCH3rLVJJDGQxprHTVDs1t1RAbsbp0XTksZPCNWDGYIBo2aHDwErhI
+ omYQ0Xluo1WBtH/UmHgirHvclsou1Ks9jyTxiPyUKRfae7GNOFiX99+ZlB27P3t8CjtSO831Ij0Ip
+ QrfooZ21YVlUKw0Wy6Ll8EyefyrEYSh8KTm8dQj4O7xxvdg865TLeLpho5PwDRF+/mR3qi8CdGbkE
+ c4pYZQO8UDXUN4S+pe0aTeTqlYw8rRHWF9TnvtpcNzZw==
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -105,81 +116,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org> <20261116-work-loop-pseudo-v3-9-8cbbea1cf34f@kernel.org>
-In-Reply-To: <20261116-work-loop-pseudo-v3-9-8cbbea1cf34f@kernel.org>
-From: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date: Mon, 16 Nov 2026 12:03:57 -0800
-X-Gm-Features: Aa3M54q6P4M0RFDCKQ8HHGNCWJafItTSPdWR1qNwVGtToDAv2VOv8vDfWHzYR6A
-Message-ID: <CAEf4BzbLFVawibuX0wk=8uzy0WZSYHbkgK55d7rqLab2qAM1Fg@mail.gmail.com>
-Subject: Re: [PATCH RFC v3 09/44] bpf: use fc_init_pseudo() for bpffs
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
-	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, 
-	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, 
-	fuse-devel@lists.linux.dev, linux-efi@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-usb@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>, 
-	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org, 
-	Alexander Mikhalitsyn <alex@amutable.com>, Chris Down <chris@chrisdown.name>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 16, 2026 at 3:21=E2=80=AFAM Christian Brauner <brauner@kernel.o=
-rg> wrote:
->
-> Initialize bpffs as a pseudo filesystem instead of raising
-> SB_I_NOEXEC and SB_I_NODEV by hand. This adds SB_I_PSEUDO.
->
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
-> Reviewed-by: Chris Down <chris@chrisdown.name>
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> ---
->  kernel/bpf/inode.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
+On Mon, 2026-11-16 at 19:29 +0100, David Hildenbrand (Arm) wrote:
+> try_to_free_low() gets a target number of persistent folios, but
+> compares it with "nr_huge_pages", which includes surplus folios. As a
+> result, it can free lowmem folios below that target.
+>=20
+> For example, with two persistent folios and one surplus folio, a
+> target
+> of two can still end up freeing one persistent folio.
+>=20
+> Compare against persistent_huge_pages() instead. Convert the macro to
+> a
+> helper function and place it before try_to_free_low().
+>=20
+> Fixes: 7893d1d505d5 ("hugetlb: Try to grow hugetlb pool for
+> MAP_PRIVATE mappings")
+> Cc: stable@kernel.org
+> Acked-by: Muchun Song <muchun.song@linux.dev>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Rik van Riel <riel@surriel.com>
 
-> diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
-> index c6f328e4752e1..57cf3775c0766 100644
-> --- a/kernel/bpf/inode.c
-> +++ b/kernel/bpf/inode.c
-> @@ -15,6 +15,7 @@
->  #include <linux/namei.h>
->  #include <linux/fs.h>
->  #include <linux/fs_context.h>
-> +#include <linux/pseudo_fs.h>
->  #include <linux/fs_parser.h>
->  #include <linux/kdev_t.h>
->  #include <linux/filter.h>
-> @@ -1197,8 +1198,6 @@ static int bpf_fill_super(struct super_block *sb, s=
-truct fs_context *fc)
->         sb->s_magic =3D BPF_FS_MAGIC;
->         sb->s_op =3D &bpf_super_ops;
->         sb->s_xattr =3D bpf_fs_xattr_handlers;
-> -       sb->s_iflags |=3D SB_I_NOEXEC;
-> -       sb->s_iflags |=3D SB_I_NODEV;
->         sb->s_time_gran =3D 1;
->
->         inode =3D bpf_get_inode(sb, NULL, S_IFDIR | 0777);
-> @@ -1261,6 +1260,7 @@ static int bpf_init_fs_context(struct fs_context *f=
-c)
->         opts->delegate_attachs =3D 0;
->
->         fc->s_fs_info =3D opts;
-> +       fc_init_pseudo(fc);
->         fc->ops =3D &bpf_context_ops;
->         return 0;
->  }
->
-> --
-> 2.53.0
->
->
+--=20
+All Rights Reversed.
