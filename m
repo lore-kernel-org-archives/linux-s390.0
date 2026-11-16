@@ -1,58 +1,65 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794851335;
-	b=nj4BWeQSEFMoW8odO4C7YErzpS9HDdZYrvgz29wdO161No8Ozq3oG2Fx1cK2Hdv8sX5l
-	 0OXqteuGN8DR4vhDOkl6to/IqSMR3PCCDqGluBo9BM8aiTua0VEsJPnx3a3ctE9gQmTGc
-	 2Jg1rMw4a49jwHfXQokp6zbeD2SOm1ZgTbnKhT+9DACCDHoCAnqADOG1dhsczo8q5jT3F
-	 W3w87+B7SM6E1Ukwk5y9PaRwO0VhzwEkxYJ9Jjv1Nyfb0z7f7rU2q/Oac3BIUI1ZfjztQ
-	 PSF6sAdeTz07dcUWlwp9DYBC2jghhFc9vrPxHfu5CdL1nq5CeezHQ8EUZ90RmzvBXJQ==
+	t=1794851363;
+	b=jEv83v+esef4xRHECBvjhqzOi6BM4E2ZbqPJa5ATDJAPtisxO/f0k1xZwwRTk5QgNO2j
+	 XueuQtNeBe5/AK4SFVaTjbzllCsufffryEa/GAjTEhwsR7V+6IgVyOQLVe2cuBt6EuD7A
+	 N5Z2LoZfUAXb0/zdKzfJxcqkB4UX/Piy8KtUOc/1cvEGrEpJN7V8S5FEp6Chq69zNLYyV
+	 pzFJzjj2O7LnT5aUCRUDW/KtZjIvV4/eMyGKjs7UpShCa3tVh2D890rkatBP5BXvYjrdz
+	 s/ibKLwb3Hl/AtwkAjb2+X4cOfT7ihRwaqcmKVdZNZBBVzws+ohcei+6U916qeyPbSg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794851335;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=+b3ujps3g/yqdNKxogsevh47lizY/dNMsLFQ/TC5PUk=;
-	b=bMCXZUCkQOoAzTU0ZsHieHD/R7rTkjLOKmMV4U5eFbHVo7QMXp3DUjkG3ufcRbVZWlup
-	 l8Ng1W3DBHmdCF0GIuEKkJKW6Qn1aURFKS1sCdxh57KvuHlhlBOOLCg7Eip5GeloacIJG
-	 ICO56/WBNRVQxoYcWryFZCjM3j/6wkJqF1kbGeQzF+UTgUScPQuXz72fGd9K2sDOwpVsw
-	 VuVHqjq/xDA6MuaHV0y881dEgCHCqCk27KQjWHO+Bvf4DDP7/lWRzr2Wc0dcWGpPkUNUd
-	 5rFXCE1jEsa9eG7ghfcSXdHE7NGEQa7/FQDK3YTRJOTVU4OEPuY/6/rnvUP5jlXA8iw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794851363;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=ED8m1EUNyZbVy60KlCH1nfmXFCVOvYy5WXRoQrkl9dY=;
+	b=Pxsm24yvp3ZM3Dhn/NkZuYB3x8IkX6EE44h//EKUvXXYOz/mhraya2Na1NfwBLT0yOvb
+	 CkxqBew1/nBrRGzimV8O+JjKEJgJY9CxCuKXwhjwKB5AX5JpLJB1C4OPoTPRFFLX4s45M
+	 8WvC9GihuT0uhKchkHTFVDAEENqEH8k9DVZF31PmiQACZivX1JaVgleiDocJemK5XID9x
+	 b4lvUauuK1G1YFZdp7SXapEe7Y+7FUOy9XA0eAfv2b3L8x12ft9PVPSUqMFDxSxZDHfxP
+	 savIqIulMuur9cuqN0yW6YUr725mCXCZPEmdLC3CyfR8Hq8c9tpjrvmHVr6ujj6+W8g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="U6hFU/Uw";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LWj9kUC8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C73606A31C
-	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 17:48:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CACC6606A32F;
+	Mon, 16 Nov 2026 17:49:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U6hFU/Uw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38ABA1F000C4;
-	Mon, 16 Nov 2026 17:48:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LWj9kUC8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6A261F02813;
+	Mon, 16 Nov 2026 17:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794851334;
-	bh=+b3ujps3g/yqdNKxogsevh47lizY/dNMsLFQ/TC5PUk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=U6hFU/UwZReeJzdxnNSffZZ4aDkodkGQ73D2hGcgT8sscu70W19d3fkynhwuHqP7J
-	 Z5mKwC1kBgjKIzHVez7EWdGVS4gL5NF6UkgxxUHKhTKfJCd0JN0F72M9AdZ8ZYTCf0
-	 35XZBP/5Qfd1NA2CZ8eykCywCKFbIhcXJseulSYDo69YN1sbEPrCSJcjRadEaPCS72
-	 LvogRFLDRRknQb30pHoWcPfrCaipqwy+rgCg4nkm8ku79z2KrTw6Y29g9YukB1q9NX
-	 IKiD0m112AM40uUKmSi+FydCbePQeEpa1Cp+z7M6gNpHnfJ3TAuogh3ccb+RwgsB+S
-	 ZV1E+nsXtRwkA==
-Message-ID: <sashiko-outbox-217440@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 08/15] s390/cert_store: Remove unnecessary static
- specifier in create_cs_keyring()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261116143534.158375-9-hca@linux.ibm.com>
-References: <20261116143534.158375-1-hca@linux.ibm.com>
- <20261116143534.158375-9-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 17:48:53 +0000
+	s=k20260515; t=1794851363;
+	bh=ED8m1EUNyZbVy60KlCH1nfmXFCVOvYy5WXRoQrkl9dY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LWj9kUC8kQFC5SfD1vjbud2HBFDNnZqFBwsM7D7EkixcrkbHslvvXUPplnT67OEDa
+	 Ojxvc/9bBfh+7M7IgMwLe0/MW3vEZ7MNK475jdjW9gzIKFiwKQYtp2o3epkEHr1OUY
+	 ut8wZMtQ6WwDI4R/4NjZmngdKNKdP+t6PoX5HnYwVJTKEbOQrvDnGzw7NTHVCoa2iV
+	 Az2pSjHFx32LhMnzCRrFLDjD1DXtR7qLBdQXkQEuVAl0z7iuGlB/eKvhfmNtzTqNut
+	 eiuM63/QtPtS1+8sCvNSNotSJGDSOZKb/xcO1WCvyJtafHJlrptV+MYpMU1CW9c9N/
+	 f6aB01Y3d7oMw==
+Date: Mon, 16 Nov 2026 18:49:14 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Amir Goldstein <amir73il@gmail.com>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>, 
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	linux-nfs@vger.kernel.org, netdev@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev, 
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC v3 33/44] ovl: refuse data-only layers on pseudo
+ filesystems
+Message-ID: <20261116-kriterien-getoppt-kauern-5a0c1fba70cf@brauner>
+References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
+ <20261116-work-loop-pseudo-v3-33-8cbbea1cf34f@kernel.org>
+ <CAOQ4uxgPerkkG4ie0SyHVXaBD9VZN2wYfQpEAEi4hytn=ara3A@mail.gmail.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,20 +68,75 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOQ4uxgPerkkG4ie0SyHVXaBD9VZN2wYfQpEAEi4hytn=ara3A@mail.gmail.com>
 
-> The local variable cs_keyring in create_cs_keyring() never reuses its
-> assigned value, therefore remove the static specifier. Callers are
-> serialized by cs_refresh_lock, so this does not fix a bug.
->=20
-> Even though this is not a bug fix, this contains a Fixes tag since other
-> commits require this as a prereq.
->=20
-> Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+On Mon, Nov 16, 2026 at 06:37:16PM +0100, Amir Goldstein wrote:
+> On Mon, Nov 16, 2026 at 12:10 PM Christian Brauner <brauner@kernel.org> wrote:
+> >
+> > The data of a metacopy file can live in a data-only layer. overlayfs
+> > doesn't look that data up when it looks up the file. It only remembers
+> > the absolute redirect and looks up the data lazily the first time
+> > someone needs it. So until then nothing can tell which filesystem holds
+> > the data of such a file.
+> >
+> > But a data-only layer has no business being a pseudo filesystem in the
+> > first place. All it does is hold the data of metacopy files and the
+> > regular files of a pseudo filesystem are kernel interfaces, not storage.
+> > So let's refuse data-only layers on superblocks with SB_I_PSEUDO at
+> > mount time.
+> >
+> > Data-only layers can be added via the "::" separator in "lowerdir=" and
+> > via "datadir+" by path or by file descriptor. All of them end up at the
+> > end of ctx->lower. So a single check in ovl_get_lowerstack() covers all
+> > of them.
+> >
+> > Note that regular lower layers on pseudo filesystems are left alone.
+> > Stacking overlayfs on top of sysfs keeps working.
+> >
+> > Suggested-by: Amir Goldstein <amir73il@gmail.com>
+> > Link: https://lore.kernel.org/all/CAOQ4uxhGxpBtMZ5kfuzR1tQAewiecoX7UjXQRo91QjJHH9T_Yw@mail.gmail.com
+> > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> > ---
+> >  fs/overlayfs/super.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> >
+> > diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+> > index 39d4d57dec230..719c2569dfeaf 100644
+> > --- a/fs/overlayfs/super.c
+> > +++ b/fs/overlayfs/super.c
+> > @@ -1237,6 +1237,14 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
+> >         for (i = 0; i < ctx->nr; i++) {
+> >                 l = &ctx->lower[i];
+> >
+> > +               /* Pseudo filesystems don't hold data for metacopy files. */
+> > +               if (i >= ctx->nr - ctx->nr_data &&
+> > +                   (l->path.dentry->d_sb->s_iflags & SB_I_PSEUDO)) {
+> > +                       pr_err("filesystem on %s not supported as data-only layer\n",
+> > +                              l->name);
+> > +                       return ERR_PTR(-EINVAL);
+> > +               }
+> > +
+> 
+> How about we make this just a tad more restrictive:
+> 
+>                 /* Pseudo filesystems don't belong in composefs setup */
+>                 if (ctx->nr_data &&
+>                     (l->path.dentry->d_sb->s_iflags & SB_I_PSEUDO)) {
+>                         pr_err("filesystem on %s not supported along
+> with data-only layers\n",
+>                                l->name);
+>                         return ERR_PTR(-EINVAL);
+>                 }
+> 
+> I could send this as followup patch, but since this version is simpler
+> there is no real reason to have the intermediate "only ban datadir" step.
+> 
+> Only the commit message needs a little more flexing to justify this.
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116143534.1583=
-75-2-hca@linux.ibm.com?part=3D8
-
+Just sent me the diff on top of the series and I can fold it with the
+commit message you want and slap your Co-developed-by and SoB on it,
+please?
