@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794857247;
-	b=N8iDNT44J8G9KIF0Hj+Z/AJEFElybXGwIehIsD+pcD0cHWEUqLZUCkiPD5m9X2UU/Br+
-	 LJQNVmVSxEqNlqUqRyukhNQ22UoRD1mboNrJ2xkcTct2yMoYBrc8AQsBKAhQOqrfy9Vxh
-	 81A3i2AHZ6MlsQZElnS3fgsp8GrZhW+DxAk/lod4utp+X5EU+gmN0vcxojuoAdPA9rzj3
-	 DuXkXzTiOOzsh6MCjZzSB4MHYU3lusTOFSpXlLGkt62LurFQlrqaYtIteeK/yiBxR3CJM
-	 myT07/mVRAhUYyGP0VxJRT7FWm1F8CcNTYMeEAIaBZASQyUotGDL+Q8jKCd0ow2TvXA==
+	t=1794858257;
+	b=MLhyzf0kNmRU+fq4SFOE41Jjwq5pJ2N1rbRfciip7py1JLxLYKDgxSTk7TC5c0tKtj4f
+	 Xg8IK1o/KUwJw/GVL+VdWUzvgKNo+uf/OgX2KcJr4Dpa8DIiFaq5dhipx8BPn5yiLpnuu
+	 b7h9GFd3XKqLF708t6H1UHSTJBWbcrUN3bBGifqx1NUtRePcVFCYAie9x6ocBA8eNH/Cr
+	 HAvwJJWh0GKVQ72p1Ki8Leb278Aj3tpTHPIZOTLo/zQNzY23h6L3loLHdTE1+m4sPLqvh
+	 khXcU2tr8qHd0rWflM/B81XeiKGBUiIVlqnQrkMbnxOd96LqQ+utKTlguDAcls1Xajw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794857247;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794858257;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=y7RZvtNOq2EyIwUIxQJHNYHE1gyEcNzlMgno1NCIEEI=;
-	b=F8Jru3FhCz1DcBM9sJxdHIFBkuuHfZZkXTGJyEXwf2GDi/6uHHQyU7g4e5/aknPT4fnG
-	 zELzmiaQy8xWohjjcTckKQbyMpg7DMrg9BM+gtJLWP6xqG6uXI4JZAuERY60ZMVUXX0gW
-	 axthmC7n4+9U/xrxWYhoPMHf4j8PTFDLFAQmk+fvdpQ1LWj1402xBf6XNa/QvYyhwIHuP
-	 pvQAleaeNALEIhCknwab04z0QM+iMmIlXnl8pD1HbplS7kONQ+nQFf+AHLiobxvplT15t
-	 OpJuoVmolvS2Z7da6hOGjswFamg81Y8eo5QKfCTo/4G4Doz/oKDINHEZ+fRAUrJ4SXg==
+	bh=Nj//MY1klixReHhr5EQrz2kM3vh14KTz7P5mfvBMhRE=;
+	b=nzWC46I4wADoyWHi/gB5+SOeHS+JjbtVfNf+XZWzMYMkPGto3cbxAkLcq2/IcX9e2Huc
+	 AvP+lons8nnZjSlD5ldbUtc+TwrlsZuiuIFjGTRJgPd5Q4tJzbPhvj4EWneNJxyCs/X7e
+	 3VQ5X4KKPEoflxccwenxMEQmFxNYYxt5rFNHuhDtv42Vl66mTabuhkFqzvFbOohc/AATz
+	 mZtFRMRbJXCc9s34WDg/75gAjURQaecsbdLpYMXSx/95TKWikYvAKeLQ+cEAPRxU5KYLj
+	 bUXKHSCMO0UZRCBOPwKbkfBsVEPsTkq3jFfPDlbTsZah/AoMDir0URsnfsWUdHus/AQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R7Bk6PqV;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=REhvNARK;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id E5F87606A322;
-	Mon, 16 Nov 2026 19:27:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 8629E606A31C;
+	Mon, 16 Nov 2026 19:44:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R7Bk6PqV
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id D593D1F000C4;
-	Mon, 16 Nov 2026 19:27:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=REhvNARK
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 924EF1F000C4;
+	Mon, 16 Nov 2026 19:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794857246;
-	bh=y7RZvtNOq2EyIwUIxQJHNYHE1gyEcNzlMgno1NCIEEI=;
+	s=k20260515; t=1794858257;
+	bh=Nj//MY1klixReHhr5EQrz2kM3vh14KTz7P5mfvBMhRE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=R7Bk6PqVNK21uwxd8wl6tZRCqFiVcoBOoe4qBKtGw0ALALL44Pzak5kBo7Tzagt+g
-	 mCYBk+MV7lpmm5HkJUAcooMPamqA8uUsbMBusx4hvMbeicXCX4T0f6j6bVS6C4x74X
-	 /TkUD1VeuZf+28fm5jjKcrQXI1N3wx+ThL3PdBttHFU3RknxBqzK53RPQmtrMHxZNR
-	 gbRB1NrTFZ94yZ3Tc/SEinekdqSPdIXOiUpqEEtQg+fE0u4yHQRR6+dFM+FlRnPzqL
-	 aX+xodJuwEq+5pKKmspNl7zP1EE9u433543oOskYVPtumWBLDd8DzrPP/9pxe365Uv
-	 jR0keZBNhXoQw==
-Date: Mon, 16 Nov 2026 21:27:22 +0200
+	b=REhvNARKxEw6r7b3GHQUsU+v6ZWtOwzAYDqkGsl0MWDmMxatmvyDEGGMEBGCiVheG
+	 DOYl60h0bjBZK9hc7q0Doi9mWV3mBQ0OUwUQIKlUbAmsnfOI7mGFM656FIxIpCOfKk
+	 /juMaI/c07x6c4ms4aDZpRas06FM5JIN0VptgtZBDnIWBbnQ87+DiIvJOMkOI1ziPb
+	 Wnb/2dAgf6r9mJe2yCGoLaVWISwmNMornMDJtdrnIH/66uFCu20O/QGmIjhxYJGgG2
+	 S7vC5c0foL5ZLC5dy51TJpu/73Sy++XXO7J8gM8xl69GkimkvqkmrChcSQDU42Krod
+	 /g2gUng8H2rGQ==
+Date: Mon, 16 Nov 2026 21:44:13 +0200
 From: Jarkko Sakkinen <jarkko@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Anastasia Eskova <anastasia.eskova@ibm.com>,
@@ -49,11 +49,11 @@ Cc: Anastasia Eskova <anastasia.eskova@ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	keyrings@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 12/15] s390/cert_store: Validate hash length in
- check_certificate_valid()
-Message-ID: <avtZGgO0DtD8Vn9Y@kernel.org>
+Subject: Re: [PATCH 02/15] s390/cert_store: Fix return code handling in
+ invalidate_keyring_keys()
+Message-ID: <avtdDc-udpCcf9Pc@kernel.org>
 References: <20261116143534.158375-1-hca@linux.ibm.com>
- <20261116143534.158375-13-hca@linux.ibm.com>
+ <20261116143534.158375-3-hca@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,53 +65,64 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116143534.158375-13-hca@linux.ibm.com>
+In-Reply-To: <20261116143534.158375-3-hca@linux.ibm.com>
 
-On Mon, Nov 16, 2026 at 03:35:31PM +0100, Heiko Carstens wrote:
-> Validate that vc_hash_length is SHA256_DIGEST_SIZE before checking the
-> hash and use sizeof(hash) in memcmp(). This avoids an out-of-bounds
-> read if vc_hash_length is incorrect.
+On Mon, Nov 16, 2026 at 03:35:21PM +0100, Heiko Carstens wrote:
+> Add missing error handling in case key_type_keyring.read() returns an
+> error.
 > 
 > Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 > ---
->  arch/s390/kernel/cert_store.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  arch/s390/kernel/cert_store.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
 > 
 > diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
-> index 551b538ea930..ecfb7641d427 100644
+> index d35b1ea22507..89cc3a1683a3 100644
 > --- a/arch/s390/kernel/cert_store.c
 > +++ b/arch/s390/kernel/cert_store.c
-> @@ -261,13 +261,11 @@ static int diag320(unsigned long subcode, void *addr)
->  static int check_certificate_hash(const struct vce *vce)
+> @@ -316,15 +316,16 @@ static struct key *get_user_session_keyring(void)
+>  static int invalidate_keyring_keys(struct key *keyring)
 >  {
->  	u8 hash[SHA256_DIGEST_SIZE];
-> -	u16 vc_hash_length;
->  	u8 *vce_hash;
+>  	unsigned long num_keys, key_index;
+> -	size_t keyring_payload_len;
+> +	long keyring_payload_len, rc;
+>  	key_serial_t *key_array;
+>  	struct key *current_key;
+> -	int rc;
 >  
->  	vce_hash = (u8 *)vce + vce->vce_hdr.vc_hash_offset;
-> -	vc_hash_length = vce->vce_hdr.vc_hash_length;
->  	sha256((u8 *)vce + vce->vce_hdr.vc_offset, vce->vce_hdr.vc_length, hash);
-> -	if (memcmp(vce_hash, hash, vc_hash_length) == 0)
-> +	if (memcmp(vce_hash, hash, sizeof(hash)) == 0)
->  		return 0;
+>  	scoped_guard(rwsem_read, &keyring->sem) {
+>  		keyring_payload_len = key_type_keyring.read(keyring, NULL, 0);
+> -		num_keys = keyring_payload_len / sizeof(key_serial_t);
+> +		if (keyring_payload_len <= 0)
+> +			return keyring_payload_len;
 >  
->  	pr_dbf_msg("SHA256 hash of received certificate does not match");
-> @@ -293,6 +291,10 @@ static int check_certificate_valid(const struct vce *vce)
->  		pr_dbf_msg("Hash type is not supported");
->  		return -EINVAL;
+> +		num_keys = keyring_payload_len / sizeof(key_serial_t);
+>  		key_array = kzalloc_objs(key_serial_t, num_keys);
+>  		if (!key_array)
+>  			return -ENOMEM;
+> @@ -334,6 +335,7 @@ static int invalidate_keyring_keys(struct key *keyring)
+>  
+>  	if (rc != keyring_payload_len) {
+>  		pr_dbf_msg("Couldn't read keyring payload");
+> +		rc = rc < 0 ? rc : -EINVAL;
+>  		goto out;
 >  	}
-> +	if (vce->vce_hdr.vc_hash_length != SHA256_DIGEST_SIZE) {
-> +		pr_dbf_msg("Hash length is not supported");
-> +		return -EINVAL;
-> +	}
 >  
->  	return check_certificate_hash(vce);
->  }
+> @@ -345,7 +347,7 @@ static int invalidate_keyring_keys(struct key *keyring)
+>  		key_put(current_key);
+>  		rc = key_unlink(keyring, current_key);
+>  		if (rc) {
+> -			pr_dbf_msg("Couldn't unlink key %08x: %d", current_key->serial, rc);
+> +			pr_dbf_msg("Couldn't unlink key %08x: %ld", current_key->serial, rc);
+>  			break;
+>  		}
+>  	}
 > -- 
 > 2.56.1
 > 
 
-I'll stop here :-)
+
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 
 Br, Jarkko
