@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794855724;
-	b=RbNeXW54w6hQbWr64Bk5mHdAFfyhOh5B/CQIBLhJriFieSTI17DbZ/Cm1yv0GkxuUqPq
-	 XWi4gVLa07nulLKpQrQnlw0cV9tKO2AiGZLemRDpfKApqWWJdkSzqUFdFmF/egz9IB0s2
-	 j5zklTgbiPDQ6Iu5eIcMCVrHrBC3ULyJjk4HCAieuBSh3EuYujf7a4t92DoDpJsxlIBK2
-	 RoXnoeZ1mzQRR+tJRqqzvWwv7kNEZKAJdt/lyRwcNZFa7kuA+j/nEOxZc2+L/HEdCGyX8
-	 17fuflKdI/42shkeq+EFuqStTg72k/VvN/Vr9zQLUqliVt+WGxjgrUERw0ZaMAg74nw==
+	t=1794855904;
+	b=jkrX1YsZ1J/4xjqVd58KZ4VczIawZQJ7H7mqMBcR/wnceaR6GKzOskv7kpVJUxo59d0H
+	 3xaoSMbEqS2bHlPwS8M4ID2t1l/HtOQIPahBUn4tnsArWJiV6gfdSy+gDgR4UuiI9yX0D
+	 Zu/EAglWAp4Itrm/WHrQljhKYBGa3o8NGK/59De+FCYUD3jLHEiZ2REB0oQDGrtsKGRR1
+	 /ZzfIQVdG93lKB1G32szZVRaKDmvM/H/RWThPMsellP0H4XVAzhNUTTkPVjZ0KqKTvyTp
+	 xStKUDpGum9b2NddLTGDvhidExXnbv0rxH5S8UCsl1vaGY6BZLfTFtx/ZB78a9l6/zA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794855724;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=bwytYs5NRmKMFLgLTgesctAAqnQss7rwPl3d6Mhyn/U=;
-	b=13cHxr5B1Qr8ABoOjBiRoXcd8UkGkkcj1wEHEiLcMjrlCXi1m8cuPKXh3N32WShaXqgo
-	 XlMPSb6JlKtGCRGrstRPP//zRdELcaRle5k6/cFcSyPwiZwH2k0w9muaJadmrtKfqXwnV
-	 2/wbtzNfD4SLeBRTSXS4Rn6jci7+Z4Wxav5uB0/wYXx2lrjS70z+phDY54UBmMp54g/XQ
-	 xetW/FtdIbn8DGFd3x48dIerPQJxkMjDH7wC+vo4BwoNncm26XzicjjesKOOyDBpS8pQN
-	 XZBew0lIkO1aZDNvXZGqan1XeIUzFZiP0aY1VJW1aaZn6HLlFzK4QsXe0t/ovt+nJLQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794855904;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=4ycuJs+IPtbjOVhZmCkGyWUfwzxAyslHZdmTkdx5zzI=;
+	b=IRp1bDbGc0zCrJtRzV7JSmuyU1LOC0Ex7quqdSPDzjSoF4gS9eKSG8q0U5n++IzmtyY5
+	 L1+x9y74A3DdefZ87NUdEncq5JhrKVAkIMR+swcfuF4QC8ulZi2e02Bwg+0WULQjJqxWR
+	 bNg4Ir1jpqD1KzdFIZoTv58eR3ZesVzYUOsFOH7HEtL8zVawyVV3pJXYqlL/gS7rISRl+
+	 zmqr9sdLXvyC3QKiQ7fh9bQNPRXM2H/bsINXiJgPSNMF8oz3iXIry+KQl9ZebisVTq8Sq
+	 mpa4A8yxXR8yD+2qkWDd5WS9ZycfEj+gcvPkMXKRKXUSGb4e3jerBVEPlw7BUR84Taw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lnXUSXqu;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iElM7uu3;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 93630606A33E;
-	Mon, 16 Nov 2026 19:02:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAFE5606A32A
+	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 19:05:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lnXUSXqu
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id AA5A91F000C9;
-	Mon, 16 Nov 2026 19:02:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iElM7uu3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4BA1F000C4;
+	Mon, 16 Nov 2026 19:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794855724;
-	bh=bwytYs5NRmKMFLgLTgesctAAqnQss7rwPl3d6Mhyn/U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=lnXUSXquO0oihUHrq1aTCJB7tCWlzZHuWccxeFfubFeMwrlkFaHr+E87eZe7GYf5c
-	 7OlzazO5j3GmH/VZNOVNJZQUBC//Hc8nY3NgoQEy9HplsvHCUmL7OKjB9PFRjoOEMz
-	 F0CXTHBTg1M4AskUyh2QUK/+yy4of+qUXuZJea36yDAa9ZlVtyrWmbJkavJOO5m9bb
-	 LcZ7Qt5aCA73rcZBFAVkXBkCnH1F94xmP7Hv3L+C6KDfQZPYwCxsPKbPAUBk739/D8
-	 9woSrREZGKzhVaGx6Ol1URlkvPv348tNgzkdC77FxOdUB+ZiIXPhfaT/Kle6X/Qf0s
-	 vR7wADzSLySjw==
-Date: Mon, 16 Nov 2026 21:02:00 +0200
-From: Jarkko Sakkinen <jarkko@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Anastasia Eskova <anastasia.eskova@ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	keyrings@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 11/15] s390/cert_store: Do not search the process
- keyrings for the cert_store keyring
-Message-ID: <avtTKGLazlUEmQOh@kernel.org>
-References: <20261116143534.158375-1-hca@linux.ibm.com>
- <20261116143534.158375-12-hca@linux.ibm.com>
+	s=k20260515; t=1794855904;
+	bh=4ycuJs+IPtbjOVhZmCkGyWUfwzxAyslHZdmTkdx5zzI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=iElM7uu3T05xrnorPQckzn5DNYAb4oNu8FaV0O0VeOVe6kO/IR3E6bTSxf2y2bNDq
+	 20P040H8Up38Ey7tsKODPpmlr9U0ImMXWGr7brjVW6hPYSwEah90cxfEg5nPc4G2yU
+	 pBKc2sEeomTyT0MsaGKtQRt8Q//tOXV0ZN4R0AUGneQhptnWVi6RqZhP7hXrOK1bay
+	 5IKsOlZbDMraVzX91RbVAwG4R+aSYGLnwdPKxBHiEX6oov7gwq67EvG8wGgMGbBfUy
+	 xBVvuho7PHb/eurT/gB983t+U2XDZCdzNAVX9JWA7Kt5f461DAx4ICAD412PBlZHEP
+	 +Os47WK+KzIzw==
+Message-ID: <sashiko-outbox-217525@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 01/15] hugetlbfs: fix integer overflow in fallocate()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261116-fixes_hugetlb-v2-1-4dd9e94ea9ac@kernel.org>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-1-4dd9e94ea9ac@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 16 Nov 2026 19:05:03 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,64 +61,32 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261116143534.158375-12-hca@linux.ibm.com>
 
-On Mon, Nov 16, 2026 at 03:35:30PM +0100, Heiko Carstens wrote:
-> find_cs_keyring() first searches the user session keyring for the
-> cert_store keyring, and falls back to request_key(), which searches the
-> thread, process and session keyrings of the calling task. Any keyring
-> named "cert_store" found this way is accepted.
-> 
-> cleanup_cs_keys() then invalidates and unlinks all of its keys, and
-> clears and invalidates the keyring itself, without checking permissions.
-> If the refresh is triggered by a task which inherited a session keyring
-> that contains a keyring named "cert_store" not created by this code, this
-> keyring and its keys are destroyed.
-> 
-> create_cs_keyring() always links the keyring into the user session
-> keyring, so the first search is sufficient. Remove the request_key()
-> fallback.
-> 
-> Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  arch/s390/kernel/cert_store.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
-> index ec6352528a2b..551b538ea930 100644
-> --- a/arch/s390/kernel/cert_store.c
-> +++ b/arch/s390/kernel/cert_store.c
-> @@ -360,7 +360,7 @@ static int invalidate_keyring_keys(struct key *keyring)
->  
->  static struct key *find_cs_keyring(void)
->  {
-> -	struct key *cs_keyring, *us_keyring;
-> +	struct key *us_keyring;
->  	key_ref_t cs_keyring_ref;
->  
->  	us_keyring = get_user_session_keyring();
-> @@ -373,11 +373,7 @@ static struct key *find_cs_keyring(void)
->  		if (!IS_ERR(cs_keyring_ref))
->  			return key_ref_to_ptr(cs_keyring_ref);
->  	}
-> -	/* Search default locations: thread, process, session keyrings */
-> -	cs_keyring = request_key(&key_type_keyring, CERT_STORE_KEYRING_NAME, NULL);
-> -	if (IS_ERR(cs_keyring))
-> -		return NULL;
-> -	return cs_keyring;
-> +	return NULL;
->  }
->  
->  static void cleanup_cs_keys(void)
-> -- 
-> 2.56.1
-> 
+> hugetlbfs_fallocate() rounds the range end up by adding hpage_size - 1
+> to offset + len. vfs_fallocate()'s existing overflow check only makes
+> sure that offset + len does not overflow.
+>=20
+> Once we overflow for valid endpoints near LLONG_MAX, we can get a
+> negative temporary result that is then converted to a very large
+> huge page index.
+>=20
+> A one-byte allocation ending at LLONG_MAX can therefore consume all
+> available huge pages. Pages added beyond LLONG_MAX are skipped during
+> inode eviction, leaking them and triggering the BUG_ON() in clear_inode().
+>=20
+> To fix it, calculate the end index in a simpler way that cannot
+> overflow. This also fixes the signed overflow reported by luojiajun in
+> 2019.
+> [ ... ]
+> Reviewed-by: Ackerley Tng <ackerleytng@google.com>
+> Tested-by: Gregory Price (Meta) <gourry@gourry.net>
+> Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
+> Acked-by: Oscar Salvador <osalvador@suse.de>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
+Sashiko has reviewed this patch and found no issues.
 
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-fixes_huge=
+tlb-v2-0-4dd9e94ea9ac@kernel.org?part=3D1
 
-Br, Jarkko
