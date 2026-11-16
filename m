@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794855915;
-	b=c9WuZnJVroSvCRrg/SSzL3cjWzpL6B5rsiHLVNXYcc2gyt2n3fPklsIC8ecpsSY8Gbl4
-	 TdG6UqMNcnCsDQ2hjVvYTiRVm1LjOBEJzTIxFsvKKWw1ighga92GGspe1Dz7UVz4gYTi0
-	 0y1rV5vLohqitOrOThyZAfrWrCvwdOrfu50ehdYC1dpOagvJeEVmpdzwCtXqsrjg0m0yh
-	 rEaTdKiGcvXdrk24O3NZ++6y1a5qL1E83SWnfJxsRWyOE7b24lbFDwJjObVkliovsm088
-	 kypm5N6lHQQmQL8x3Hd57pEn3uV7wbbooCO88xCWiy3YSmQ/XCl56TKpzoWReJ3eMYw==
+	b=LeCKmZ7ecdZuQQUH7xmPgguL69QaU/YZJ7uey385kxe4VHa6lXssHADpPgMdpZjcwQES
+	 2cr3QjAViWvolft6tsvTBywSh4qzVu4YPeQU8wQ0AUPpip5blUm4XR9Nf10audQoxOwvM
+	 m+C/1fhXN6BHVX8cWMYeb7dWpssnuVhQv/3z2GBLyiALy5ekf3iG/lyhW4oOvNd8Kw9N5
+	 MLLpvQgUu0uNbpCQsIEbWIEIE3t/IcoBUf0fBerh+E4xTk1P9o1Zes1OprN8KtcTnMOI5
+	 UDdag626hpdYVntGdEK6IcVBQglUY+eG8QDsl1fof+NvIUFCaNiQ0MgU59YxCFtYIsQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794855915;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=hQMyvlUDDpZq+isIjPVMWQxFOYkJetCUfOz7fLnlOBM=;
-	b=4NMQW7Udpi9Y1Rxd9L3tdj1rLT6BRhWOUw+frhTLluB+uOxZD2znHCTXtxOFypjDz+He
-	 hUonz+SIE1SWYn1P83450k43Xvrp4CjV9fGjLKLIw+G9o9kAUdTifTBvpakoPxGPaEJlg
-	 1istulR941eWrnw9hFXxV1oTCqQ8RDzTWMTiwKF31UCZ0Gg6O4ZWSvcrwIktjgpvgOzwM
-	 nGO6NuVRfSTJblw1Bte6lnJbjYbhaDG6ASZEakg4ZUzrEMfjy4AP1N+C14aizGmBGDM8z
-	 JtnSYLRdLN2Derxo/5WSQPpOMAHbVg6lXTKBkxYwtXmcK5DKGCx3gZvk0vk9wpMguww==
+	bh=pm4TS8OcCIHbNL9lCyS5yC/Is7ktO29O75N9j2v8c+k=;
+	b=aw00mqehGYRO1V3UIT4ph+/mTn9yDdYlzYilkkFtmgSM19ywVJxkLRlgZcMGD0J0Ufqs
+	 AZyiWv2jvMqgaWG+Dta1e4uBHppTSgtJi5ab3dNgoRU5WC44A9gvZv+jZN3dvNyN5GRK3
+	 j/lqEjnBl73KQnbeyDsKCsqzoqr5tMe+0kAv5w+JfLPXHVdADP71kinoL+xDvVqMhDqrC
+	 h55FJeIxveccW7Ho9623YUl7tMPlBAgL6Dmgg62tdbhiZ/ZW8bM02EljmECFxe35Lflb8
+	 UJou/HognZvyfdHehpOvQkeMDKWwgbV3tM26cTORAsZ9YD2dvrmji2QznNDIu1DaJ8g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=St0u2DJW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JMg4VnI2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4C71606A33D
-	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 19:05:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A10D9606A31C
+	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 19:05:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=St0u2DJW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6535E1F000C4;
-	Mon, 16 Nov 2026 19:05:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JMg4VnI2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3440A1F000C4;
+	Mon, 16 Nov 2026 19:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794855914;
-	bh=hQMyvlUDDpZq+isIjPVMWQxFOYkJetCUfOz7fLnlOBM=;
+	s=k20260515; t=1794855915;
+	bh=pm4TS8OcCIHbNL9lCyS5yC/Is7ktO29O75N9j2v8c+k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=St0u2DJWPYjshaFXAgSS5Eus7obP8pf5q/hi/4UlTTQnTMVcDo2vc24Eu77VupfbL
-	 7s283VgHA3fL3x20U6kzvQcC1VlVn9eDV8K/zzwPzwK3cs/fEAYB4/fz+TSTNtoBuV
-	 gsVv2FOCD5Rx5XFAY8Y01Bf/F6VLdQIzxeL6iieUdpFuY+BNNvMSvxELO8zWg4RPFF
-	 KDZsAMLgY5MGglfaWQ8H3URAYZpgOXtmR3gjjPHL9YH6pdVkM1T2lcB6klAJ68/gJv
-	 BAVEbXvU2D2m0yNCecjoHcS4ByRIBD+w349pGqbly6Pr87c/0bn5DP/ZKeWuHEnRxE
-	 XCZBbqVYOyK/w==
-Message-ID: <sashiko-outbox-217538@kernel.org>
+	b=JMg4VnI2fvcFQqREY2yKM+hbt9xGfoMDoVogn6yFX2aPvTeK/KC9L4zc8ln3H599+
+	 G8xlGB/f9AjfZ4qG99K+aCv1bsDM6uIxZNRb+uLFdgTZOL0/7D/kKj11LuaeoUiYNq
+	 GychK5uyxT17VOwXkvGgbF5FlKH26EE5H2d4iGNrC9BZ/w9dyueheFBQWL8etJ50dg
+	 e3J5f1oYE0cVZeyiRLCHYOHLI7HvD7869vYMYW20MVvlAkh0iD4ebF/2kYnAI5MP4/
+	 nGugq+M+q9FkDFlBouTjJ3DiCcebKSeC/0jlY69XTodDIgDZT6uAV3S3Ssu2MD9gB9
+	 kf7epFJDVheHA==
+Message-ID: <sashiko-outbox-217539@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 14/15] mm/hugetlb: account restored reservations
- before freeing folios
+Subject: Re: [PATCH v2 15/15] mm/hugetlb: delay anon folio rmap removal
+ until after the TLB flush
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261116-fixes_hugetlb-v2-14-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-15-4dd9e94ea9ac@kernel.org>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-14-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-15-4dd9e94ea9ac@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 19:05:13 +0000
+Date: Mon, 16 Nov 2026 19:05:14 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,32 +63,33 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Unmapping an anonymous folio restores its private VMA reservation
-> immediately, but the global reservation count is only restored when the
-> folio is freed.
+> After fork(), parent and child map anonymous folios read-only shared
+> by CoW. On a write fault, hugetlb_wp() reuses an anonymous page instead of
+> copying it if its mapcount is 1. As documented, switching to the safer
+> refcount would cause more harm than help with these scarce resources.
 >=20
-> If any folio reference delays freeing, closing the VMA or refaulting can
-> decrement resv_huge_pages before it was incremented. This can underflow
-> the counter or hide another mapping's reservation, allowing an unreserved
-> allocation to consume its backing.
+> munmap() and MADV_DONTNEED unmap such folios and decrement the mapcount
+> before the TLB is flushed. Until then, another thread of the process can
+> still read the page through a stale TLB entry:
 >=20
-> Increment resv_huge_pages when restoring the reserve map instead. Detach
-> the folio from its subpool, since the restored reservation now owns that
-> charge. Leave the restore-reserve flag clear so freeing the folio does not
-> repeat the accounting. The folio only becomes free after its last referen=
-ce
-> is dropped.
->=20
+>     child: reader        child: munmap()       parent: writer
+>     =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D        =3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D       =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>     reads the page
+>                          clears the entry
+>                          mapcount drops to 1
+>                                                store to the page
 > [ ... ]
+> for applications with different parent vs. child trust boundaries.
 >=20
-> Fixes: df7a6d1f6405 ("mm/hugetlb: restore the reservation if needed")
-> Cc: stable@kernel.org
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary link=
+ed list for accumulating pages")
+> Reported-by: Chris Mason <mason@kernel.org>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-fixes_huge=
-tlb-v2-0-4dd9e94ea9ac@kernel.org?part=3D14
+tlb-v2-0-4dd9e94ea9ac@kernel.org?part=3D15
 
