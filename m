@@ -1,63 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794834039;
-	b=w7XKtbhVFxwhL0Cy3wi2qCaLeg3NrS/5XpzpBr+QY7dcMbbIeX36gKRZdLWoTZb8Jmyb
-	 pWPvU/FIcdpyFyudahW76QUG+3/Gr43wZ+eouqHlldNG8+5rp8TLKn+pRZL2pKE6eDiXM
-	 gioxzioj34G9u/05w8lo/AdcjBUKyLcVLxWPDB/d56xZZqYC+rnW5ZD6CUmRg4K6amp0X
-	 ZrLpuXZPbSS2dg6mYMIxi/3NNvNazWL8TlSo/uPXsxs/zjzflGzvvXohcTwPb7H0lzDPh
-	 2LoycfChzhcPN6WjFU5yUu3RQemWOr/pcnTY30BZc49imQ4x4hfegNxu+THksCH78lw==
+	t=1794834466;
+	b=KGtEDc/TxMDOMw+0AiMLHPMwGl4Zw2NbbYLv5lCTZbbwohsl4jH3xpM4r+HCnXY4M+hG
+	 LKLb5DB+AvpU2ihX6nXDJts//PLqtTkR3P+VrePwUbS/PtrYvUMPExi+ZcKQGN2PAFPpU
+	 W+59eJaXTjIB0uxeM6tv3+e+9/53yiKRqKiWu2UOKhXE1lD2gF2jx6u/2KlNAtM/njlJF
+	 f7Jm7yQRJH8vPlYNvcCtyafnm8F5QLMm8pEPHxz+JozijqR3gjNw8b7YjtDpjaJxjLXzX
+	 x8Akm4zdVd7dhGVH7AjBQhO71gRRVVRPK3pLJL3kn+MhO6Uh6uXRv1a4lEZolEVFs5g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794834039;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=3B7OyocIRHjJ2dbD2X+MT3B53RHHwGiwuhiBvqIoS8w=;
-	b=BfEgD2sFUZrZCPJzNECWJFvUZ2RvMaZ7cWbUZW/co4BS+YDaMc2kw3zeRYrjIW2hLEno
-	 /Vom8X0jUrsDv7mhjNJdYBQepRVnkNRNKmxEbrOXmhu5WvJrV2PxTYezEOIsXloac6ivG
-	 bL8UFOxa7+4xNHzRItuygzj3lIHfRwSMGcmNTKfqvrbST36DBTQncJK8e5lhZScy8rgAO
-	 B24s4Lk0JDcT4efg8mVf3D5wI21IoS+Eg+nnqICtKelskhQcXlC+8sei+U9V2psyzZ0Yy
-	 Tdnbk1h4fOfIRa+tY5t67ZevOcz3+OW62tlbrfNTG0aA+m8IgSOCPjnxxdXdpQTdSxA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794834466;
+	h=DMARC-Filter:Received:Received:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Rspamd-Pre-Result:X-Rspamd-Queue-Id:
+	 X-Rspamd-Pre-Result:X-Rspamd-Action:X-Rspamd-Server:X-Spam-Level:
+	 X-Spamd-Result:X-Spam-Flag:X-Spam-Score;
+	bh=/79yD/ePkhOWtFp46GUyu6ts/vcC2MmXQ7vdqbMevlI=;
+	b=vEHDvFYyvgdnD1Y+jx93AZMPCgvvL6MoPTJMcAC8BZ6SJuDYM55/Z/q7hx/9yBuSggXH
+	 OQusekW48FW4iv3GDo9N5euk+XaFSwEyhR8DkQV6dl1OVrJIUw5CNvoKgopDL1KwC54Pd
+	 tx1y2vY/q92EQhBHM/nrbgSnGlsu4QRtywI3YpDVNYbd5cP/Bv0LSqWw1Ve2K17Y9S8eY
+	 8Obluy/ETsyN3EOWnh5LOPAM8KNivlDWKu5FAeD4cBt/sgTIe6XV0bKFGcxJdNfb0tnEi
+	 RQLOAU1ccCnzrvzFtZtOTfhRTcwaRIWjVE0RYfGhCEp+ZfsyTENVBzQw7ccosh89a+w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nIdxuvzt;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=suse.cz;
+	spf=pass smtp.mailfrom=suse.cz;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05A19606A33A;
-	Mon, 16 Nov 2026 13:00:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nIdxuvzt
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C0F1F000C4;
-	Mon, 16 Nov 2026 13:00:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794834038;
-	bh=3B7OyocIRHjJ2dbD2X+MT3B53RHHwGiwuhiBvqIoS8w=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=nIdxuvztI9+VcvKL/NpmGo+VzFJG/gXvgbpa025zQE6xcLzZdsdZFtH7CxrCPVtSK
-	 av2dHzf4ETYtjRhrH6/LEhMZ1fBteknXOZL22Y1B1p8dO39DNy+p86BIAJxOFEmlur
-	 9i1pClXcTcYVJ7xXn7hDd5Vto79uO1brepfdiTy7MrtgRaOk1cd+Dkmj8S9DY0YBBA
-	 +ZjgkT/DNy+vsknbFxcDWoQk/0C/38hsWSmBl3clchGyRy3wZEYmw3eecVVugg9Gbj
-	 +Mot1TKSofGdo08QRAyKNWRlygtKESEOnmxckO5CyOl6dvim1JDTvTOLycXmR/xB8Y
-	 zlRShn5fT4D3w==
-Subject: Re: [PATCH net v9 3/6] net/smc: bound the send length to the send
- buffer in smc_tx_sendmsg()
-From: netdev-bot+sashiko@kernel.org
-To: hexlabsecurity@proton.me
-Cc: mjambigi@linux.ibm.com, dust.li@linux.alibaba.com, edumazet@kernel.org,
- pabeni@redhat.com, davem@davemloft.net, kuba@kernel.org,
- alibuda@linux.alibaba.com, sidraya@linux.ibm.com, ubraun@linux.ibm.com,
- wenjia@linux.ibm.com, raspl@linux.ibm.com, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, guwen@linux.alibaba.com,
- tonylu@linux.alibaba.com, horms@kernel.org, guangguan.wang@linux.alibaba.com,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org, hidayath@linux.ibm.com
-Date: Mon, 16 Nov 2026 13:00:37 +0000
-Message-ID: <179483403722.3136.1364122923722036240@kernel.org>
-In-Reply-To: <20261112-b4-disp-0287c16e-v9-3-e5e8fa688177@proton.me>
-References: <20261112-b4-disp-0287c16e-v9-3-e5e8fa688177@proton.me>
-X-sashiko-severity: Low
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC42A606A334;
+	Mon, 16 Nov 2026 13:07:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DC42A606A334
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 19E8621DC4;
+	Mon, 16 Nov 2026 13:07:44 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
+	none
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DE2B51334C;
+	Mon, 16 Nov 2026 13:07:43 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id BvIgLh8A+2pNEgAAD6G6ig
+	(envelope-from <jack@suse.cz>); Mon, 16 Nov 2026 13:07:43 +0000
+Received: by quack.suse.cz (Postfix, from userid 1000)
+	id 6CC7424E06; Mon, 16 Nov 2026 14:07:43 +0100 (CET)
+Date: Mon, 16 Nov 2026 14:07:43 +0100
+From: Jan Kara <jack@suse.cz>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
+	Chris Mason <mason@kernel.org>, Josef Bacik <josef@toxicpanda.com>, 
+	Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	linux-nfs@vger.kernel.org, netdev@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org, ocfs2-devel@lists.linux.dev, 
+	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
+	Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH RFC v3 35/44] fs: add file_check_backing()
+Message-ID: <fvmgoq6g3orrcbz5j7xoxrqkz4kc4jiopndjfar4cv45pj2y4g@bfgcucrsffnm>
+References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
+ <20261116-work-loop-pseudo-v3-35-8cbbea1cf34f@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,204 +79,166 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261116-work-loop-pseudo-v3-35-8cbbea1cf34f@kernel.org>
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Queue-Id: 19E8621DC4
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
+X-Spam-Flag: NO
+X-Spam-Score: -4.00
 
-Thank you for your contribution! Sashiko AI review found more severe
-issue(s) in other patches of this series. This mail is only an FYI, in case
-you want to address the nit picks below when you respin.
+On Mon 16-11-26 12:05:08, Christian Brauner wrote:
+> Loop, zloop, the nvme target, the scsi target, fuse passthrough, the usb
+> mass storage gadget, erofs and acct all take a file from userspace and
+> use it as storage. Currently, each of them has its own idea of what to
+> check before using a file like that:
+> 
+> - loop and the gadget check for a regular file or a block device, the
+>   nvme target, the scsi target and zloop take any file type
+> - loop checks the open mode, the gadget checks FMODE_CAN_READ, the nvme
+>   target, the scsi target and zloop only check for ->read_iter() and
+>   ->write_iter()
+> - apart from acct which refuses procfs and sysfs files none of them
+>   cares whether the file is a kernel interface
+> 
+> Add a helper that does all of it in one place. It only accepts regular
+> files and, if the caller passes S_IFBLK, block devices. It refuses files
+> on pseudo filesystems. And it checks that the file is open for what the
+> caller is going to do with it and implements ->read_iter() for reading
+> and ->write_iter() for writing.
+> 
+> O_PATH files are refused unless the caller passes FMODE_PATH. That is
+> for callers that only need the path of the file. fuse passthrough is
+> one of them and has accepted O_PATH file descriptors since commit
+> efad7153bf93 ("fuse: allow O_PATH fd for FUSE_DEV_IOC_BACKING_OPEN").
+> 
+> Block devices are fine even though bdevfs is a pseudo filesystem. A
+> block device that userspace hands in is a device node on devtmpfs or
+> some other filesystem. Files on bdevfs only come from
+> bdev_file_open_by_*() and never end up here.
+> 
+> The pseudo filesystem check looks at the inode that actually provides
+> the data via d_real_data_inode(). overlayfs accepts sysfs, cgroup2,
+> debugfs, tracefs, configfs and securityfs as lower layers and reads of
+> such an overlayfs file are served by the file on the pseudo filesystem.
+> Checking the overlayfs inode would miss that.
+> 
+> For an O_PATH file nothing might have looked up the data yet. overlayfs
+> only looks up the data of a metacopy file in a data-only layer when the
+> file is opened. d_real_data_inode() does the lookup then and if that
+> fails we return the error.
+> 
+> Note that the file type is taken from the inode of the file and not from
+> the host of ->f_mapping like loop and the gadget do it. A driver can
+> point ->f_mapping somewhere else in ->open(). It makes no difference for
+> block devices as both inodes are block devices.
+> 
+> No functional changes. Nothing calls the helper yet.
+> 
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-Low priority / nit picks for your consideration:
+Looks good to me. Feel free to add:
 
-- [Low] The patch changes the sndbuf_space invariant comment to "can be
-  out of range" in smc_cdc_tx_handler() (net/smc/smc_cdc.c:46) and after…
+Reviewed-by: Jan Kara <jack@suse.cz>
 
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the clamp in
-  smc_tx_sendmsg() limits writespace to sndbuf_desc->len (the allocation…
-- [High] This problem wasn't introduced by this patch, but the failover
-  catch-up in smc_switch_cursor() and the completion handler…
+								Honza
 
---
-
-net/smc: bound the send length to the send buffer in smc_tx_sendmsg()
-
-This commit clamps writespace in smc_tx_sendmsg() to sndbuf_desc->len,
-negative values included. The goal is to keep the copy inside the send
-buffer when conn->sndbuf_space has been over-credited after an SMC-R
-link failover or through SMC-D DMB merge. It also rewrites the
-sndbuf_space invariant comments in smc_cdc_tx_handler() and
-smc_tx_sendmsg().
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index e2c765ff2ba35..90a79a983b485 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-> @@ -43,7 +43,7 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
->  		/* sndbuf_space is decreased in smc_sendmsg */
->  		smp_mb__before_atomic();
->  		atomic_add(diff, &cdcpend->conn->sndbuf_space);
-> -		/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-> +		/* can be out of range, see smc_tx_sendmsg() */
-
-[Severity: Low]
-The comment is updated here and after the atomic_sub() in
-smc_tx_sendmsg(). Two other sndbuf_space credit sites in smc_cdc.c still
-have the old wording.
-
-The dmb_nocopy branch of smc_cdc_msg_recv_action():
-
-    atomic_add(diff_tx, &conn->sndbuf_space);
-    /* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-
-and smcd_cdc_msg_send():
-
-    atomic_add(diff, &conn->sndbuf_space);
-    /* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-
-The new comment in smc_tx_sendmsg() and the commit message both list the
-DMB merge path as a way for sndbuf_space to go out of range ("with SMC-D
-DMB merge it follows the peer's consumer cursor"). That makes the comment
-in smc_cdc_msg_recv_action() contradict them.
-
-Should these two comments be updated too? As far as I can see, no later
-patch in the series touches smc_cdc.c, so both are still there at the
-end of the series.
-
->  		smp_mb__after_atomic();
->  		smc_curs_copy(&conn->tx_curs_fin, &cdcpend->cursor, conn);
->  		smc_curs_copy(&conn->local_tx_ctrl_fin, &cdcpend->p_cursor,
-
-[Severity: High]
-This is a pre-existing issue and was not introduced by this patch. Is
-the failover catch-up in smc_switch_cursor() serialized against this
-handler at all?
-
-smc_switch_conns() holds only the send_lock:
-
-    spin_lock_bh(&conn->send_lock);
-    smc_switch_link_and_count(conn, to_lnk);
-    rc = smc_switch_cursor(smc, pend, wr_buf);
-    spin_unlock_bh(&conn->send_lock);
-
-smc_cdc_tx_handler() runs from the old link's CQ tasklet and holds only
-bh_lock_sock(&smc->sk). Both read tx_curs_fin and local_tx_ctrl_fin, and
-both credit conn->sndbuf_space.
-
-Can this interleaving credit the same bytes twice?
-
-CPU1 smc_switch_cursor()
-    smc_curs_copy(&conn->tx_curs_sent, &conn->tx_curs_fin, conn);
-    smc_curs_copy(&fin, &conn->local_tx_ctrl_fin, conn);
-
-CPU2 smc_cdc_tx_handler() (late completion from the old link)
-    atomic_add(diff, &cdcpend->conn->sndbuf_space);
-    smc_curs_copy(&conn->tx_curs_fin, &cdcpend->cursor, conn);
-    smc_curs_copy(&conn->local_tx_ctrl_fin, &cdcpend->p_cursor, conn);
-
-CPU1
-    diff = smc_curs_diff(conn->peer_rmbe_size, &fin, &cons);
-    ...
-    atomic_add(diff, &conn->sndbuf_space);
-
-CPU1 computes diff from its stale fin snapshot, so it credits again the
-bytes that CPU2 already credited.
-
-In this commit, smc_switch_cursor() also updates tx_curs_fin and
-local_tx_ctrl_fin with a plain read-modify-write smc_curs_add(), and
-that can tear against the handler's smc_curs_copy(). The later patch in
-this series, "net/smc: bound the link failover cursor advance to the
-send buffer", replaces those adds with smc_curs_copy() and fixes the
-tearing. Its commit message says the double credit remains:
-
-  "The switch is still not serialized against the handler: a completion
-  handled inside it is still credited more than once and can make the
-  next write hand the peer bytes it has already read."
-
-The result is an inflated sndbuf_space. The clamp in smc_tx_sendmsg()
-only bounds it where it is used.
-
-> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> index 0f0c6df3bf2ce..3913ef103b356 100644
-> --- a/net/smc/smc_tx.c
-> +++ b/net/smc/smc_tx.c
-> @@ -233,6 +233,14 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->  		/* initialize variables for 1st iteration of subsequent loop */
->  		/* could be just 1 byte, even after smc_tx_wait above */
->  		writespace = atomic_read(&conn->sndbuf_space);
-> +		/* sndbuf_space can be out of range: late completions of an
-> +		 * old SMC-R link credit it again after a failover, and with
-> +		 * SMC-D DMB merge it follows the peer's consumer cursor.
-> +		 * Bound writespace, which sizes the copy; a negative value
-> +		 * would become huge in the size_t min_t() below.
-> +		 */
-> +		if (writespace < 0 || writespace > conn->sndbuf_desc->len)
-> +			writespace = conn->sndbuf_desc->len;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but with writespace clamped
-only to sndbuf_desc->len, can the send ring still overwrite data that
-has not been sent or acknowledged?
-
-The clamp limits the copy to the size of the allocation. It does not
-limit it to the space that is actually free between tx_curs_fin and
-tx_curs_prep.
-
-Suppose sndbuf_space holds S > len. Each loop iteration copies up to len
-bytes starting at tx_curs_prep.count, then does:
-
-    atomic_sub(copylen, &conn->sndbuf_space);
-
-That leaves S - len > 0, so this check stops neither the loop nor later
-sendmsg() calls:
-
-    if (!atomic_read(&conn->sndbuf_space) || conn->urg_tx_pend) {
-
-A few consequences seem to follow.
-
-First, memcpy_from_msg() overwrites [tx_curs_fin, tx_curs_prep). That
-range holds bytes that are prepared but not yet sent and, for SMC-R,
-bytes still being read by posted RDMA WRITEs. With SMC-D dmb_nocopy the
-range is the peer's DMB. Either way, the peer silently receives the
-wrong data.
-
-Second, tx_curs_prep can get more than one ring ahead of tx_curs_sent.
-smc_curs_diff() handles only a single wrap:
-
-    if (old->wrap != new->wrap)
-        return max_t(int, 0,
-                     ((size - old->count) + new->count));
-
-so to_send in smc_tx_rdma_writes() comes out wrong, and bytes get
-duplicated or lost. When peer_rmbe_size > sndbuf_desc->len, a single
-write can carry more than sndbuf_desc->len bytes. The source reads stay
-in bounds because the second source chunk is at most prep.count, which
-is less than len.
-
-Third, smc_tx_should_cork() pushes only once sndbuf_space reaches 0:
-
-    if ((msg->msg_flags & MSG_MORE ||
-         smc_tx_is_corked(smc)) &&
-        atomic_read(&conn->sndbuf_space))
-        return true;
-
-With MSG_MORE or TCP_CORK set and an inflated value, corked data can be
-overwritten before it is flushed.
-
-A conforming peer can still trigger the over-credit at the end of the
-series. A late completion from the old link in smc_cdc_tx_handler()
-does smc_curs_copy(&conn->tx_curs_fin, &cdcpend->cursor, conn), which
-moves fin back. The next completion then credits the same bytes again.
-The commit message acknowledges this: "send() can still overwrite data
-in the send buffer that the peer has not received".
-
-Could writespace also be bounded by len minus the bytes outstanding
-between tx_curs_fin and tx_curs_prep? Or is a follow-up planned that
-fixes the credit in smc_cdc_tx_handler()?
-
->  		/* not more than what user space asked for */
->  		copylen = min_t(size_t, send_remaining, writespace);
->  		/* determine start of sndbuf */
-
-[ ... ]
-
+> ---
+>  fs/read_write.c    | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/fs.h |  2 ++
+>  2 files changed, 55 insertions(+)
+> 
+> diff --git a/fs/read_write.c b/fs/read_write.c
+> index 6767283108991..9f1e7bfcbd4f1 100644
+> --- a/fs/read_write.c
+> +++ b/fs/read_write.c
+> @@ -866,6 +866,59 @@ static ssize_t do_loop_readv_writev(struct file *filp, struct iov_iter *iter,
+>  	return ret;
+>  }
+>  
+> +/**
+> + * file_check_backing - check that the kernel can use a file as storage
+> + * @file: file that userspace handed in
+> + * @mode: FMODE_READ and/or FMODE_WRITE the kernel will do I/O with, or
+> + *        FMODE_PATH if only the path of @file is used
+> + * @type: S_IFBLK if a block device is fine as well, 0 otherwise
+> + *
+> + * Call this where a file from userspace is taken as a backing file. Only
+> + * regular files and, if @type is S_IFBLK, block devices are storage. Files
+> + * on pseudo filesystems are kernel interfaces and are refused. The file
+> + * must be open for @mode and implement ->read_iter() for reading and
+> + * ->write_iter() for writing. O_PATH files are only fine with FMODE_PATH.
+> + *
+> + * Return: 0 on success, -EBADF if @file isn't open for @mode, -EINVAL if it
+> + * can't be used as storage, or the error from looking up the data of @file
+> + * on a stacking filesystem.
+> + */
+> +int file_check_backing(const struct file *file, fmode_t mode, umode_t type)
+> +{
+> +	fmode_t io = mode & (FMODE_READ | FMODE_WRITE);
+> +	/* Drivers may point ->f_mapping at something else. */
+> +	umode_t fmt = file_inode(file)->i_mode & S_IFMT;
+> +	struct inode *real_inode;
+> +
+> +	/* O_PATH files are only fine for callers that just use the path. */
+> +	if ((file->f_mode & FMODE_PATH) && !(mode & FMODE_PATH))
+> +		return -EBADF;
+> +
+> +	if ((file->f_mode & io) != io)
+> +		return -EBADF;
+> +
+> +	if (fmt != S_IFREG && !(type == S_IFBLK && fmt == S_IFBLK))
+> +		return -EINVAL;
+> +
+> +	/* Look through stacking filesystems at the inode with the data. */
+> +	real_inode = d_real_data_inode(file->f_path.dentry);
+> +	if (IS_ERR(real_inode))
+> +		return PTR_ERR(real_inode);
+> +	if (real_inode->i_sb->s_iflags & SB_I_PSEUDO)
+> +		return -EINVAL;
+> +
+> +	if ((mode & FMODE_READ) &&
+> +	    (!(file->f_mode & FMODE_CAN_READ) || !file->f_op->read_iter))
+> +		return -EINVAL;
+> +
+> +	if ((mode & FMODE_WRITE) &&
+> +	    (!(file->f_mode & FMODE_CAN_WRITE) || !file->f_op->write_iter))
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(file_check_backing);
+> +
+>  ssize_t vfs_iocb_iter_read(struct file *file, struct kiocb *iocb,
+>  			   struct iov_iter *iter)
+>  {
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 99caef43ff3c4..b1c7ebafbadbe 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -2553,6 +2553,8 @@ static inline const struct inode *file_user_inode(const struct file *f)
+>  	return file_inode(f);
+>  }
+>  
+> +int file_check_backing(const struct file *file, fmode_t mode, umode_t type);
+> +
+>  static inline struct file *file_clone_open(struct file *file)
+>  {
+>  	return dentry_open(&file->f_path, file->f_flags, file->f_cred);
+> 
+> -- 
+> 2.53.0
+> 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261112-b4-disp-0287c16e-v9-0-e5e8fa688177%40proton.me
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
