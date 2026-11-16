@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794792564;
-	b=sbwn8GsRQLy2qeqCNSZNquCyk+8Uy0nS/gWM2YnLQlqyP9QgxAl1KgeU2bzlT1xvNdT3
-	 BFI6iLE9tOwgAaxLLdBNU4Z5MvN+w6rRHJ+pTiYwKygW6+y4yf26Cgdm8TcNq9nrHcTHD
-	 Azqt3hBfiw2T/U8dpYrR851Jn/BUmIqkD5Wl1vvXIXF0BTF7+NaikH4eIJgoDfOYbdUR4
-	 eK7hTT6qM9EcXB9zH+bBo+ZR5aQu6dbr1+qjGpbKEbP+L8xU2f9Q0q0i1y8YsdTjbddku
-	 Yu0J5HYP+ACIAMPMbmNFA9cZFRJAtz+mqvy5SHURBf4Z+7G5sUwMJ1H4ynLxiEhmsTQ==
+	t=1794792565;
+	b=MaRSksP41G5yuR4+Co+3hTK72mU826wNwYqOKS748IbB0AX8TwpCJxrpabD2fnxwH4ZX
+	 p1hbEIMrPjUS1o4nVPCgDOPmdoZmrfDRJVwVHDGHxj6WrmFpOoMNTA5BMGsAv+AsCHTSR
+	 09Y/gYzbxRhw5KDqvTtYfehMVmn7EcKK33+dfUzgVZYGUEYRjPoDmOymfOI6UWtDTYYKt
+	 23wKiWfG0ClmsNDZdmd2JuLinCzXE9vgpX3ipD02ahZnkVVuaHf7V3zad9u6Jh+9aoaLN
+	 DzYcHCCmNxKuRMb/e94gCpD/fct3CnKdEtCAighgXf/agS8OFQc6VlFfeN4QGH54wfQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794792564;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794792565;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=q0VDy7IJDS4Iy+2GCyIthJ6SwdvErvWZOq0pOz18IvE=;
-	b=3JWcT9AcfmBPeCoYcCL8o7l5ppMXwQRFSSXfzZHTpiAIxbi2aVVgmUY1JUGQJ6eyfqlo
-	 a8U2ADoMftMA9V/78qJAvW6oHOEfocANrgvE/pxFRcVqZRPcvti167C3uDd+o0rl0OnbS
-	 k+ya18yEG6x0zctSJp6a7irjeLb7nNaR2mBkdbhefgfT4+kqIxIQKNUSiDgxeFzAfWSMN
-	 vnkd9s/fPlIPYjtZL2VSYFaboH1gruI3x7uKlHzMyhGuPFValUVLPPxR/AX3NoE7mkA4Z
-	 IdYwUMbkzIWILnTCAZe+dG9gBKBzNg2RuTJNN7CjpP1RveSqXjUyo81Fr0bH/+i2UNA==
+	bh=Ep41EjhYT8rOSyZQj8+Q+U9duSKQr7BiqbUnua48EvA=;
+	b=x3usOIik7UrOpy43i8ptsW3CPYbAOXfVxvJufWZRBGx1QySTWHwYbSukGBJNjSR5fYK+
+	 4z4rafqkUeAJWBowKNOPVYrwBSkZcaBByKPZyqiJy+k5ZLQeFfJg6BBhebCI6tCh6X9WX
+	 eM3XWefDRXiV83pvx+MEQoK1k0tKOBPfepQ7bMH4GXZpedJ9kyFBncy3xPbMCwv3IO70w
+	 ntRaUDLTY4tpExE0SsuHrBEtjxiSB4fYWY3Njef/hebiMMe9li4vQg7bNt30XdOQFvJLG
+	 PzGdDp+zev0b8aGMXZOGYBW5a1WNSaVOHEGqpCOmWlw35MEfpjvMyu7P+AOAd1ySMTQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nuugUn64;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IF8MUCFi;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8976606A31C
-	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 01:29:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE182606A31C
+	for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2026 01:29:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nuugUn64
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DA441F000C4;
-	Mon, 16 Nov 2026 01:29:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IF8MUCFi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380731F000C4;
+	Mon, 16 Nov 2026 01:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794792564;
-	bh=q0VDy7IJDS4Iy+2GCyIthJ6SwdvErvWZOq0pOz18IvE=;
+	s=k20260515; t=1794792565;
+	bh=Ep41EjhYT8rOSyZQj8+Q+U9duSKQr7BiqbUnua48EvA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nuugUn6433jiY3gHkWg1bEXvERzCu7Yrg4Nquwf9yrq0Te7nYqutxgou7+jJ77xO4
-	 /UzQyoFky4GfnO80SWt1wCr38oHpeXJKSPkyvt3mpfeiO9uChKUG6wv7QuqhIEJI34
-	 zLL9s4qdO+/nCD8YRCqQZq50UuWM8IVKskaPmLq3l9wnyED1bgZLRwng76etBzG+8I
-	 pFsk+93kp9WfpjhmaANNUjWe+Jnub/CmT6xAsain500ExqIdQl0ARYbswLQIeDeW9E
-	 MmBsfU7vSbceB3WM6OGuDKt9HWiPJ35Tx0O+khCM/ii3+X60HvfAmoBkJ6OjoMMr9E
-	 xhJLnGCOl+J6w==
-Message-ID: <sashiko-outbox-215993@kernel.org>
+	b=IF8MUCFixoXMWinJ6d+/oKc+k0BdyAGFbKuAoyYW6TP3GqQmCNiYfGf97HpCQac6C
+	 vnqGnwJgBjD15wFqhSWDvImPdKJaeiH88tVrUUxvJIuEgmi9r9326+uyNurzK8nUtu
+	 Xt8FIy2E4bKdhnRkQciT5K6OE1rVDRMDHd1bTzT/liefSC+3UpZNxVjav0QmkzxRlx
+	 c4okf44V8xm1QgCxg3Dss/eGymvirW/+q2JeZVGOs3ZbzEMnAixf6xMFfzXnQ8ROdA
+	 QKXEaFSsIw75AZ2D4Xfjtq5WRAD9wxJejPlt9pFoeWnsmLGbO1oybsrRkU3LGxQDp/
+	 OQ9qLYgEwtiNQ==
+Message-ID: <sashiko-outbox-215994@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC net v4 2/8] net/iucv: do not clear SEND_SHUTDOWN to
- send a control frame
+Subject: Re: [PATCH RFC net v4 3/8] net/iucv: fail sendmsg() with EPIPE once
+ sending is shut down
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bryam Vargas" <hexlabsecurity@proton.me>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261114-b4-disp-fc0634a3-v4-2-f96c506447ce@proton.me>
+In-Reply-To: <20261114-b4-disp-fc0634a3-v4-3-f96c506447ce@proton.me>
 References: <20261114-b4-disp-fc0634a3-v4-0-f96c506447ce@proton.me>
- <20261114-b4-disp-fc0634a3-v4-2-f96c506447ce@proton.me>
+ <20261114-b4-disp-fc0634a3-v4-3-f96c506447ce@proton.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Mon, 16 Nov 2026 01:29:24 +0000
@@ -65,22 +65,21 @@ Precedence: list
 
 > From: Bryam Vargas <hexlabsecurity@proton.me>
 >=20
-> iucv_send_ctrl() allocates with sock_alloc_send_skb(), which fails once
-> SEND_SHUTDOWN is set, so it clears the bit first and writes a copy of
-> sk_shutdown back afterwards. recvmsg() calls it for a window update and
-> the NETDEV_GOING_DOWN notifier for a FIN, both without the socket lock.
-> On a socket that has shut down sending:
+> sendmsg() tests SEND_SHUTDOWN on entry only, then waits for the peer's
+> window without the socket lock. When sending is shut down during that
+> wait, by shutdown(SHUT_WR) in another thread or by the peer's quiesce
+> over z/VM, the wait does not end and the call does not fail: the writer
+> waits out SO_SNDTIMEO, or, when the window opens first, sends its
+> record after the socket's SHT and the peer reads data after EOF. With
+> the peer's FIN in as well it returns -ECONNRESET for a stream its own
+> socket shut down.
 >=20
-> - A shutdown(SHUT_RD) done in between is undone when the copy is
->   written back: the call returned 0 and the socket still receives.
-> - sendmsg() can find SEND_SHUTDOWN clear and send data after the SHT of
->   a shutdown(SHUT_WR) that already returned.
+> End the wait when sending is shut down and test SEND_SHUTDOWN again
+> after it, ahead of the sk_state test, so the call fails with -EPIPE as
+> it does on entry.
 >=20
-> Allocate the control frame with sock_wmalloc() behind the test of
-> sk_sndbuf that sock_alloc_send_skb() makes, and leave sk_shutdown alone.
->=20
-> Fixes: 4e0ad3221691 ("Subject: [PATCH] af_iucv: enable control sends in c=
-ase of SEND_SHUTDOWN")
+> Fixes: 0ea920d211e0 ("af_iucv: Return -EAGAIN if iucv msg limit is exceed=
+ed")
 > Cc: stable@vger.kernel.org # 6.18.x
 > Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 
@@ -88,5 +87,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261114-b4-disp-fc=
-0634a3-v4-0-f96c506447ce@proton.me?part=3D2
+0634a3-v4-0-f96c506447ce@proton.me?part=3D3
 
