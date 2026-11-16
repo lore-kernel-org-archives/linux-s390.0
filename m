@@ -1,64 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794828509;
-	b=4izs2+urQhyfXGllBeRMI1Yp2GicoTNWRFilGtkB8LxWrJzF8Vw1INThxKtw9KL4yg8b
-	 YiVAB5fSkmymMjrXl26s7kRdjpPC26IXctdE+0JII0MtIjk+XCXIati+TktMLlSqQW7to
-	 kX/PI4T5s1I6oaeQzH0hvhpxAby17vZh52MAXRUAT4rsqi4lxgE7NrrF1JjvGaENg9ZXJ
-	 1EybDRox78WYU/hGOWMtjD0Dfv4JbQ2WPn3nj9AIVye227TMIhGIU3kGIWTG4EjZB4M1Z
-	 oSiSaKjZTYndY91M1qDKqnq0BCzRmvN3pzAgbb9kA7lfbW8pn0oiRfdogjHUX5pGomw==
+	t=1794828520;
+	b=TDEiFwaeCa4A82VVuROTHpc29WeDB/VFnk+QOm37opIwV1UjTsvQkY/lQfbi5u7qZliC
+	 hoM3MYE4JYd3sNX1wY6ssbzDohg0FwkpqUkGx9A/njQYu3ssFpjJdDKcZcGF76w6629k9
+	 +tIfs+JbrWU9uBpefK147l8n5Mk8aF7dZpJa6Vzwt2UA0/xIcArdZLL1WV1/rEFHEBCy5
+	 a5Q+POzjPajEpIl7RjqYJIN/Zvv6WlsxyiEFsVKMREylVaNujfgf+3qoa/FiB7XrWTgen
+	 InSUj6K2K4z+GRwpIkSSQh9w6WGPHNBtot8qQfVCiJ8MrqE8PMEWKh78KJ4ZIsmdykA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794828509;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794828520;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=RW3Nmjz+GbO91KVwbZw20axMMPWohpmxD8TXxvGg3/8=;
-	b=hnBvGu03zSiAs81by2ANpHZb19jv+DUGMP/aIl6YaFAgnWPz0wpMhoEhLjyZRDxv9NAZ
-	 XlKjsgifWFW3b2BHeKmBMojKktnpZhcLXq/f9AZW7e2i19lxrO5sIJDEPH5cY/E/D31+a
-	 DoR41klwLrJqFNLOL140H8Qk8Gsrc/gU/viJQOtJRMK7uc2aMWBUA/yJZxINMrI+za1bL
-	 0/k4qPcWbmGPAabWMTLSJxQ5H5wMQu3atMziHAUyUbnUXCvFg2OJpjRiAuD6am94HObBc
-	 VXmEYB0AxIZ/cuZxIU+O0wHDQSKFqSVKsVrTQxFn54q1VaVt28YOwQElVyvUH35w6kw==
+	bh=ga/GHY9OK2PnbqOmY8JihTbKvXihg8HGF2S/cCRwxYs=;
+	b=mQ65s7PecqIfNJ2sPMlqcQ9WTfPIGsc8p8XWlyzNNVtQDZPnDcuNPec8rYPnYmV102PV
+	 v0NuZzYPWlQrfU2bI31s2tQ9jMipl3W3KLpUU/ue4oDfoGBPVm6nI5l2zhHPhaTbUHAXl
+	 jXPLaGSkbcqP1jWUHq4q8ieRipdy2EgRNfpuVvnYUasFhHI5tfdCh2aGggl8ECVLFiD+N
+	 +QLEr0Idh1DnvNzPjOTSELa6wOvTYRU2yrKWyzMU4sy7FRjCYEpCBuMNuButD9ezp17Nw
+	 km23GpBYfUuROEBnrcPdLM/nvTqCZYCy3NQ0J5d70a2KkW931a6HB/1/kV/9Q1SY4ng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dgaswur9;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lQhqN3hC;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2D6F606A330;
-	Mon, 16 Nov 2026 11:28:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1958606A330;
+	Mon, 16 Nov 2026 11:28:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dgaswur9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E091F000C4;
-	Mon, 16 Nov 2026 11:28:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lQhqN3hC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDE91F000C4;
+	Mon, 16 Nov 2026 11:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794828508;
-	bh=RW3Nmjz+GbO91KVwbZw20axMMPWohpmxD8TXxvGg3/8=;
+	s=k20260515; t=1794828519;
+	bh=ga/GHY9OK2PnbqOmY8JihTbKvXihg8HGF2S/cCRwxYs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dgaswur9NKmVb2Cj2LBZvzzO++YPkgo2pM4LudFKJRS+BkMI5ErMhhAJqeDzhVlDv
-	 eCPlnjvzIK+Il93Dk6xH3UrLaJjZsGk3GL/xs8+hSbIxs45r7o6sNqCn1GqDoq24qq
-	 2QUS9uyBVKqILqww7albcp/nEZC5F+Gxqn2u6w+1S/QSyjVgBvEMBaBvy8oC1WrTZV
-	 rcnaX+dbnp5rdl8gyPjgXF2DkHTYsV59wdAhIGeMurQ7N8u+SHTHNYNZNVuKeBPD4z
-	 5O24la+RsvuF8Pvvu97OG2nsodEcHs5Rzt5fUjwVYjICfJDOyrd8HrYrpVXTeV62Oy
-	 fIYgTSktA3yuQ==
-Message-ID: <sashiko-outbox-216927@kernel.org>
+	b=lQhqN3hCBuHvSxiyoy/7ZLOaNV7VCo0NYyaIL9m9VSESNCn33lL6sclwWyd9LZO1t
+	 965LL1zdeeBUr80K7TildATR0161GgQrl4Rxs2W82v062E1P1YU+/Oo6aWfCYcmtS+
+	 7btXni3mU9mr75sNvWq3/MtZPs5r6PWHzOFZ1GC6sXRQ6A3lYnnp4UQf9E+oFOu//7
+	 EBCuAmKr13J/T7a0M78tmOp9HZNt3BP080n9cP4MKXEB0dq+ZOGZWeLUASj3a3Tosj
+	 Nqa5su+1OkHtnwgKWjChBZH/pI2rGuepDNVAYkVxsXPDyxJ8G5yvuVtD6TL3LZI26T
+	 Ab8So2VuMmnuQ==
+Message-ID: <sashiko-outbox-216928@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v3 34/44] selftests/ovl: test data-only layers on
- pseudo filesystems
+Subject: Re: [PATCH RFC v3 30/44] powerpc/spufs: use fc_init_pseudo()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
-Cc: "Jann Horn" <jannh@google.com>, "Chris Mason" <mason@kernel.org>, "Josef
- Bacik" <josef@toxicpanda.com>, "Christoph Hellwig" <hch@lst.de>, linux-nvme@lists.infradead.org, "Alexander
- Viro" <viro@zeniv.linux.org.uk>, "Jan Kara" <jack@suse.cz>, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux-mm@kvack.org, bpf@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, apparmor@lists.ubuntu.com, linux-efi@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Amir
- Goldstein" <amir73il@gmail.com>, "Chuck Lever" <cel@kernel.org>, "Jeff
- Layton" <jlayton@kernel.org>, "Anna Schumaker" <anna@kernel.org>, "Heiko
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261116-work-loop-pseudo-v3-34-8cbbea1cf34f@kernel.org>
+In-Reply-To: <20261116-work-loop-pseudo-v3-30-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
- <20261116-work-loop-pseudo-v3-34-8cbbea1cf34f@kernel.org>
+ <20261116-work-loop-pseudo-v3-30-8cbbea1cf34f@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 11:28:27 +0000
+Date: Mon, 16 Nov 2026 11:28:38 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -68,94 +63,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Low] selftests/ovl: missing prerequisite skips in setup_tmp() and
-  tests
-- [Low] selftests/ovl: duplicated setup_tmp() and datadir test cases
---
+> Initialize spufs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. spufs never holds executables or
+> device nodes.
+>=20
+> SB_I_NOEXEC also refuses PROT_EXEC mappings. The spufs files that can
+> be mapped expose local store and problem state areas of the SPU,
+> nothing the PPU executes.
+>=20
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-commit 9dfbd53c60eeeb8dceed3a46417fda9ee76bb58b
-Author: Christian Brauner <brauner@kernel.org>
-
-selftests/ovl: test data-only layers on pseudo filesystems
-
-This commit adds an overlayfs selftest verifying that data-only layers on
-pseudo filesystems (sysfs and procfs) are rejected while tmpfs data-only
-layers and sysfs lower layers remain allowed.
-
-> diff --git a/tools/testing/selftests/filesystems/overlayfs/pseudo_datadir=
-.c b/tools/testing/selftests/filesystems/overlayfs/pseudo_datadir.c
-> new file mode 100644
-> index 0000000000000..3b59fd3e9f5c2
-> --- /dev/null
-> +++ b/tools/testing/selftests/filesystems/overlayfs/pseudo_datadir.c
-> @@ -0,0 +1,131 @@
-[ ... ]
-> +static int setup_tmp(void)
-> +{
-> +	if (unshare(CLONE_NEWNS))
-> +		return -errno;
-> +	if (sys_mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL))
-> +		return -errno;
-> +	if (sys_mount("tmpfs", "/tmp", "tmpfs", 0, NULL))
-> +		return -errno;
-> +	if (mkdir("/tmp/lower", 0755) || mkdir("/tmp/data", 0755) ||
-> +	    mkdir("/tmp/merged", 0755))
-> +		return -errno;
-> +	return 0;
-> +}
-
-[Severity: Low]
-Should these tests invoke SKIP() with a reason string when root privileges
-or kernel overlayfs support are unavailable?
-
-Running this test without root privileges causes setup_tmp() to fail with
--EPERM on unshare(CLONE_NEWNS), and running on a kernel without
-CONFIG_OVERLAY_FS causes mount_lowerdir() and fsmount_layers() to return
--ENODEV, failing all four tests in make run_tests instead of skipping them.
-
-[ ... ]
-
-> +TEST(datadir_sysfs)
-> +{
-> +	ASSERT_EQ(setup_tmp(), 0);
-> +
-> +	EXPECT_EQ(mount_lowerdir("/tmp/lower::/sys/kernel"), -EINVAL);
-> +	EXPECT_EQ(fsmount_layers("/tmp/lower", "/sys/kernel", false), -EINVAL);
-> +	EXPECT_EQ(fsmount_layers("/tmp/lower", "/sys/kernel", true), -EINVAL);
-> +}
-> +
-> +TEST(datadir_procfs)
-> +{
-> +	ASSERT_EQ(setup_tmp(), 0);
-> +
-> +	EXPECT_EQ(mount_lowerdir("/tmp/lower::/proc"), -EINVAL);
-> +	EXPECT_EQ(fsmount_layers("/tmp/lower", "/proc", false), -EINVAL);
-> +	EXPECT_EQ(fsmount_layers("/tmp/lower", "/proc", true), -EINVAL);
-> +}
-> +
-> +TEST(datadir_tmpfs)
-> +{
-> +	ASSERT_EQ(setup_tmp(), 0);
-> +
-> +	EXPECT_EQ(mount_lowerdir("/tmp/lower::/tmp/data"), 0);
-> +	EXPECT_EQ(fsmount_layers("/tmp/lower", "/tmp/data", false), 0);
-> +	EXPECT_EQ(fsmount_layers("/tmp/lower", "/tmp/data", true), 0);
-> +}
-> +
-> +TEST(lowerdir_sysfs)
-> +{
-> +	ASSERT_EQ(setup_tmp(), 0);
-
-[Severity: Low]
-This isn't a bug, but could setup_tmp() move into a FIXTURE_SETUP() block,
-and could the three datadir_* tests be parameterized with FIXTURE_VARIANT()
-over the path and expected return code to avoid duplicating the setup and
-mount sequence?  Also, since set_layers_via_fds.c already tests lowerdir+
-and datadir+ layer configuration, should these cases live there instead of
-in a new standalone binary?
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-work-loop-=
-pseudo-v3-0-8cbbea1cf34f@kernel.org?part=3D34
+pseudo-v3-0-8cbbea1cf34f@kernel.org?part=3D30
+
