@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794828022;
-	b=JVP4A9gU8RLOmHRtDEIdjSzlsWyBRAUSEitXdtKqdjLE/Z0YBIqgso0URDi+lV9ZgNfU
-	 iK+hY+0fsrsQ5dcBSTDDRIQO1Rtvt5ZkNiG5I04Shy4OwN7pgTaO7iy05qvzz51mR45qF
-	 zHkloF7Pd4ZmFMsMCgZqakaf5SXmf/Ejvkn4wA0Al+fflB86+FJO2C5BpCSDZ0gFRBLwv
-	 B3Y8CxBzaorozba+ahD/B6Hf9W2pqdz7Axx5MUnoM73fbV2UqJJPVMfJJD5qsyP9QKjfy
-	 9CLRLE0wBdvSmcvoMWWC8KKc08mlh4d+9XOob3KSebe+jbn2u6bGPlyhK5y3k84LjRQ==
+	t=1794828045;
+	b=QabKHfhvxtKrEBgDTt/7G34BinOacpsyI3OUTwOcAg3u0Y0eDx1c8k/BaI4GL8uU+9sr
+	 W7iv73+VuMHPtmtkg/3CjRynaP9qGyCUw6RU7W19vdEh4JgZga1VsW0L6ZV9PlR/GmIgV
+	 R1WYJxbPnXw6SFOG/EO/F1/84J3yS9nu21kCWURaUIbSJIgWMrkgYVtEWtW/SA/nzLi8h
+	 Ph9Sy9FQc0qMxzLh6aYG3Vvh7qLhVLrVa/BxXB7msVGE3jYiq1I1kWdkwWMdELAluFSni
+	 MD08i1jJo5eHodM4P7AMLVvJ35xlSDaFeZiTEyGg9TexMNRNZ6wpe4gY8zJixWP0C8g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794828022;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794828045;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=czoh+c4ignseMGQfCwTnUKbqDtNEfeVlm6iHUo3Ytfk=;
-	b=dvkV2wiDVdt62o3IIpFj/x8YirQnEH1qk01MT0m2d/PWjNzD90nqwQ84wgPsygXRSjr3
-	 3b9I6e0AS41jbwKL3nx+8S7V9Hbrk0QlQq7hOMosb7GWWErBhfxohseiX/DgdMnSzUUGG
-	 v4I4FUr5PqbvOqYV9NsprZfStjPZoEl2gsIcP7M/d4mAFzIRpB1q9jSQ0cIyrLeHquf6u
-	 /UA+BilitX07Z+bNGW56nMofn5++rH17UBJ1oZH7q+gWq4jvP0DY+DjFYuS4PaH9+Ui7a
-	 hjGZpHoIJDQgLGI9BOgqlUkc5P8Z2meKTHh+pUOJKQg8RB+caz2hBobW+hr19Dn77mQ==
+	bh=Xbg0OW3R/4sU5poJyEnbudinJJrQnW8RNpqIXhPOfzc=;
+	b=QBGl6NnIwX3q6Ak1huUrn+K1Uqx3NTbYhkGbazbK2foLwWvpoIuWFyKPlC6fp+fJKbYQ
+	 +AYNKwmbeZe40VXn5o/7KgEtJdu1rDOh3p+jSMy0hOc+L1ABluf/Y95PsG9+viNGpAWHq
+	 mEDAIlLiDI8CuiRzqzqACmvLG7DkkRFzCmmfNfzQL5FXaKMWjkh6jB2r49Mqoya3cmK4s
+	 wlp7hp7VkA+0FeClpYvAIr7HZnggDZW/VOFt+LRNaMvelgU8eqB+g3WKrY1u4Nm+wk0Tz
+	 hCn9KALbzFFFw9T5R82b5fYVuunc/Sq6YxV2DQYUwjKEtadyMcZOcKdKnqAev6Kgx4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LDNYVE29;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CF81nMHG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 870CD607101E;
-	Mon, 16 Nov 2026 11:20:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C3616071033;
+	Mon, 16 Nov 2026 11:20:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LDNYVE29
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8643B1F000C4;
-	Mon, 16 Nov 2026 11:20:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CF81nMHG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F071F000C4;
+	Mon, 16 Nov 2026 11:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794828022;
-	bh=czoh+c4ignseMGQfCwTnUKbqDtNEfeVlm6iHUo3Ytfk=;
+	s=k20260515; t=1794828045;
+	bh=Xbg0OW3R/4sU5poJyEnbudinJJrQnW8RNpqIXhPOfzc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LDNYVE29sIWkr7GZNS7syEad/6l0OFJW5jQNNaeYi7a48rRhnpiUG5HvQBLteg0Ux
-	 SSGz3sFJ7C8vM3bD5sF1WG0+QzNP2Ex3jWkKPdhlkgg38TuU4IBXhrOy4K+uljdifZ
-	 9/6KMXoea/bhz3OKGGgkX9LGTCgCi/K6lm06rUj9rm3nPvph035P1DPqLV+lNuD8SK
-	 mNBdnmbGeFuHir1KPxYdanrMk1NdK43Q8HO+ie1E1jRc1VAMNypwQOJzj7dJOqtBmJ
-	 tzKdDcOOZGVryWNcp2RaW4LG/9Zk9iLn4KUwYRAbTMJqdPfG8PraM08ICGEMfMGboY
-	 8FL7x2GSqtPGA==
-Message-ID: <sashiko-outbox-216893@kernel.org>
+	b=CF81nMHGYqbzNZuBBbKsWFFl3GgorKDs2tRvwpH5exctCdBR6YXh/Qj5uxH3zIzPe
+	 Yi/oZ2kwSOEINpJXh/6fxXcFm6itUADBIo280hy/yaZpiml/MmXZAsjBL/xl21u5OJ
+	 MngvEhcvaVEMEaAHTiT4M9oKDsnYktsOG85DO9hTq8X4Lio6WOeMbcjskmihPQFE4B
+	 1yclZhJfYDZJ5UiDsMR47s6FH6++Je05bN9NFSCRoNoYdrOh4KptQHXfBALkyUZ0Lm
+	 NWywN00XkLZSZnGF+i0I+80japBwgklHZEmqGEm/QxlRcpIU9vlzIraVq3vk4efr7T
+	 ymz50IJWkfsvA==
+Message-ID: <sashiko-outbox-216896@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC v3 12/44] rust_binderfs: use fc_init_pseudo()
+Subject: Re: [PATCH RFC v3 28/44] ocfs2: use fc_init_pseudo() for dlmfs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark
  Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-In-Reply-To: <20261116-work-loop-pseudo-v3-12-8cbbea1cf34f@kernel.org>
+In-Reply-To: <20261116-work-loop-pseudo-v3-28-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
- <20261116-work-loop-pseudo-v3-12-8cbbea1cf34f@kernel.org>
+ <20261116-work-loop-pseudo-v3-28-8cbbea1cf34f@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 16 Nov 2026 11:20:21 +0000
+Date: Mon, 16 Nov 2026 11:20:44 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,15 +63,17 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Initialize binderfs as a pseudo filesystem instead of raising SB_I_NOEXEC
-> by hand. This adds SB_I_PSEUDO. binderfs_fill_super() keeps clearing
-> SB_I_NODEV for the binder device nodes.
+> Initialize dlmfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+> also SB_I_NOEXEC and SB_I_NODEV. dlmfs never holds executables or
+> device nodes.
 >=20
+> Reviewed-by: Jan Kara <jack@suse.cz>
+> Reviewed-by: Chris Down <chris@chrisdown.name>
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261116-work-loop-=
-pseudo-v3-0-8cbbea1cf34f@kernel.org?part=3D12
+pseudo-v3-0-8cbbea1cf34f@kernel.org?part=3D28
 
