@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794920826;
-	b=jdQuceaBg8I5sb2nwuRwtd60UMewfktS6mmDfwjhfeONIZxB4hbHfrtW1h1lR6gGHc8V
-	 kc2Q3DiaDeucrprSgniUTykv7iY3PF/ifLSaEbPexqMhspwQulWBWcGttNeYBTDmwVccm
-	 Q2x4N9VdZe9pT+vy9GWMefOPrU3BdKxTShsWQp98sU8FfF1uLQjzfqt1IsUJPKjQvCz28
-	 CcgfUkJOCI/wNuj+CJ5yQP4z9tXXZHi8YQTaWOfq2mChXcu71bXPTGDldChUZIGwa//aI
-	 vqTWDcHzk3N6ToIzm+DPplDuPZkEeOPPP428A7mnzZIMfbP+D5jUO3c6iI5J7DfFQVg==
+	t=1794920829;
+	b=wsxlbuqXsnYTirY6REbZ0EUBzVqo40t0ixh8AmRNB/aHeysQaFKDsf687BhDcS/3ya78
+	 sLCoSrQ0VbQaH5PNFYNLiZYhczQfGwMNYrAPm2d+8bIfyG9paPsvUHTBtifOGqwcNjkJS
+	 i1sR3Z/wEPos3jq3JcR9A1TBxA7Dax70o+VrsKcszKcIwPJEEVzHo6OIxzsYMD9AaXHmP
+	 AWEksT07b8aAYPGq33n5ZK2bbEXBsfCbdOIP0T3Kq4rtRRzctNl0alcMq/D2kY3hvlrzt
+	 Zyif9soqJEmjGUMn0ZXy3uatV3n9GVnDp4ZlQ073wpnupOQWIw+d3btWPS6D1gY+JnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920826;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920829;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=uys2UBDVsuwnr9rkivnHsjzKN4wH7PF/d/BG6IyiUZs=;
-	b=MNilpkgVs9wA3AukCvuZswOVHVu67J2RMDnumCuAU+IhiDIuvs4QQdADzemWvYKHsJLA
-	 CDDwd1LSynLp3GBZDFSwoKUHGC32F5MizNYxCObJVIBDhNrLPQ483EDl4AGMhPM+eKb+/
-	 MMr59g5UalrSruzItGZYGS0aqI0MOxHCFlaiAZvVEB1rxw47MY332VjtAKu9Y/66Pjepp
-	 Lz3QsrmD1Lvqi+AA64N1BfpjMWdtTt42a1K6h9jz7QcVk2JZAXoRHcp5Utyylt7ZQnDvm
-	 c+6JJ/ETMdY4+NIDth9at91jC35clDkOLON46PeM1XADgBlZcakzOkSrLW3BkVkqaSA==
+	bh=Sf0tw5Hzfh3MRdcLooWrdAMwONcFNvSwRTlvWrvAbYM=;
+	b=XuTPdjhcqgD4GhaFI10jygDLTWq/6Wcj4dyjelS0i6KZUJUUMtjjVzWsi0k9eMgeBmPv
+	 rhWhPmXIGiahh+BFolBaW90HkSUUpMQZf43wadlvae/ElARrsapCZrtnGMM1ATptCw/1F
+	 8m0A5FmDl8/ouwhIS33HLO1UITm1eOrk/l2rvJbiLMLI/SO7S5Bz5TRquVz2t5sx5sF81
+	 4JRP2bJ5wBUL66JYJjas4uHrJkD4RAweZU80D23WK9fdwIIG2Tw9GmIjgS+dCqrQARdFa
+	 opsvMV9C385l2MhifGsM45yp3zgt/Oj+tBGlThck/ZBDu2fIRWt6XKpXmpQAs5TlGjw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Iwl9SP5i;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V6z23Cd0;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12E1606A8B5;
-	Tue, 17 Nov 2026 13:07:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C923060A383B;
+	Tue, 17 Nov 2026 13:07:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Iwl9SP5i
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1449D1F00926;
-	Tue, 17 Nov 2026 13:07:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V6z23Cd0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF20F1F00931;
+	Tue, 17 Nov 2026 13:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920826;
-	bh=uys2UBDVsuwnr9rkivnHsjzKN4wH7PF/d/BG6IyiUZs=;
+	s=k20260515; t=1794920829;
+	bh=Sf0tw5Hzfh3MRdcLooWrdAMwONcFNvSwRTlvWrvAbYM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Iwl9SP5iBv+dmCOjDRreWUCiUR08o8DWwfDthI/7iPKXhyIvvt/2CaaKeEvXucIib
-	 fuqsPEqvTdp4gTiNXaRKp23Ew7PY1bmEem/yxi62xjG7M3BeFdYadlQxei6rssC8or
-	 bQUy5YprG6FuHQHlPQPQFMLTJRr/jbvr1XydY7IbvkV7X7zmqfXAfmhV41JUVIdH2P
-	 y6tDY0q+ygE204WQOqZlVh9HEt0eY/jlk6R9t6V/B9aQamw3DAbleYluQUtJZzA5R9
-	 xi6MNEutu5tZGkPmpVGZ1vvbOtRrZfSn/kqgL/l0grbVLJ/1OxnIeR3VtXxlfPjpnV
-	 r3JvmJ62+FO8w==
+	b=V6z23Cd0SJZbooN8G5fOj/b/BTpXkTVqX+fQUHxSlAmC6rsA7Rzn2ugBrlbJOHFla
+	 1KLL4QHDjdXNt5edXeipJBCKMsH4TaNtwkYz8CvJmt/xNneZ++JAzJ6tvpzOb1rjiv
+	 TyL2eC5VpBgm2RouprWBinn6FfpxhpzfCYiSQS54w/eqhPACbzAE7quC8llXCb/UsJ
+	 Vf6ne84k2aGHqwiBgXiM6HoxJ/9PHjkElFsjFT6kSeAmp1QLSdOX/0KUCk8XBR8Zcg
+	 L5kF0SZXau6+S0FCAEIz4Fx0ZMY2ZRmtMBiN6MYdLiEAFUzITOrqa8kFaMg06VH7eO
+	 Nd1Uq9S9OCrdA==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Tue, 17 Nov 2026 15:06:54 +0200
-Subject: [PATCH v2 02/14] s390/sclp_config: Replace get_zeroed_page() with
+Date: Tue, 17 Nov 2026 15:06:55 +0200
+Subject: [PATCH v2 03/14] s390/sclp_pci: Replace get_zeroed_page() with
  kzalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-s390-sclp-ready-v2-2-e518c99622c6@kernel.org>
+Message-Id: <20261117-s390-sclp-ready-v2-3-e518c99622c6@kernel.org>
 References: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 In-Reply-To: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -67,11 +67,11 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-sclp_ofb_send_req() allocates the SCCB used to send an
-"Open For Business" event notification to the SCLP.
+do_pci_configure() and sclp_pci_report() allocate the SCCBs used to
+(de)configure a PCI function and to report PCI errors to the SCLP.
 
-This buffer can be allocated with kmalloc() as there's nothing special
-about it to go directly to the page allocator.
+These buffers can be allocated with kmalloc() as there's nothing special
+about them to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
 kfree() does not need to know the size of the freed object.
@@ -90,31 +90,49 @@ Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.co
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/char/sclp_config.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/char/sclp_pci.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/char/sclp_config.c b/drivers/s390/char/sclp_config.c
-index 8c77e8c44fc2..16617a679366 100644
---- a/drivers/s390/char/sclp_config.c
-+++ b/drivers/s390/char/sclp_config.c
-@@ -93,7 +93,7 @@ static int sclp_ofb_send_req(char *ev_data, size_t len)
+diff --git a/drivers/s390/char/sclp_pci.c b/drivers/s390/char/sclp_pci.c
+index b79ef7006e46..9e3d4b101535 100644
+--- a/drivers/s390/char/sclp_pci.c
++++ b/drivers/s390/char/sclp_pci.c
+@@ -44,7 +44,7 @@ static int do_pci_configure(sclp_cmdw_t cmd, u32 fid)
+ 	if (!SCLP_HAS_PCI_RECONFIG)
+ 		return -EOPNOTSUPP;
  
- 	if (len > OFB_DATA_MAX)
- 		return -EINVAL;
--	sccb = (struct sclp_ofb_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+-	sccb = (struct pci_cfg_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 +	sccb = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
  	if (!sccb)
  		return -ENOMEM;
- 	/* Setup SCCB for Control-Program Identification */
-@@ -119,7 +119,7 @@ static int sclp_ofb_send_req(char *ev_data, size_t len)
- 		rc = -EIO;
+ 
+@@ -65,7 +65,7 @@ static int do_pci_configure(sclp_cmdw_t cmd, u32 fid)
+ 		break;
  	}
  out:
--	free_page((unsigned long)sccb);
+-	free_page((unsigned long) sccb);
 +	kfree(sccb);
  	return rc;
  }
  
+@@ -134,7 +134,7 @@ int sclp_pci_report(struct zpci_report_error_header *report, u32 fh, u32 fid)
+ 		goto out_unregister;
+ 	}
+ 
+-	sccb = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	sccb = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+ 	if (!sccb) {
+ 		ret = -ENOMEM;
+ 		goto out_unregister;
+@@ -177,7 +177,7 @@ int sclp_pci_report(struct zpci_report_error_header *report, u32 fh, u32 fid)
+ 	}
+ 
+ out_free_req:
+-	free_page((unsigned long) sccb);
++	kfree(sccb);
+ out_unregister:
+ 	sclp_unregister(&sclp_pci_event);
+ out_unlock:
 
 -- 
 2.53.0
