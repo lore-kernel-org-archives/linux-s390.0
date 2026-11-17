@@ -1,50 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794920820;
-	b=2C/vBskXyhwFb/2S+knjTHuqbn/PkBuVC8bV0Lij0DEPzA6NqwobcR4YfEvVW/v7OZAA
-	 W753u/0QGIeBG3fuRUXFqpqB5vHHngT9HpE+F0BXSJhW3WuLxxrUGeIl/RDYl86aiUC/1
-	 5czmSDeZPpH89h/BcLXht3rGfbRi0Wrr3eMtPRRYLykUfOSjypJrH903q3XdPhzTFnmJ+
-	 URPfkjKjFgNEAClwky5Bgdu0WaZVm12TAv6G6hbwN+szL2l5sWufeuOm78pOCiIReB8tk
-	 kdf8Yl46KlFfsB366KyQ/+xdVqN0WGtBsYq4UleeHFDSPXETmXzjMhrICzSE14A6j9Q==
+	t=1794920823;
+	b=vjKnO7Db821sPZ5BIRkzl9L5PfmXfzwgfZOHtDrkEP0fCAFbS3/2/Y7xj28mRDL/OSsG
+	 eLvXNoLVHL0Cd3E26D/80zh+K13f3WI43jPw7bCEznSeTsDBi6QLJ1WTMX8brmyFyiTfp
+	 zarWyXHSJ0Hub95eDT8BGPJyQxBbDI+TUfVORh5Q6Ttfwf90tHig+CL3cI32kLv+k2uUZ
+	 5YyHfgAWUmQOb8O1BO5YMS9D/I2OVWRcoaSZOdonbI92BMZsR3bMA0O0wUSBWJhvAYDPK
+	 DsW2WyBxUBnYsTnLAuEGrz992j6v/Mt50LWpDCU8xXbtRrUBPyGtTCemufN9n2cjrWw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920820;
-	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer;
-	bh=1pVjlFKLqrkizC9FmJoCvgI9LyQi88+dBoMO0i3338w=;
-	b=lF5YqOYshc42Wf6K9AumoyeiRVtE0GI9+nQDHWe9vNuDGKUA0SUGECu36aHdMzn0fKE/
-	 gchAthn7fZiJAOltAeV/n7NvBA9yfD1wZ9oyndjzvzTKlIMslN+a3sVqaXqpsOsPIuNLN
-	 lsYjPTkh9p+g5Xn181ofOEcX6WkQvARn/sWAUdoCQhACteVe9/k+vRvc5mSqIwr5ptBYb
-	 bgqI9ykrk2dBuk0nNxth0lT0qkExvRE6ZeHEgV20TQRf/gOzRbmkBT3selKiJL4Q93QSX
-	 0r+/Jc7SR2872yStpZe654QksUmOD3IQAFRkoXrfD7M6AIjMmYfaFy2GmHpUi3zyCmQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920823;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer;
+	bh=T0wDH7EIIn793eoNPou6qrdwgP73podZGEO7sZLmZIE=;
+	b=RP7G1cSc8+EPI4+J4vWCsD4srr/jyP+KVA3MM8mL/0iDT91y0h61iBsIlXfkoBYUh/Wo
+	 S1vejV8GnWBYHoRxrzwrPEHu+VjxRIn7JB8W/5ajkues86B4ouaKUQeegmttGLlgZTKHm
+	 FsA9pvFM4WvrSWTRBv0P6spHpGRSU+4SX/YpOQMultF8VhjdShbjsE8xCldWuV4D3KLVF
+	 yzlJp+rg+epPRSDtoFz74Ym5qp6whqvN+NTFnZhlY9paszTVZfzZrz/Uv/ZlIDrPqW18o
+	 fMTxF1icQvmDGc3lsMuYhCSCqyo32FDFA+mMov4naYYt4wqWVYH4HarYWLIpM8gbRuQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HFcJrDjg;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kqhj+g+2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB898606A893;
-	Tue, 17 Nov 2026 13:07:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6791606A88B;
+	Tue, 17 Nov 2026 13:07:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HFcJrDjg
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C2D21F000C4;
-	Tue, 17 Nov 2026 13:06:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kqhj+g+2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 255FB1F00926;
+	Tue, 17 Nov 2026 13:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920820;
-	bh=1pVjlFKLqrkizC9FmJoCvgI9LyQi88+dBoMO0i3338w=;
-	h=From:Subject:Date:To:Cc;
-	b=HFcJrDjgU5KIKe8VUxdGSrgtpeFOrq2E4A5i5M1vM3jWpYK//HFX0YELRLGduYiYs
-	 R36DFGAsEIfPAf8wRD1Gi0kFcRf27LgMNogbjZaa/mY/kf4XRTFCux4O5H//2ffwbC
-	 956UoH31u0lYKQqCK0V7kZFvBycOKZ7WxytlxlIxV38MkdcntgbVMavEeoEekpq8Bu
-	 tzKnm92DUwib0fIztSd4MNztORti8B492mwdPp4rLn2teFl5H8FPr9sqDtNJnOPyAK
-	 0dqLXjJoLydhIJuf4yhcljWDb5IeUplvtkOeGxjlaQXQqAEN++Jf8EvOYwGX+cp6ln
-	 MgpgGDeUQSg6A==
+	s=k20260515; t=1794920823;
+	bh=T0wDH7EIIn793eoNPou6qrdwgP73podZGEO7sZLmZIE=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=kqhj+g+2uD3rzmQIjibcu68U3XmSPowcT99xB2eE0pAmKLpy6Hqaz6H1BM7hGlpsY
+	 I/5uPm2CFtIM/sN71IkcuL22UNym7Hu8VNCKG9LWaALv3mWih/rdkz+AYzbwGzXUyX
+	 48ixhblGVMtZl4L715qXVevqkLPQzlyaOi/QeAI5TtjPb++iV28bWABPb2wY4PCERw
+	 Xp8vIFRP+tiVBHCxqazazL4Kvg1XDNlGVBA4KDKxIz6QwvfQaOSki6ddUMTd7yzxJq
+	 gpvvaA8hlpaHQgopcr0cl+eMfikiCjF1oo+bAjd2aACEDRh8HdBntqun9QGv/wxtMo
+	 WYJGAKMQo6ktQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Subject: [PATCH v2 00/14] s390/sclp: replace page allocator calls with
- k[mz]alloc()
-Date: Tue, 17 Nov 2026 15:06:52 +0200
-Message-Id: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
+Date: Tue, 17 Nov 2026 15:06:53 +0200
+Subject: [PATCH v2 01/14] s390/sclp_vt220: Replace get_zeroed_page() with
+ kzalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -56,11 +55,9 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2WOQRKCMAxFr8J0bbWFoVhX3sNh0ZYIVWyZBBkZh
- rtLcenyJT/vZ2EE6IHYJVsYwuTJx7BBfsiY60xogftmY5aLXAktKk6FFpxcP3AE08xclGCtkWB
- K0Gy7GhDu/rMbb/WP6W0f4MakSQlrCLhFE1yXRhF968PpZWgETPvO0xhx3l+aZPLs7VKK81/7J
- LngBVROC7BKVer6BAzQHyO2rF7X9QvegnOG4QAAAA==
-X-Change-ID: 20260907-s390-sclp-ready-05ebba1ea5e9
+Message-Id: <20261117-s390-sclp-ready-v2-1-e518c99622c6@kernel.org>
+References: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
+In-Reply-To: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
  Alexander Gordeev <agordeev@linux.ibm.com>
 Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
@@ -70,95 +67,55 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-This the next episode of conversion of page allocator calls to kmalloc
-family :)
+__sclp_vt220_init() allocates the SCCBs that are used as the output
+buffers of the VT220 console driver.
 
-This series covers SCLP buffer allocations.
+These buffers can be allocated with kmalloc() as there's nothing special
+about them to go directly to the page allocator.
 
-= tl;dr cover letter copied from the previous posts:
+kmalloc() provides a better API that does not require ugly casts and
+kfree() does not need to know the size of the freed object.
 
-This is a (small) part of larger work of replacing page allocator calls
-with kmalloc.
+Performance difference between kmalloc() and __get_free_pages() is not
+measurable as both allocators take an object/page from a per-CPU list for
+fast path allocations.
 
-My initial intention a few month ago was to remove ugly casts [1], but then
-willy pointed out that Linus objected to something like this [2] and it
-looks like more than a decade old technical debt.
+For the slow path the performance is anyway determined by the amount of
+reclaim involved rather than by what allocator is used.
 
-Largely, anything that doesn't need struct page (or a memdesc in the
-future) should just use kmalloc() or kvmalloc() to allocate memory.
-kmalloc() guarantees alignment, physical contiguity and working
-virt_to_phys() and beside nicer API that returns void * on alloc and
-doesn't require to know the allocation size on free, kmalloc() provides
-better debugging capabilities than page allocator.
+Replace use of get_zeroed_page() with kzalloc() and free_page() with
+kfree().
 
-Another thing is that touching these allocation sites gives the reviewers
-opportunity to see if a PAGE_SIZE buffer is actually needed or maybe
-another size is appropriate.
-
-For larger allocations that don't need physically contiguous memory
-kvmalloc() can be a better option that __get_free_pages() because under
-memory pressure it's is easier to allocate several order-0 pages than a
-physically contiguous chunk with the same number of pages.
-
-And last, but not least, removing needless calls to page allocator should
-help with memdesc (aka project folio) conversion. There will be way less
-places to audit to see if the user was actually using struct page.
-
-The patches are deliberately kept small, so that every conversion can be
-reviewed, and if needed reverted, on its own.
-
-Also in git:
-https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-sclp
-
-[1] https://lore.kernel.org/all/20251018093002.3660549-1-rppt@kernel.org/
-[2] https://lore.kernel.org/all/CA+55aFwp4iy4rtX2gE2WjBGFL=NxMVnoFeHqYa2j1dYOMMGqxg@mail.gmail.com/
-
+Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
-Changes in v2:
-- sclp_cmd: allocate a power of two size for the CPU info SCCB and drop
-  the misleading paragraph from the commit message (Heiko, Alexander)
-- sclp_ftp: use struct sysinfo_2_2_2 pointer to get rid of casts
-  (Heiko, Alexander, sashiko)
-- add Reviewed-by tags
-- Link to v1: https://patch.msgid.link/20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org
+ drivers/s390/char/sclp_vt220.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
----
-Mike Rapoport (Microsoft) (14):
-      s390/sclp_vt220: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_config: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_pci: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_ctl: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_con: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_tty: Replace get_zeroed_page() with kzalloc()
-      s390/sclp: Replace __get_free_page() with kmalloc()
-      s390/sclp_sdias: Replace __get_free_page() with kmalloc()
-      s390/sclp_sd: Replace __get_free_page() with kmalloc()
-      s390/sclp_cmd: Replace page allocator calls with kzalloc()
-      s390/sclp_cpi: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_ftp: Replace get_zeroed_page() with kzalloc()
-      s390/sclp_mem: Replace page allocator calls with k[mz]alloc()
-      s390/sclp_ap: Replace get_zeroed_page() with kzalloc()
+diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
+index b95af0974624..e79467c07d24 100644
+--- a/drivers/s390/char/sclp_vt220.c
++++ b/drivers/s390/char/sclp_vt220.c
+@@ -715,7 +715,7 @@ static void __init __sclp_vt220_free_pages(void)
+ 
+ 	list_for_each_safe(page, p, &sclp_vt220_empty) {
+ 		list_del(page);
+-		free_page((unsigned long) page);
++		kfree(page);
+ 	}
+ }
+ 
+@@ -750,7 +750,7 @@ static int __init __sclp_vt220_init(int num_pages)
+ 	/* Allocate pages for output buffering */
+ 	rc = -ENOMEM;
+ 	for (i = 0; i < num_pages; i++) {
+-		page = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
++		page = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+ 		if (!page)
+ 			goto out;
+ 		list_add_tail(page, &sclp_vt220_empty);
 
- drivers/s390/char/sclp.c         |  9 +++++----
- drivers/s390/char/sclp_ap.c      |  4 ++--
- drivers/s390/char/sclp_cmd.c     | 13 +++++++------
- drivers/s390/char/sclp_con.c     |  5 +++--
- drivers/s390/char/sclp_config.c  |  4 ++--
- drivers/s390/char/sclp_cpi_sys.c |  4 ++--
- drivers/s390/char/sclp_ctl.c     |  5 +++--
- drivers/s390/char/sclp_ftp.c     | 14 ++++++--------
- drivers/s390/char/sclp_mem.c     | 12 ++++++------
- drivers/s390/char/sclp_pci.c     |  8 ++++----
- drivers/s390/char/sclp_sd.c      | 20 ++++++++++----------
- drivers/s390/char/sclp_sdias.c   |  5 +++--
- drivers/s390/char/sclp_tty.c     |  5 +++--
- drivers/s390/char/sclp_vt220.c   |  4 ++--
- 14 files changed, 58 insertions(+), 54 deletions(-)
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-change-id: 20260907-s390-sclp-ready-05ebba1ea5e9
-
---
-Sincerely yours,
-Mike.
+-- 
+2.53.0
 
