@@ -1,63 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794877587;
-	b=H6ELadEiP7aY0NabySqX0ZhE8hpf1aZTIR89o3Xpl7nUr1sFFHphQdDvrpmJn6TiUJfu
-	 cs9152FHzBIEhGotR7IbCYMTXpWMUrlWT0TXAOMy+jDPYIkPBqYQmYZk2kHhFCgwifyyC
-	 ToMFdK/6NRKf8cdZlQ9kL8BxJUWTxvLLRFmXDTimVgmar14IzX6NZOT525zFruy5rnvjT
-	 hIwLkRkyr3tkrt8xRP9yRmwOYoh/EtJzG7Y1XvAy3vBg/ntjnRPu2dEUY1X2OpCneKiWC
-	 6SgsG6Lyd8Txcn2EnyEbSgP/Pm3EHhkh9RJ2ICijkG4sxzyEErLWnoPjuIiONGDYBUg==
+	t=1794903253;
+	b=002n8QbEuCXquiDHDGwumGPSUuY57gmrs8+OfSa057Q1lbaqpUnmu/aXFrzILDLh3Pqa
+	 MHt5LtpUdV8fO/nQuXx73TfeU2Mc5iz5HgY606QXXaINIr8GP4qylNHRk57bwB/bfHJoj
+	 TX7zPV3csnYfOeGmUmsrA4K6aKjgrFB3Zu4P5pykzD50fqo5ptNPvWFkgCmzcgakaNVhS
+	 0kt2/jvDSCyjY4cSxA1eEPlsZocBimeWvLZVF9HMiHM2loPOccPG3K/OQaipJaAaSBjJZ
+	 uyHVRsXqZmqZhq9Up7LhDDD2hw8lEjwNcaRTZw/4LeklavwwFw5lp555HLnKZFYjOjA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794877587;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=Sb9h9j6lPynfBYh6n95WwXR9U5v9/0qOxm69owQ23yI=;
-	b=0M+td1tRIWhnv4ddREK9nW2t+Yb5AqIfVJjvsYiXKTC6tzQeOpxcyzlIfPP34BVPuwFS
-	 KXO09tnzbzGZRbq1X8YRrnVEeN4WRhpvJAORPUbBX9LJqAwFkxEiYgJWcnSx24R8FkOiY
-	 +mYCKCEtc2eGCfiUviP6aplatQi4iHyjVWRD18phThQTns5nfcfZIXrj1blgmKFQqp1J/
-	 bgMyK+95Gs+2x1lvUOL13PvlwbMV3NVhkunj7t7ltlW7yXNTqQBXvf23FxGN9rt/9/0Nw
-	 J3iHNjctMSF+BRIT0aFBrFgZy433DV59WyEQO9qEVPxokERn9iL7+up5ATF/cwK4BpQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794903253;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
+	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
+	bh=fpQH2XklQvxbA0SCPjoqZpnVJxorf9+kCLsX6Cm+jf4=;
+	b=5D9aKzOO5w4zVt6FUQrNsiDHg278N3ax4yw2o6OJkpaWusVWKU1N5gBq6i0qRr1zLneD
+	 NM9FlaTC425Oe+ZlSBkWIDEmD3rFwrRBi2Dt/z6XOGy7cp1+bGPgR9kYUlABIZ6uAdEqZ
+	 /kJKAvZgjf3jMw6KKGXv9/8b+S9FFoHRV+tHhB5g+lg09riS7Mc6VSWhd/dhXbekeijQK
+	 1hguVT4a+wWyjKzT+EBMM6ugBPF0KR8BF2yPLuocwYgA3mgxvm5iOwsWDljiIsD/Chwon
+	 4kUhDBY83bMV76EJI0nzlUhmD23ks+EY5VdSp6VHApqV9m/YB/03vFZlJO9NhkEt9Rg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="bXD/oVvm";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=gourry.net;
+	spf=pass smtp.mailfrom=gourry.net;
+	dkim=pass header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=NdrTQgDT;
+	arc=none smtp.remote-ip=209.85.222.169
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99838606A882;
-	Tue, 17 Nov 2026 01:06:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 195E5606A31C
+	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 08:14:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 195E5606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bXD/oVvm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 673BA1F000C4;
-	Tue, 17 Nov 2026 01:06:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794877587;
-	bh=Sb9h9j6lPynfBYh6n95WwXR9U5v9/0qOxm69owQ23yI=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=bXD/oVvmhB9L9jp9ytgzC5qCGW3Ey2wz/1tlFoUdSEZdp392eY/YVWA2THUHjXD6X
-	 6DR/Xn82HT3L/gpCKMlwIECGkbyM6iT7fLpWHVyGzmNxSis3DkACfVJGFo0yQv7A/6
-	 stawLvWsg5OSgW+oBxtBEO1PVSw/WP+oNWrUfaMz6J6J3tEc6l6qsV7geJLOaiczY7
-	 NuqFnqMAp781RfUJ2Wr001B20qqeiLbWM6/7sLdgOlflQMvE1RJe//lEAgVOO+sLeW
-	 AxcRSrqH6EYwLBaTV2k1Ly4jTRtFL8EOmsP5eCwP8AB13FilQ67ya177JeNAIidSPZ
-	 ZjVgPIXdjKwDQ==
-Subject: Re: [PATCH net v6 3/3] net/smc: skip the DMB nocopy accounting until
- the send buffer is set
-From: netdev-bot+sashiko@kernel.org
-To: hexlabsecurity@proton.me
-Cc: mjambigi@linux.ibm.com, kuba@kernel.org, dust.li@linux.alibaba.com,
- davem@davemloft.net, edumazet@kernel.org, sidraya@linux.ibm.com,
- pabeni@redhat.com, alibuda@linux.alibaba.com, hwippel@linux.ibm.com,
- linux-kernel@vger.kernel.org, wenjia@linux.ibm.com, netdev@vger.kernel.org,
- hidayath@linux.ibm.com, ubraun@linux.ibm.com, tonylu@linux.alibaba.com,
- linux-rdma@vger.kernel.org, guwen@linux.alibaba.com,
- linux-s390@vger.kernel.org, horms@kernel.org
-Date: Tue, 17 Nov 2026 01:06:25 +0000
-Message-ID: <179487758596.3136.12928828467382443502@kernel.org>
-In-Reply-To: <20261112-b4-disp-1c8d3a53-v6-3-36a38ae35021@proton.me>
-References: <20261112-b4-disp-1c8d3a53-v6-3-36a38ae35021@proton.me>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=NdrTQgDT
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-94961d90b79so326291585a.3
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 00:14:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1794903251; x=1795508051; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=fpQH2XklQvxbA0SCPjoqZpnVJxorf9+kCLsX6Cm+jf4=;
+        b=NdrTQgDTSZJRgv4GdN3+kP3VmEnoZSusnjp5ffZS9k9eyYQpSxQhoC3GfRfguClSnz
+         0DVzDtsZInrKl12qDzqg13nTFAtzGBsQjqzQTHhzLLUP1zZAeaLKa/iqfCN2DJQ37GbC
+         C7e+IfQpzoHT3blg7XCXnJsRlkrpgUM9DfhBZR3MXAtnQmJeIF8p28Zj2cex5YMxMiMF
+         ZGrAkcgzIRkz5rO+sVH4bC1LRPebD9bsrU2VEwa27s6mbJZS1rij47J38S64RFyGJsih
+         NHmJZohuIqjDAFZVaJB4CRi2d/EjsvhHAdQCXJexjiVzPbPoT2s+IPYmZPyTNQb4Xw2J
+         mvYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794903251; x=1795508051;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=fpQH2XklQvxbA0SCPjoqZpnVJxorf9+kCLsX6Cm+jf4=;
+        b=vx5VyWQk7F0CnQIVRTd9Ub40hCpY8xWhEqSSf1ocWqrIuWe39iyriTr2EPeY6vAwVW
+         5ii714gOm0j43uJ/gKopdUr06eN4jvJqVnitqxUeg1S/VDRQKQRT5Pz1P8TPJgiIlHqK
+         CkJadczaPJn8fl1pw67U0xgqzB0tYxigIawmCBJH37B9wU9uEDmbUn7Zcetvl7hG7Cin
+         RpKxpN375l+LjJCbifLS3ZEcTgHHyQpWGhhrBq2MSxWAoFFosM1J8jXdpAYgDlUntBNu
+         zDr8sACKSnXEzaGSu8eQl2yi23qmpKyQnox8ARxtV7FmXD6UpfA4fm0ZNBgbT0gEqpUb
+         qNyg==
+X-Forwarded-Encrypted: i=1; AL+hErE+4TY0X8fIoSZ7xLzjQrQtysHvPQ5FSAtThUM56OXxjXsiS4czoX6g5kFfcK+E7NQGQnKdPNVctvqm@vger.kernel.org
+X-Gm-Message-State: APuU4Z+5LQArFP+snUHnTycV9pReSCPG+g1NEj6Q79XF2Mjs2y4yvSFx
+	rRyjeSgr2FtZDxMkuhH+TLE2A+EVs3snd/TB2w7ZpKLXnqEVwXpE2LnJAh3F/PDhxQY=
+X-Gm-Gg: AYBFou23D1VPMHRIOocS/mvMRb2xriz0QHTqcsUmpxsOlawGk6wbCzSw1miKjOpwNqa
+	Fg4vwffdYnK/o7LShAUfFHmus1BqyS2VIA1E4g4QAipfaTXSzOJHXIdRjkPUPXdSlFMxJStyJRl
+	WEOzmFpoUdQcRKoUygVvuWtwZvBAFTZrL+mSUtwnqrHpDSJsVSDbmmTg7qIx4fAys5zSMxLCjkR
+	5izJN7if1JNOBa36WwgwpF2QGQcQKUclIiu0HODBMGJYP0l39GucEe08CjwBo9kdgB31SBeARa+
+	8z/J2sEpsMfz11uP08s3oBLALJ5T6O0L/znfvLyp3BiSoJRWNJ+Y5YbxRu01Lc3zt7+1dkbH81j
+	WKnwCIQ8PiRIML5oxK7C8qXo3iPou7diuf80Qcpfo2V7xE90XWQvEQrEkHv6ZQkjHtlWhpttLid
+	zc7oudijlSbFGAH87srITvVofJEIUiJA3GBvgad9q7fKzrdspa3fP7w7rMqFy9TaACN4dEw8DoQ
+	ftq5002etLmCmr8+VsDlW6n7RTUjQvK/Pk5mnPt/KBC/IhtbHgmFN5I2wzcIP57eNQgarn///wD
+	ZvZFvxRIvdbv6sNsQ3rt1RFl0vzS/Urlij9zpIezjce4xnx/N20hZRSyWbBN54QHpuT9ZA1GXPT
+	Von6y3P8=
+X-Received: by 2002:a05:620a:2a06:b0:93e:b0c3:388d with SMTP id af79cd13be357-9494b9432demr2192163085a.11.1794903250936;
+        Tue, 17 Nov 2026 00:14:10 -0800 (PST)
+Received: from [192.168.50.231] (pool-71-191-145-202.washdc.fios.verizon.net. [71.191.145.202])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9494c5fd154sm1021436485a.2.2026.11.17.00.14.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2026 00:14:10 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,213 +89,102 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2 04/15] mm/hugetlb: account temporary folios
+ separately
+From: "Gregory Price (Meta)" <gourry@gourry.net>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+ Naoya Horiguchi <nao.horiguchi@gmail.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, 
+ Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>, 
+ Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>, 
+ Hugh Dickins <hughd@google.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Vivek Kasireddy <vivek.kasireddy@intel.com>, 
+ Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>, 
+ Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, stable@kernel.org, 
+ Josef Bacik <josef@toxicpanda.com>
+In-Reply-To: <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
+Date: Tue, 17 Nov 2026 03:14:09 -0500
+Message-Id: <179490324902.482102.8381563244741940633.b4-reply@b4>
+X-Mailer: b4 0.17-dev
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+On 2026-11-16 19:29 +0100, David Hildenbrand (Arm) wrote:
+> Hugetlb migration might have to allocate a temporary folio through
+> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
+> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
+> can mistake them as persistent huge pages, as it merely calculates the
+> difference.
+> 
+> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
+> hugetlb folios into surplus folios until persistent_huge_pages() returns
+> the desired number.
+> 
+> After the migration (successful or unsuccessful) either the new (temporary)
+> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
+> not "surplus_huge_pages", to undo what was done when allocating a
+> temporary folio.
+> 
+> This can result in having more surplus folios than actually allocated
+> folios:
+> 
+>   HugePages_Total:       0
+>   HugePages_Surp:        1
+> 
+> From then on persistent_huge_pages() returns garbage.
+> 
+> To fix it, add internal temporary counters and subtract them when
+> calculating persistent pool sizes. Update persistent_huge_pages() and add
+> persistent_huge_pages_node() to make the code easier to read.
+> 
+> Count migration targets and rejected surplus allocations as temporary.
+> Transfer the per-node temporary count along with the temporary flag on
+> migration, such that folio freeing will always do the right thing.
+> 
+> Take care of calling account_new_hugetlb_folio() only after setting the
+> folios to be temporary.
+> 
+> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
+> Hugetlb continue to include them and overcommit accounting remains
+> unchanged. The new temporary counters are internal for now and are not
+> exported to userspace.
+> 
+> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
+> Cc: stable@kernel.org
+> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Acked-by: Muchun Song <muchun.song@linux.dev>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Critical: 0 · High: 1 · Medium: 1 · Low: 0
+My only commentary on this set is that "Surplus" is a horribly confusing
+name :|
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+I was able to replicate Patch 4 and 5 bugs together pretty trivially
+with migrations, leaving the surplus counters out of sync.
 
-- [High] The new NULL check only covers the time before
-  smcd_buf_attach().
-- [Medium] The patch stops the NULL dereference, but it keeps processing
-  a CDC that, by the patch's own new comment, can come from the old peer…
+Nice to see these accounting bugs finally fixed, we've seen them in
+production for far too long without an obvious resolution.
 
---
-
-net/smc: skip the DMB nocopy accounting until the send buffer is set
-
-This patch changes smcd_buf_attach() to publish conn->sndbuf_desc with a
-release store once sndbuf_space has been set. While sndbuf_desc is still
-NULL, smc_cdc_msg_recv_action() now skips the SMC-D DMB nocopy accounting.
-The aim is to avoid a NULL dereference when the old peer of a reused DMB
-sends a consumer update before the new connection has attached its send
-buffer.
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index b3bcc206efe3e..4a4a279b405b1 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-
-[ ... ]
-
-> @@ -357,12 +358,19 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
->  		 * peer RMB, then update tx_curs_fin and sndbuf_space
->  		 * here since peer has already consumed the data.
->  		 */
-> +		sndbuf_desc = NULL;
->  		if (conn->lgr->is_smcd &&
->  		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-> +			/* NULL until smcd_buf_attach(), but the old peer of
-> +			 * a reused DMB can already signal us.
-> +			 */
-> +			sndbuf_desc = smp_load_acquire(&conn->sndbuf_desc);
-> +		}
-> +		if (sndbuf_desc) {
-
-[Severity: Medium]
-The NULL dereference is gone. But the new comment says this CDC can come
-from the old peer of a reused DMB, so should it be processed at all?
-
-smcd_cdc_rx_tsklet() passes the CDC here without checking its seqno, token
-or source. smcd_cdc_msg_to_host() then overwrites local_rx_ctrl.prod, cons,
-prod_flags and conn_state_flags unconditionally:
-
-net/smc/smc_cdc.h:smcd_cdc_msg_to_host() {
-    ...
-	smc_curs_copy(&local->cons, &temp, conn);
-	local->prod_flags = peer->cons.prod_flags;
-	local->conn_state_flags = peer->cons.conn_state_flags;
-}
-
-Only the tx_curs_fin/sndbuf_space sync is skipped here. The connection may
-still be in its CLC handshake, and the rest of smc_cdc_msg_recv_action()
-still runs on the stale data:
-
-- diff_cons is added to peer_rmbe_space
-- diff_prod is added to bytes_to_rcv, and sk_data_ready() is called
-- stale peer_conn_abort, peer_conn_closed or peer_done_writing flags set
-  sk_err = ECONNRESET, RCV_SHUTDOWN and SOCK_DONE, and queue close_work
-
-For an abort, smc_close_passive_abort_received() then moves the socket
-from SMC_INIT to SMC_PROCESSABORT.
-
-Can stale flags from an unrelated connection reset or close a connection
-that is still in its handshake?
-
-This also leaves a cursor mismatch behind. local_rx_ctrl.cons ends up at
-the stale value X, while tx_curs_fin stays at {0,0}.
-smcd_conn_save_peer_info() resets peer_rmbe_space but not
-local_rx_ctrl.cons:
-
-net/smc/af_smc.c:smcd_conn_save_peer_info() {
-    ...
-	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
-    ...
-}
-
-The first real CDC from the new peer (cons Y) is then diffed against X:
-
-- Same wrap and Y.count <= X.count: diff_cons is 0, and peer_rmbe_space
-  stays below its real value from then on.
-- Different wraps: peer_rmbe_space is credited past peer_rmbe_size, which
-  breaks 0 <= peer_rmbe_space <= peer_rmbe_size.
-
-In both cases peer_rmbe_space can no longer equal peer_rmbe_size. So this
-check later in the function never fires:
-
-	if (diff_cons && conn->urg_tx_pend &&
-	    atomic_read(&conn->peer_rmbe_space) == conn->peer_rmbe_size) {
-
-Would a MSG_OOB sender then block in smc_tx_sendmsg()->smc_tx_wait() until
-a timeout or a signal?
-
-The commit message says:
-
-    The update's cursors and flags are still applied to the new
-    connection, as those of a CDC that leaves the consumer cursor alone
-    already are.
-
-Is that comparison accurate? A CDC that leaves the consumer cursor alone
-does not create a cons/tx_curs_fin mismatch.
-
-A CDC that moves the consumer cursor before smcd_buf_attach() cannot come
-from the real peer. That is the reasoning behind "Nothing of ours can have
-been consumed before the attach".
-
-Would it be better to drop such a CDC, or to stop reusing a DMB that a
-previous peer can still signal, instead of applying part of it?
-
->  			/* Calculate consumed data and
->  			 * increment free send buffer space.
->  			 */
-> -			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
-> +			diff_tx = smc_curs_diff(sndbuf_desc->len,
->  						&conn->tx_curs_fin,
->  						&conn->local_rx_ctrl.cons);
->  			/* increase local sndbuf space and fin_curs */
-
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 9ef9019bc4974..982cfc79ee1cc 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -2654,9 +2654,10 @@ int smcd_buf_attach(struct smc_sock *smc)
->  	buf_desc->cpu_addr =
->  		(u8 *)buf_desc->cpu_addr + sizeof(struct smcd_cdc_msg);
->  	buf_desc->len -= sizeof(struct smcd_cdc_msg);
-> -	conn->sndbuf_desc = buf_desc;
-> -	conn->sndbuf_desc->used = 1;
-> -	atomic_set(&conn->sndbuf_space, conn->sndbuf_desc->len);
-> +	buf_desc->used = 1;
-> +	atomic_set(&conn->sndbuf_space, buf_desc->len);
-> +	/* Set last; pairs with the acquire in smc_cdc_msg_recv_action() */
-> +	smp_store_release(&conn->sndbuf_desc, buf_desc);
-
-[Severity: High]
-Does this only close the window before attach? The old peer that still
-holds the reused DMB token can keep signalling after this store.
-
-Once sndbuf_desc is published, the new "if (sndbuf_desc)" branch in
-smc_cdc_msg_recv_action() runs on the foreign consumer cursor:
-
-	diff_tx = smc_curs_diff(sndbuf_desc->len,
-				&conn->tx_curs_fin,
-				&conn->local_rx_ctrl.cons);
-	...
-	atomic_add(diff_tx, &conn->sndbuf_space);
-
-Right after attach, tx_curs_fin is {0,0} and sndbuf_space is len. A stale
-cons X with X.wrap != 0 gives diff_tx = len + X.count, so sndbuf_space
-becomes 2 * len + X.count.
-
-Can sndbuf_space grow past sndbuf_desc->len this way? peer_rmbe_space
-would be over-credited in the same way.
-
-smc_tx_sendmsg() sizes its copy only from sndbuf_space:
-
-net/smc/smc_tx.c:smc_tx_sendmsg() {
-    ...
-	copylen = min_t(size_t, send_remaining, writespace);
-    ...
-	chunk_len = copylen - chunk_len; /* remainder */
-    ...
-}
-
-With prep.count == 0, the second chunk is len + X.count bytes, written at
-offset 0.
-
-Would memcpy_from_msg() then write X.count bytes of user data past the end
-of the attached peer DMB? With CONFIG_HARDENED_USERCOPY this would hit a
-usercopy_abort() BUG instead.
-
-Smaller inflations would overwrite data that has not been consumed yet, and
-tx_curs_fin would be left at the foreign baseline.
-
-The underlying problem seems to be that a DMB is handed to a new
-connection while a previous peer is still attached. smc_buf_unuse() only
-does this:
-
-	WRITE_ONCE(conn->rmb_desc->used, 0);
-
-The token stays registered. __smc_buf_create()->smc_ism_set_conn() maps the
-sba_idx to the new connection, so dibs_lo_move_data() delivers the old
-peer's signals there.
-
-One way to reach this: smc_listen_decline() calls smc_conn_abort() after
-the client has already run smcd_buf_attach() and moved to SMC_ACTIVE.
-
-Would it be better to stop reusing the DMB while a peer is attached, or to
-drop signals that do not come from the current peer, instead of making the
-receive path tolerate a NULL sndbuf_desc?
-
->  	return 0;
->  
->  free:
+Tested-by: Gregory Price (Meta) <gourry@gourry.net>
+Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261112-b4-disp-1c8d3a53-v6-0-36a38ae35021%40proton.me
+~Gregory
+
