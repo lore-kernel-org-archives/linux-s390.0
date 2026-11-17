@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794920838;
-	b=KcMonexBBNPSnw4L2F/wj4Wcs4cYvmvA1wosf1e+fYIGLoclybdMUhy0IMbgnVbg2kmt
-	 NBdAXZNvWAS7UL0o5icQocf3UMVScgbN0I6nH/mYm7+2UtwIqtlfLSusawa3f4RYVtIKs
-	 lDs4dGOdSk9SOqlt8PoI/lhVxgTcVnFVpOVEAHBnuMT8tzJnmtGgFuBI2UaLhFUUePWT0
-	 fnhd67MQIccFjMD86TI2/Iq8avw5JkowiLd4QbibzXBtW36TUa0rXrcWajTmzVLGq6AcL
-	 UQdXupQMq0wuAmQYntHb1kV1ch/CK6l2Lta3Obg3uNvtzPzGHXZASIfRPuadg7xDlmA==
+	t=1794920841;
+	b=INW1u35OSU7JYc/K1QR6Vf/Giwawu7tjxhb49Wlxx5Su2j/omjsXhKnntqqpfY9OwAMP
+	 RHpsJBcZFQD0gQXSpYZSbV9q5Npti62PI5vSGLM/mSOteMEGitQ4zTGTqzeddEhMCQfup
+	 O6N8bqt+Q0BNmQ2HOLN9KiV+RpdXbU7U+mCx8mHJQUwDaIPgzJtzu6avpxcQhNy5b3EX+
+	 PNepJvDp0MSxilmqBZNDDJME5CO0Vjn7dET/ddRuy8vkmy7kae54RJXz5SqDK/gNmEzkc
+	 ZCLLN0uOVWLG52Nab+S/6Z1O680CdplmEivViWZB1jpfdngIKeSDwSMF0ldJvkGOnIQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920838;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920841;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=2iJKQ9g80TKCxV6YWL6c9OznHwGGtVqmigy8uKmIx1U=;
-	b=LB/4cIql7WAM+/ZRpsWGfUDdd+9NYaX1cDdDESvCogl65SIqWmnmngWXbJgc/eGPbXB2
-	 rVrNmvgWMGXQh3YmfvjtSdSJvHA/MrNgZdXSOGdIMD4RbUdX3STRy8vJxrPs31COdiF4d
-	 djj8OCEBlSOA//e3G05Pa8MYG56I/H4okhV5/P9Iw48MBQ08dsmtUbRGM3qF6Q4NZVQ6o
-	 j923QFqFt9VfE8ks9u/ybpvyLpLZ4imEYiX5YLNVnWO/kSm/rL8z4n1IlIXisPe9qjZAC
-	 vuC6vgRwc8VNmcPL2tLrbDhGvVVG/W5NlfoQu9od2FMypj7nozsqKvqlPZGF0gDv2OQ==
+	bh=DqGa1GEvMVM4CUAHQZQ4hNfpxe8V705FHjpxYKPLcQE=;
+	b=erzens/QIz9cvZ1WbNUZ/NdmhLAWoq3/qyyHZkS6GOnDvbOIa3+5gShhi3269j0CUOz4
+	 MVlx9ncWFmf/PRXZWL/WZBefjqFs1TbKXWctnwY3wlM1ePh9DCMQ9SbrCb4WmGPJbJB1D
+	 3TNnpqrCNzbyzKGrWUETL/wTCNQ2CG+WIs2mNBvsh5Xg92LeyQGWoza2VvSTB0ExZbZM5
+	 t/LdtdRLCnKSPDRQmv6YOssGg8PR24JGF3M9c0wpUIfTMj0gC1fUs6BNBLxoK03R1+RL1
+	 refgb8LkKABqAi5GlyqSIAHIn8JyJSgr+/qpzuhvAgo4QWgKoQrWC+DJuxLqtW3+Wbw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mS5UGHdM;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Dt25Ba+/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3428660A2635;
-	Tue, 17 Nov 2026 13:07:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61853606A893;
+	Tue, 17 Nov 2026 13:07:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mS5UGHdM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B021F000C4;
-	Tue, 17 Nov 2026 13:07:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Dt25Ba+/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A0BE1F000C6;
+	Tue, 17 Nov 2026 13:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920838;
-	bh=2iJKQ9g80TKCxV6YWL6c9OznHwGGtVqmigy8uKmIx1U=;
+	s=k20260515; t=1794920841;
+	bh=DqGa1GEvMVM4CUAHQZQ4hNfpxe8V705FHjpxYKPLcQE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=mS5UGHdM25I1zvDIW/JSvdij8sfG0xyBzoMKH2NmlGlELEvFwgGM04Ifz8uTl9+mv
-	 liwOuPzVlCZ/x0PFIqZUBjILwamoxTHCYk+kgMmRo/BHhbL40yM1n6ZD5z/9nVuTY+
-	 /Bal6Pt+cOHec+erubCJFcd3a+zc1EH2ueK/NOnVdNsVvn5WmCgnMWLc3gxWNvGxPJ
-	 GXyvaal7RA0oc2B8OSCvDVPGBJNfajf/7ZJPCKX9Zfexfqx58+vXik2EaSixMpw2fr
-	 i7zjsaqWFDix8W6Fmff9fcIIjQFNVY3DXTqdXHXqi7gmf8t3E4OQb3uamKmsO5Rhw4
-	 vg0eQ255Hum3w==
+	b=Dt25Ba+/d3PdJXh1Je/uB2LSw98YGFMW+Q+U4uVkA9E5Z2DHBmURph3zRvJU/T9GI
+	 ZzY1FqVTo1vZXhKm8RazcA8XSvCe7TqycChOfMER1kzKYA2ocX9AQ5+dUpBImmn8j3
+	 V+ykP7ihIjjgmJ+zgdsKJ0y3B3k6AXs/l9FDMuup1H68HpOMW1zlL3a0ZU+5VLfAiS
+	 ECat5yJQADnDFpDtXwy01MyNZNQA0hpylmEUd4eCqnVS3+s9MTgbjEX7eO9ZmmhqNO
+	 9QerUrcxmqbzqaw096lpJO1lhqH/PRWd7JTkT1nNWcOaeiMustWRobLwM334s+ZqT9
+	 l6yRLZjUPg2/g==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Tue, 17 Nov 2026 15:06:58 +0200
-Subject: [PATCH v2 06/14] s390/sclp_tty: Replace get_zeroed_page() with
- kzalloc()
+Date: Tue, 17 Nov 2026 15:06:59 +0200
+Subject: [PATCH v2 07/14] s390/sclp: Replace __get_free_page() with
+ kmalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-s390-sclp-ready-v2-6-e518c99622c6@kernel.org>
+Message-Id: <20261117-s390-sclp-ready-v2-7-e518c99622c6@kernel.org>
 References: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 In-Reply-To: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -67,8 +67,8 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-sclp_tty_init() allocates the SCCBs that are used as the output buffers
-of the SCLP line mode terminal.
+sclp_init() allocates the SCCBs used for reading SCLP events and for
+the SCLP init mask request.
 
 These buffers can be allocated with kmalloc() as there's nothing special
 about them to go directly to the page allocator.
@@ -83,46 +83,50 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-Replace use of get_zeroed_page() with kzalloc() and free_page() with
+Replace use of __get_free_page() with kmalloc() and free_page() with
 kfree().
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/char/sclp_tty.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/char/sclp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
-index 0a92d08830e7..e36739bd2732 100644
---- a/drivers/s390/char/sclp_tty.c
-+++ b/drivers/s390/char/sclp_tty.c
-@@ -9,6 +9,7 @@
-  */
- 
- #include <linux/kmod.h>
+diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
+index 98e334724a62..bfbac6dfa053 100644
+--- a/drivers/s390/char/sclp.c
++++ b/drivers/s390/char/sclp.c
+@@ -20,6 +20,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
 +#include <linux/slab.h>
- #include <linux/tty.h>
- #include <linux/tty_driver.h>
- #include <linux/tty_flip.h>
-@@ -497,7 +498,7 @@ static void __init __sclp_tty_free_pages(void)
- 
- 	list_for_each_safe(page, p, &sclp_tty_pages) {
- 		list_del(page);
--		free_page((unsigned long)page);
-+		kfree(page);
- 	}
- }
- 
-@@ -525,7 +526,7 @@ sclp_tty_init(void)
- 	}
- 	/* Allocate pages for output buffering */
- 	for (i = 0; i < MAX_KMEM_PAGES; i++) {
--		page = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+		page = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 		if (page == NULL) {
- 			__sclp_tty_free_pages();
- 			tty_driver_kref_put(driver);
+ #include <asm/types.h>
+ #include <asm/irq.h>
+ #include <asm/debug.h>
+@@ -1268,8 +1269,8 @@ int sclp_init(void)
+ 	if (sclp_init_state != sclp_init_state_uninitialized)
+ 		goto fail_unlock;
+ 	sclp_init_state = sclp_init_state_initializing;
+-	sclp_read_sccb = (void *) __get_free_page(GFP_ATOMIC | GFP_DMA);
+-	sclp_init_sccb = (void *) __get_free_page(GFP_ATOMIC | GFP_DMA);
++	sclp_read_sccb = kmalloc(PAGE_SIZE, GFP_ATOMIC | GFP_DMA);
++	sclp_init_sccb = kmalloc(PAGE_SIZE, GFP_ATOMIC | GFP_DMA);
+ 	BUG_ON(!sclp_read_sccb || !sclp_init_sccb);
+ 	/* Set up variables */
+ 	list_add(&sclp_state_change_event.list, &sclp_reg_list);
+@@ -1302,8 +1303,8 @@ int sclp_init(void)
+ fail_init_state_uninitialized:
+ 	list_del(&sclp_state_change_event.list);
+ 	sclp_init_state = sclp_init_state_uninitialized;
+-	free_page((unsigned long) sclp_read_sccb);
+-	free_page((unsigned long) sclp_init_sccb);
++	kfree(sclp_read_sccb);
++	kfree(sclp_init_sccb);
+ fail_unlock:
+ 	spin_unlock_irqrestore(&sclp_lock, flags);
+ 	return rc;
 
 -- 
 2.53.0
