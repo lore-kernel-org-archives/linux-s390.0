@@ -1,60 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794920971;
-	b=ueu4mZa1EjTenkKqTyBV5IpRdLAjriffCY0JIYkXSbYLwcDtrNwLjaymXsrEPsgpOeTP
-	 OeU9v6fqXJNmT6BNSg1Tsbf4k/Y71YdGzc8eLfQDWQcWiJvPidcOuwArNVukRYU8ZYUCs
-	 A8yhPxz7EWb6nG3XerTq3zwPIkiS9JHxaCO2LdCCfHw0jKV9zFobJ/sxhfB458rhQrTQC
-	 N0PBitRPuxORBhT6GMhjtChvHY4I520NzePL5txP8zudqUlqZbS9kMPHZ8acn02/EBBPe
-	 9AFu/qy8+3C5UGIWTKdlon/JKDoBpr4jKw+M3vUZrJVVoTDKC984um/fnnTh8eDfUkA==
+	t=1794924068;
+	b=RnOLoV/GunRy1RVVkbg30jeybe/AFeinufw9t5bGZWjoWDOoXz9fVH+SnHqbJBWeIG+v
+	 cj4r6fHKcEC2ZOpOfbpYr4fXzFTFbIMEX51fNJQXKbmF2pjwoAilt73jFYHJUS8WH7fpS
+	 g5cnooEwZ7Wzscv6r9dXy/es3iaVELgGGLzOpwfxXsk3Lm2od93qLDs6HhiUuv5iR61Uh
+	 3BMeC8C12uo2g7zc8s0i8SnmDHUEaNb5h1seEDjZgs4Av/9oScLvg/BeFNwy4Fq8FNRnX
+	 jjnojlTc3Pm86lbs2E5mt8CqJ1OFGdoMfKYJBvsj6VrCj4Qd4SIDIbGbERf2NZmCc3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920971;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=MYlCavCmKBR+LcfhJHx6WNDCyIS5wdpBm9jT9WBogFw=;
-	b=i5qFnMZDSYx5G40ls+WVdLVfWvxcQwcPwDGFB/ueSbknDDAypCFZ0j6PuuD3c9YIAYMn
-	 ohkJNvT0RtgPHz0fwYK7TMMfktGNsUJaamLnMTPfa27jaMRYO6NFQhLPodZEYmUdEiOTm
-	 0bGU1vM8RIr0RBiTAb6gbh24ocZ8lCzMgtII0lkecMYQrKLuQlrFMra9LJcMp84xiovxe
-	 JSLbm6yMCAtqEBPDT/e3quc3lPlbr8QX8BFTTOxvDc3vcHDgZLr1M5qvKyv0vdvBF6SzA
-	 MrEEqqlJNU7Zh5qmcazBMISA6b510pR3VufF1hUyeQolKarnSHGS46+KH0hTv2oA5GQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794924068;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
+	 X-Mailer;
+	bh=zI+crKsh6am8tsCzPTpsROvUSZD6KicW2WP2b2xt+Q0=;
+	b=hiuZJREW/HAr6BdAf6NV9/YX8Ekjvfk0kPtfAYczPL9SXP7jpwd2P4Utc0p1gBLCmWFz
+	 hgR7GGGrIDFTzSRh0UXE9oW5iITFIy+5Y/WcOHLukpkTvHANUN3ENSuwWaDuP066QoTUH
+	 Kijeqw8aljXH1tFi6Johu2ZkpVInqRrf/nXOKPD/yvp+a1t8WYIQrcyjeKSxdFaFiR7yt
+	 dUmNV8YgHJRW+Wu4JXNkxvqewxKQoGbZnfdiqzVfjRNt3IBIH3NVgL6r+hOrgc7JVL9YV
+	 UfhY0R5SYAn5Mil6L5IBhFrp0BlJzsVFuaTGZ5W/jS5UJdt6ZkiMkvhdLlJ5FHCyIgg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="CN8rDF/C";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KbXYbI3x;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1348C606A32C;
-	Tue, 17 Nov 2026 13:09:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12C4606A329;
+	Tue, 17 Nov 2026 14:01:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CN8rDF/C
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3771F000C4;
-	Tue, 17 Nov 2026 13:09:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KbXYbI3x
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D9C1F000C4;
+	Tue, 17 Nov 2026 14:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920970;
-	bh=MYlCavCmKBR+LcfhJHx6WNDCyIS5wdpBm9jT9WBogFw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=CN8rDF/CUbNhGdiyHjCAuz5IQlDn3iZmVveFZowSyDnlwjfBoBajAEkldEHCfnP+8
-	 LvzB7xSnpehC2DMCTIZcbLlcqe41Z8LGjH6LsxAK+jkmJJEn17s1ZYyGQ12QtKZB/i
-	 ZnXx4nafqJUtuwBCQZ73qMSie9EUQ39m2XRb2xZ96/OI20FTnAy8Pc7jlJHyxHf/Sy
-	 zvDjDn1lrSSjKiIJlNUjCCizTzczGQq3xngE8ajRTGZhtPh5ne3NSZmqkGoJ+VDB19
-	 yv1DVazWv0zH1+atZx6Z6FsHFZFeuKPkNvzpP828G5PswbrrAwGS0ed4yLCo81UXpN
-	 mJJJJUXu9y9Gw==
-Date: Tue, 17 Nov 2026 15:09:24 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Vlastimil Babka <vbabka@kernel.org>, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 12/14] s390/sclp_ftp: Replace get_zeroed_page() with
- kzalloc()
-Message-ID: <avxSBMGhTU0_QseV@kernel.org>
-References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
- <20261108-s390-sclp-ready-v1-12-3e7c90eb6676@kernel.org>
- <20261116152608.165348B07-hca@linux.ibm.com>
+	s=k20260515; t=1794924068;
+	bh=zI+crKsh6am8tsCzPTpsROvUSZD6KicW2WP2b2xt+Q0=;
+	h=From:Date:Subject:To:Cc;
+	b=KbXYbI3x81dskh+oWDMdyPT4Z/FJMj6bW5Lsv9xGCVxgLdCwq1FZ7oGHuFCY431QQ
+	 Dv9Y1pHcIWsELImWV3CZEGBJ/34GXXxPvHWdFI6KfqQNTUOOJVWhjmxvsGJNBbjWBl
+	 d+PD3+10I2oQpjmcztO+pSK3GMOqyq+H0AXa8GkP2S8yAH4bu52IZxVPhvdi4knQCC
+	 nXjPfNwM4Ha70QEKM26tu1fJA7nenvnP0QBstBje7C8mJQHVsPRexYFjP3udGOW685
+	 YizXuxeUHebkUTkoVZJzj5qzJWtaQrxc7WqHQ4zpVmNDcvToqJkZYHq3ZZh83hlodl
+	 E4fSSumFxDApg==
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Date: Tue, 17 Nov 2026 16:01:04 +0200
+Subject: [PATCH] s390/kdump: write protect the crash kernel memory by its
+ virtual address
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,60 +53,70 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261116152608.165348B07-hca@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261117-fixes-s390-v1-1-2d9d04ca0072@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMwQ7CIBBEf6XZs8QCRsBfMR4A13ZNpGa3miZN/
+ 72gxzfzZlYQZEKBS7cC45eEplJBHzrIYywDKrpXBtObs9baqQctKEps6JU34WSD9c67CHXwZvy
+ 11b/e/iyf9MQ8t4dmpCioEseSxxZNTAOV4yvKjAzbtgOgqwpvjgAAAA==
+X-Change-ID: 20261117-fixes-s390-82943938787a
+To: Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Mike Rapoport <rppt@kernel.org>, Sven Schnelle <svens@linux.ibm.com>, 
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+X-Mailer: b4 0.16.1-dev
 
-On Mon, Nov 16, 2026 at 04:26:08PM +0100, Heiko Carstens wrote:
-> On Sun, Nov 08, 2026 at 10:58:43AM +0200, Mike Rapoport (Microsoft) wrote:
-> > sclp_ftp_et7() allocates the SCCB used for an HMC file transfer request
-> > and sclp_ftp_startup() allocates the SCCB used to read the SCLP info in
-> > the debug code.
-> > 
-> > These buffers can be allocated with kmalloc() as there's nothing special
-> > about them to go directly to the page allocator.
-> > 
-> > kmalloc() provides a better API that does not require ugly casts and
-> > kfree() does not need to know the size of the freed object.
-> > 
-> > Performance difference between kmalloc() and __get_free_pages() is not
-> > measurable as both allocators take an object/page from a per-CPU list for
-> > fast path allocations.
-> > 
-> > For the slow path the performance is anyway determined by the amount of
-> > reclaim involved rather than by what allocator is used.
-> > 
-> > Replace use of get_zeroed_page() with kzalloc() and free_page() with
-> > kfree().
-> > 
-> > Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
-> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> > ---
-> >  drivers/s390/char/sclp_ftp.c | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> ...
-> 
-> > @@ -250,7 +250,7 @@ int sclp_ftp_startup(void)
-> >  		return rc;
-> >  
-> >  #ifdef DEBUG
-> > -	info = get_zeroed_page(GFP_KERNEL);
-> > +	info = (unsigned long)kzalloc(PAGE_SIZE, GFP_KERNEL);
-> >  
-> >  	if (info != 0) {
-> >  		struct sysinfo_2_2_2 *info222 = (struct sysinfo_2_2_2 *)info;
-> > @@ -262,7 +262,7 @@ int sclp_ftp_startup(void)
-> >  				 info222->lpar_number, info222->name);
-> >  		}
-> >  
-> > -		free_page(info);
-> > +		kfree((void *)info);
-> 
-> Sashiko is right here, the ugly cast can go away with a trivial code change.
+crash_protect_pages() passes crashk_res.start to set_memory_ro() and
+set_memory_rw(). That is a physical address. Since the identity mapping
+may start above zero, it is not the address of the crash kernel memory
+in the kernel page tables.
 
-Argh, missed that in pre-send review :(
+With CONFIG_RANDOMIZE_IDENTITY_BASE the page table walk finds no mapping
+at that address and fails. The error is ignored, and the crash kernel
+memory stays writable after "kexec -p" loads it.
 
--- 
+Use the identity mapping address of the crash kernel memory.
+
+Fixes: c98d2ecae08f ("s390/mm: Uncouple physical vs virtual address spaces")
+Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+---
+I found this while working on a generic implementation of the set_memory
+APIs. Only build tested.
+---
+ arch/s390/kernel/machine_kexec.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
+index baeb3dcfc1c8..20ea3018462f 100644
+--- a/arch/s390/kernel/machine_kexec.c
++++ b/arch/s390/kernel/machine_kexec.c
+@@ -151,15 +151,16 @@ void crash_free_reserved_phys_range(unsigned long begin, unsigned long end)
+ 
+ static void crash_protect_pages(int protect)
+ {
+-	unsigned long size;
++	unsigned long addr, size;
+ 
+ 	if (!crashk_res.end)
+ 		return;
++	addr = (unsigned long)__va(crashk_res.start);
+ 	size = resource_size(&crashk_res);
+ 	if (protect)
+-		set_memory_ro(crashk_res.start, size >> PAGE_SHIFT);
++		set_memory_ro(addr, size >> PAGE_SHIFT);
+ 	else
+-		set_memory_rw(crashk_res.start, size >> PAGE_SHIFT);
++		set_memory_rw(addr, size >> PAGE_SHIFT);
+ }
+ 
+ void arch_kexec_protect_crashkres(void)
+
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261117-fixes-s390-82943938787a
+
+--
 Sincerely yours,
 Mike.
+
