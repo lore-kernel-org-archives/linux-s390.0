@@ -1,81 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794932605;
-	b=CzhnO6P9nSyPBMJjqjW7pD8u7eZCwKacrOCtGUy6N+uvHBjDQcM3VQAjmQdkCzX2WCGO
-	 BOqVwxp3YIycmq7vwVlGMaMtvfswPxXqK7aa2/Qx4Bd40AJcf973fNB2PI6lQMLTTiLh7
-	 4lJEQy19R11NVt6zKoatSRuWVSPa/OOhVDNTvHu4Ad66bp0nxoFAwyZU5pJr65XrdBaTI
-	 8wkgMvfL29amNUYo72Hod9oJqts6PnaPFXlVBJ8tkEcSF6gWvRD9bD0SMFfkVtVSswLgl
-	 nIm851AZdsBXLjTBA6in/M0USmBY/tonzLoLcFb2vMSVhwYGGo/R1mZsloLaFys5sRA==
+	t=1794932618;
+	b=aCq9Ijf/muE6hobVY0c7kZBRVCV33St2AFCK5R6+Xf4GoFVeLLvdAQ2CPE3IdxYZGXkh
+	 L7jXZTGC7LMIGSHcrAxobPx7jzLqPOX8pMRU0c8mpI6jVwFGXeT3apQqPcoi+fzjDyh3s
+	 s6cxoWsCGebnrA+o8XU3C91G5/nbJ+8mEcOj7G+yL2lT4F/yEZkx4vf1l57J8CZW3jd4V
+	 RgtVIpFzLWFGrRwMOt2WCG+YJmJM9nfOHaLZRRP36zaLKlWMiVVo7enftaMaKwp0JDXEz
+	 PaoYOrEGh51xntoq2rT7TI+eAymlLQ0kzrZE39cX+5u1C0yEx5715xRg31+HTgViFBA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794932605;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:From:Subject:To:Cc:References:Content-Language:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=T+fC7kKVmyHEZqOON/iU9HV6zzmhyZtzPZO5LuCy1FE=;
-	b=L63oFNwswx1uoweCW6MWVTLhh4TgSiS8W1lkhogg8olMW6mfUAKFvymJIaGpxGlwYBso
-	 fHIc1+A40IFCcxrnkW8r/Mh94E4TX+LKk7eYv/yKnuh3bxYcolaFLv6oPAvEM7FR+3aru
-	 CAlq33bIQw2vqS69Xbmy25g9IhYsoXTe3xkBrkMemhuVogjINWJQgA9lRHeVqtqfsLp8t
-	 T4el+yeKA/EqQz7xMiqIoZaW+rYtLmFBgh7i+EcrD1UJipyFwYlfGx6rrQAp3J7/OUDV1
-	 XihITsmW46sC7DHnoNloU7mhoPKjyY2aMNAKc4zcvJ50eZft3xLFUi7eXZYHah+x9/g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794932618;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Scanned-By;
+	bh=9bKC9y5sYZUFVKo3cJF968X4JmNJ/KKgeW9i3uCsAQ4=;
+	b=A+ukAeFaYfPQ0bk2ctaJgbEjmYpPac0VMpFW/Z/InNCj2cXWAUvBNIE++0KK/hd9TRPB
+	 IP/YdKz61PA7cCMudYQjryf7+3BoeImjNWOnalYzHuhXy5Bynji+BCWQzrjnDvD1YWdNj
+	 VUOjLNUEz0Ql/qJ7nOn2UBc18RkDMXVxH8JmqmJzcDx1JQPpExFY4qpUpMWHaiPNz9v4Z
+	 sDytmpE2gpKehJNfi3DdeeVusBI1yy2E9h0Hn9KzqmT5QTADOjTpWj0FeXhnBkokxTyQY
+	 dzsqrpl3W01k9rLZp0UzY4bmwpCuIXbpgp55fPEBBP8tbMwROiQ/m5b8vXGt7QbbinA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=PMZEQGc2;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CabdkIqe;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692DB606A32C
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 16:23:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 692DB606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884CC606A333
+	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 16:23:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 884CC606A333
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=PMZEQGc2
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AHFQcs12892686
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 16:23:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=T+fC7k
-	KVmyHEZqOON/iU9HV6zzmhyZtzPZO5LuCy1FE=; b=PMZEQGc2bnYGWrlgO5V2UW
-	4sr0l8M0chRAB+VuwVJ4XHTyixRkaasbqL15hPCFCF5Zftdco2fkdadrVyeQg62k
-	WAA78iY09XPqxNAYJm2rfQC+bxtAz5UfcMktPk8yp5/iK7+HBd4+5ma/8Q/pEX0T
-	nnwV786JQXArO/r++5xPnqZ5gStzaJ50HnzU3zIiL41HkP5+nW8M3V9QEnQRuAtU
-	+2jo93m6DhGHgahkcAyYb9vk5zpircEDfyjd8u/+9y4IFcHDW4aA+5IPcOxXe5sV
-	NtwlNq1RHw3hiagH0IyWxqctBQd9EsmNLcItt1+TFYcqOn81GgCi7AVMXotr6U4w
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hxf56c9qm-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 16:23:24 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AHFYxLj3749415
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 16:23:23 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j067ncdmg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 16:23:23 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AHGM4CT52560316
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Nov 2026 16:22:04 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0ED772004D;
-	Tue, 17 Nov 2026 16:22:04 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF7822004B;
-	Tue, 17 Nov 2026 16:22:03 +0000 (GMT)
-Received: from [9.68.31.53] (unknown [9.68.31.53])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Nov 2026 16:22:03 +0000 (GMT)
-Message-ID: <47f5f00c-e3bd-40ae-93be-65d4a5f2cc21@linux.ibm.com>
-Date: Tue, 17 Nov 2026 17:22:03 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CabdkIqe
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1794932616;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9bKC9y5sYZUFVKo3cJF968X4JmNJ/KKgeW9i3uCsAQ4=;
+	b=CabdkIqelw7y3LuuSNZmZZWIrcLfGGA4pGkOQ1mcywVJUecBHr6tmfUpHJSrWKbCPUuK7z
+	RQY7PJdKAvG/Tzwskc+Rd4wUn998F5GMdWqTEJKujlftWcF0lucjAybh9yigs/wvwlfXq0
+	h5z9e+09fNQohC1UroHEHBPz0JIaPZs=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-577-XavX1kWgOCO_-y1dC__RfQ-1; Tue,
+ 17 Nov 2026 11:23:30 -0500
+X-MC-Unique: XavX1kWgOCO_-y1dC__RfQ-1
+X-Mimecast-MFC-AGG-ID: XavX1kWgOCO_-y1dC__RfQ_1794932608
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D234E19560B5;
+	Tue, 17 Nov 2026 16:23:26 +0000 (UTC)
+Received: from onestero-thinkpadp1gen7.tpbc.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id C0C371956054;
+	Tue, 17 Nov 2026 16:23:20 +0000 (UTC)
+Received: by onestero-thinkpadp1gen7.tpbc.csb (nbSMTP-1.00) for uid 13628
+	oleg@redhat.com; Tue, 17 Nov 2026 17:23:26 +0100 (CET)
+Date: Tue, 17 Nov 2026 17:23:19 +0100
+From: Oleg Nesterov <oleg@redhat.com>
+To: Renzo Davoli <renzo@cs.unibo.it>
+Cc: linux-kernel@vger.kernel.org,
+	Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+	Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
+	Will Drewry <wad@chromium.org>, Thomas Gleixner <tglx@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Shuah Khan <shuah@kernel.org>, "Dmitry V . Levin" <ldv@strace.io>,
+	Alexey Gladkov <legion@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, strace-devel@lists.strace.io
+Subject: Re: [PATCH v11 2/3] ptrace: add PTRACE_SET_SYSCALL_INFO syscall
+ skipping support
+Message-ID: <avx_d9SSnpwhSyqU@redhat.com>
+References: <20261114181923.370930-1-renzo@cs.unibo.it>
+ <20261114181923.370930-3-renzo@cs.unibo.it>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,76 +93,43 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Alexandra Winter <wintera@linux.ibm.com>
-Subject: Re: [PATCH 3/4] dibs: introduce dibs console peer device driver
-To: Julian Ruess <julianr@linux.ibm.com>, schnelle@linux.ibm.com,
-        ts@linux.ibm.com, oberpar@linux.ibm.com, gbayer@linux.ibm.com
-Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
-        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
-        linux390-list@tuxmaker.boeblingen.de.ibm.com,
-        linux-s390@vger.kernel.org
-References: <20261008-console_server-v1-0-636b11ebf191@linux.ibm.com>
- <20261008-console_server-v1-3-636b11ebf191@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20261008-console_server-v1-3-636b11ebf191@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE3MDA2MyBTYWx0ZWRfX/pf+Ou26o7Go
- //xYn8bYcMAowZLxU9s2ssOKWn+qMDzLr5vr1049bgqLsoo9nuABu/e2CIY4Ri0HPIRLekkNPQv
- NJXnIQT7CsoR1SeRsgEAB94gMMPZvU0=
-X-Proofpoint-GUID: IdgC8tMo8KXVEaHikmroaVErgliTUcyt
-X-Authority-Analysis: v=2.4 cv=ROImjIi+ c=1 sm=1 tr=0 ts=6afc7f7c cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=DQchAjwAMX6vclSPPgMA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: IdgC8tMo8KXVEaHikmroaVErgliTUcyt
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE3MDA2MyBTYWx0ZWRfX7fVPPzAO28q1
- 0+uAlt7WtOYhFxUEnwNFrT+Unt9zSxMyTs4wfLKAUmzzaTX+etutljXCy6BJqW3ZZQXN5zt4zrG
- c6U8BF9hzRV3R1LBQXpVqTtM5j+SEShqVh1CJxV+imsiqFiYx6jckDpYRwA/HpQFRr8p7WBQlR3
- zx+uj7ok3522q7FV6T86p3x6pIdwJZeeWQ4jV/0EdtVraEtyDpDD+GxTz+hnwLeRgFzJKegVE3s
- eZKV5NMg56yNV2/afnYbTHG1n/hxDx2lLPlToF+mY8Y7KUcilPNBfc6L7osTnNFYhj3B2iBHuPd
- jkc4KvDGUt1iUKhFW7gZOY1qcN3P1Yy1qOrJ/F9bHgyz54P8pZQMTItB1b/GnWsrIoT6FopAGK+
- VRvj9QdvpxJpH0RMz81RrzBIcFY2BRYnzAqj+9rfl5uTGNBxEMzW7Cl4ZKCSdYV0OKN4f+o7ziT
- rmuo9scBr08Xnf3vM4g==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-17_03,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 priorityscore=1501 bulkscore=0 spamscore=0
- adultscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611170063
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261114181923.370930-3-renzo@cs.unibo.it>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-Just a few comments I noticed. I will continue the review at a later
-point in time or a future version.
+On 11/14, Renzo Davoli wrote:
+>
+> Extend PTRACE_SET_SYSCALL_INFO to support skipping a system call
+> triggered via seccomp.
+
+...
+
+> Signed-off-by: Renzo Davoli <renzo@cs.unibo.it>
+> [v8: skip via seccomp_ptrace_skip_syscall() instead of syscall_set_nr(-1),
+>  separate ptrace_set_syscall_info_seccomp_skip(), reject later
+>  PTRACE_SYSCALL_INFO_SECCOMP updates during the same stop]
+> [v11: report the stop as PTRACE_SYSCALL_INFO_EXIT once the syscall is
+>  skipped, instead of rejecting PTRACE_SYSCALL_INFO_SECCOMP explicitly]
+> Assisted-by: claude-opus-5-5
+> ---
+>  kernel/ptrace.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 47 insertions(+), 2 deletions(-)
+
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
 
 
-Title?
-s/dibs console peer device driver/dibs console driver/g ?
 
-On 08.10.26 10:08, Julian Ruess wrote:
-> Introduce a virtual console device driver that makes use of the newly
-> added dibs peer device bus.
+Sashiko has some concerns
+https://sashiko.dev/#/patchset/20261114181923.370930-1-renzo%40cs.unibo.it
+but IIUC this is the "pre-existing" problem fixed by
 
-s/dibs peer device bus/dibs peer bus/g    use the same name everywhere!
+	[PATCH v3 0/2] powerpc/syscall: Fix the return value of skipped syscalls
+	https://lore.kernel.org/lkml/20261030084926.1068384-1-renzo@cs.unibo.it/
 
-[...]
-> diff --git a/drivers/dibs/dibs_console.c b/drivers/dibs/dibs_console.c
-> new file mode 100644
-> index 000000000000..df53cbcf2fb5
-> --- /dev/null
-> +++ b/drivers/dibs/dibs_console.c
-> @@ -0,0 +1,388 @@
-[...]
-> +
-> +struct dibs_con_peer_dev *hvc_peer_devs[DIBS_CON_MAX_VTERMNOS] = { NULL };
+so this change do not need to depend on the powerpc-specific fix above.
 
-I get a compile warning:
-drivers/dibs/dibs_console.c:88:26: warning: symbol 'hvc_peer_devs' was
-not declared. Should it be static?
+Right? Just to be sure...
 
-
+Oleg.
 
