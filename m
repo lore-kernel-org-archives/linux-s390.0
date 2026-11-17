@@ -1,49 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794924068;
-	b=RnOLoV/GunRy1RVVkbg30jeybe/AFeinufw9t5bGZWjoWDOoXz9fVH+SnHqbJBWeIG+v
-	 cj4r6fHKcEC2ZOpOfbpYr4fXzFTFbIMEX51fNJQXKbmF2pjwoAilt73jFYHJUS8WH7fpS
-	 g5cnooEwZ7Wzscv6r9dXy/es3iaVELgGGLzOpwfxXsk3Lm2od93qLDs6HhiUuv5iR61Uh
-	 3BMeC8C12uo2g7zc8s0i8SnmDHUEaNb5h1seEDjZgs4Av/9oScLvg/BeFNwy4Fq8FNRnX
-	 jjnojlTc3Pm86lbs2E5mt8CqJ1OFGdoMfKYJBvsj6VrCj4Qd4SIDIbGbERf2NZmCc3g==
+	t=1794924422;
+	b=hyeFYbatoqTq1e6nRKMPdj4AayPTsHFGqIyCsRt7FPsNwwNPMDp+vMSQRAyHzLp87jOz
+	 x0J4MHfxesEjKN8QUZqQYAndRofaiss3ah15TzPwAquywqD+7gOiw6q5Lgime32Wt2M+H
+	 39eOSsFJFT+ZtXtnGWIin90coqcDVNMY/ysi5UHJqIo3jPHsl1wkHuD4hN3cQlmvC197i
+	 1xrzjjvoCjQjtkKmaurdyvNITdB86+9/55WLUTXh3Rzp5yb9SgVCEW3GRk8E4UzH8JkF8
+	 dKBt9fRt/cUvRD5zYGguPFIARa/LIS4wr1Pn+h57ArkDAjVIfpLdapbR4H29EwZXs8w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794924068;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
-	 X-Mailer;
-	bh=zI+crKsh6am8tsCzPTpsROvUSZD6KicW2WP2b2xt+Q0=;
-	b=hiuZJREW/HAr6BdAf6NV9/YX8Ekjvfk0kPtfAYczPL9SXP7jpwd2P4Utc0p1gBLCmWFz
-	 hgR7GGGrIDFTzSRh0UXE9oW5iITFIy+5Y/WcOHLukpkTvHANUN3ENSuwWaDuP066QoTUH
-	 Kijeqw8aljXH1tFi6Johu2ZkpVInqRrf/nXOKPD/yvp+a1t8WYIQrcyjeKSxdFaFiR7yt
-	 dUmNV8YgHJRW+Wu4JXNkxvqewxKQoGbZnfdiqzVfjRNt3IBIH3NVgL6r+hOrgc7JVL9YV
-	 UfhY0R5SYAn5Mil6L5IBhFrp0BlJzsVFuaTGZ5W/jS5UJdt6ZkiMkvhdLlJ5FHCyIgg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794924422;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=S8MjHIY0gcsrAlvihG2XRZtIFFhpbhL/7JmvMZUzC6s=;
+	b=Por/i/sbn9JkHI9VgvwB36N8rIMvkuph+26jX7oMwqDj02WrwGTkUCFiE3hRr4NYaDbh
+	 k/gmK5FF5DvhT7PgJX/QfRlO2/Pv97dJ2VnC2gCPPF+SLflsmlIiPtzOZsNWtF5fGvV4M
+	 1hunE1XXjILnsCBEMMOKksRmN4tDfmNspHQFs31yIMkgPwJyCG1opFzBms4dgk3eqkwxo
+	 lZvRzJ1fE80UabGYGHcUDR3UdNQAFEVpNZFtP3C02ZlWGjDfR0f/rOagpwPNImrEFzgtP
+	 w8bwPK1AxsTmRSQW7dTr2/+nMjVcyZGSRP+Y2DSCLsaq9iAak3FtrHUNpdWaC5vOu8g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KbXYbI3x;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hnPYrTex;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12C4606A329;
-	Tue, 17 Nov 2026 14:01:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22C79606A329
+	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 14:07:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KbXYbI3x
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D9C1F000C4;
-	Tue, 17 Nov 2026 14:01:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hnPYrTex
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D601F000C6;
+	Tue, 17 Nov 2026 14:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794924068;
-	bh=zI+crKsh6am8tsCzPTpsROvUSZD6KicW2WP2b2xt+Q0=;
-	h=From:Date:Subject:To:Cc;
-	b=KbXYbI3x81dskh+oWDMdyPT4Z/FJMj6bW5Lsv9xGCVxgLdCwq1FZ7oGHuFCY431QQ
-	 Dv9Y1pHcIWsELImWV3CZEGBJ/34GXXxPvHWdFI6KfqQNTUOOJVWhjmxvsGJNBbjWBl
-	 d+PD3+10I2oQpjmcztO+pSK3GMOqyq+H0AXa8GkP2S8yAH4bu52IZxVPhvdi4knQCC
-	 nXjPfNwM4Ha70QEKM26tu1fJA7nenvnP0QBstBje7C8mJQHVsPRexYFjP3udGOW685
-	 YizXuxeUHebkUTkoVZJzj5qzJWtaQrxc7WqHQ4zpVmNDcvToqJkZYHq3ZZh83hlodl
-	 E4fSSumFxDApg==
-From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Tue, 17 Nov 2026 16:01:04 +0200
-Subject: [PATCH] s390/kdump: write protect the crash kernel memory by its
- virtual address
+	s=k20260515; t=1794924422;
+	bh=S8MjHIY0gcsrAlvihG2XRZtIFFhpbhL/7JmvMZUzC6s=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hnPYrTex2RmGpTs/T/Z1OXL/Pcs6LLM5JvXsGpoQd8aDJKn0/vhn8cabgIDFim8We
+	 k0/G4dnZHHHpIO9adrCKj9UH/nWXO/iTe6yUwlEPJm3oNQERvk43s9mqHsFSvVCXyP
+	 23HsLFlCgJss8qg2getBMreL3GNnFho/X/GIXA8BhanQRYwDuEWCscTxvcNz1DlosL
+	 xk0/BqQC2C/iX60bLn/WuRvIMNTyX+80RsIZW5J6KnWGkw7I+i/6etZ6rUz9Qugn3l
+	 yJtQ5XDjNtn85JX2a8O+5HbDvf3natYH1t5cWDVIpMN/23y3QJfQESsbsFF1HX296G
+	 GZdw5Y+vQ7ERQ==
+Message-ID: <sashiko-outbox-218922@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] s390/kdump: write protect the crash kernel memory by
+ its virtual address
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261117-fixes-s390-v1-1-2d9d04ca0072@kernel.org>
+References: <20261117-fixes-s390-v1-1-2d9d04ca0072@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 17 Nov 2026 14:07:01 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,71 +61,25 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-fixes-s390-v1-1-2d9d04ca0072@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMwQ7CIBBEf6XZs8QCRsBfMR4A13ZNpGa3miZN/
- 72gxzfzZlYQZEKBS7cC45eEplJBHzrIYywDKrpXBtObs9baqQctKEps6JU34WSD9c67CHXwZvy
- 11b/e/iyf9MQ8t4dmpCioEseSxxZNTAOV4yvKjAzbtgOgqwpvjgAAAA==
-X-Change-ID: 20261117-fixes-s390-82943938787a
-To: Alexander Gordeev <agordeev@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Mike Rapoport <rppt@kernel.org>, Sven Schnelle <svens@linux.ibm.com>, 
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-X-Mailer: b4 0.16.1-dev
 
-crash_protect_pages() passes crashk_res.start to set_memory_ro() and
-set_memory_rw(). That is a physical address. Since the identity mapping
-may start above zero, it is not the address of the crash kernel memory
-in the kernel page tables.
+> crash_protect_pages() passes crashk_res.start to set_memory_ro() and
+> set_memory_rw(). That is a physical address. Since the identity mapping
+> may start above zero, it is not the address of the crash kernel memory
+> in the kernel page tables.
+>=20
+> With CONFIG_RANDOMIZE_IDENTITY_BASE the page table walk finds no mapping
+> at that address and fails. The error is ignored, and the crash kernel
+> memory stays writable after "kexec -p" loads it.
+>=20
+> Use the identity mapping address of the crash kernel memory.
+>=20
+> Fixes: c98d2ecae08f ("s390/mm: Uncouple physical vs virtual address space=
+s")
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
-With CONFIG_RANDOMIZE_IDENTITY_BASE the page table walk finds no mapping
-at that address and fails. The error is ignored, and the crash kernel
-memory stays writable after "kexec -p" loads it.
+Sashiko has reviewed this patch and found no issues.
 
-Use the identity mapping address of the crash kernel memory.
-
-Fixes: c98d2ecae08f ("s390/mm: Uncouple physical vs virtual address spaces")
-Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
----
-I found this while working on a generic implementation of the set_memory
-APIs. Only build tested.
----
- arch/s390/kernel/machine_kexec.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-index baeb3dcfc1c8..20ea3018462f 100644
---- a/arch/s390/kernel/machine_kexec.c
-+++ b/arch/s390/kernel/machine_kexec.c
-@@ -151,15 +151,16 @@ void crash_free_reserved_phys_range(unsigned long begin, unsigned long end)
- 
- static void crash_protect_pages(int protect)
- {
--	unsigned long size;
-+	unsigned long addr, size;
- 
- 	if (!crashk_res.end)
- 		return;
-+	addr = (unsigned long)__va(crashk_res.start);
- 	size = resource_size(&crashk_res);
- 	if (protect)
--		set_memory_ro(crashk_res.start, size >> PAGE_SHIFT);
-+		set_memory_ro(addr, size >> PAGE_SHIFT);
- 	else
--		set_memory_rw(crashk_res.start, size >> PAGE_SHIFT);
-+		set_memory_rw(addr, size >> PAGE_SHIFT);
- }
- 
- void arch_kexec_protect_crashkres(void)
-
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-change-id: 20261117-fixes-s390-82943938787a
-
---
-Sincerely yours,
-Mike.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261117-fixes-s390=
+-v1-1-2d9d04ca0072@kernel.org?part=3D1
 
