@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794920855;
-	b=1v4bgDmcJGrzjGLySqLuB7ln6MAa58fmD6XWf/VwlTS85sUsRSTAcUIa9aIKG711eZq0
-	 uR0cpvP9mnUSZsJ180VH6fws/k02xfNgBcTwRORtzyWXU76teAGeQVxIj/O3VsD6N96E6
-	 OBnnKtfzdz0lXpHSl/q9vNrw3mAt4qjng9I8ihfSFWyXB4cJm83L4J9J5ney9nrr+vYcY
-	 z6DmO+GfkFBagflCHjph3woAZAg5jJnn50Jz4ziIJcXt2pvlxC5U4iEkH3hc59QAxDtVb
-	 Pq7qb+Yq5l5FaNPS1IVnwcAAigcwxxCbnc0miiy3W8b2mRTD/rxzUs/S60TYTZtvUNQ==
+	t=1794920852;
+	b=YS8z+hdm5VpNtV+XvKTGF+5NovxVDqOISO6d7BAnPJRiUivR873uLU3bhzwATgi40hAL
+	 EB6KryAWTPcbf4gA66IOvwotteDPaCl+NL9K8Oay58bMLOtS1FT4rsGfxYhVD/+Ocm71f
+	 uoqBp1WqMjfTAnYFbrPZfo+Mm8645n3+/LEsUinbzOeyFG8biP/SZ13oK05dgmwPYWJYz
+	 Dvvf994m7yHEdDh9JGEzG6eh3c43Fv05NfKzcoxCChSLLRQ6+4avziL7WCJuYFuvqn8EA
+	 dwdaqdH3BsgGURO3O4H/ehi1L0dw3sVT6tNDmMQoO6KD0AhP0+WTGluV8zFimx2CyHg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920855;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920852;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=LgTNyWXJJEITijdTm//nXFVMQ7qfEthSD5JsfZnL/Co=;
-	b=3ffk4vCEhUCbAQcXI3b3tk/CAyjlQTT3Os6dRmveKM8wP3DbF/2uXUDz8MyJVEJFVhNX
-	 nnJ7ZRdOLcCky9YuKKSNXHlj2K1TU+9CSBZyH5cwH7TJoAeknBz5DqjIAUJ6HUAhjz1hE
-	 cy4B+nriG8gMdiq3QaFO2ebhn+a+Sth+4rtoAZjvQnFVl03klD+omP0tKeSb5j0UyzET5
-	 yok1Nen+cExOVsZnbfEBhgQxVK3oiFSTYBQlNauCzqVFB6hMbqS6S+iJZpSiFT6zb0hlk
-	 Vy/kNJFn7/zUOGA7Ksoogn/BpZjNU4c48z+ExP8OfbHJFuiaC8ec8pzXM9ryvHulTwQ==
+	bh=MBR9b/K32BoRw8TtSOA9dgWxNmbnE1ZmoY0n9+2HAHE=;
+	b=sf3B3/zIoxvgi/o55sPlGUaoEVIHBfcQ9VGSrjQeivrGG5ztvgO6/NuOlY729iaxaGkd
+	 wNJYTljyaQVjWsKjV3vd6yi24/ERX4x4UE4sr4qa7WRKAeDXYP7wKOkEAXQXEv5WF5KML
+	 WgTv1kMmPvk4H05bsFQ/pkVqOwlc2Aqhgoc+12BxIAoEobsSwtmoyAkllhHbg0FWT0yNs
+	 KrirTumNZKmQrzaeT7jzytZDgWUvIf/0nRjh0GBuLvoIGr7n7H1D5L86PBVTUe9k06hDc
+	 R1gzMCQ/KPYFyofMxjGnUGveB/MygkbMHsuawkclHpSGqhBfUfX6dPnGsFRJiMbhnRA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jYlyVwll;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TfjLmBLG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BFB360A3824;
-	Tue, 17 Nov 2026 13:07:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jYlyVwll
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C3F1F000C6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD047606A8B4;
 	Tue, 17 Nov 2026 13:07:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TfjLmBLG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2346C1F000C6;
+	Tue, 17 Nov 2026 13:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920855;
-	bh=LgTNyWXJJEITijdTm//nXFVMQ7qfEthSD5JsfZnL/Co=;
+	s=k20260515; t=1794920852;
+	bh=MBR9b/K32BoRw8TtSOA9dgWxNmbnE1ZmoY0n9+2HAHE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=jYlyVwllMRqqBz2IQfdVjoT7+cFM4ROU86h+VFinbusD4k3+w0oaHGtQmaBr0Pqrg
-	 HCRtNjY0ZHfoz29ADL97Adgii61dewiRwK4qHl0rF3c/v19/TzNigQa6IprsrscoJE
-	 67dAqp+utVG5RHLRgC1ROwppdiG676N0UybxP8jVR/K3EQ0DGIRrzAMWWfqDQDxq4i
-	 u873O/SesKzjoFN74B/rYsobVlM4zyRWHiU0Xvf0PJ5lmSavlJGgr0isrE327woqeB
-	 ThVP7Ab841Y/TG/aJrXEuVymM3NMgXem/GRlq7LTy0PkjTTNzGsSkVbZ7a8zl3q3FZ
-	 IA3L6/s1PgTfA==
+	b=TfjLmBLGZIehSAdiJx/3bs8koYeTSqi29GejP+Kw8dUIeDnkRn9yc3SxUR2t33pyW
+	 5m7dEycjFd5BX1ORh0TzLYgpYDu4+lsRdp7wBDaFya88vJOFp8hzzL3DbFPuV2KPuL
+	 LnFoFlWeuKLM+VsBj6YzQI2+VK+c8gE1Ri1kfc/ldqPYkWLqVAY+ZRuOm1wwGtAae5
+	 OUOj96KlkkUu8ItgVL4npceuw55GuQQ9JWxKzXwgDpJPnjbQsl9Ht+5O9lenRZQIgV
+	 Tbn8DLDpm2oxrtF8J3ubt2dt7S+1NZwUf/IIDBp+iGoLI2CLq68L8j64wWuRQJs242
+	 cWzpWUBGtONgg==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Tue, 17 Nov 2026 15:07:04 +0200
-Subject: [PATCH v2 12/14] s390/sclp_ftp: Replace get_zeroed_page() with
+Date: Tue, 17 Nov 2026 15:07:03 +0200
+Subject: [PATCH v2 11/14] s390/sclp_cpi: Replace get_zeroed_page() with
  kzalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-s390-sclp-ready-v2-12-e518c99622c6@kernel.org>
+Message-Id: <20261117-s390-sclp-ready-v2-11-e518c99622c6@kernel.org>
 References: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 In-Reply-To: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -67,12 +67,11 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-sclp_ftp_et7() allocates the SCCB used for an HMC file transfer request
-and sclp_ftp_startup() allocates the buffer for the SYSIB 2.2.2 stored
-by stsi() in the debug code.
+cpi_prepare_req() allocates the SCCB used to send the control program
+identification to the SCLP.
 
-These buffers can be allocated with kmalloc() as there's nothing special
-about them to go directly to the page allocator.
+This buffer can be allocated with kmalloc() as there's nothing special
+about it to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
 kfree() does not need to know the size of the freed object.
@@ -84,72 +83,38 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-While on it, make the SYSIB 2.2.2 buffer a struct sysinfo_2_2_2 pointer
-to get rid of the casts.
-
 Replace use of get_zeroed_page() with kzalloc() and free_page() with
 kfree().
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/char/sclp_ftp.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/s390/char/sclp_cpi_sys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/char/sclp_ftp.c b/drivers/s390/char/sclp_ftp.c
-index 853492d53953..904a53ecb6ed 100644
---- a/drivers/s390/char/sclp_ftp.c
-+++ b/drivers/s390/char/sclp_ftp.c
-@@ -93,7 +93,7 @@ static int sclp_ftp_et7(const struct hmcdrv_ftp_cmdspec *ftp)
- 	int rc;
- 
- 	req = kzalloc_obj(*req);
--	sccb = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+diff --git a/drivers/s390/char/sclp_cpi_sys.c b/drivers/s390/char/sclp_cpi_sys.c
+index b80f73fa1e01..8bca2cdb34c1 100644
+--- a/drivers/s390/char/sclp_cpi_sys.c
++++ b/drivers/s390/char/sclp_cpi_sys.c
+@@ -84,7 +84,7 @@ static struct sclp_req *cpi_prepare_req(void)
+ 	req = kzalloc_obj(struct sclp_req);
+ 	if (!req)
+ 		return ERR_PTR(-ENOMEM);
+-	sccb = (struct cpi_sccb *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 +	sccb = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 	if (!req || !sccb) {
- 		rc = -ENOMEM;
- 		goto out_free;
-@@ -155,7 +155,7 @@ static int sclp_ftp_et7(const struct hmcdrv_ftp_cmdspec *ftp)
- 	}
+ 	if (!sccb) {
+ 		kfree(req);
+ 		return ERR_PTR(-ENOMEM);
+@@ -118,7 +118,7 @@ static struct sclp_req *cpi_prepare_req(void)
  
- out_free:
--	free_page((unsigned long) sccb);
-+	kfree(sccb);
- 	kfree(req);
- 	return rc;
- }
-@@ -241,7 +241,7 @@ static struct sclp_register sclp_ftp_event = {
- int sclp_ftp_startup(void)
+ static void cpi_free_req(struct sclp_req *req)
  {
- #ifdef DEBUG
--	unsigned long info;
-+	struct sysinfo_2_2_2 *info222;
- #endif
- 	int rc;
+-	free_page((unsigned long) req->sccb);
++	kfree(req->sccb);
+ 	kfree(req);
+ }
  
-@@ -250,11 +250,9 @@ int sclp_ftp_startup(void)
- 		return rc;
- 
- #ifdef DEBUG
--	info = get_zeroed_page(GFP_KERNEL);
--
--	if (info != 0) {
--		struct sysinfo_2_2_2 *info222 = (struct sysinfo_2_2_2 *)info;
-+	info222 = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 
-+	if (info222) {
- 		if (!stsi(info222, 2, 2, 2)) { /* get SYSIB 2.2.2 */
- 			info222->name[sizeof(info222->name) - 1] = '\0';
- 			EBCASC_500(info222->name, sizeof(info222->name) - 1);
-@@ -262,7 +260,7 @@ int sclp_ftp_startup(void)
- 				 info222->lpar_number, info222->name);
- 		}
- 
--		free_page(info);
-+		kfree(info222);
- 	}
- #endif	/* DEBUG */
- 	return 0;
 
 -- 
 2.53.0
