@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794920841;
-	b=INW1u35OSU7JYc/K1QR6Vf/Giwawu7tjxhb49Wlxx5Su2j/omjsXhKnntqqpfY9OwAMP
-	 RHpsJBcZFQD0gQXSpYZSbV9q5Npti62PI5vSGLM/mSOteMEGitQ4zTGTqzeddEhMCQfup
-	 O6N8bqt+Q0BNmQ2HOLN9KiV+RpdXbU7U+mCx8mHJQUwDaIPgzJtzu6avpxcQhNy5b3EX+
-	 PNepJvDp0MSxilmqBZNDDJME5CO0Vjn7dET/ddRuy8vkmy7kae54RJXz5SqDK/gNmEzkc
-	 ZCLLN0uOVWLG52Nab+S/6Z1O680CdplmEivViWZB1jpfdngIKeSDwSMF0ldJvkGOnIQ==
+	t=1794920844;
+	b=x5qO1QesK197Mhdf1nsPXmAocGo7bJcff4d+4dxTyxVsbeoviI+jTkd0q06E6h+ZT6ri
+	 vll6hNWR5KsvVXZr7QMLHE01S314mrwJv3qyFP/kMaKW7f6MNrx6Oq7jRQSYff6GudUzt
+	 hvBgHsUvXHu4bsjbwGaqLwI4RMtGOYVDPzZDZgjQkHIBctENjerBr3tgtS3AdZvFtJU2d
+	 JR4Xt1nMpwSM4O9J20PbrRaZHtpa+4F/lFOpZK3cd3FTqWVaylx6AbBozocalfuvlCNC/
+	 lgAsuHZvsusXcKcoX/z0YsScUi7zGBMSW3UtSeoIGZFzs18KOIbY2dTxavx/0ZRZpIw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794920841;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794920844;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=DqGa1GEvMVM4CUAHQZQ4hNfpxe8V705FHjpxYKPLcQE=;
-	b=erzens/QIz9cvZ1WbNUZ/NdmhLAWoq3/qyyHZkS6GOnDvbOIa3+5gShhi3269j0CUOz4
-	 MVlx9ncWFmf/PRXZWL/WZBefjqFs1TbKXWctnwY3wlM1ePh9DCMQ9SbrCb4WmGPJbJB1D
-	 3TNnpqrCNzbyzKGrWUETL/wTCNQ2CG+WIs2mNBvsh5Xg92LeyQGWoza2VvSTB0ExZbZM5
-	 t/LdtdRLCnKSPDRQmv6YOssGg8PR24JGF3M9c0wpUIfTMj0gC1fUs6BNBLxoK03R1+RL1
-	 refgb8LkKABqAi5GlyqSIAHIn8JyJSgr+/qpzuhvAgo4QWgKoQrWC+DJuxLqtW3+Wbw==
+	bh=rTxINdq1VtsyQZerh4nRFT/F142s/ie+jkHVMDTGppw=;
+	b=fTURssGjqycO2MWYRWfAXmL1OGLvfIafDeC/wxl/Uo/DM2myhArqFF41wE9ypuVO2xMR
+	 9dJKtSuZd3w+CMVQUb3rVrAD7h5vg29+LT0wbUsZk8AQYWOMGp5Mb2Vz2PL5XwNDyh0Hn
+	 Hkgwg1Qx7qNpNeMX2J6AVQCe7sr4YwcjSzGcYDC9KCN5iTy8ZC8NuDimRbfad4QG1JoHC
+	 U9ye98/HwC+6ygMPyFnxUUYu4wK1hajvj+EWMMH4GM9AjnMdDMhNOkaP517ZuBNcgYNPU
+	 Wlbsd4n+Gsf5H0u9gkK3ZiYha6iHdwvtYlyIiIrtXFq4WYHGhtgUsaNWsPbN2rmPANQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Dt25Ba+/";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QmVRn26F;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61853606A893;
-	Tue, 17 Nov 2026 13:07:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3E9B60A3808;
+	Tue, 17 Nov 2026 13:07:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Dt25Ba+/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A0BE1F000C6;
-	Tue, 17 Nov 2026 13:07:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QmVRn26F
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 709AA1F000C5;
+	Tue, 17 Nov 2026 13:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794920841;
-	bh=DqGa1GEvMVM4CUAHQZQ4hNfpxe8V705FHjpxYKPLcQE=;
+	s=k20260515; t=1794920843;
+	bh=rTxINdq1VtsyQZerh4nRFT/F142s/ie+jkHVMDTGppw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Dt25Ba+/d3PdJXh1Je/uB2LSw98YGFMW+Q+U4uVkA9E5Z2DHBmURph3zRvJU/T9GI
-	 ZzY1FqVTo1vZXhKm8RazcA8XSvCe7TqycChOfMER1kzKYA2ocX9AQ5+dUpBImmn8j3
-	 V+ykP7ihIjjgmJ+zgdsKJ0y3B3k6AXs/l9FDMuup1H68HpOMW1zlL3a0ZU+5VLfAiS
-	 ECat5yJQADnDFpDtXwy01MyNZNQA0hpylmEUd4eCqnVS3+s9MTgbjEX7eO9ZmmhqNO
-	 9QerUrcxmqbzqaw096lpJO1lhqH/PRWd7JTkT1nNWcOaeiMustWRobLwM334s+ZqT9
-	 l6yRLZjUPg2/g==
+	b=QmVRn26FANsNS9lNj43FkQ78+kse1D98GXuyaYK1IRQIqlvhskvpx3WlSrXW5H8ZV
+	 whW5A0u5RxuCHDx6litDOkVDnXCqWTrLmL43UQYoEAiSa+yE0JT2nCUNQ8xDbWtYka
+	 2YSHahOpnY25iDyIBECpBb5Qx93PbmKuLmGS8o2VjcD9nvihTAqGsk/BLecr3FU10P
+	 IC+5vMAvqsVgAGi0os0s2b2KV2bdcfpdwUGXlTsLz0s921Seca3/dW4K9AoHXJ50PB
+	 Jz+JVsCEGWBZRcdzLnS1f3foBgjLXmXJff2O66iamJAHHpagU/+Z6AUmjXF+G01foz
+	 +/HsN9lBrV3vw==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Tue, 17 Nov 2026 15:06:59 +0200
-Subject: [PATCH v2 07/14] s390/sclp: Replace __get_free_page() with
+Date: Tue, 17 Nov 2026 15:07:00 +0200
+Subject: [PATCH v2 08/14] s390/sclp_sdias: Replace __get_free_page() with
  kmalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261117-s390-sclp-ready-v2-7-e518c99622c6@kernel.org>
+Message-Id: <20261117-s390-sclp-ready-v2-8-e518c99622c6@kernel.org>
 References: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 In-Reply-To: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -67,11 +67,11 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-sclp_init() allocates the SCCBs used for reading SCLP events and for
-the SCLP init mask request.
+sclp_sdias_init() allocates the SCCB used for the SCLP store dump
+information requests.
 
-These buffers can be allocated with kmalloc() as there's nothing special
-about them to go directly to the page allocator.
+This buffer can be allocated with kmalloc() as there's nothing special
+about it to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
 kfree() does not need to know the size of the freed object.
@@ -90,43 +90,39 @@ Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.co
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/char/sclp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/s390/char/sclp_sdias.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
-index 98e334724a62..bfbac6dfa053 100644
---- a/drivers/s390/char/sclp.c
-+++ b/drivers/s390/char/sclp.c
-@@ -20,6 +20,7 @@
- #include <linux/jiffies.h>
- #include <linux/init.h>
- #include <linux/platform_device.h>
+diff --git a/drivers/s390/char/sclp_sdias.c b/drivers/s390/char/sclp_sdias.c
+index ab8f1b758a1a..a1a17a9e4a91 100644
+--- a/drivers/s390/char/sclp_sdias.c
++++ b/drivers/s390/char/sclp_sdias.c
+@@ -10,6 +10,7 @@
+ 
+ #include <linux/completion.h>
+ #include <linux/sched.h>
 +#include <linux/slab.h>
- #include <asm/types.h>
- #include <asm/irq.h>
+ #include <asm/sclp.h>
  #include <asm/debug.h>
-@@ -1268,8 +1269,8 @@ int sclp_init(void)
- 	if (sclp_init_state != sclp_init_state_uninitialized)
- 		goto fail_unlock;
- 	sclp_init_state = sclp_init_state_initializing;
--	sclp_read_sccb = (void *) __get_free_page(GFP_ATOMIC | GFP_DMA);
--	sclp_init_sccb = (void *) __get_free_page(GFP_ATOMIC | GFP_DMA);
-+	sclp_read_sccb = kmalloc(PAGE_SIZE, GFP_ATOMIC | GFP_DMA);
-+	sclp_init_sccb = kmalloc(PAGE_SIZE, GFP_ATOMIC | GFP_DMA);
- 	BUG_ON(!sclp_read_sccb || !sclp_init_sccb);
- 	/* Set up variables */
- 	list_add(&sclp_state_change_event.list, &sclp_reg_list);
-@@ -1302,8 +1303,8 @@ int sclp_init(void)
- fail_init_state_uninitialized:
- 	list_del(&sclp_state_change_event.list);
- 	sclp_init_state = sclp_init_state_uninitialized;
--	free_page((unsigned long) sclp_read_sccb);
--	free_page((unsigned long) sclp_init_sccb);
-+	kfree(sclp_read_sccb);
-+	kfree(sclp_init_sccb);
- fail_unlock:
- 	spin_unlock_irqrestore(&sclp_lock, flags);
- 	return rc;
+ #include <asm/ipl.h>
+@@ -258,7 +259,7 @@ int __init sclp_sdias_init(void)
+ {
+ 	if (!is_ipl_type_dump())
+ 		return 0;
+-	sclp_sdias_sccb = (void *) __get_free_page(GFP_KERNEL | GFP_DMA);
++	sclp_sdias_sccb = kmalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+ 	BUG_ON(!sclp_sdias_sccb);
+ 	sdias_dbf = debug_register("dump_sdias", 4, 1, 4 * sizeof(long));
+ 	debug_register_view(sdias_dbf, &debug_sprintf_view);
+@@ -268,7 +269,7 @@ int __init sclp_sdias_init(void)
+ 	if (sclp_sdias_init_async() == 0)
+ 		goto out;
+ 	TRACE("init failed\n");
+-	free_page((unsigned long) sclp_sdias_sccb);
++	kfree(sclp_sdias_sccb);
+ 	return -ENODEV;
+ out:
+ 	TRACE("init done\n");
 
 -- 
 2.53.0
