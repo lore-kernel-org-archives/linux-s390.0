@@ -1,111 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.160.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794904112;
-	b=t2U+4jpkkbV35ffSdXT/W3I70BsalN1oOgSAnIiES8EgsfIGi1ZeQOj+N0OZOF2TLUUU
-	 HbOtRAibc1xYOEASaColHZEd4gLxHvcawX+ocFSBirKRjyX12wJwMy7U5x3wIoye2piS1
-	 vZRmP2T0A3jf1uHiogd9R/7dz3QWZ16LNJfmOSMbhEK4IlzoErMuTC8R+unWmDDQh3lrJ
-	 9kJFehqZJdK63ccexCSc71424fJSIYYdmBvswgieNu4EkMPq5JKHuLb6CdQGKotRzXedS
-	 FYAzxeooOXejgH3nndsyydqYKXoYwYEN9SuCHfD2RPTXAEKMt409vffJs2U5d+vY5cw==
+	t=1794904309;
+	b=cQI9ZQFq6EWB+wm4lIunkp7w/d+MJ0xHFewHzzVc5Nv+GWnJUsbOXUy2LMpgedReHxgF
+	 qbNjLX/qRaxuz7K2ZpQ0sD+QY1EQQjPMAk/Ee3QZsWcmHvRraW2FuUuZnpPSpmNw42qgz
+	 b9YiQPBYLXwFuGIhpiGl4II2RjQZiEe+a+TgX4UY3iBBOPUEJlaLYIy9yw/z0xX5sem8z
+	 /dGAaRD+YQi0BtcgVdJSp3xDVHRseZ4RVGpCKJM7g2CSme005qtHAw+01wN9H7eSxemcy
+	 ++jEvbws/7Y+jrZmsh4s8YNHZmz/UF6rSmhOThQkFyqJVTpmNapQ7HSKNXDUQ90UWDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794904112;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794904309;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
-	bh=80nJ9mfJsz3UGKSZAnLQ0A7kD85nyx4H/r5vYSV/3QM=;
-	b=dz/C6K4/yUcxaEJCapmnwVlmo9PY4MafEsEi/BHkOz0dQcT8qXcFKkETmGe5LNNa/Z7F
-	 duFkkzWdBP6ahc8Lpx2DPEvvvxSK5y+rZX3Hhn1ZgeYysMqmCUvvSexVJ4rdGRcbeWTTQ
-	 A9ViV/Au1zvuiMYoaEFHk2Hr3799fNBBmfcLGLQUdxkGsOzKN/j7aUpvBk9X9JPryoQL9
-	 dVmCfsiTS0eS5WQwGcH3yOLpYFQ57/FSPYpehurOXvv/K1XQxJWjI6MkG0viQt6WHM5nj
-	 dzWr0Ve1DSZ4QcMxIYCw+j2Di8UxevD+u3FMkoKloAdxcM8OL+JvKWALP0v5nAIpqAw==
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
+	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
+	bh=TmH6s81HME+/ARGnJwgL9bVR9VW6JoGP/0HNw1M8o+8=;
+	b=iT83PISMKArcFbCNDLLasCufiV8grYi9GWVO3RoKqiMFF+THnughenIi7zHg0KGgeExh
+	 d/0zt4ntK3LSzAE/lxzBniNhrVXEV9T7wcXBktSh9cIVXVcwh7Fg4IrZMC9I3IzTkmJqJ
+	 9gekhPutHo7aCdmqJ2wvk0sG/JJpoTbWNRlRToi4yF+9NTLLzcVTEpZAggMMCURpvcGBb
+	 EGjKH6ULwZSxClhs8J/OxaGVlaLFDu3K1LW8bLKcTlmfTN8JtwOAabkVHP90MP4ay6pQm
+	 A6d8GQR+M4kJaJ7HJLgK5SSC02VjIBYIijXnf89botTSzDc6Dukf2d9IKejkbr2FYDQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=amutable.com;
-	spf=pass smtp.mailfrom=amutable.com;
-	dkim=pass header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b="lDHE/E60";
-	arc=none smtp.remote-ip=209.85.128.43
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	dmarc=none header.from=gourry.net;
+	spf=pass smtp.mailfrom=gourry.net;
+	dkim=pass header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=ourL8s16;
+	arc=none smtp.remote-ip=209.85.160.169
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E110D60A2608
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 08:28:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E110D60A2608
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amutable.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amutable.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D51E8606A323
+	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 08:31:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D51E8606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=lDHE/E60
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4a35ac4475dso28247915e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 00:28:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=ourL8s16
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-55c38cdd5b7so40042781cf.2
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 00:31:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794904108; x=1795508908; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:content-type
-         :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=80nJ9mfJsz3UGKSZAnLQ0A7kD85nyx4H/r5vYSV/3QM=;
-        b=lDHE/E60fAF7y/GcfWe7zssqpibfABjaDWc4DbPAbANFwY7mipSCQzk/tGna/Yk9Yp
-         5M31Ja6Q4S90Eg4jWdoE2GH6TurYV9Y9Yxd6SoBGFySZlSGgcD3Nf8Ac20Morq/IEeLi
-         HZNDCkpilOoqmPVEk/N5paMQG+RjNO9OhPzIDtVn6k+5pNMY8rSlnV+zGCrptyxwBw8i
-         uHdMwH/Pby0zhrQLCKl2b6izfUmExSZrUoQCnWP4NFP78u9vhGGyVwUcvE3no1VAV9ln
-         DDlxdlg3j7mlBLcF1wQFzdXfstbmRKgVspXMjOajtHMeg5NsSNAba7k+RMZ1HFntU+s+
-         8A0g==
+        d=gourry.net; s=google; t=1794904305; x=1795509105; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=TmH6s81HME+/ARGnJwgL9bVR9VW6JoGP/0HNw1M8o+8=;
+        b=ourL8s16qvV/ByzrXiQnYSg2kF1A4uqN/AnfqBVQNPBbatZm3DUHQ8Aj5mDYNeanQ5
+         MJwxDSueO/GwOBcCYIaM2431ceTkAtIwsRppYKovBOwmv3uilo2gi3HtSlXrxM41UOrR
+         nIwd/WnpWNv0lDvrSo4gxjlev3eVFrvzyvPT32/reHLN8c1iROWdTpDcqLiwSDVszKTk
+         tI9wm2+3jBJNt+T7vJIMKCVa+vkQ2GH6b803gnwQfkS8l1Bx4WBOwUeysmA7sm5XbKP6
+         WiMR5/pZsgjQZYxksMerIC0S6h9yq2gpH5rpRHE1RZmPl0Btw+pchgk0cibqsJOcA4N+
+         ka0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794904108; x=1795508908;
-        h=mime-version:user-agent:content-transfer-encoding:content-type
-         :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+        d=1e100.net; s=20260707; t=1794904305; x=1795509105;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=80nJ9mfJsz3UGKSZAnLQ0A7kD85nyx4H/r5vYSV/3QM=;
-        b=2Y2/f3+w72GJLAH6+kFS4fjbSktax++eT7Cc4ULxqoMdmPpLerOjX/2Wssl0NS7kzA
-         oZoYsFz/Z6bOeDn5XPxCDzDZTDBWd/RS6wtXSoF9rtvwAUCLS7dGG2eFNGGkmymd1cm4
-         T3V5jCCmW7+dENC8Ohj0D8BGtGfGGBysqmbfcY+eyHjrwT4iO92V61RCtD+hOJK46OrS
-         GgBGLHjy5T4c/EBGzmkIXPftrh1D7tqCBWcmFkdwWFn7vAPnK5aKOKDWBFM7htjFiFv3
-         YHoeD/TnLCgIBb0c6O74jcafIywtoNJndhwZvDi+GuGXYCWxMJrAcbPQXu8nOEHXmkXR
-         7qBQ==
-X-Forwarded-Encrypted: i=1; AL+hErGdboy9YNnPLNqRAvqfKCOvDGuJBUbhUb/4I9806HpSrjkiYXk2DQM2WJpXOXfChHeLFEE6JpmODmtQ@vger.kernel.org
-X-Gm-Message-State: APuU4Z9pn4CjgEctAsCtr+amO1Y03l7btclXdellWH5EjCMaMTu1BK83
-	6BBOu+7G7bPVqAo5Bcn0UHZYFU2tD/G/8dFBs3Vyf7KxsF1bTYFbElltLohMa8/VH/iF
-X-Gm-Gg: AYBFou2N8EFLibeAr2xkc77F+ZxdXTDhYcoB8MK9PoshS8gRrzMYk+0hHWrvgQLrdxX
-	rm61EibXfGeMnBEAg0e7UrjdfDuIA6r0FMB/or5ezoGMEno8Bhn/eR5NjBdjLuKC7C1d9JlRYV4
-	T4JI17oN+sE8vzBIsEq8caHWQkHqLDLXdn90vszRGcATjUayUw3leQW7s0M3kezhHm8UK9rtu5Y
-	cGn7Ki9Hy3VWmXha4xqaPZpz2xhUyBECQmFCXwfiNE9s6Hcz3oSljcZYN8fuX4ZubbkfvvvtOsj
-	1ibxOaMNRuoIx88MhrV62IWv2RYK+l4pVKdLwBNhLCVwnYyz2/SP4VCo7T+Nkegi8zUBwasjBbz
-	5cb/zYEA2jF660JkeYKXfxOriFX2mJRzeihWLhbkWI6409P3FTFzj1Icp4vOZ6X/X0WuLEuSEkV
-	4BKulZ36IV1deUwB26DVnEG8sl5FWT7F5P/3eKNhIjBURi+6V7dcX7mrYBNR50mCW6eFGzVCr1C
-	K2Vwjxl5OsIMtig5jQUx55bVXE281LQaFSPWKZTq5TXaKvhj+NLXude7jzQDs3LgkKyx4cPeZy7
-	M9yj1+PfbeiGmsME9TaD9AyR5TLOaDU/MRWuAQLLuwO2irKUMCHAtDNrToFOqPxrRKwoemCcXvP
-	XRzzZjipMQf4lxlCiozAIqdIwYxrt321WD5vGU+osaCX8l8WiM44pxxvx
-X-Received: by 2002:a05:600c:6286:b0:4a1:7e77:c382 with SMTP id 5b1f17b1804b1-4bb55a5d634mr255399085e9.5.1794904108278;
-        Tue, 17 Nov 2026 00:28:28 -0800 (PST)
-Received: from ?IPv6:2003:cf:572c:2800:de4c:6789:33ce:97c2? (p200300cf572c2800de4c678933ce97c2.dip0.t-ipconnect.de. [2003:cf:572c:2800:de4c:6789:33ce:97c2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb78422d2dsm75197335e9.10.2026.11.17.00.28.26
+        bh=TmH6s81HME+/ARGnJwgL9bVR9VW6JoGP/0HNw1M8o+8=;
+        b=OCdn/WFn5KGLPAGBzJYsNtCN8ObrSO4t4Z3EdfY3wl+Jgcggm9LYNts7DmpAX4CBR6
+         YliISG0KoePt35NV4NrKXmbEAF/gkmnQi3tdLhb7Kkt9whFF2SqklNi4pm4MUR44NLwH
+         fb29KQsDm2bbf5ztFq4XTsF+o3YAP8zT4iBzCag+9Kvtp9zQBpQx1Gj97gTuiGCDdgHV
+         3jnUIbPDu3RvtWmOrC+IUApq6oAfcQoqZVJFmfHVvRG2JBMTBEFolV4WZb6RDRKQRiI5
+         O6kE24aH0SyrIc82tw8Wz0pLGW4mpjdE6F0OSKcXrrBc20WImMQbvHi2yB7SferZKCGl
+         HK1A==
+X-Forwarded-Encrypted: i=1; AL+hErH97n9Vx/jEU8DU1RMnJqbuxeP8dYtYBsFC/DefYXo8H1AQMg7WCk6rYUarZMRHIzpjs72V/JN4V4ec@vger.kernel.org
+X-Gm-Message-State: APuU4Z+YxN2lTCCSQBz9U3u65ylBqX4GuqWusoRJAAzmvLwuAaVNHzni
+	X4QArQB+lKPKGKVR5XojQ5zcyVFXTUut55oDabAFaNTpGGw92UHsXocDIMS9pj1bsCg=
+X-Gm-Gg: AYBFou3GMz+0x9m1YwRFPOVk8x4MFXLfqPause2+St/xAvY8crVD1a4fLiaSDDT1GyS
+	xVYbVcTFUEfgbO+iaY++QTmWMMPsXrDpqtDOxnm/4LFkvar5oZ8WioMcM5sGrvPcQT4GXjXOdAI
+	GbfiHhjrICtqz1ltVXfRfACto2Y6ZvTsezlR81gZj6bpa4ZQ/NlsgmIm1mj8F4EgX2+BHjFOXLI
+	TskH3f45mCUtOM4Mx/DzHITzIRAzQnTWaYRUyCOfYSdn5MRnUUmQp/N+mhT0sCs1N2LnvU3qdrb
+	MfNMObXt3rAHl6gaRgRkRZTJfZqwIzw8EcrBGdE5UvZRquTkQA65GUUMsC49ml4iZVY/EltMBYd
+	6aBbN+o+SOCspghB0vR2TUS9VvMJ2zhHrafpRnPY1JUKbfRUdOMYr8q9igQ4QJkN3FtbzGCfUav
+	TJEM5bOkd7y/rA39Ye767MHcUND2ml7X2h8buhsvRKSfe2W6glx5fvoPJTaO8DHQWt7tI0/xk+9
+	F48VWIHrveDh69d7KI4KknAaTiqXNy5dkIHfDbV0czjfuGhhC1kQ8zwT+i4rm4HqsujdXIMSPUN
+	GDMTZc2Y7s6heaA8EILyv4zAWKxiW6U1p9Gl8PIH/u8I93IijTM5qXG8ZDXpfAXfLaWcuf9KLyq
+	TkdlcC5PELbrl2dmCDuFPwbBkQ+QlzQ==
+X-Received: by 2002:a05:622a:258a:b0:55d:30e6:8d8f with SMTP id d75a77b69052e-55d30e6a736mr108004181cf.59.1794904304803;
+        Tue, 17 Nov 2026 00:31:44 -0800 (PST)
+Received: from [192.168.50.231] (pool-71-191-145-202.washdc.fios.verizon.net. [71.191.145.202])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-55ad0a2006csm99694361cf.10.2026.11.17.00.31.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 00:28:27 -0800 (PST)
-Message-ID: <afc070a816e3ae5eb3c9e2d62d4f25c59ee61df2.camel@amutable.com>
-Subject: Re: [PATCH RFC v3 26/44] xenfs: use fc_init_pseudo()
-From: Alexander Mikhalitsyn <alex@amutable.com>
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
- Bacik	 <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>,
- Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org,
- target-devel@vger.kernel.org, 	driver-core@lists.linux.dev,
- linux-mm@kvack.org, bpf@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org,
- netdev@vger.kernel.org, 	fuse-devel@lists.linux.dev,
- linux-efi@vger.kernel.org, 	xen-devel@lists.xenproject.org,
- ocfs2-devel@lists.linux.dev, 	linux-s390@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, 	linux-usb@vger.kernel.org, Amir Goldstein
- <amir73il@gmail.com>, 	linux-erofs@lists.ozlabs.org,
- linux-kselftest@vger.kernel.org, Chris Down	 <chris@chrisdown.name>
-Date: Tue, 17 Nov 2026 09:28:26 +0100
-In-Reply-To: <20261116-work-loop-pseudo-v3-26-8cbbea1cf34f@kernel.org>
-References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
-	 <20261116-work-loop-pseudo-v3-26-8cbbea1cf34f@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2-0+deb13u1 
+        Tue, 17 Nov 2026 00:31:44 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -115,42 +89,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2 07/15] hugetlbfs: fix unmapping folios from private
+ VMAs
+From: "Gregory Price (Meta)" <gourry@gourry.net>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+ Naoya Horiguchi <nao.horiguchi@gmail.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, 
+ Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>, 
+ Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>, 
+ Hugh Dickins <hughd@google.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Vivek Kasireddy <vivek.kasireddy@intel.com>, 
+ Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>, 
+ Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
+ Josef Bacik <josef@toxicpanda.com>, stable@kernel.org, 
+ Daehyeon Ko <4ncienth@gmail.com>
+In-Reply-To: <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
+Date: Tue, 17 Nov 2026 03:31:43 -0500
+Message-Id: <179490430300.482102.17633361840450824485.b4-reply@b4>
+X-Mailer: b4 0.17-dev
 
-On Mon, 2026-11-16 at 12:04 +0100, Christian Brauner wrote:
-> Initialize xenfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> also SB_I_NOEXEC and SB_I_NODEV. xenfs never holds executables or
-> device nodes.
->=20
-> SB_I_NOEXEC also refuses PROT_EXEC mappings. xenfs maps the xenstore
-> page and guest memory through privcmd, both data.
->=20
-> Reviewed-by: Chris Down <chris@chrisdown.name>
+On 2026-11-16 19:29 +0100, David Hildenbrand (Arm) wrote:
+> From: Josef Bacik <josef@toxicpanda.com>
+> 
+> hugetlb_unmap_file_folio() assumes vm_private_data points to a struct
+> hugetlb_vma_lock when hugetlb_vma_trylock_write() fails. Since hugetlb VMA
+> locking was extended to private VMAs, this can also happen when
+> vm_private_data contains a resv_map pointer; treating it as a
+> hugetlb_vma_lock corrupts memory and can cause crashes or hangs.
+> 
+> Only take the VMA lock when a shareable lock exists, as additional locking
+> is only needed for PMD table sharing. The fault mutex and i_mmap_rwsem
+> already provide the required protection for private VMAs.
+> 
+> Fix generated by an LLM and sent by Josef Bacik in private.
+> 
+> Fixes: bf4916922c60 ("hugetlbfs: extend hugetlb_vma_lock to private VMAs")
+> Cc: stable@kernel.org
+> Tested-by: Daehyeon Ko <4ncienth@gmail.com>
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> [ david: simplify description and comment ]
+> Acked-by: Muchun Song <muchun.song@linux.dev>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
+Was able to reproduce a hang / RCU lockup pretty handily and verified
+this resolves it.  Have not seen the relevant crash.
 
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> ---
-> =C2=A0drivers/xen/xenfs/super.c | 2 ++
-> =C2=A01 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/xen/xenfs/super.c b/drivers/xen/xenfs/super.c
-> index 37ea7c5c03469..aba7d038ed735 100644
-> --- a/drivers/xen/xenfs/super.c
-> +++ b/drivers/xen/xenfs/super.c
-> @@ -15,6 +15,7 @@
-> =C2=A0#include <linux/module.h>
-> =C2=A0#include <linux/fs.h>
-> =C2=A0#include <linux/fs_context.h>
-> +#include <linux/pseudo_fs.h>
-> =C2=A0#include <linux/magic.h>
-> =C2=A0
-> =C2=A0#include <xen/xen.h>
-> @@ -80,6 +81,7 @@ static const struct fs_context_operations
-> xenfs_context_ops =3D {
-> =C2=A0
-> =C2=A0static int xenfs_init_fs_context(struct fs_context *fc)
-> =C2=A0{
-> +	fc_init_pseudo(fc);
-> =C2=A0	fc->ops =3D &xenfs_context_ops;
-> =C2=A0	return 0;
-> =C2=A0}
+Regardless:
+
+Tested-by: Gregory Price (Meta) <gourry@gourry.net>
+
+-- 
+~Gregory
+
