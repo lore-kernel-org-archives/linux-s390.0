@@ -1,81 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794951171;
-	b=cQ1gWn2/ezZdEZ73GQtgrpaSObQ0xtlyGP3YWqe6tGpI7y8X8eXF889w+Kh8bVISNwZm
-	 m10zrJQR9HNNavzhIDCdca8KbiFFLzD6pGxZsX2Z40wULEt/UVX/iSaHjJn55LRRQs5YB
-	 jj0z0PK7cRJuUTJc88D/eHoMcaf9TkXCjEbjuejwJ6PsadK1dNXuzuvYzcX7Ft9Hze8I5
-	 97zI73Hnpn53JCpg3AvxbLw7J1gwt4FubJbeaJocK7WNZrO5gFqOIT/CKLYqikNUzEGVF
-	 ZeaJzccdh/RUz0fhkGDlXrphxrVPFE5r91VdnkbyoPY4LW+3pyCvXFxO6YdB7+I7cvQ==
+	t=1794958483;
+	b=1AA/8YSZ4XmNwgHR0ERxTNVl9GM1GBmuqjjXZJx/QiTjy9bjZ6teRGcZaXxqn1w5pg9P
+	 UgVdIN7P1MHdH4FBowiXubH1SpSCK+LVG+DDlqYinpjAC137BlsUycYNHuyPdj1YSEpn6
+	 U5e6W3Ut35EJ2MD9vXNivujrOvmKJMiX9cCR7WL6XYPBXvo3fr08DxIXfxLt5uWXv+rkZ
+	 AQdobVEWBq92vyewuFjywm9MZomFjmfxIlwho+NWWE8XCAK2eSXMOj8yMk5Kj7Y/p8mJS
+	 e4NsUfwi1KbFtES+7tPlJ2vxRKKuOgyZzPLXxwunIN+X0hO9zKoa80eirgP3wU2mTcg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794951171;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=XmbKYn7cYCFiHw5XW9TnoudqhK+6mhBs2DWToyv4xPw=;
-	b=nnMS8aS/qVmiQvqKRNi7awK67wpgDDE5W3x4OvhpOhvJ58pptvcGh/JNY8jp5IgvBST6
-	 xUWhoakmQpDXj+kMMryqqsTi0uYnLjw7YBhLdyNvULVsdYaudzZrOU+KUOAZP2DIrWCZc
-	 9m8hdUKEmZUDL/+dct44d5TiWlUHMzl52vwvtySviaO+6mE6sXJUW9lMNstm/K4go9gDk
-	 uamMbTQWiydfo5h1A59B1c3SZp01tIO2Hi2IUSIDV1y4ZkDEVt7qfkjBY9eikTRT2RK3U
-	 tOOiWcnPTgyFLtCcdZY7ckuA++64HFTyOyebRbB5AN4HkqDe6G7Mzzbq42yQKdOzJNw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794958483;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-Mailer:From:To:Cc:Subject:References:In-Reply-To;
+	bh=mxCH98lD8Ul9vSPCZMv+h4ue3Gw/ScCzx5yCrbCmDBE=;
+	b=h7RUk+tms8FcsOUsupy+BERdUmWBAUmSYo+1NwADO3cLv0PPcNpcE/MogQ31aAuMy9jJ
+	 AmUqeg7/j0vKYXVN0dk/TujgCLKuTpc8LcV6XKeJypCn3BDWEfg9mS2+qMnVwpL/ejtB4
+	 6TgytShF2RPb89TY+PLhDs+/MtLNJZzyTlVImkU+7SK4jR9xQ2Tfm3ivvE6l2zN6xmhEV
+	 A3r1BAfeP/5BvoheCMaxhGoxxB1gMK6VLkAYmt2112ls8qtboBZaz9a5zeXG8wA1ay3M0
+	 UGxbVgjmTikY2jIOSbDnaGFuheTTBXao9HhVm20YVB8tWRB1vmEzHyu2OpDab/oqNWA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=FfKpy+hy;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=paul-moore.com;
+	spf=pass smtp.mailfrom=paul-moore.com;
+	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b="C1/HoDQL";
+	arc=none smtp.remote-ip=209.85.222.182
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D100C606A31C;
-	Tue, 17 Nov 2026 21:32:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D100C606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4249606A31C
+	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 23:34:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4249606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=FfKpy+hy
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AHJQBXY2022312;
-	Tue, 17 Nov 2026 21:32:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XmbKYn
-	7cYCFiHw5XW9TnoudqhK+6mhBs2DWToyv4xPw=; b=FfKpy+hyv2Scn+BZMTFtfC
-	blRPWqUlawkVCYmxXHyJahNHRr+0vQgqfRQTASmRxdtmFf48RUv6cw9UvbJu8Bkk
-	sMKTQc1u011G2UwZEs9FILcXizQoIrlBXKSrc0jsniTRq/iNVsU7WywBH9+RjZEF
-	nDSQO3NGevNVRkCoX2YlRAExLr+y5ov/yFxIFFr+l9XTgv9wsCiRcNiLlG1POQYf
-	ulZZ3RLPi4imy1IdZpI32iC1YJ8Pys37dtYFBs5lFWEaHuusp158LgFt1JSoBEjS
-	YynWy7bftxGZHA3yGX6PX6ewnw0AylpTP4kjRefDz5E1/swbI2qWt7VBQX36e6wQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hxe2dcut8-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 17 Nov 2026 21:32:49 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AHJ6da02283202;
-	Tue, 17 Nov 2026 21:32:49 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hyxwt61n7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Nov 2026 21:32:49 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AHLWlij27591290
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Nov 2026 21:32:47 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 876885804E;
-	Tue, 17 Nov 2026 21:32:47 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A5F375803F;
-	Tue, 17 Nov 2026 21:32:46 +0000 (GMT)
-Received: from [9.61.4.73] (unknown [9.61.4.73])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Nov 2026 21:32:46 +0000 (GMT)
-Message-ID: <d1b8b3a6-9172-4422-b23c-a78df596b83f@linux.ibm.com>
-Date: Tue, 17 Nov 2026 16:32:46 -0500
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=C1/HoDQL
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-94999a08973so41710185a.0
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 15:34:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1794958482; x=1795563282; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=mxCH98lD8Ul9vSPCZMv+h4ue3Gw/ScCzx5yCrbCmDBE=;
+        b=C1/HoDQLJzzckFRnS+9k64TFool5JeA6PubBeU/laVzL/w4ah7odPpMpBEDO4oTDek
+         tzvkSLyjXBT1ae6muzrpU+3lix8bwV+w5XzoROoTQVFQ75pZIhaZnTEzTzkvFRP9MXet
+         cswYz9mJhJ6jqtYt4JjUilPe5tWe18DSDwlcWvq99KCO8DgF8mM2v9dS3T/+DCZLJVWq
+         S4BilbEvdhkOpMHkOUTOKfcBRLK371Ffu7Ts5wblHKU+7z+VA6XukkrcJsEnIUrr5zDJ
+         9evsjeK1bGn1T3KaRJrNNmPDwV+QAIp1I3m7emtneedTTpgn6usGNwt5x6nS7sEasDi8
+         n6vA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794958482; x=1795563282;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-type:mime-version:message-id:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=mxCH98lD8Ul9vSPCZMv+h4ue3Gw/ScCzx5yCrbCmDBE=;
+        b=ZgqDgcx+WRmL5L162iVKZ+7ViifkHHCa+k1FfiyCCkyGosVLmqi7FDeMk5NRpkEDfT
+         VLcGS/Q1QCHUGvmhAwxf7s3kvSRcvxuisYxU9Rhpr5ogZ7IXjZg1UKXKro/cXr5FT2k3
+         sE88kfObs316BuQVkr6D+6SpY3K7x9CQq24HXkGwHMxIvA5bMMvAt+ueY4PYFlfw8zH6
+         rNvr2cYzJ131czYu/LPmhtaMvMR7/dutsoluQ5hju62tX9IefbgkgEyJVLfVZ21lDRNt
+         sV/3SNCNzyZ0HlML8Mj9oq59mCbc7C1yXTJzXCbgw9mtFu+HDLkZcwn/fNUXwllaid9r
+         o/iw==
+X-Forwarded-Encrypted: i=1; AL+hErHjZZ79qXH23Ftp/K2vuYtDh7ANto5WvolACNeZoXQ6oE1KLiQO+o+e66kJ8VHYVBXAoGEmbFmhXt5K@vger.kernel.org
+X-Gm-Message-State: APuU4Z/I2bXhF9LdTChtQeboEnat7lgV++fiE5WViFPoIyK4cOOI4sET
+	D6aErYnZfhP1ydTMi+6Se7U/qAowrI9q+LIcg/4WqD6ZsNfHbfqQgob1ZReLxFPmLw==
+X-Gm-Gg: AYBFou2OQcHZ1tFoAlR0Jy2u7pkLlq0mJpOVjCtNyQrMrrOHDWtovHjQxrsmqSHuTJ+
+	WZpu8HOIMvs+BSVB91EUF8+XD3E/umeCcMkrKKMVVIx8UPct00c/g01D6B3POmuUpEVQv6r8Wed
+	jA4d8wqy4MKkRIoQchYFPA/qbnnglkgJcNwnGHGDnFdHphUD+RmZMSwxNgbFDMHt/kqAiixkGLS
+	tB/gsTCvRHo1ny5QCM0udkAW8+qIKRBILJr/XvJuPd2F60hgfeRm+CUAAth5f61YqOqBQCzIyuL
+	w6WCS92AECN1aNotJTsmUrEP+1Y1sxjctB8eC2bmiOcca99zxOcx+lXi5eqUD8W1I/xIJwFOlye
+	EWacW/mis0U31OOpp+1NTmSb2Qi7hrZhDVMFKGLzHq4jfII5dU0EFrKEes1bezPgF0heKafFkTL
+	MaRtDy0nLpmlxP627a18s39FANTGhypmePiEWK71QQa9Tmj3KSX09D+hVTRISO3aIYcBwc1YYYX
+	PHt6/DzRuBpdN4xVKOeFDyheRwrIJFUZsuTBybPfcq7rvto484KK6Pg+91UVycXzcslzgTiZn/Y
+	v6thCgZHQnREvC6Ivv3TB1NcjvTiUgm/OJ/d+n++VmFTul5JGoCUh3Gi9rsZ/6IgGUOoR1kw1Yj
+	jAK25lS9xnk3jpcmlOFIEnSw1iE0A6totWAaq4fDG62pdPV1CC5I=
+X-Received: by 2002:a05:620a:2556:b0:93f:19fe:e6ca with SMTP id af79cd13be357-9499972c8e6mr213324085a.43.1794958481841;
+        Tue, 17 Nov 2026 15:34:41 -0800 (PST)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b721861sm42496085a.11.2026.11.17.15.34.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Nov 2026 15:34:40 -0800 (PST)
+Date: Tue, 17 Nov 2026 18:34:38 -0500
+Message-ID: <7dc91c090b4f8254f8b6fbe2ec36060f@paul-moore.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -84,94 +90,84 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v13 12/14] s390/vfio-ap: Set up for vfio-ap device
- migration
-To: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-References: <20261111192308.2585984-1-akrowiak@linux.ibm.com>
- <20261111192308.2585984-13-akrowiak@linux.ibm.com>
- <sashiko-outbox-209669@kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <sashiko-outbox-209669@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE3MDA4NSBTYWx0ZWRfXyLFdMNKLyFeC
- 6lPvRHDNE93KQ5bm3Sf1fbHcN3wiU7ZNvIQDlFp4Lh7pn/fGnV6UEsnwOouv4uCyO0Zi2GhPkby
- t6taFH97UG7Nhi4WAFxukB6DHkBICFc=
-X-Proofpoint-GUID: ezvfSCkAAyaEDR3AAaw75BrJFD6ay1Ab
-X-Proofpoint-ORIG-GUID: ezvfSCkAAyaEDR3AAaw75BrJFD6ay1Ab
-X-Authority-Analysis: v=2.4 cv=IruL47/g c=1 sm=1 tr=0 ts=6afcc801 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=cpCIfTzt5PBBOTSFqewA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE3MDA4NSBTYWx0ZWRfX9hMbde+DdSmG
- w0bcsluXq9L94+gGNPgBHxocQnw2Wd36WiaBlWpLaBEadxra2Wtzbs2112yhJ8eYgc8xAhxZ5iy
- hcoBH2ig6i1KJMhKWGis3OkQdM9X8Wet0MM7O9aZiqk0XJ9iRXyQNW7N7J6WetYGbb88IT3b7NU
- eVsBNiWv+QhoDOExls+rAPfQucRNGO7kWAJJaMRjF6u3orMv3EylanyqI34aBUeqzx5DyuhPpy6
- x3cViHYdaH+s5jUC/IuEnHgpNbnBgKH/jnWBBJHd3rz4OqpiEVW5ybm3lViSVjvKRm4uF39WHDu
- agOauYehb3bkGqxO1Hky6AlT/7qYgkrPY3yhii9dhtbGxeTVRP4/IQIcsuKX2MkOrf7eV9aYjgj
- gIkRpQEfnekR30wPrVg2IlinHaqd6KSp0Gvsg3k20g5LQExH16GQZ6RZ3OQPm5NO8wgwKKx7oML
- x7oMfgAs4vuLILMd4HQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-17_04,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 adultscore=0 suspectscore=0 bulkscore=0
- malwarescore=0 phishscore=0 lowpriorityscore=0 clxscore=1015 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611170085
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20261117_1552/pstg-lib:20261117_1552/pstg-pwork:20261117_1552
+From: Paul Moore <paul@paul-moore.com>
+To: sashiko-bot@kernel.org, "Christian Brauner" <brauner@kernel.org>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
+Subject: Re: [PATCH RFC v3 17/44] securityfs: use fc_init_pseudo()
+References: <20261116-work-loop-pseudo-v3-17-8cbbea1cf34f@kernel.org>
+In-Reply-To: <20261116-work-loop-pseudo-v3-17-8cbbea1cf34f@kernel.org>
 
+On Nov 16, 2026 sashiko-bot@kernel.org wrote:
+> 
+> Initialize securityfs as a pseudo filesystem. This raises SB_I_PSEUDO
+> and SB_I_NOEXEC. securityfs never holds executables.
+> 
+> But securityfs needs device nodes. AppArmor puts a .null device node
+> into securityfs. On exec it replaces file descriptors the new profile
+> isn't allowed to use with that node and opens it via dentry_open() which
+> doesn't care about SB_I_NODEV. Such a file descriptor can still be
+> reopened through /proc/<pid>/fd/<nr> though and that's what opening
+> /dev/stderr does. The node itself can also be opened by path as
+> /sys/kernel/security/apparmor/.null. Both go through may_open_dev()
+> which refuses device nodes with SB_I_NODEV raised. So clear SB_I_NODEV
+> again in securityfs_fill_super().
+> 
+> Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
+> Reviewed-by: Chris Down <chris@chrisdown.name>
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> ---
+>  security/inode.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/security/inode.c b/security/inode.c
+> index 0804023676741..edaebf0f1972d 100644
+> --- a/security/inode.c
+> +++ b/security/inode.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/kobject.h>
+>  #include <linux/fs.h>
+>  #include <linux/fs_context.h>
+> +#include <linux/pseudo_fs.h>
+>  #include <linux/mount.h>
+>  #include <linux/pagemap.h>
+>  #include <linux/init.h>
+> @@ -49,6 +50,8 @@ static int securityfs_fill_super(struct super_block *sb, struct fs_context *fc)
+>  		return error;
+>  
+>  	sb->s_op = &securityfs_super_operations;
+> +	/* Userspace may open AppArmor's .null device node by path. */
+> +	sb->s_iflags &= ~SB_I_NODEV;
 
+AppArmor itself does a dentry_open() on its null device to effectively
+block inheritence of open files if not permitted by policy.  SELinux
+basically does the same thing, in fact AppArmor's aa_inherit_files()
+is based on SELinux's flush_unauthorized_files() according to the
+comments.
 
-On 11/11/26 3:36 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue to consider:
-> - [Low] s390/vfio-ap: incomplete kernel-doc on
->    vfio_ap_setup_vfio_device_migration()
-> --
-> 
-> commit 4bbee35693e7530ca98001e694624b10c95b87d4
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-> 
-> s390/vfio-ap: Set up for vfio-ap device migration
-> 
-> This commit adds vfio_ap_setup_vfio_device_migration() to populate
-> vdev.mig_ops and vdev.migration_flags for non-SE guests and calls it from
-> vfio_ap_mdev_probe() before registering the device.
-> 
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> index 4af734aeee17e..28370b1b3833e 100644
->> --- a/drivers/s390/crypto/vfio_ap_migration.c
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
->> @@ -1316,6 +1316,28 @@ static const struct vfio_migration_ops vfio_ap_migration_ops = {
->>   	.migration_get_data_size = vfio_ap_get_data_size,
->>   };
->>   
->> +/**
->> + * vfio_ap_setup_vfio_device_migration:
->> + *
->> + * Plug the object containing the function pointers to the migration callbacks
->> + * used to facilitate migration into the vfio device and set the flags
->> + * indicating migration states STOP, STOP_COPY and RESUMING are supported.
->> + *
->> + * @matrix_mdev: pointer to object containing the vfio device (vdev)
->> + */
-> 
-> [Severity: Low]
-> Does this kernel-doc block need a short description on the identifier line
-> and @matrix_mdev placed before the body description?  Without a short
-> description after the colon, running kernel-doc with -Wall (make W=2)
-> warns about a missing initial short description.
+Anyway, I'd suggest changing your comment to something like the
+following, but it's not critical.
 
-Will be fixed in v14
+  /* Allow for LSM specific null device nodes */
 
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+>  	return 0;
+>  }
+> @@ -64,6 +67,7 @@ static const struct fs_context_operations securityfs_context_ops = {
+>  
+>  static int securityfs_init_fs_context(struct fs_context *fc)
+>  {
+> +	fc_init_pseudo(fc);
+>  	fc->ops = &securityfs_context_ops;
+>  	return 0;
+>  }
 > 
+> -- 
+> 2.53.0
 
+--
+paul-moore.com
