@@ -1,61 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.63
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794977516;
-	b=4A3JVRI3515kDUNy4DmXAWkkcBkSkWhFYr+SNZo9U+MF3rKIeMJfl5PN+7ZfmAjvAfwb
-	 JCv430CAczuLcJR6YXmsxr5lyL2EuJGsGIY2wkNKwiNHnL1WFMifJXZNxSC8LOWQ7rjC6
-	 MSGwwD04sSnw85hkT73/TJWMmr4ARm00ZIiFpxHA4vVfTnHKEsv6x15CY2q6aVmGMtwOX
-	 fi+PgE8abCp7CLMCJAxvs+2JAT4E6pXGcfO4mXDS2qMrLf00YyWIqYu3eh1itsJ+D836d
-	 CVa++4zcMG2rfB8g8Rsg4z3IeeekWpZEUY9ORiMhv7vpX+NFQe2Rdz2npIOJ7kK1QnQ==
+	t=1794977534;
+	b=N2BZL13SKt/q7SNddWu635FO9KCwG6kd/l9dNlkw4LG23Dn7YT1BhPVsALnioLxFDd16
+	 nAc3vC1J3Bq+U7Ay4I8NNQF/S24terUka7i0jtovFmFCQp324dtBMeKZycT6iBWtNOEad
+	 aFA6ngNCzp2XUBkaeFOH6dxopm9AoKUZV/WlLf/HucBlf545607hA/xczwK4msx+nZaZJ
+	 JaplHqtyK3qiMnKCEX+nP1EGQeinJ5lB6PtyRmX7iJ2FzGvhJqNXWO6VZmcPSo60Xd6cQ
+	 FPBMl8SEj66WSa9xlLvXVcp/iYyr+vUGY8SkcAmtDmbDqQQyZb101UtvPLy3vy4tNGQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794977516;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794977534;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=zKnXRqX2v+aT3gYlNIv7K2osO8pX6mgOgfzS7UFgtqc=;
-	b=Rq10/kDxTfRhVLgfJZgfNgXxbsxk6kXF3WJBytNVhcekwfZlu+j4XgNAiGwm8aJpmhzh
-	 7MUJgb1eA4VAlozA6a2CU72pEXN+gWxr8spmN0fINMDJFIetGm5SILShiVy1i+qs5QP7V
-	 vJak8E9uqAqBCNgEXxLqoqwSLnCiILcJjpQ5QAxP4WT+mZ0YDcbv6NwvDQbxopNljN4Qq
-	 AftkbgoJmYtLt5388YDfOb+vIGgmrYdUs19NHzshFwhaxUroGvuq4deNoJ/NsKBiNZjM6
-	 XZVnC4KyJXn40t672yNRdFPMo79AFBQXi16jEm4QGQyrLfHs53Ses4h+Xc9mmldRjGA==
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=D4Glb/phafOO2J4NO7289AZtRKHSGknHG2wh1OwjCi4=;
+	b=CTRiNS8tQmSf0c+/VttlzRLpXO/J8bRBgjMuCs5aZ5rYjDPyo+K/l/G5jsU5Myy8F9TL
+	 JzYX0EUnDUEx8PlMSzgyhdqSnDKePQR8Jco+hSUb2ZgKFR7VtwiZg9OBc4hXWljggRg/8
+	 RRy/6M88OrJJgX9r/bwVG9ustRNWCVsKgA7MnzgGir7FdV+Lh1kym/rgxr0fybqBP8XtF
+	 KV5uwAy7pnJ7am5GjBm0vusXDlJ/RwiFWA3phD6yE40ROKtS+DrZluVQxwfEEeoigX/w0
+	 r5r7dF+goDNuz43Xk5ksyiEHRoKtu32cVoSJi/VY6c40ycIgbY9Yla1TvdZRgTqvCqw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=fuLZ5nSZ;
-	arc=none smtp.remote-ip=91.218.175.41
-Received: from mta0.migadu.com (out-41.mta0.migadu.com [91.218.175.41])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=I2i14tZe;
+	arc=none smtp.remote-ip=91.218.175.63
+Received: from mta0.migadu.com (out-63.mta0.migadu.com [91.218.175.63])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53345606A32F
-	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 04:51:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53345606A32F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D844606A32A
+	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 04:52:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6D844606A32A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=fuLZ5nSZ
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=I2i14tZe
 X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=5mvBnQTVoVHqhHsi3OfdVHP7eNZFTOT0ltruB/HvWm8=;
+DKIM-Signature: a=rsa-sha256; bh=D3DeV3YkG5u10TKSbuUfjvJgZyIgkf+zdkPJkso3qVI=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794977513; v=1; x=1795582313;
- b=fuLZ5nSZFMJVVN+PLvCjAN/lSG7vK6WXGu9NW8aTIyTwA0Z9SzfVxr5YXXfNxgU/c2hnB2ZU
- WESNvtOAFFRAlfXYkPsiVvn1TRoH0eBa+z0afaEDChozcP9W/ZcByOyzBPC0eQHcroUA7TKon+B
- Uw1bcSf5cQRrTHl9uQ/JTEp8=
+ t=1794977530; v=1; x=1795582330;
+ b=I2i14tZeX//YYpRYQSgx7wKKMaEVr6+DK68Xoi2YrhHDUUna31vAn8BzuauD5cZaE/XbtZNt
+ tRRxZVBSU/ZiHrAqxtKL4WtOiKhqMQruhmVs5C5+B0ShFdH3ZD5Wy45sisg2vuw4E3D9pFyX8jC
+ 4CTyl4LkacZFW2ME7dG+9rqo=
 X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id e2317ad5862a2ec7;
-	Wed, 18 Nov 2026 04:51:53 +0000
-X-Mizu-Trace-ID: e2317ad5862a2ec7
+Received: by smtp.migadu.com with ESMTPS id 9116fc7c9e291cd0;
+	Wed, 18 Nov 2026 04:52:10 +0000
+X-Mizu-Trace-ID: 9116fc7c9e291cd0
 X-Migadu-Flow: FLOW_OUT
 From: Jiayuan Chen <jiayuan.chen@linux.dev>
 To: netdev@vger.kernel.org
 Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
+	Simon Horman <horms@kernel.org>,
 	David Ahern <dsahern@kernel.org>,
 	Ido Schimmel <idosch@nvidia.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
 	Matthieu Baerts <matttbe@kernel.org>,
 	Mat Martineau <martineau@kernel.org>,
 	Geliang Tang <geliang@kernel.org>,
@@ -71,10 +72,12 @@ Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
 	linux-rdma@vger.kernel.org,
 	rds-devel@oss.oracle.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH net-next v2 0/5] net: annotate data-races around sysctl knobs
-Date: Wed, 18 Nov 2026 12:51:15 +0800
-Message-ID: <20261118045137.174026-1-jiayuan.chen@linux.dev>
+Subject: [PATCH net-next v2 1/5] inet: frags: annotate data-races around fqdir->timeout and fqdir->max_dist
+Date: Wed, 18 Nov 2026 12:51:16 +0800
+Message-ID: <20261118045137.174026-2-jiayuan.chen@linux.dev>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261118045137.174026-1-jiayuan.chen@linux.dev>
+References: <20261118045137.174026-1-jiayuan.chen@linux.dev>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,49 +89,61 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series annotates data races around a few sysctl knobs under net/.
-They are read without any lock while their handlers update them with
-WRITE_ONCE(), so add READ_ONCE() to the readers, and WRITE_ONCE() to the
-handlers and netlink paths that store to the same fields with plain
-writes.
+fqdir->timeout and fqdir->max_dist are read without any lock while their
+sysctl handlers update them with WRITE_ONCE(). Add READ_ONCE() to the
+readers.
 
-There are no Fixes tags. Done one knob per patch this would be well over
-a hundred commits, so I grouped them by subsystem and feature instead to
-keep the review manageable. If maintainers prefer, I can split it up
-further with a Fixes tag on each one, as several smaller series.
+Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
+Reviewed-by: Simon Horman <horms@kernel.org>
+---
+ net/ipv4/inet_fragment.c | 2 +-
+ net/ipv4/ip_fragment.c   | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-No functional change.
-
-v2:
- - only resend the patches that got a Reviewed-by or Acked-by, with the
-   tags picked up; they are unchanged
- - netfilter patches are moved to a separate series for nf-next (Simon)
- - calipso is sent separately as a fix
- - the other patches had no review yet and are left out for now
-v1: https://lore.kernel.org/netdev/20261109025425.328445-1-jiayuan.chen@linux.dev/
-
-Jiayuan Chen (5):
-  inet: frags: annotate data-races around fqdir->timeout and
-    fqdir->max_dist
-  ipv6: annotate data-races around icmpv6 reply sysctls
-  mptcp: annotate data-races around pernet sysctls
-  rds: annotate data-races around core rds sysctls
-  net/smc: annotate data-races around smc sysctls
-
- include/net/ipv6.h       |  2 +-
- net/ipv4/inet_fragment.c |  2 +-
- net/ipv4/ip_fragment.c   |  6 +++---
- net/ipv6/icmp.c          | 10 +++++-----
- net/mptcp/ctrl.c         | 18 +++++++++---------
- net/rds/recv.c           |  2 +-
- net/rds/send.c           |  8 ++++----
- net/rds/threads.c        |  4 ++--
- net/smc/af_smc.c         |  8 ++++----
- net/smc/smc_clc.c        |  8 ++++----
- net/smc/smc_core.c       |  2 +-
- net/smc/smc_tx.c         |  2 +-
- 12 files changed, 36 insertions(+), 36 deletions(-)
-
+diff --git a/net/ipv4/inet_fragment.c b/net/ipv4/inet_fragment.c
+index f330d0a398233..8143162eb9f53 100644
+--- a/net/ipv4/inet_fragment.c
++++ b/net/ipv4/inet_fragment.c
+@@ -416,7 +416,7 @@ static struct inet_frag_queue *inet_frag_create(struct fqdir *fqdir,
+ 		inet_frag_putn(q, 2);
+ 		return NULL;
+ 	}
+-	mod_timer(&q->timer, jiffies + fqdir->timeout);
++	mod_timer(&q->timer, jiffies + READ_ONCE(fqdir->timeout));
+ 	spin_unlock_bh(&q->lock);
+ 	return q;
+ }
+diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
+index ef7fd61284a3f..5ac69d716da2a 100644
+--- a/net/ipv4/ip_fragment.c
++++ b/net/ipv4/ip_fragment.c
+@@ -89,7 +89,7 @@ static void ip4_frag_init(struct inet_frag_queue *q, const void *a)
+ 
+ 	q->key.v4 = *key;
+ 	qp->ecn = 0;
+-	if (q->fqdir->max_dist) {
++	if (READ_ONCE(q->fqdir->max_dist)) {
+ 		rcu_read_lock();
+ 		p = inet_getpeer_v4(net->ipv4.peers, key->saddr, key->vif);
+ 		if (p && !refcount_inc_not_zero(&p->refcnt))
+@@ -220,7 +220,7 @@ static struct ipq *ip_find(struct net *net, struct iphdr *iph,
+ static int ip_frag_too_far(struct ipq *qp)
+ {
+ 	struct inet_peer *peer = qp->peer;
+-	unsigned int max = qp->q.fqdir->max_dist;
++	unsigned int max = READ_ONCE(qp->q.fqdir->max_dist);
+ 	unsigned int start, end;
+ 
+ 	int rc;
+@@ -242,7 +242,7 @@ static int ip_frag_too_far(struct ipq *qp)
+ 
+ static int ip_frag_reinit(struct ipq *qp)
+ {
+-	if (!mod_timer_pending(&qp->q.timer, jiffies + qp->q.fqdir->timeout))
++	if (!mod_timer_pending(&qp->q.timer, jiffies + READ_ONCE(qp->q.fqdir->timeout)))
+ 		return -ETIMEDOUT;
+ 
+ 	inet_frag_queue_flush(&qp->q, SKB_DROP_REASON_FRAG_TOO_FAR);
 -- 
 2.43.0
 
