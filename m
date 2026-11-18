@@ -1,82 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794989995;
-	b=Uwgyi3sriYE5kF6y+ARpXhYnevOYStS1vGwjZgKmnyunUMsar6S10ns1glloA8wLaT63
-	 YMjbbLO0WML6L8P3rrYF56FBAbE2lJCQzk7RW6qH1GisnuGTisjrjjiulDQ8uJjAjBZ7X
-	 eKznezYLQfwznwXXcn9aWbM/7Mt2MRUEMQYOJkVc4R2hr9BbOq1GVpzJDbkq6Zq/e3wkq
-	 JrDX360RWFZiFCwqlbmITq6JcBMetvkd/8EpH4IKgc3Ww19woSfDGek69WSRoY89jp40m
-	 PMZRPlkmwsR4JwQjHH1HhSS3vKHSEYYHH24KhvKvoufFbeUFUNnA1tr2m5HYcwpN7og==
+	t=1794992483;
+	b=eG0ZXOLwiFg8Cqxw8TypXz1XE2Ks8yQqkRJnZCM8JYlforeHD+DZMrc9jsC7vnBtLPXq
+	 wWvE0MXHFRUQhRBEcUy68Ul5sJXIwZXNfQOGCY6C+YUhlyHD54oGVY51sSMZnGxSPtGce
+	 m8hCRIwqvhklea76+mjdRstBOhqBvdUKLO5Y0poQDgSCQKv7ImOuS6IPG4ZphAFfCHcBx
+	 P9bKlLr7KiVxSHL8/LsNq4DFxjrIlt08960HiwcWIRZ9XSPEModPwNSV54jQz4LGxV4qy
+	 4DGWxOsWhI/ERVCS6LHudvSA8X7kEDosLaQyyMxYBsqk9CDjNsyyaKenx3hOGIwQ0lw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794989995;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Details-Enc:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=NZ2DiUYcYA6riJMrquv0S0uzwR3KjlESIdF8oXXvnq4=;
-	b=Xh3Jp8WBtyQUNCce4DgKaBeHDdQJLoa7vvHoBISzTcmYru563qtwkCSyskzMO7SmFSK0
-	 jJ2wm9nsOOlXTqC5rnwfYb566NrjAS2Vn02aAKjBFRGe96OfwXjSC28Hp7TEANUzv7CHt
-	 K/DW1JaccI0/dIOiooDPruqWS3SBGFzYXFk4JwdD4O1rm3ChN5KvYQV9yrvgUYVos5qcg
-	 yhp7vgjTGyX0EkAeHurUcX6DHFR3VeOsorVJj5cvRDFHgpxneOWVyLJ/1msgu6OTBG4Oc
-	 Ik8+eRBcKNl+vTMZo2ZsJhDIWtFRcGvzyHh/Fa8T2nBMtk1/KvA1X6xURmOZO/Wxm9w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794992483;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=r3zKqF+kTssGoSAglKwaVff1yakHy07R69gEEdogQZI=;
+	b=dDhST5HYDTtZ0b2Jo97a3Hioegk7UUnWECOzO2E5oSum/PQIHVVcOpf4bwxNkO/hS3q/
+	 LR0CMbhOFMmsIKt3T9YdbAgdIpNpHZ1O2yC7hBtJPZAfQvy5cSd6VHVBd0TI7+mRa+3yq
+	 305q99nhq0NzvnXVQTdmDnxqlNfo7EslSMkwYRvNjlagkms2fDLtEfimmh3mIXd89Iqgf
+	 qhtQ28+k/rZ6tMRNEZ3ofQQmrPAIPtfEH9U2iopC4oZuxj1pOXDflf3XcZLu4BNeoLhQk
+	 OmfdmvUZTAPtg6hOXdTTIvwNXeJhYpedu0EpJjXPIXRJszABbuL6TKcs0k+6pXsOA0Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=CHYLikr7;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fOfeMSw0;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17718606A31C;
-	Wed, 18 Nov 2026 08:19:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17718606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70113606A320;
+	Wed, 18 Nov 2026 09:01:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=CHYLikr7
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AI2SM6x032357;
-	Wed, 18 Nov 2026 08:17:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NZ2DiU
-	YcYA6riJMrquv0S0uzwR3KjlESIdF8oXXvnq4=; b=CHYLikr74UQY3xDY0mK1ln
-	UItMzkTfsxSuJmhUcOAg25lgq/Of3U/OWPyIqfvLwQJ5EO59MWPJqU/lkOiOw00F
-	QiaAQBtE4k4Hc9WrB/lQuSIre+I1HQTnaoDHCIqDtNuktjoUHG6jjFYNEL+AYOWp
-	AkwsM8SEMvfiFPLYfswocUBfLnLW6kY91l7jwFy16irUd2Hyu43GUzzYEquNSQXo
-	UyK4S+t3uNsLdoaGXVScfZ1Y9C4vhqTpxzeoQRyohmRx50QrMikRGXZr1iamvt6U
-	CdORrNAtH07XBbOCxsGRMb7C0/KVmFR39RPr9LZDxeNhQaaVAWzIQkbMBJPj7Smg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105n9h67-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 18 Nov 2026 08:17:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AI8GsLG2766497;
-	Wed, 18 Nov 2026 08:17:31 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hyxwt7qfs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Nov 2026 08:17:31 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AI8HTxD34734796
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Nov 2026 08:17:30 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C966458052;
-	Wed, 18 Nov 2026 08:17:29 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 971BB5805D;
-	Wed, 18 Nov 2026 08:17:14 +0000 (GMT)
-Received: from [9.123.14.23] (unknown [9.123.14.23])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 18 Nov 2026 08:17:14 +0000 (GMT)
-Message-ID: <f201c30a-6fa9-4d9a-a77b-74d39f89f2d9@linux.ibm.com>
-Date: Wed, 18 Nov 2026 13:47:12 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fOfeMSw0
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FF11F000C5;
+	Wed, 18 Nov 2026 09:01:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794992483;
+	bh=r3zKqF+kTssGoSAglKwaVff1yakHy07R69gEEdogQZI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=fOfeMSw000DsM9A69Oli12bUEKPpD/X/XKxt/LB8/e357NHtOSWRFyQzYkzDeHR87
+	 XPi6EI22BdpJ5u+QsVeCPZG/YoLcdMwq42Q85DcDpnfiYQ2vJp71xxVh8wAl9iVs5/
+	 xKfx/pQepXEI2isOmHqlVgWhSKlgPftdJnAybpFWZWvqED5PDisRhL3hUckZQqQ7Su
+	 7RQk36bKKUsNorsTBAhk85iO58854iR1HSnxFh0L42vALOoIhUyq4sHJIEnw8ijRoE
+	 d/HzpOLB+C0l7pEFc1ZU74iKvRkljEn2qzsXd0tjhoNr9+bN3dCopLwl/u2J9yy/pK
+	 M/kqh8c1Y0FOw==
+Date: Wed, 18 Nov 2026 10:01:06 +0100
+From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+	Naoya Horiguchi <nao.horiguchi@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Mel Gorman <mgorman@suse.de>, Andy Whitcroft <apw@canonical.com>,
+	Miaohe Lin <linmiaohe@huawei.com>, Michal Hocko <mhocko@suse.com>,
+	Rik van Riel <riel@surriel.com>, Hugh Dickins <hughd@google.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
+	Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+	Josef Bacik <josef@toxicpanda.com>, stable@kernel.org,
+	"Gregory Price (Meta)" <gourry@gourry.net>
+Subject: Re: [PATCH v2 05/15] mm/hugetlb: keep surplus folios when the pool
+ shrinks
+Message-ID: <av1pUsRqz3qA0UGi@localhost.localdomain>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-5-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,122 +87,54 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/9] powerpc/secvar: Add missing kobject release
- callback to secvar_ktype
-To: Ian Rogers <irogers@google.com>, Danilo Krummrich <dakr@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kees Cook
- <kees@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <chleroy@kernel.org>,
-        Nayna Jain <nayna@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>,
-        Yoshinori Sato
- <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini
- <sstabellini@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Felix Kuehling <felix.kuehling@amd.com>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Bill Wendling <morbo@google.com>,
-        Justin Stitt <justinstitt@google.com>, driver-core@lists.linux.dev,
-        llvm@lists.linux.dev, linux-hardening@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
-        linux-s390@vger.kernel.org, gfs2@lists.linux.dev,
-        xen-devel@lists.xenproject.org, linux-mtd@lists.infradead.org,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-References: <20261108223913.3624571-1-irogers@google.com>
- <20261108223913.3624571-3-irogers@google.com>
-Content-Language: en-US
-From: Srish Srinivasan <ssrish@linux.ibm.com>
-In-Reply-To: <20261108223913.3624571-3-irogers@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDAzMSBTYWx0ZWRfX6HgVMZTRPl85
- Jn18W+xXyZCi92S6DV05FbfcOPNGJFHWP78E/tejMVWymJnqf6YRWa3lQfegmn4iFOJICQoFNbC
- 8fh77AnL+jCvHbyG7D8dqSe73s/x570g9zzXuT6BEhlr8jl3r0noGCIl5NBmBZT3KVNvrFD+dKM
- jmrjNQeA0euaud80lISJyfYHrs3jCYZTQa4ayAz9gFDK104eYk/TZg18Gqwd/J5Ixj5j5H+Mg2I
- ON9WlD8PFML3ou1bPmQl5abk01ve2XueAz/SPNj8iUQ/gnppB0P6G6CBLt3MEDM4SwAoGy7KId5
- yxw54L/3ILMaq2PyBoQpvOYAK35zGDxe3Y12powlrnXTOf7DqHPX9d2RKDcqN2WywfEZZZHqYGK
- e0tqtovVEX+A89Y42Kz3zAXdwVaBquDU9m+1ZF0j3UqpHYy7om6XFvFQQwEB9vdTA/NhCTJnATW
- AUOI0KD9i8Rc7/c3tuQ==
-X-Authority-Analysis: v=2.4 cv=HN9WhYtv c=1 sm=1 tr=0 ts=6afd5f1d cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=1XWaLZrsAAAA:8
- a=VnNF1IyMAAAA:8 a=UWczDWbm3HpFH-zmGUoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: f4vCixBvRS1iziYkzXDAyNtWHqcSULbu
-X-Proofpoint-ORIG-GUID: OYeOqBGP-BuxJLy49XGYjOXqV8575ClT
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDAzMSBTYWx0ZWRfX6D4JeSBiVpo/
- 1SUsT7QUnarJqrFd/whI1VbYytmfTPlmOafAXSjzDWGt8A4WgXnRmkoTMU5NO0iqVRltJs6vVFH
- VSWDbLyBnOCi2lpPYRK0hG7fndYLOWg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-18_01,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 impostorscore=0 suspectscore=0 malwarescore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 clxscore=1011 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611180031
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261116-fixes_hugetlb-v2-5-4dd9e94ea9ac@kernel.org>
 
+On Mon, Nov 16, 2026 at 07:29:26PM +0100, David Hildenbrand (Arm) wrote:
+> From: Josef Bacik <josef@toxicpanda.com>
+> 
+> Surplus folios are accounted per node. When shrinking the pool,
+> set_max_huge_pages() removes free folios through
+> remove_pool_hugetlb_folio() and accounts them as persistent folios.
+> 
+> It can select a node whose folios are all surplus and leave its surplus
+> count larger than its total count. Free surplus folios can back
+> reservations created by gather_surplus_pages().
+> 
+> For example, with nr_overcommit_hugepages = 8 on two nodes:
+> 
+>   (node columns show total/free/surplus)
+> 
+>                                       total free surp   node0   node1
+>   mmap() of one page, bound to node 0     1    1    1   1 1 1   0 0 0
+>   node1/nr_hugepages = 7                  8    8    1   1 1 1   7 7 0
+>   nr_hugepages = 6                        7    7    1   0 0 1   7 7 0
+>   munmap()                                7    7    1   0 0 1   7 7 0
+>   nr_hugepages = 0                        1    1    1   0 0 1   1 1 0
+> 
+> After shrinking to six persistent folios, node 0 has no folios but its
+> surplus count is still one. Releasing the reservation cannot clear that
+> count, and shrinking the pool to zero leaves one free page on node 1.
+> 
+> A later write to node0/nr_hugepages underflows the unsigned per-node
+> persistent count: 0 - 1, resulting in allocation of many folios.
+> 
+> Use persistent_huge_pages_node() to skip nodes with no persistent folios,
+> as adjust_pool_surplus() does. This also excludes temporary folios.
+> 
+> Fixes: e4e574b767ba ("hugetlb: Try to grow hugetlb pool for MAP_SHARED mappings")
+> Cc: stable@kernel.org
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> [ david: cleanup code and description ]
+> Acked-by: Muchun Song <muchun.song@linux.dev>
+> Tested-by: Gregory Price (Meta) <gourry@gourry.net>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-On 11/9/26 4:09 AM, Ian Rogers wrote:
-> In add_var(), a struct kobject is dynamically allocated with
-> kzalloc_obj() and initialized with secvar_ktype. If kobject_add() or
-> sysfs_create_file() fails, kobject_put(kobj) is called to clean up.
-> However, secvar_ktype does not define a .release callback, which results
-> in a memory leak of kobj (and a pr_debug warning in kobject_cleanup()
-> when CONFIG_DEBUG_KOBJECT_RELEASE is enabled).
->
-> Provide a secvar_release() callback that calls kfree(kobj).
->
-> Fixes: bd5d9c743d38 ("powerpc: expose secure variables to userspace via sysfs")
-> Signed-off-by: Ian Rogers <irogers@google.com>
+Acked-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
 
+ 
 
-LGTM,
-thank you!
-
-Reviewed-by: Srish Srinivasan <ssrish@linux.ibm.com>
-
-
-> ---
->   arch/powerpc/kernel/secvar-sysfs.c | 6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/arch/powerpc/kernel/secvar-sysfs.c b/arch/powerpc/kernel/secvar-sysfs.c
-> index 395399bbab2c..f3f6ac25ea78 100644
-> --- a/arch/powerpc/kernel/secvar-sysfs.c
-> +++ b/arch/powerpc/kernel/secvar-sysfs.c
-> @@ -126,7 +126,13 @@ static const struct attribute_group secvar_attr_group = {
->   };
->   __ATTRIBUTE_GROUPS(secvar_attr);
->   
-> +static void secvar_release(struct kobject *kobj)
-> +{
-> +	kfree(kobj);
-> +}
-> +
->   static const struct kobj_type secvar_ktype = {
-> +	.release	= secvar_release,
->   	.sysfs_ops	= &kobj_sysfs_ops,
->   	.default_groups = secvar_attr_groups,
->   };
+-- 
+Oscar Salvador
+SUSE Labs
