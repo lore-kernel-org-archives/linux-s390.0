@@ -1,87 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794958486;
-	b=f0rGD+roF/KqeLRTOj9PgbPc6pWNmgBIOi+sn8BSmbV6KHBF30LvCpwfUPcJDB6D4VNW
-	 zpux9c6uRW0T92AgovfrvG8l324kIOrgQDTxqbam4nhbHuaUh5hF1HdqY4GPwOzpfYlyJ
-	 BwOhLvBUApOb466BlNdiTeOjbbNZIoQ3suUQsVIbk+eYeoGyD+biFHr+8m8nGYyRDwXFt
-	 TfzVtIbha5iBB4+ijlLo8+/5oagQX9RjOiri6gZXlq6Rww9E2mEZqN1UeRI+Ii9g1H2Pl
-	 01MdHPdibdxKhgpBffuKPU3Xn0JSz8YSd+k1YOf1/sD2H9nOi8TOLL3jjKnyyr4U4OQ==
+	t=1794977516;
+	b=4A3JVRI3515kDUNy4DmXAWkkcBkSkWhFYr+SNZo9U+MF3rKIeMJfl5PN+7ZfmAjvAfwb
+	 JCv430CAczuLcJR6YXmsxr5lyL2EuJGsGIY2wkNKwiNHnL1WFMifJXZNxSC8LOWQ7rjC6
+	 MSGwwD04sSnw85hkT73/TJWMmr4ARm00ZIiFpxHA4vVfTnHKEsv6x15CY2q6aVmGMtwOX
+	 fi+PgE8abCp7CLMCJAxvs+2JAT4E6pXGcfO4mXDS2qMrLf00YyWIqYu3eh1itsJ+D836d
+	 CVa++4zcMG2rfB8g8Rsg4z3IeeekWpZEUY9ORiMhv7vpX+NFQe2Rdz2npIOJ7kK1QnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794958486;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer:From:To:Cc:Subject:References:In-Reply-To;
-	bh=id7sxPUZ1q5vwEsAL+ZQA4c7CaWDRU0GTvUGmQVP1r4=;
-	b=jcf+bkOo1ZSogForDJf+OCotQutkcH8uaeJByKxeG+wkZnTwJiBhR968WQaDJMcyMzTN
-	 FGZnCiFLx4EOj3QysU6XEHz4EPjT2vAPS1oh1a1/NehyfacNf6RTZhJWMJ6Ek5+VtriB7
-	 KZflFFgXh6EzTuNMELNLFz+zUCpmq+2+ap4clC4y62lgDG/hriWqq7RaVqkvWKpJCCqcc
-	 yd8AedZtMPG8pIuHviXJdn96PZd9w46XXz+7I4CzvSN7c+O5qkE8sr6OfugB/URkIuQDy
-	 fsUkREoicIWlbXcNMIPv74gq0lLGkOulUnXxDZ089uN4WjYQIiD4xtMZ8bkR4A5nTDQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794977516;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=zKnXRqX2v+aT3gYlNIv7K2osO8pX6mgOgfzS7UFgtqc=;
+	b=Rq10/kDxTfRhVLgfJZgfNgXxbsxk6kXF3WJBytNVhcekwfZlu+j4XgNAiGwm8aJpmhzh
+	 7MUJgb1eA4VAlozA6a2CU72pEXN+gWxr8spmN0fINMDJFIetGm5SILShiVy1i+qs5QP7V
+	 vJak8E9uqAqBCNgEXxLqoqwSLnCiILcJjpQ5QAxP4WT+mZ0YDcbv6NwvDQbxopNljN4Qq
+	 AftkbgoJmYtLt5388YDfOb+vIGgmrYdUs19NHzshFwhaxUroGvuq4deNoJ/NsKBiNZjM6
+	 XZVnC4KyJXn40t672yNRdFPMo79AFBQXi16jEm4QGQyrLfHs53Ses4h+Xc9mmldRjGA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=paul-moore.com;
-	spf=pass smtp.mailfrom=paul-moore.com;
-	dkim=pass header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=PRr5dLBj;
-	arc=none smtp.remote-ip=209.85.222.175
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=fuLZ5nSZ;
+	arc=none smtp.remote-ip=91.218.175.41
+Received: from mta0.migadu.com (out-41.mta0.migadu.com [91.218.175.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45B75606A32A
-	for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 23:34:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 45B75606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53345606A32F
+	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 04:51:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53345606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=PRr5dLBj
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-949680e6d83so36875685a.3
-        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2026 15:34:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1794958484; x=1795563284; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=id7sxPUZ1q5vwEsAL+ZQA4c7CaWDRU0GTvUGmQVP1r4=;
-        b=PRr5dLBjAs05ylRi2AXLL0lTt2IRquA8ljp3pqeJPErlk/8PgAPrbJeb5L3wCfYpa4
-         XDYg/SSGs1hy4t8K+/Pp2PiFQx3NJhZscZFEkHYDBy/vZZXIK8wPt1b8bU/aiP11Aror
-         r2GnSzAJl8YAMrvOZ9zn1J7tRliIlMrZCaSyvO1BKafTr1o5vnDRkuheZbUs3qaGJKbw
-         GZZ0QuyXsQLRhhKtgXaxoG43vf79JCmBRlf2ehljTRfDruOrXulaw85CZqHDE9ak195A
-         eJ6eF8rJUuh1V7SM65zr4OBPFIDmlixPlsEtIh2VtMq10Xt4Rwuc5EzZPn5JnzwasjJF
-         zOlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794958484; x=1795563284;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-type:mime-version:message-id:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=id7sxPUZ1q5vwEsAL+ZQA4c7CaWDRU0GTvUGmQVP1r4=;
-        b=BlbjrDOjYTNpV0yxeQz/1gaDE74f9quo9yRc5mKEZStzXoX2LFLO+x/OiPVnaT9Xok
-         X7aftgF1bzOWri1YyCfqY++R5ePOV8bTX0uS0k8Ko0Fz3Mb2ST9IZXMoASUOh7fkZstt
-         SVKBsU5GdvS9k8yCVvVR+4yzSolZw9q4sQmPyc+T/GF1LIVNROy44/J6vH+i8deqCRju
-         eki1UMjebUZIRcbQQPAEipvIH9K+B7lWJULvs73K5pUL5LyCUtZKi0r9LSFV2x94gPbq
-         c3h5rdfgWXO3Pes+6OcH3QMKvnq6pG/nRreJvrWEpsfTQ+m/6WB2azbgGVwjhGJDz+s/
-         F/ww==
-X-Forwarded-Encrypted: i=1; AL+hErHGclA0q/SMGVZIBYZhY1dgUumDQA3Z/whE2AGPSbotzj4P7Z9C2R/Yiwhea0Z4WEma7rq1p2TzD4ot@vger.kernel.org
-X-Gm-Message-State: APuU4Z9/kTGP5DxUN06p25e+VWMlkCIc5g1HckIZAEyJ3zi3vB+sj1fD
-	b5FPhZtjNMvkMaIM3T4dRFzPRt/HlnH7gplAaFGpGaiyHtTpoHphdEtrMUqA4YdjyA==
-X-Gm-Gg: AYBFou3RrSh+ynbbnTWDy0A7qFkAGedktuKMfpeuaJ9JSvQpuw10ImFc0MAWu5Rybid
-	4taq8MkL0KvDzspJBTXUSsHh15xH26jI1RhzpwwcvGhZj9LrdndWqxVChYhYJpB95xa7LzUWNiP
-	1ETeiHonAgM3TjnKopL7q0B4W6XiirAxdypISSJp3pWixvnOHQ47VjU8rjP6zxnHHcaZ4Xu19wS
-	N9AgmcD/Wf1aE9M3IDSToai98jQCG1SaCsdR33OZWC3ATzfkS9nsgnsZBJECIekdPhjqPqoPbk5
-	hBWxMjM6YmPqrBlFeEmO5ByHF4ueXHVgl9/jZNwqtt49u3Jzvd9MqVvlM9yht/AO3RHQUMgJtAi
-	W/GaJ8JDIdLFOX7RKGEeEO4I2dM9Crp/YBzejiFM2Ur3LzMCxLnzo1QFd6hgj458lAO8cjwST7u
-	WR0mgpN8jw3qeQkszM5EKDr+sQ97mVEt3UC6l+ccyhHwwHCoiOIcI6naWHObsr4WjecKxWQ43Vk
-	4fWu5UCHS95oIKQdYQ4jb/dGEVaA58+xso2hWojAgqyAxgmNVkNE5vZUgPIxUW6n1afgKznXxCK
-	19+h5opPx4shjCg+34QPCz6bgMIyqXaFjh0hBmLcnKGS3Wwn7koAfgyZa7vWoSy8pda64GlkTZ1
-	cr52qBm4ediSnCQaZg8hKUECmLkei2S8=
-X-Received: by 2002:a05:620a:2906:b0:944:dbd:8253 with SMTP id af79cd13be357-949995ee428mr247457685a.59.1794958484257;
-        Tue, 17 Nov 2026 15:34:44 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9499b7c9a65sm41585085a.34.2026.11.17.15.34.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 15:34:42 -0800 (PST)
-Date: Tue, 17 Nov 2026 18:34:41 -0500
-Message-ID: <7a012ff555beb43b389ba5ab96e25ba3@paul-moore.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=fuLZ5nSZ
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=5mvBnQTVoVHqhHsi3OfdVHP7eNZFTOT0ltruB/HvWm8=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1794977513; v=1; x=1795582313;
+ b=fuLZ5nSZFMJVVN+PLvCjAN/lSG7vK6WXGu9NW8aTIyTwA0Z9SzfVxr5YXXfNxgU/c2hnB2ZU
+ WESNvtOAFFRAlfXYkPsiVvn1TRoH0eBa+z0afaEDChozcP9W/ZcByOyzBPC0eQHcroUA7TKon+B
+ Uw1bcSf5cQRrTHl9uQ/JTEp8=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id e2317ad5862a2ec7;
+	Wed, 18 Nov 2026 04:51:53 +0000
+X-Mizu-Trace-ID: e2317ad5862a2ec7
+X-Migadu-Flow: FLOW_OUT
+From: Jiayuan Chen <jiayuan.chen@linux.dev>
+To: netdev@vger.kernel.org
+Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
+	David Ahern <dsahern@kernel.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Matthieu Baerts <matttbe@kernel.org>,
+	Mat Martineau <martineau@kernel.org>,
+	Geliang Tang <geliang@kernel.org>,
+	Allison Henderson <achender@kernel.org>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org,
+	mptcp@lists.linux.dev,
+	linux-rdma@vger.kernel.org,
+	rds-devel@oss.oracle.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH net-next v2 0/5] net: annotate data-races around sysctl knobs
+Date: Wed, 18 Nov 2026 12:51:15 +0800
+Message-ID: <20261118045137.174026-1-jiayuan.chen@linux.dev>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -90,79 +83,52 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20261117_1552/pstg-lib:20261117_1552/pstg-pwork:20261117_1552
-From: Paul Moore <paul@paul-moore.com>
-To: sashiko-bot@kernel.org, "Christian Brauner" <brauner@kernel.org>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, linux-s390@vger.kernel.org, linux-usb@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Mark Fasheh" <mark@fasheh.com>, "Joel Becker" <jlbec@evilplan.org>, "Joseph Qi" <joseph.qi@linux.alibaba.com>
-Subject: Re: [PATCH RFC v3 18/44] selinux: use fc_init_pseudo() for selinuxfs
-References: <20261116-work-loop-pseudo-v3-18-8cbbea1cf34f@kernel.org>
-In-Reply-To: <20261116-work-loop-pseudo-v3-18-8cbbea1cf34f@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Nov 16, 2026 sashiko-bot@kernel.org wrote:
-> 
-> Initialize selinuxfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-> SB_I_NOEXEC. selinuxfs never holds executables. SB_I_NOEXEC also
-> refuses PROT_EXEC mappings but the status and policy files are only
-> ever mapped for reading.
-> 
-> But selinuxfs needs device nodes. The kernel replaces file descriptors
-> with /sys/fs/selinux/null on exec via dentry_open() which doesn't care
-> about SB_I_NODEV. Android init however opens /sys/fs/selinux/null by
-> path as /dev/null doesn't exist yet at that point. So clear SB_I_NODEV
-> again in sel_fill_super().
-> 
-> Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
-> Reviewed-by: Chris Down <chris@chrisdown.name>
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> Tested-by: Chris Down <chris@chrisdown.name>
-> ---
->  security/selinux/selinuxfs.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 310e19efff1d0..d7ae853b6d685 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -18,6 +18,7 @@
->  #include <linux/vmalloc.h>
->  #include <linux/fs.h>
->  #include <linux/fs_context.h>
-> +#include <linux/pseudo_fs.h>
->  #include <linux/hex.h>
->  #include <linux/mount.h>
->  #include <linux/mutex.h>
-> @@ -1852,6 +1853,9 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
->  		/* last one */ {"", NULL, 0}
->  	};
->  
-> +	/* Android init opens the null device below by path. */
-> +	sb->s_iflags &= ~SB_I_NODEV;
+This series annotates data races around a few sysctl knobs under net/.
+They are read without any lock while their handlers update them with
+WRITE_ONCE(), so add READ_ONCE() to the readers, and WRITE_ONCE() to the
+handlers and netlink paths that store to the same fields with plain
+writes.
 
-See my comment in patch 17/44, this is also used internally in the
-flush_unauthorized_files() function.  Once again I would prefer the
-comment to be changed to the following:
+There are no Fixes tags. Done one knob per patch this would be well over
+a hundred commits, so I grouped them by subsystem and feature instead to
+keep the review manageable. If maintainers prefer, I can split it up
+further with a Fixes tag on each one, as several smaller series.
 
-  /* allow for the /sys/fs/selinux/null device node */
+No functional change.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+v2:
+ - only resend the patches that got a Reviewed-by or Acked-by, with the
+   tags picked up; they are unchanged
+ - netfilter patches are moved to a separate series for nf-next (Simon)
+ - calipso is sent separately as a fix
+ - the other patches had no review yet and are left out for now
+v1: https://lore.kernel.org/netdev/20261109025425.328445-1-jiayuan.chen@linux.dev/
 
->  	ret = selinux_fs_info_create(sb);
->  	if (ret)
->  		goto err;
-> @@ -1955,6 +1959,7 @@ static const struct fs_context_operations sel_context_ops = {
->  
->  static int sel_init_fs_context(struct fs_context *fc)
->  {
-> +	fc_init_pseudo(fc);
->  	fc->ops = &sel_context_ops;
->  	return 0;
->  }
-> 
-> -- 
-> 2.53.0
+Jiayuan Chen (5):
+  inet: frags: annotate data-races around fqdir->timeout and
+    fqdir->max_dist
+  ipv6: annotate data-races around icmpv6 reply sysctls
+  mptcp: annotate data-races around pernet sysctls
+  rds: annotate data-races around core rds sysctls
+  net/smc: annotate data-races around smc sysctls
 
---
-paul-moore.com
+ include/net/ipv6.h       |  2 +-
+ net/ipv4/inet_fragment.c |  2 +-
+ net/ipv4/ip_fragment.c   |  6 +++---
+ net/ipv6/icmp.c          | 10 +++++-----
+ net/mptcp/ctrl.c         | 18 +++++++++---------
+ net/rds/recv.c           |  2 +-
+ net/rds/send.c           |  8 ++++----
+ net/rds/threads.c        |  4 ++--
+ net/smc/af_smc.c         |  8 ++++----
+ net/smc/smc_clc.c        |  8 ++++----
+ net/smc/smc_core.c       |  2 +-
+ net/smc/smc_tx.c         |  2 +-
+ 12 files changed, 36 insertions(+), 36 deletions(-)
+
+-- 
+2.43.0
+
