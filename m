@@ -1,97 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=130.136.161.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795005460;
-	b=QDD0Qck79t/7J/B+KMQbinnhro+b2JU+5UMmrWYNcvhYL3H7hAJIqiwF5NPAyYnAxsbU
-	 S+LF+cqnDMtevRFjEQ1oeWnkvOv4+tiYDcHW7cXSVspi9PZ7qrFfD2m2MLaN2cP3UuAGm
-	 jVrSmOV/KDBOhd7NfdxAsqYvwg1lEZJgkcrsiSTYdYG+ldsUHHjH24PxS81ZQb3zRe5ab
-	 oL+B5h3MwFldceFfHuBFHEU8vqPDLu/ZrwlFdY6zU0EFkXGicUQaRh4s/4dL0WFHjbIcd
-	 NaNi1kIDE6pU9I7BiYANiZsUDXETse4gR0UGZqibtnbzgltbGUHGdWE2W9CWCQO4gww==
+	t=1795007235;
+	b=CDvqLwSdj+NVmeitABm4Dgt0jYUtS/a2y2Ffhv/JMILnPQDz9i+2ysoDV3Dmg3d8HjZ0
+	 qtbBj2L71kHneRMjqyWDjhvn1T4hpgIa2L19Y4s8LriBuMrJok2EDOMEoM6NmQBGE/qHT
+	 gMAnO1FhI8nRSLiYfy18thkKh8nSAMhLifZn7cb9dT42eAy8hjhUAqIcFeyXvjL5v/Kmu
+	 vaXsiWBrz73kzLRweHjtVLx2tgxO7ODROofMTg4SCdKYLKv1qufB6Uq7wcWn2PU6QYOG2
+	 vkHfPa4izM3FL/uttRS2bG3iClOBF5Cy2gtKNVkTMcTSbFAIvLGY+G/tt6PWCNrBHnA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795005460;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=6OWJ8dEM8UrE04otdmQfRprkgQwpj9yoMQvCFzDydXQ=;
-	b=tCW6pU3fnZhOl6NLCAiPDoRlmQ8x0weiRcEBdlmNv7UcMp2Fcj3F5E3bEGTa7cf5eF3V
-	 diPhAYboY2mgmQyo5vQ1fVGbeLNIEFKAKE5yGYFpjiyty36jM6byt0H35ehaTtz4Ox3e9
-	 R7T8283Y/Ifo1HT5UfL8+gKua/+Cqj5Vw4kLHimLo1/s+aVgGWl81rHlAjtfsRSIii7Zo
-	 cNN+0Afg2DA6hApORQgwafdHKShX24ph9wKyjmgRE/MlztxlNlswiBq4sIvfuci+0WDTn
-	 C+mdMuqoDEDGFTxFT3zHgy85EiGX3B+I90YyB3SXsebOFplvqK5gm9Wn+nZSnXA4a3Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795007235;
+	h=DMARC-Filter:Received:DKIM-Signature:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=wcQud4TjvAnhIm8lhxRx5VZLJFGXhPtPHhfm5f/gKq0=;
+	b=zfV8dRqQ6scBMVvCMpldzhEuK10r9I102YfA2AUqwPmZTjehkm4Fmc7jb+dlNhZfUAcS
+	 PJr49FqQZ5JajIB+oflxwpP2kDCggeXjZPQDEy63lc8vBxbdcIVpO9Mnhjl6XrPtAkX1M
+	 k2/6EWb438ttwesFao0QcAbpR4wsBy5sVsuNaI2UOHwuj/3IIapTu/LZs0MAoy4vSLCTE
+	 OK+Y3FTy4BuAehKyPB9IrdTuUJNWYGEhB2GXzVz0/xYzObdEUyaFeh+jjPo4DOTgu605n
+	 fyS87cs7TR/hvIi+7wHJSMcSOLG+MBpoaXB6qaDRh2qUgwrMFZFRV7Kf8j1M8ej2S7w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jyqu3ty4;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F36606A31C;
-	Wed, 18 Nov 2026 12:37:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19F36606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	dmarc=pass header.from=cs.unibo.it;
+	spf=pass smtp.mailfrom=cs.unibo.it;
+	dkim=pass header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b="jaJ/iyiX";
+	arc=none smtp.remote-ip=130.136.161.50
+Received: from mail.virtlab.unibo.it (mail.virtlab.unibo.it [130.136.161.50])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 77D76606A320;
+	Wed, 18 Nov 2026 13:07:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77D76606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cs.unibo.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.unibo.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jyqu3ty4
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AIBQAGU3963124;
-	Wed, 18 Nov 2026 12:37:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6OWJ8d
-	EM8UrE04otdmQfRprkgQwpj9yoMQvCFzDydXQ=; b=jyqu3ty4GnhHVXbUEs7y8c
-	PiJ/PZLstq9kAtevmmMjGm1zTVvC8bTT49sUWa+GstBfdh4m2EdYlTPeo0FFLHbI
-	wPFc59urmLnCKIa+ciGyfazlRL/dOj7LHAm0zp24mrzxZkcgFo0Se/K8rqwv37CX
-	QSL1fAZ+KjTMvW8lyk9fTd0TuqFl77PIahosyWlBHXuIeo7uSndVfKKPRYFLk0oI
-	oCYZ2QKQxziPCkFwt9NsBuQIji+XziKxykgX12SOOj1IfCmq/ANmAsWQgnM8LVSU
-	AiJP6SnE0fXBbpf+zCRKlc78oLM2bXDDhervhYjfMsDb5+KWNDj8dc+6uHX3e8WA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105vtb3c-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 18 Nov 2026 12:37:38 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AIBK9fX3033810;
-	Wed, 18 Nov 2026 12:37:38 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j02jug52x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Nov 2026 12:37:37 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AICbXcu30474742
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Nov 2026 12:37:33 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CA3282004B;
-	Wed, 18 Nov 2026 12:37:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA98620043;
-	Wed, 18 Nov 2026 12:37:33 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.68.31.243])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 18 Nov 2026 12:37:33 +0000 (GMT)
-Date: Wed, 18 Nov 2026 13:37:31 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: sashiko-reviews@lists.linux.dev, linux-s390
- <linux-s390@vger.kernel.org>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "Vasily
- Gorbik" <gor@linux.ibm.com>,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH v2] s390/mm: Allow hugepage migration for s390
-Message-ID: <20261118133731.6de64cc7@p-imbrenda>
-In-Reply-To: <20261112121337.3c07acb7@thinkpad-T15>
-References: <20261111182944.4154805-1-gerald.schaefer@linux.ibm.com>
-	<sashiko-outbox-209541@kernel.org>
-	<20261112121337.3c07acb7@thinkpad-T15>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key, unprotected) header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=jaJ/iyiX
+Received: from cs.unibo.it (renzopb-wl.cs.unibo.it [130.136.2.252])
+	by mail.virtlab.unibo.it (Postfix) with ESMTPSA id 184BA1C024A;
+	Wed, 18 Nov 2026 14:07:04 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=cs.unibo.it;
+	s=virtlab; t=1795007224;
+	bh=lb0XMELlXwhZyPpxWvURW3p1in9nS5q+dLi6aSu9rQ8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=jaJ/iyiXBY+Y4jYCYhlt5rkdRaZ0t6Gbdrnf33D7e7U//d7upt8gr4XSiHgoPzEyH
+	 lakYksP8Sjnn6WqSVmC/d7K7jvdcpKTjwjF8IHU0huSQ0Ip+FazYU7PtmTQPNM8f+G
+	 T8BxdetVC4nyBkGpt04dMXXUfbCznRdfgozDpKBk=
+Date: Wed, 18 Nov 2026 14:07:02 +0100
+From: Renzo Davoli <renzo@cs.unibo.it>
+To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+Cc: linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+	Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
+	Will Drewry <wad@chromium.org>, Thomas Gleixner <tglx@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Shuah Khan <shuah@kernel.org>, "Dmitry V . Levin" <ldv@strace.io>,
+	Alexey Gladkov <legion@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, strace-devel@lists.strace.io
+Subject: Re: [PATCH v11 0/3] PTRACE_SET_SYSCALL_INFO: add support for seccomp
+ syscall skipping
+Message-ID: <av2i9kbZyMRJE9D6@cs.unibo.it>
+References: <20261114181923.370930-1-renzo@cs.unibo.it>
+ <av2PKIf8YsEPro8O@kunlun.suse.cz>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -101,180 +71,50 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: U5rGeF2JlF35YHfY_mb9G7meymcUNG5q
-X-Authority-Analysis: v=2.4 cv=Z8x5j3RA c=1 sm=1 tr=0 ts=6afd9c12 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=-U4ubaYy1ROQS3slnMUA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: U5rGeF2JlF35YHfY_mb9G7meymcUNG5q
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDA0OSBTYWx0ZWRfXzy0JkNaB6edM
- 1Fn9Yj+X+jISo3bIR723kKXy3Q5xUBj9YShhk6UfpzcYZig78jSi45NRSGVIi7NmxW1o8rI4fIe
- 72bj/tTnwj8LEYlZcFO32SwgR09EIwI=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDA0OSBTYWx0ZWRfXxEJFZOZuk+IT
- mM9eAru14Q9kAI7vs4jOgyCUDOjZk5genxdXfY+hH4XV0910FbM0UkMXUfmoVV99xS1eI8CofcO
- 1v5xBvd/YuQdiTTzmLM1sa+NyVm/mlOaVVN0SJG38pn+uowhFczQT6mKoIfdkeE3GBRwzfAYa0Q
- EYHh7YkMD53jBFSOmAyiFV1A7rzm5zPBPXvZZECa+GH7VhOQj0I/egQduf96oUr88ppRvYaXmaE
- Ijw3Qa4z8Ft3mE+JXQKGbuTMsTfVCd7XtKBlXqhepWt8onxNnyTX+jUg5LkWiptFSjhXsMPEIGW
- t56sOX5olBbDQ7Rzg9lOWz1KmJav0o5OI6fHRUwYUPvLLMVkhVfrHxWjmfSCV39DZN1S8Poorx3
- BRy9qvUP23Vy02xgcn99oyf8eq6cxy/pgYQRoUb5EJldJIYl6q1s81Q24a1+mKW9WsAIThE3kcb
- N0PHRtbVz9DfTuOCgYw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-18_03,2026-11-16_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
- adultscore=0 bulkscore=0 clxscore=1011 impostorscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611180049
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <av2PKIf8YsEPro8O@kunlun.suse.cz>
 
-On Thu, 12 Nov 2026 12:13:37 +0100
-Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
+On Wed, Nov 18, 2026 at 12:42:32PM +0100, Michal Suchánek wrote:
+> from a user point of view it is not clear to me why this would be done
+> at the seccomp event when seccomp is not used.
+ 
+Hi Michal,
+ 
+thank you for the review.
+ 
+You are right, and the cover letter does not explain it (only patch 2
+does, briefly). The series is limited to the PTRACE_EVENT_SECCOMP stop
+because that is the only stop where a syscall can currently be skipped
+with a preset return value in an architecture independent way: the
+tracer's request goes through the same path as SECCOMP_RET_ERRNO,
+which every architecture already handles.
 
-> On Wed, 11 Nov 2026 19:14:22 +0000
-> sashiko-bot@kernel.org wrote:
-> 
-> > Thank you for your contribution! Sashiko AI review found 2 potential
-> > issues to consider:
-> > - [High] s390/mm: guest storage key loss on 1M/2G hugetlbfs page
-> >   migration  
-> 
-> @Claudio, could you please have a look, if this is a valid issue?
+At the syscall entry stop this depends on the architecture's entry
+code. On some architectures (e.g. MIPS) the entry path overwrites the
+return value with -ENOSYS when the syscall is skipped, so the value set
+by the tracer is lost. A tracer that does not otherwise use seccomp
+has to install a SECCOMP_RET_TRACE filter to use this feature.
 
-yes, it's a valid issue, I was already aware of it.
+> On s390 the removal of such architecture-specific flag is proposed here:
+> [...]
+> While that shows a way to address this problem not all affected
+> architectures implement it.
 
-it's in my pipeline, will be fixed as soon as possible
+Thanks for the pointer. With 05c033db7e9a ("entry, treewide: Make
+syscall_enter_from_user_mode[_work]() indicate syscall execution") and
+Heiko's s390 fix, the architectures using the generic entry code
+preset -ENOSYS and leave the return value alone when the syscall is
+skipped, so skipping at the entry stop could be supported there. As
+in patch 1, a per-task flag checked right after the ptrace entry
+report could be used, so that it does not depend on the syscall
+number.
+ 
+This series stays limited to the seccomp stop, which works on all
+architectures; support for the entry stop on the generic entry
+architectures can follow as a separate series. If a new version is
+needed, I will also explain the restriction in the cover letter.
 
-> 
-> > - [Medium] s390/mm: loss of soft-dirty bit in __pte_to_rste() and
-> >   __rste_to_pte() on hugetlb migration  
-> 
-> No problem, soft-dirty tracking not supported for hugetlbfs, see below.
-> 
-> > --
-> > 
-> > commit d03e5331e4e0b88aa75246fc7dc6aef18e7c8cdd
-> > Author: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> > 
-> > s390/mm: Allow hugepage migration for s390
-> > 
-> > This commit selects ARCH_ENABLE_HUGEPAGE_MIGRATION on s390 and defines
-> > arch_hugetlb_migration_supported() for 1M and 2G hugepages so hugetlbfs
-> > pages can be migrated and allocated from ZONE_MOVABLE.
-> >   
-> > > diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-> > > index f84aa9265430f..2c6e94888bd06 100644
-> > > --- a/arch/s390/mm/hugetlbpage.c
-> > > +++ b/arch/s390/mm/hugetlbpage.c
-> > > @@ -224,7 +224,7 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
-> > >  	return (pte_t *) pmdp;
-> > >  }
-> > >  
-> > > -bool __init arch_hugetlb_valid_size(unsigned long size)
-> > > +static bool __hugetlb_valid_size(unsigned long size)
-> > >  {
-> > >  	if (cpu_has_edat1() && size == PMD_SIZE)
-> > >  		return true;
-> > > @@ -241,3 +241,15 @@ unsigned int __init arch_hugetlb_cma_order(void)
-> > >  
-> > >  	return 0;
-> > >  }
-> > > +
-> > > +bool __init arch_hugetlb_valid_size(unsigned long size)
-> > > +{
-> > > +	return __hugetlb_valid_size(size);
-> > > +}
-> > > +
-> > > +#if IS_ENABLED(CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION)
-> > > +bool arch_hugetlb_migration_supported(struct hstate *h)
-> > > +{
-> > > +	return __hugetlb_valid_size(huge_page_size(h));
-> > > +}
-> > > +#endif    
-> > 
-> > [Severity: High]
-> > Does migrating a 1M or 2G hugetlbfs folio backing a KVM guest lose the
-> > guest's hardware storage keys?
-> > 
-> > For 1M and 2G mappings (KVM_CAP_S390_HPAGE_1M / KVM_CAP_S390_HPAGE_2G),
-> > the KVM gmap uses large leaf CRSTEs without PGSTEs, and guest storage keys
-> > live only in the physical page frames.  When unmap_and_move_hugetlb_folio()
-> > unmaps the folio via mmu_notifier_invalidate_range_start(),
-> > _gmap_unmap_crste() clears the large CRSTE to _CRSTE_EMPTY without saving
-> > or splitting the hardware storage keys:
-> > 
-> > arch/s390/kvm/gmap/gmap.c:_gmap_unmap_crste() {
-> > 	...
-> > 	if (!old.h.fc)
-> > 		return 0;
-> > 
-> > 	if (old.s.fc1.pr && test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &priv->gmap->flags))
-> > 		folio = phys_to_folio(crste_origin_large(old));
-> > 	ok = gmap_crstep_xchg_atomic(priv->gmap, crstep, old, _CRSTE_EMPTY(old.h.tt), gfn);
-> > 	...
-> > }
-> > 
-> > folio_copy() -> copy_highpage() -> copy_page() then copies only the 4K
-> > page contents via mvcl and does not copy the hardware storage keys to the
-> > destination frames, leaving the guest with stale storage keys and causing
-> > guest protection exceptions or memory corruption.
-> > 
-> > [Severity: Medium]
-> > Does migrating a hugetlbfs page also drop its soft-dirty bit in
-> > __pte_to_rste() and __rste_to_pte()?
-> > 
-> > When try_to_migrate_one() installs a hugetlb migration entry, it sets
-> > _PAGE_SOFT_DIRTY via pte_swp_mksoft_dirty() and calls set_huge_pte_at().
-> > However, the swap entry branches in __pte_to_rste() and __rste_to_pte() do
-> > not transfer _PAGE_SOFT_DIRTY to and from _SEGMENT_ENTRY_SOFT_DIRTY:
-> > 
-> > arch/s390/mm/hugetlbpage.c:__pte_to_rste() {
-> > 	...
-> > 	} else if (!pte_none(pte)) {
-> > 		/* swap pte */
-> > 		arch_entry = __pte_to_swp_entry(pte);
-> > 		rste = mk_swap_rste(__swp_type(arch_entry), __swp_offset(arch_entry));
-> > 	...
-> > }
-> > 
-> > arch/s390/mm/hugetlbpage.c:__rste_to_pte() {
-> > 	...
-> > 	} else if (!none) {
-> > 		/* swap rste */
-> > 		arch_entry = __rste_to_swp_entry(rste);
-> > 		pte = mk_swap_pte(__swp_type_rste(arch_entry), __swp_offset_rste(arch_entry));
-> > 		pteval = pte_val(pte);
-> > 	...
-> > }
-> > 
-> > As a result, remove_migration_pte() reads back old_pte via huge_ptep_get()
-> > with pte_swp_soft_dirty(old_pte) == 0 and clears _PAGE_SOFT_DIRTY on the
-> > restored hugepage PTE, breaking soft-dirty tracking via /proc/pid/pagemap.  
-> 
-> Hugetlbfs does not support soft-dirty page tracking in the kernel:
-> vma_wants_writenotify() in mm/vma.c explicitly excludes hugetlb VMAs from
-> soft-dirty tracking, clear_refs_walk_ops in fs/proc/task_mmu.c does not
-> implement a hugetlb_entry callback, and mm/hugetlb.c never sets or
-> preserves soft-dirty bits on hugetlb PTEs or migration entries.
-> 
-> The RSTE swap entry soft-dirty bit (bit 62) exists for THP PMD
-> swap/migration entries rather than hugetlbfs. Generic hugetlb migration
-> handling in mm/hugetlb.c (copy_hugetlb_page_range() and
-> hugetlb_change_protection()) also does not preserve pte_swp_soft_dirty()
-> when rebuilding hugetlb migration swap entries.
-> 
-> However, I was not aware that try_to_migrate_one() actually does set
-> _PAGE_SOFT_DIRTY via pte_swp_mksoft_dirty() also for hugetlbfs pages,
-> even though it is not being used anywhere yet. This bit is indeed lost
-> after __pte_to_rste() conversion from a swap PTE. But it does not break
-> soft-dirty tracking for hugetlbfs, because that does not exist. It also
-> does not conflict with or corrupt the RSTE swap type or offset calculation.
-> 
-> Of course, it probably would be good practice to already preserve
-> _PAGE_SOFT_DIRTY now, even if it is not needed yet, and further changes to
-> generic code would be required if it should ever be supported. Will look
-> into this in v3.
-
+Thanks,
+renzo
