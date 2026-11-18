@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794992569;
-	b=hwuauEM1bBDk/fXIhUHpbTIN6BGaEo0LXRnGPZhoos+KXjmATOH83kUGTwjma6RG+oMA
-	 hx2iSKmgWUdqMKWeJYZpOrpGDxVPkPAQm9+GEWUAWfHgCNII5hFLHuOquUE+yiQpYwhIZ
-	 RJ6bCBQOZS+j/uTqbhP7VydYQ6lKYYWhXyyq4tv2+//ns3Rzwer/q3cbawPTdlZFVpAp+
-	 HC9OiM0xqI9XwLfD/yw9DI3CQPJCaZg7jAXiWiPiCoOzAWshShpjg2VBDKozUDJ9JgQRd
-	 mpOJxYVDcCTDI838U33rWxfx+8vwEpSypS2uDGey5ozK60L/JCJx3x/ujTNWFW70Pcw==
+	t=1794992648;
+	b=qmWlQD6woUrzWEFutCRTMXrvPoeelRcL7sm5uM9wz0yC0zfUjRv5Yti0FwXsn79kruYY
+	 06poPN/QVWcN2abxZUra2yGdO/9huGhMRZewkFSOnSBMO0LoShLJtSDsR8KWAhPB/V/ih
+	 qn4q7K2RxD+UcDzHTKQXaZloKDl85Zf25zb8mZR9ZsfTB17YetyHWMV5Xm7pPKKvwoV3F
+	 Bivzsn8KkeEJAndIajzuJkd0vGni2g8XcwSop2yGWo/nm/wipR/P/mriLh9m+VgwYP7Ez
+	 2UdL2uunNeUcM7eYHOmRd/I/v/cHtEinDYmn3oxd1CavUfZaOtFCKzyhaFrwu6LiI5A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794992569;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794992648;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=pLn6fncZGa4fgL+fOqpgq5YRYTggYFIcZ3+38mE0Nvc=;
-	b=tFRMeXZZ/NlXTLlNdxPCb3+KcHZF3AQQ0GafY+E8qmKcEmS1WBnzbGO3xWy94E9+cAuq
-	 b0mdxi/AN3VK2Z0HjU4SsHPd9nE9D/1SEN5RHcsja0GNF5E6s41N4ZrvhbTYtluheZ4Zb
-	 2KAOnef5zaujWhdEnctAR+vLMEJYuo831aHDQ8j12xBfc7MBJd2Rex6XHCSCaKZyspR+4
-	 9g4t/V/8H0DcywLJVtI2ZFL0W6kujp/kVk6et4VfZBH8g6se0R1hrsLsyqefSW5VJzSK4
-	 k0SpKTu50bvs31UMUkjfX7ssHvGoi0ba2gb73+VV2P00GvLxuse/WslUFCb5vz6680A==
+	bh=/ILw4EFux7bTkf5RNu3Ik+2UTxpkbYziGgraDHdKyo4=;
+	b=C6GXyioPCa1qq8jmosDq37gyRofZ/1TMDoYTzBBztStwUVrXzcX3CxV0Hzx4UZGlE8T9
+	 e0XKuKBJ6cIKVAug7KdSmDOYUe2L/R1+2efKjCyfma7h8i2+3VG1d/ooPIK4H73oYLuN+
+	 8518zDMqlt2FB1XlMZHNudoFUGNB3a3xcq6sChbbHVIV1hvSTs9Q7JVwmPbsl2iWvAWq+
+	 gj53wHKoA1JB49ZAKEg5l4jUCLLrGJ06bC66ujWps0mu60JxR+aOpKFX5A/I0p5VdChq4
+	 jwpXpwqYph8+cKqbtFB7EqZFv65R551A7bQgC8wtI6xPy8fjYBL3VkZJJ7wx+bIb//g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JRGdLTAs;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GxLWD3N7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82486606A31C;
-	Wed, 18 Nov 2026 09:02:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB0F606A31C;
+	Wed, 18 Nov 2026 09:04:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JRGdLTAs
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA511F000C5;
-	Wed, 18 Nov 2026 09:02:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GxLWD3N7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C9E1F000CE;
+	Wed, 18 Nov 2026 09:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794992569;
-	bh=pLn6fncZGa4fgL+fOqpgq5YRYTggYFIcZ3+38mE0Nvc=;
+	s=k20260515; t=1794992647;
+	bh=/ILw4EFux7bTkf5RNu3Ik+2UTxpkbYziGgraDHdKyo4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JRGdLTAsXBvvBhLBMNip+PBzFeCWDHNGjtE/29dINX+9MVgmhVBLES9E+pEgXct03
-	 EaY9TvK82FuPptmwjz5VrUCPSr+2JAdhpavzvKdMddAWW3XiiJkmTW4yxfYTFqrE4s
-	 llB+3lnJvZm6LHLGcjo+pQ0tetlRwHocyPblj+j3nThU/CjmJ/zmDUfGDxnCMo2R16
-	 ByEQjpAM4b4jvbfCpeb7+b9bdmuTsTgxEbGSutaNgNz+SAjG9Bc4/NiSb5P9tlV7Yc
-	 vqjdaNvm0Bg16bzvsTMwBHAw2pVe6rUiiZpVj+Fd4v4PtQuJ8Jwy7v5d+MplCUwp5P
-	 Py3LGm7/SaKLw==
-Date: Wed, 18 Nov 2026 10:02:36 +0100
+	b=GxLWD3N73udbUDoNblg7Ifu79ktDf2tMPQZBPZqOeRhnEGWEZm7cUXVyjJ1dnGv5i
+	 l3BIwO3wcRqh/opIRo3nC8VYsRjIQHTV2Z4Wp8Fk3nsEgpEC9o77OtjcDP3eGFN7Fb
+	 n0MZW/am2GOXPaqhqQa+rFDYtnX3TblWDpKMk25PbbLNOINBG12hHwFhiI9ihwCobM
+	 VY5YhSvOPK+r9knEQz2YZCvaUHzkAa7KgIXsQ7UnIahtmy9PqzvnfJTtC767GGKR4j
+	 o18rv44b5AyfSff3CIXYD7OvaDKnLyI1Tg9wwp9KU2+/ayRnE1vvZxgnUG/oEapTsr
+	 jDapuh74AaHyA==
+Date: Wed, 18 Nov 2026 10:03:52 +0100
 From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
@@ -71,12 +71,13 @@ Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
 	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
 	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	stable@kernel.org, Chris Mason <mason@kernel.org>
-Subject: Re: [PATCH v2 06/15] mm/hugetlb: fix mremap() racing with page
- migration
-Message-ID: <av1prAuFVxsdBsIP@localhost.localdomain>
+	Josef Bacik <josef@toxicpanda.com>, stable@kernel.org,
+	Daehyeon Ko <4ncienth@gmail.com>
+Subject: Re: [PATCH v2 07/15] hugetlbfs: fix unmapping folios from private
+ VMAs
+Message-ID: <av1p-MN1hMfZDuBL@localhost.localdomain>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-6-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,43 +89,28 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116-fixes_hugetlb-v2-6-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
 
-On Mon, Nov 16, 2026 at 07:29:27PM +0100, David Hildenbrand (Arm) wrote:
-> Migration of anon hugetlb folios walks the anon_vma, so the file's
-> i_mmap_rwsem does not serialize it against move_hugetlb_page_tables().
+On Mon, Nov 16, 2026 at 07:29:28PM +0100, David Hildenbrand (Arm) wrote:
+> From: Josef Bacik <josef@toxicpanda.com>
 > 
-> There are various issues with that. Most importantly, move_huge_pte()
-> releases both page table locks before the TLB is flushed. Migration can
-> then find the destination entry and finish migration, reusing the old
-> folio while the TLB still has entries cached.
+> hugetlb_unmap_file_folio() assumes vm_private_data points to a struct
+> hugetlb_vma_lock when hugetlb_vma_trylock_write() fails. Since hugetlb VMA
+> locking was extended to private VMAs, this can also happen when
+> vm_private_data contains a resv_map pointer; treating it as a
+> hugetlb_vma_lock corrupts memory and can cause crashes or hangs.
 > 
-> Hold the anon_vma write lock across the move and the final TLB flush.
-> This also prevents concurrent rmap walks from missing entries moved
-> during rollback.
+> Only take the VMA lock when a shareable lock exists, as additional locking
+> is only needed for PMD table sharing. The fault mutex and i_mmap_rwsem
+> already provide the required protection for private VMAs.
 > 
-> When we must allocate a destination page table, flush the TLB before
-> dropping the anon_vma lock, then reacquire it after allocation.
+> Fix generated by an LLM and sent by Josef Bacik in private.
 > 
-> Dropping the lock only works around lockdep: hugetlb folios are not
-> reclaimed or migrated by allocation compaction, but their anon_vmas
-> share the lock class used by ordinary anonymous memory. Having a
-> separate lock class for hugetlb's anon_vma (like already done for
-> i_mmap_rwsem via hugetlbfs_i_mmap_rwsem_key) requires more thought.
-> 
-> There is a concern that this can block page migration of anonymous
-> folios quite a while ... which is not really different to what happens
-> to page-cache folios today. If ever a problem, we can temporarily
-> release the lock.
-> 
-> So let's keep it simple for now.
-> 
-> It is a shame that hugetlb has to implement everything core-mm implements
-> in a different way that just screams for problems.
-> 
-> Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
+> Fixes: bf4916922c60 ("hugetlbfs: extend hugetlb_vma_lock to private VMAs")
 > Cc: stable@kernel.org
-> Reported-by: Chris Mason <mason@kernel.org>
+> Tested-by: Daehyeon Ko <4ncienth@gmail.com>
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> [ david: simplify description and comment ]
 > Acked-by: Muchun Song <muchun.song@linux.dev>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
