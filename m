@@ -1,58 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795014315;
-	b=yWnQzQuVNag2bg0Jmaq4G56UGMLDa8ptJx8oNgmFOrYbsdYDK0c32XeaIr3/B/tyC6ux
-	 V2aFI+F+kJNxpUuWEk5fGP9yOinrN3rulP2D8C3wkfrmB9luzmuh6KJfgfU0NAO50SHlK
-	 9Emt+NjAbtMphAhChBcsmNXHRa5X5Mge0WuL3xWXLXlAUfX4RGl/UhC/1e46xfYKbY6tU
-	 4m9xyHx03C4BjX65NpL2GhEwR3KtuhtXSgXVpfQihx3pxKhC4/J8L1PGf8hLJSO07THrn
-	 7KwCum8CfKIj0xaXdfaatYGlR+bx8GcVbT2fJrRrxqXmGcskqLy1wDrURydE6vlJnvA==
+	t=1795016832;
+	b=hR1ckGNCd+DR52NEQ/Q/V2zxfl+oX12BZWdNMkLKfwfQ/enT0zL6BYRVkOc4Ku0M9nzQ
+	 kZxpYip7CB/k+KXM72s1k94r0qBcbT6efL0LYlcjM17CLLl7wB0QcerM28WERlMMcKRCr
+	 YEvnCB1orxThqmj/b/SS7dBvBtmGM4+L/dZ4ue7QRglrrzwotX/t+h3Qqg76lVPNSPv03
+	 RqxKra2/IftW1Bf56Ji17V3L+3WdbZ2vUFIeDYQ0GZ6hPu7UkNWWa0h8n51oTnG62OF6P
+	 EKIQ5Wfp86aKlJJqsz1nQ2VqD4BCJ0ObQ5h3s9nHBmIg+Y+21eQLvIDJVl2fiYQuOCA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795014315;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1DBEgVzCB2zAozA+kZvtZOWRns5cKTgtfqVEyIEa/qE=;
-	b=OdsHSha5y+7EHUN2mR8RRgxOA1IVFWMpGii50Ui8KSenLmYk+wI9uC9Dn3Gp3Lw5wLcR
-	 R/HY23bRz4+eVMISo3g+wyRXrtqKOOXuvCXL1zr2EKNpX2hjrll37gTbk0EIdmOEoM8Rq
-	 9Yef3az2DJ2FvRPC8CmaD1bBdKYDf59u76zJXAsF8l+JJSo7OXl3uKZ2B/lR7y97UXYrI
-	 3y90Irf5Jqh7KmDL+x9dVV/LDo8zKJ+XcrgOZ3fo/I+ieS9t4BskKgkzP4PIkNrvDk9v2
-	 edm2rDxz3X1BSEgcbwvwlByXZiCGLZIC0g8CVCiHQDNLQXPagMrhbHD8ujmIxyrqGPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795016832;
+	h=DMARC-Filter:Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To:X-Rspamd-Pre-Result:
+	 X-Rspamd-Server:X-Spamd-Result:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Rspamd-Queue-Id:X-Rspamd-Pre-Result:X-Rspamd-Action;
+	bh=flMGPLDMTpq68z1lJ74ODL+EiAGhlUNC3nFdUWIDwBE=;
+	b=n/+lCBkNWBFu0jLHajKOPrG/TN+giYEFpzhI6B2xNxZBE32mrnXE6Ly++sTxnsiRg6ma
+	 z4vb3Ur1+3WDEmUXYpCpZm3eha1BPQ7alsylOq3JwDNNsloYjTKk1x1pu+Kf1FEgTX2jI
+	 Nm0ZLBpy7AyvavOYOgIhumpdT53ofxEx/kQ9ZXfjmwRiTEhAtFcju/dGX4FZYNXY6SSJr
+	 yzufikrVtrX7AgZUty0qrhJbmafW6z6dHTT8pwuNph5XGENezJqUXVFVlxQy3KTHudzvB
+	 ESooXWG2zyKI+M/l5aaOagwtGdINma9EqxOoO6+XcdQV5xheWQaDOxde0Ov90qTChxw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ijgYJ1gb;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47D0606A32C
-	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 15:05:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ijgYJ1gb
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 354EE1F000C4;
-	Wed, 18 Nov 2026 15:05:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795014315;
-	bh=1DBEgVzCB2zAozA+kZvtZOWRns5cKTgtfqVEyIEa/qE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ijgYJ1gbUEgQUT7dDrVW8gO9Bq1eRK+QUXzef0DMg/GEfqMpsIPUO62NFq9S3ZRyE
-	 EC2enzH+Fpa4qgRvnZ2nMDpSJ/NHtb611m8DZ/3B1pYyD8PlwYC7tVRh1o5lvtCQiN
-	 LZAtgO2t10Tt6w6e90MZq1NaLDZ6Wl19SgnnTrT6ckEL/B9hmUd374KWFlxGBLJVm1
-	 b2Qszp9Y0Q2g3tjnYYwZOxrJDFLZ62wBfhTpJAsc3N4L6mJRM7IwoTQCkcJi1pUtI+
-	 1TrVAMZlAOEa8cGzsv5yBMJd2DJhI5PY7k7c+4S9wDCpZ7P9sa6wu0EflR9GwFb7JM
-	 i7f2rVnpqu0zg==
-Message-ID: <sashiko-outbox-221285@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/8] s390/kexec: Let crash_protect_pages() warn in case
- of an error
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261118144709.202520-4-hca@linux.ibm.com>
-References: <20261118144709.202520-1-hca@linux.ibm.com>
- <20261118144709.202520-4-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 15:05:14 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468B9606A320;
+	Wed, 18 Nov 2026 15:47:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 468B9606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 5A73A1F798;
+	Wed, 18 Nov 2026 15:47:10 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
+	none
+Date: Wed, 18 Nov 2026 16:47:09 +0100
+From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To: Renzo Davoli <renzo@cs.unibo.it>
+Cc: linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+	Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
+	Will Drewry <wad@chromium.org>, Thomas Gleixner <tglx@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Shuah Khan <shuah@kernel.org>, "Dmitry V . Levin" <ldv@strace.io>,
+	Alexey Gladkov <legion@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, strace-devel@lists.strace.io
+Subject: Re: [PATCH v11 0/3] PTRACE_SET_SYSCALL_INFO: add support for seccomp
+ syscall skipping
+Message-ID: <av3Ifd4saO2_6Slq@kunlun.suse.cz>
+References: <20261114181923.370930-1-renzo@cs.unibo.it>
+ <av2PKIf8YsEPro8O@kunlun.suse.cz>
+ <av2i9kbZyMRJE9D6@cs.unibo.it>
+ <av2pRG1JT9te8IiM@kunlun.suse.cz>
+ <av2yDgdBWfTxvZca@cs.unibo.it>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,19 +73,64 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <av2yDgdBWfTxvZca@cs.unibo.it>
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[];
+	TAGGED_RCPT(0.00)[]
+X-Spam-Flag: NO
+X-Spam-Score: -4.00
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 5A73A1F798
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
 
-> Let crash_protect_pages() print an error message in case set_memory*()
-> fails.
->=20
-> This doesn't buy too much since a failing set_memory_rw() would result in
-> a crash of the caller as soon as a write to the memory area happens.
-> Fixing that requires larger changes - for now only print a message.
->=20
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+On Wed, Nov 18, 2026 at 03:11:26PM +0100, Renzo Davoli wrote:
+> On Wed, Nov 18, 2026 at 02:33:56PM +0100, Michal Suchánek wrote:
+> > As I understand it the new s390 code resolves the problem by storing the
+> > syscall number outside of the registers. Then the return value can be
+> > set directly. It does not depend on using the generic entry but on the
+> > architecture adding storage for the syscall number in struct pt_regs,
+> > and implementing the code to determine where to get/set the syscall
+> > value depending on the syscall stage.
+> 
+> Right, thanks for the correction: what matters is a separate storage
+> for the syscall number on the architectures where it shares a register
+> with the return value, not the generic entry code.
+> 
+> > However, it seems that extending struct pt_regs breaks userspace ABI
+> > (probably because kernel refuses to transfer partial pt_regs to/fom
+> > userspace) which makes it unclear how the int_code that is used by this
+> > new code could be added to the s390 struct pt_regs in the first place.
+> 
+> On s390 int_code is not new: it has been in the kernel-only part of
+> struct pt_regs, after user_pt_regs, since aa33c8cbbae2 ("[S390] cleanup
+> trap handling"), and the user ABI (s390_regs, user_regs_struct) does
+> not include it. Heiko's patch only redirects the ptrace accesses to
+> gpr2.
+> 
+> On architectures where struct pt_regs is itself the user ABI (e.g.
+> alpha), the storage does not need to be in pt_regs: MIPS already keeps
+> the syscall number in thread_info.
+> 
+> This is also why this series uses a per-task flag at the seccomp stop:
+> it does not depend on where the architecture stores the syscall
+> number.
 
-Sashiko has reviewed this patch and found no issues.
+It does not have to know where the architecture stores the syscall
+number when using syscall_get_nr and syscall_set_nr. However, the
+storage for the syscall number has to be somewhere, and for powerpc
+there is AFAIK no such storage.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118144709.2025=
-20-1-hca@linux.ibm.com?part=3D3
+Thanks
 
+Michal
