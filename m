@@ -1,113 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795002157;
-	b=f3MnM4AhhM+qSedYMaKRhCB4UnmPeYatIBliP2IyuV90SNoVEKEOPhFAvE9X15Ea6iDw
-	 yvEPcvoMel4JXCM7UahgT/w+T4F/4m/d0jNSphliDPYwZY03f2/7O6XnOyx+3W0x39IE8
-	 5WpI/EZefu/gm3U1quy5AfQJSQJuocEnXr8Xd3rZgkF62KPGEcc120zC1aGNUiYU1T8RX
-	 yi/cPj9O3GlOROKbfAzdHBImtazrJx86SZCUhapd1g05dpFQzk9/phCy5VJ5TpigUoxr3
-	 d9kIFxicBWL8moMdJ9151mDqOewG2H5JTd4f5UUFi5b7F3GNil/YhqvgIlU9tzQV+6Q==
+	t=1795005460;
+	b=QDD0Qck79t/7J/B+KMQbinnhro+b2JU+5UMmrWYNcvhYL3H7hAJIqiwF5NPAyYnAxsbU
+	 S+LF+cqnDMtevRFjEQ1oeWnkvOv4+tiYDcHW7cXSVspi9PZ7qrFfD2m2MLaN2cP3UuAGm
+	 jVrSmOV/KDBOhd7NfdxAsqYvwg1lEZJgkcrsiSTYdYG+ldsUHHjH24PxS81ZQb3zRe5ab
+	 oL+B5h3MwFldceFfHuBFHEU8vqPDLu/ZrwlFdY6zU0EFkXGicUQaRh4s/4dL0WFHjbIcd
+	 NaNi1kIDE6pU9I7BiYANiZsUDXETse4gR0UGZqibtnbzgltbGUHGdWE2W9CWCQO4gww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795002157;
-	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
-	 DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To:X-Rspamd-Queue-Id:X-Spam-Level:
-	 X-Rspamd-Server:X-Rspamd-Action:X-Spam-Flag:X-Spamd-Result:
-	 X-Spam-Score;
-	bh=ts1zyYo+0tF/wBGQw87MWas4/lAsPLXenr9aSms+T5s=;
-	b=m7wvpfJl0e9wHnMBfiRKpZW9gp/u3T6Q2eV33Qps2hunPPTVMoccwB4UwswmXBT5BF0z
-	 6FYvV6umZbdXY5Aq0/plXTv5vlJn16acSiZ3VQwmWnHahgns3BDW8iYAwF4oGNSt9r3Ho
-	 9VnxQ6R+uf5pO7Js4DlURahwx80YSf6cKHUeUWKnD2YSk014US6fznb0WwxSdMrj+M9Xj
-	 FUy2DZUY1ckCC7RfN3oA4KXIdoqLpk+kcYTAe2Ynj8iqhw24AypqlwsXyxKl58xqgAQCD
-	 9MElA1J/gXSa62roszv8a+QerM+JstPkYiQyZ5gQX4JK0JUKu2MEPaVIsjK1lYtLA0w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795005460;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=6OWJ8dEM8UrE04otdmQfRprkgQwpj9yoMQvCFzDydXQ=;
+	b=tCW6pU3fnZhOl6NLCAiPDoRlmQ8x0weiRcEBdlmNv7UcMp2Fcj3F5E3bEGTa7cf5eF3V
+	 diPhAYboY2mgmQyo5vQ1fVGbeLNIEFKAKE5yGYFpjiyty36jM6byt0H35ehaTtz4Ox3e9
+	 R7T8283Y/Ifo1HT5UfL8+gKua/+Cqj5Vw4kLHimLo1/s+aVgGWl81rHlAjtfsRSIii7Zo
+	 cNN+0Afg2DA6hApORQgwafdHKShX24ph9wKyjmgRE/MlztxlNlswiBq4sIvfuci+0WDTn
+	 C+mdMuqoDEDGFTxFT3zHgy85EiGX3B+I90YyB3SXsebOFplvqK5gm9Wn+nZSnXA4a3Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=MJYbixBP;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=9F6yuFzm;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=tjvt0P+o;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=CHdKwqiP;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jyqu3ty4;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FA9A606A31C;
-	Wed, 18 Nov 2026 11:42:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9FA9A606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19F36606A31C;
+	Wed, 18 Nov 2026 12:37:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19F36606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=MJYbixBP;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=9F6yuFzm;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=tjvt0P+o;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=CHdKwqiP
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 75CE21FB54;
-	Wed, 18 Nov 2026 11:42:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1795002154; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ts1zyYo+0tF/wBGQw87MWas4/lAsPLXenr9aSms+T5s=;
-	b=MJYbixBPXebGghxcy9GLxNdpTxi5J1APSIVerzfUfFMu5GHAp6ZDY18IQ0C01KLofCsaQa
-	iLxUfq3jL4ShHx2lhkaOkCZ85BgpCJXJU1fTSsvLK8p91QsPi3SvK+FreT3GMDVJegEjKy
-	SFt6abukRfiGzU6B6i9o8L9x6ep+pq0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1795002154;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ts1zyYo+0tF/wBGQw87MWas4/lAsPLXenr9aSms+T5s=;
-	b=9F6yuFzm2ea4WmMd6IJ9jyZSa5ej8Hb4wjPtUkxTeJon96jrG1bwsrXBETFDtvJqKOWof/
-	VJosWdeZhIavdbCQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=tjvt0P+o;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=CHdKwqiP
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1795002153; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ts1zyYo+0tF/wBGQw87MWas4/lAsPLXenr9aSms+T5s=;
-	b=tjvt0P+oze6M+//BuxhCpozTK9biCEkeBlPm74JbxWXo1S7DXiXTvPmGRjRgwSTA/mlw0J
-	xPoaJv0wpZN62UdqYZgwQkFlOwbOR23cp+NdBusnoTHVMHFaLu31XdrIPu7L/gExFC/tfN
-	sGjATTjETAAp59VtWDPj3fvmh/NDidY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1795002153;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ts1zyYo+0tF/wBGQw87MWas4/lAsPLXenr9aSms+T5s=;
-	b=CHdKwqiP9NqvC2rAs0raL9qkbYbZVNUZCscjq8BLFBo/z0i5yUzELG09kfz8HDsY45agAe
-	5aIhSUfATZZXGVDQ==
-Date: Wed, 18 Nov 2026 12:42:32 +0100
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Renzo Davoli <renzo@cs.unibo.it>
-Cc: linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-	Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
-	Will Drewry <wad@chromium.org>, Thomas Gleixner <tglx@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Shuah Khan <shuah@kernel.org>, "Dmitry V . Levin" <ldv@strace.io>,
-	Alexey Gladkov <legion@kernel.org>,
-	Eugene Syromyatnikov <evgsyr@gmail.com>,
-	Davide Berardi <berardi.dav@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, strace-devel@lists.strace.io
-Subject: Re: [PATCH v11 0/3] PTRACE_SET_SYSCALL_INFO: add support for seccomp
- syscall skipping
-Message-ID: <av2PKIf8YsEPro8O@kunlun.suse.cz>
-References: <20261114181923.370930-1-renzo@cs.unibo.it>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jyqu3ty4
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AIBQAGU3963124;
+	Wed, 18 Nov 2026 12:37:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=6OWJ8d
+	EM8UrE04otdmQfRprkgQwpj9yoMQvCFzDydXQ=; b=jyqu3ty4GnhHVXbUEs7y8c
+	PiJ/PZLstq9kAtevmmMjGm1zTVvC8bTT49sUWa+GstBfdh4m2EdYlTPeo0FFLHbI
+	wPFc59urmLnCKIa+ciGyfazlRL/dOj7LHAm0zp24mrzxZkcgFo0Se/K8rqwv37CX
+	QSL1fAZ+KjTMvW8lyk9fTd0TuqFl77PIahosyWlBHXuIeo7uSndVfKKPRYFLk0oI
+	oCYZ2QKQxziPCkFwt9NsBuQIji+XziKxykgX12SOOj1IfCmq/ANmAsWQgnM8LVSU
+	AiJP6SnE0fXBbpf+zCRKlc78oLM2bXDDhervhYjfMsDb5+KWNDj8dc+6uHX3e8WA
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105vtb3c-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 18 Nov 2026 12:37:38 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AIBK9fX3033810;
+	Wed, 18 Nov 2026 12:37:38 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j02jug52x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 18 Nov 2026 12:37:37 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AICbXcu30474742
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 18 Nov 2026 12:37:33 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA3282004B;
+	Wed, 18 Nov 2026 12:37:33 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA98620043;
+	Wed, 18 Nov 2026 12:37:33 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.68.31.243])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 18 Nov 2026 12:37:33 +0000 (GMT)
+Date: Wed, 18 Nov 2026 13:37:31 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: sashiko-reviews@lists.linux.dev, linux-s390
+ <linux-s390@vger.kernel.org>,
+        "Heiko Carstens" <hca@linux.ibm.com>,
+        "Vasily
+ Gorbik" <gor@linux.ibm.com>,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>,
+        "Christian Borntraeger" <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/mm: Allow hugepage migration for s390
+Message-ID: <20261118133731.6de64cc7@p-imbrenda>
+In-Reply-To: <20261112121337.3c07acb7@thinkpad-T15>
+References: <20261111182944.4154805-1-gerald.schaefer@linux.ibm.com>
+	<sashiko-outbox-209541@kernel.org>
+	<20261112121337.3c07acb7@thinkpad-T15>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -117,205 +101,180 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20261114181923.370930-1-renzo@cs.unibo.it>
-X-Rspamd-Queue-Id: 75CE21FB54
-X-Spam-Level: 
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-6.01 / 50.00];
-	SUSE_INTERNAL_BYPASS(-9.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
-	SUSPICIOUS_RECIPS(1.50)[];
-	ONCE_RECEIVED(1.20)[];
-	RDNS_NONE(1.00)[];
-	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-0.975];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCPT_COUNT_TWELVE(0.00)[21];
-	URIBL_BLOCKED(0.00)[sashiko.dev:url,suse.de:dkim,kunlun.suse.cz:helo];
-	MIME_TRACE(0.00)[0:+];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b306:2000::2:from];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FREEMAIL_CC(0.00)[vger.kernel.org,redhat.com,kernel.org,amacapital.net,chromium.org,linux-foundation.org,strace.io,gmail.com,alpha.franken.de,linux.ibm.com,lists.ozlabs.org,lists.strace.io];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_ZERO(0.00)[0];
-	MISSING_XM_UA(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[kunlun.suse.cz:helo,suse.de:dkim,sashiko.dev:url]
-X-Spam-Score: -6.01
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: U5rGeF2JlF35YHfY_mb9G7meymcUNG5q
+X-Authority-Analysis: v=2.4 cv=Z8x5j3RA c=1 sm=1 tr=0 ts=6afd9c12 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=-U4ubaYy1ROQS3slnMUA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: U5rGeF2JlF35YHfY_mb9G7meymcUNG5q
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE4MDA0OSBTYWx0ZWRfXzy0JkNaB6edM
+ 1Fn9Yj+X+jISo3bIR723kKXy3Q5xUBj9YShhk6UfpzcYZig78jSi45NRSGVIi7NmxW1o8rI4fIe
+ 72bj/tTnwj8LEYlZcFO32SwgR09EIwI=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE4MDA0OSBTYWx0ZWRfXxEJFZOZuk+IT
+ mM9eAru14Q9kAI7vs4jOgyCUDOjZk5genxdXfY+hH4XV0910FbM0UkMXUfmoVV99xS1eI8CofcO
+ 1v5xBvd/YuQdiTTzmLM1sa+NyVm/mlOaVVN0SJG38pn+uowhFczQT6mKoIfdkeE3GBRwzfAYa0Q
+ EYHh7YkMD53jBFSOmAyiFV1A7rzm5zPBPXvZZECa+GH7VhOQj0I/egQduf96oUr88ppRvYaXmaE
+ Ijw3Qa4z8Ft3mE+JXQKGbuTMsTfVCd7XtKBlXqhepWt8onxNnyTX+jUg5LkWiptFSjhXsMPEIGW
+ t56sOX5olBbDQ7Rzg9lOWz1KmJav0o5OI6fHRUwYUPvLLMVkhVfrHxWjmfSCV39DZN1S8Poorx3
+ BRy9qvUP23Vy02xgcn99oyf8eq6cxy/pgYQRoUb5EJldJIYl6q1s81Q24a1+mKW9WsAIThE3kcb
+ N0PHRtbVz9DfTuOCgYw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-18_03,2026-11-16_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
+ adultscore=0 bulkscore=0 clxscore=1011 impostorscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611180049
 
-On Sat, Nov 14, 2026 at 07:19:19PM +0100, Renzo Davoli wrote:
-> PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
-> PTRACE_GET_SYSCALL_INFO by allowing a tracer to modify details of a
-> system call in which the tracee is currently blocked.
+On Thu, 12 Nov 2026 12:13:37 +0100
+Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
+
+> On Wed, 11 Nov 2026 19:14:22 +0000
+> sashiko-bot@kernel.org wrote:
 > 
-> This patch set extends PTRACE_SET_SYSCALL_INFO with support for
-> skipping a system call at a PTRACE_EVENT_SECCOMP stop and setting its
-> return value.  To do this, the tracer changes 'op' from
-> PTRACE_SYSCALL_INFO_SECCOMP to PTRACE_SYSCALL_INFO_EXIT and fills in the
-> exit union fields (rval and is_error).
+> > Thank you for your contribution! Sashiko AI review found 2 potential
+> > issues to consider:
+> > - [High] s390/mm: guest storage key loss on 1M/2G hugetlbfs page
+> >   migration  
+> 
+> @Claudio, could you please have a look, if this is a valid issue?
 
-Hello,
+yes, it's a valid issue, I was already aware of it.
 
-from a user point of view it is not clear to me why this would be done
-at the seccomp event when seccomp is not used.
+it's in my pipeline, will be fixed as soon as possible
 
 > 
-> Michal pointed out in the review of v7 [1] that the register state alone
-> cannot tell whether a syscall has to be executed or skipped with a
-> preset return value, since on some architectures the return value
-> shares a register with the syscall number or the arguments, and that
-> the "already dispatched" information should be architecture
-> independent rather than an architecture-specific thread flag.
+> > - [Medium] s390/mm: loss of soft-dirty bit in __pte_to_rste() and
+> >   __rste_to_pte() on hugetlb migration  
+> 
+> No problem, soft-dirty tracking not supported for hugetlbfs, see below.
+> 
+> > --
+> > 
+> > commit d03e5331e4e0b88aa75246fc7dc6aef18e7c8cdd
+> > Author: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> > 
+> > s390/mm: Allow hugepage migration for s390
+> > 
+> > This commit selects ARCH_ENABLE_HUGEPAGE_MIGRATION on s390 and defines
+> > arch_hugetlb_migration_supported() for 1M and 2G hugepages so hugetlbfs
+> > pages can be migrated and allocated from ZONE_MOVABLE.
+> >   
+> > > diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+> > > index f84aa9265430f..2c6e94888bd06 100644
+> > > --- a/arch/s390/mm/hugetlbpage.c
+> > > +++ b/arch/s390/mm/hugetlbpage.c
+> > > @@ -224,7 +224,7 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
+> > >  	return (pte_t *) pmdp;
+> > >  }
+> > >  
+> > > -bool __init arch_hugetlb_valid_size(unsigned long size)
+> > > +static bool __hugetlb_valid_size(unsigned long size)
+> > >  {
+> > >  	if (cpu_has_edat1() && size == PMD_SIZE)
+> > >  		return true;
+> > > @@ -241,3 +241,15 @@ unsigned int __init arch_hugetlb_cma_order(void)
+> > >  
+> > >  	return 0;
+> > >  }
+> > > +
+> > > +bool __init arch_hugetlb_valid_size(unsigned long size)
+> > > +{
+> > > +	return __hugetlb_valid_size(size);
+> > > +}
+> > > +
+> > > +#if IS_ENABLED(CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION)
+> > > +bool arch_hugetlb_migration_supported(struct hstate *h)
+> > > +{
+> > > +	return __hugetlb_valid_size(huge_page_size(h));
+> > > +}
+> > > +#endif    
+> > 
+> > [Severity: High]
+> > Does migrating a 1M or 2G hugetlbfs folio backing a KVM guest lose the
+> > guest's hardware storage keys?
+> > 
+> > For 1M and 2G mappings (KVM_CAP_S390_HPAGE_1M / KVM_CAP_S390_HPAGE_2G),
+> > the KVM gmap uses large leaf CRSTEs without PGSTEs, and guest storage keys
+> > live only in the physical page frames.  When unmap_and_move_hugetlb_folio()
+> > unmaps the folio via mmu_notifier_invalidate_range_start(),
+> > _gmap_unmap_crste() clears the large CRSTE to _CRSTE_EMPTY without saving
+> > or splitting the hardware storage keys:
+> > 
+> > arch/s390/kvm/gmap/gmap.c:_gmap_unmap_crste() {
+> > 	...
+> > 	if (!old.h.fc)
+> > 		return 0;
+> > 
+> > 	if (old.s.fc1.pr && test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &priv->gmap->flags))
+> > 		folio = phys_to_folio(crste_origin_large(old));
+> > 	ok = gmap_crstep_xchg_atomic(priv->gmap, crstep, old, _CRSTE_EMPTY(old.h.tt), gfn);
+> > 	...
+> > }
+> > 
+> > folio_copy() -> copy_highpage() -> copy_page() then copies only the 4K
+> > page contents via mvcl and does not copy the hardware storage keys to the
+> > destination frames, leaving the guest with stale storage keys and causing
+> > guest protection exceptions or memory corruption.
+> > 
+> > [Severity: Medium]
+> > Does migrating a hugetlbfs page also drop its soft-dirty bit in
+> > __pte_to_rste() and __rste_to_pte()?
+> > 
+> > When try_to_migrate_one() installs a hugetlb migration entry, it sets
+> > _PAGE_SOFT_DIRTY via pte_swp_mksoft_dirty() and calls set_huge_pte_at().
+> > However, the swap entry branches in __pte_to_rste() and __rste_to_pte() do
+> > not transfer _PAGE_SOFT_DIRTY to and from _SEGMENT_ENTRY_SOFT_DIRTY:
+> > 
+> > arch/s390/mm/hugetlbpage.c:__pte_to_rste() {
+> > 	...
+> > 	} else if (!pte_none(pte)) {
+> > 		/* swap pte */
+> > 		arch_entry = __pte_to_swp_entry(pte);
+> > 		rste = mk_swap_rste(__swp_type(arch_entry), __swp_offset(arch_entry));
+> > 	...
+> > }
+> > 
+> > arch/s390/mm/hugetlbpage.c:__rste_to_pte() {
+> > 	...
+> > 	} else if (!none) {
+> > 		/* swap rste */
+> > 		arch_entry = __rste_to_swp_entry(rste);
+> > 		pte = mk_swap_pte(__swp_type_rste(arch_entry), __swp_offset_rste(arch_entry));
+> > 		pteval = pte_val(pte);
+> > 	...
+> > }
+> > 
+> > As a result, remove_migration_pte() reads back old_pte via huge_ptep_get()
+> > with pte_swp_soft_dirty(old_pte) == 0 and clears _PAGE_SOFT_DIRTY on the
+> > restored hugepage PTE, breaking soft-dirty tracking via /proc/pid/pagemap.  
+> 
+> Hugetlbfs does not support soft-dirty page tracking in the kernel:
+> vma_wants_writenotify() in mm/vma.c explicitly excludes hugetlb VMAs from
+> soft-dirty tracking, clear_refs_walk_ops in fs/proc/task_mmu.c does not
+> implement a hugetlb_entry callback, and mm/hugetlb.c never sets or
+> preserves soft-dirty bits on hugetlb PTEs or migration entries.
+> 
+> The RSTE swap entry soft-dirty bit (bit 62) exists for THP PMD
+> swap/migration entries rather than hugetlbfs. Generic hugetlb migration
+> handling in mm/hugetlb.c (copy_hugetlb_page_range() and
+> hugetlb_change_protection()) also does not preserve pte_swp_soft_dirty()
+> when rebuilding hugetlb migration swap entries.
+> 
+> However, I was not aware that try_to_migrate_one() actually does set
+> _PAGE_SOFT_DIRTY via pte_swp_mksoft_dirty() also for hugetlbfs pages,
+> even though it is not being used anywhere yet. This bit is indeed lost
+> after __pte_to_rste() conversion from a swap PTE. But it does not break
+> soft-dirty tracking for hugetlbfs, because that does not exist. It also
+> does not conflict with or corrupt the RSTE swap type or offset calculation.
+> 
+> Of course, it probably would be good practice to already preserve
+> _PAGE_SOFT_DIRTY now, even if it is not needed yet, and further changes to
+> generic code would be required if it should ever be supported. Will look
+> into this in v3.
 
-On s390 the removal of such architecture-specific flag is proposed here:
-
-https://lore.kernel.org/linux-s390/890e50e0-77f7-43f3-b1b9-f8e7302aa3db-agordeev@linux.ibm.com/T/#m04254224bb28b747314346153629207c5acca6f9
-
-While that shows a way to address this problem not all affected
-architectures implement it.
-
-Thanks
-
-Michal
-
-> 
-> v8 does exactly that: the tracer no longer sets the syscall number to -1
-> and relies on syscall_get_nr() reading it back as negative.  Instead,
-> patch 1 adds a per-task flag owned by seccomp, which the tracer sets
-> while the tracee is stopped.  When the tracee resumes, seccomp skips the
-> system call just like for SECCOMP_RET_ERRNO, a path every architecture
-> already handles without touching the return value.  This also fixes
-> skipping on s390, where -1 is read back as syscall 65535.
-> 
-> On powerpc, a separate fix has been posted [2]:
-> syscall_set_return_value() currently sets TIF_SYSCALL_RET on the
-> *caller*, i.e. on the tracer when called from PTRACE_SET_SYSCALL_INFO,
-> and skipped system calls lose non-error return values.  These problems
-> are already present in the source tree and break the existing
-> set_syscall_info selftest and seccomp_bpf user_notification_basic on
-> ppc64le independently of this series, which therefore no longer
-> depends on [2].
-> 
-> [1] https://lore.kernel.org/lkml/apWFHkZnCMfxQCEk@kunlun.suse.cz/
-> [2] https://lore.kernel.org/lkml/20261030084926.1068384-1-renzo@cs.unibo.it/
-> [3] https://sashiko.dev/#/patchset/20261113165509.229869-1-renzo@cs.unibo.it?part=2
-> 
-> Testing (tools/testing/selftests/ptrace/set_syscall_info and
-> tools/testing/selftests/seccomp/seccomp_bpf):
-> 
-> v11, QEMU, v7.4-rc2:
-> 
->                                x86_64 (KVM)
->   ptrace/set_syscall_info      2/2
->   seccomp/seccomp_bpf          142/142
-> 
-> v9, QEMU, v7.3-rc6 (the v11 change is architecture independent):
-> 
->                                x86_64 (KVM)   ppc64le (TCG)   s390x (TCG)
->   ptrace/set_syscall_info      2/2            2/2             2/2
->   seccomp/seccomp_bpf          111/111        111/111         110/111 (*)
-> 
->   Build-tested also with CONFIG_SECCOMP=n and CONFIG_SECCOMP_FILTER=n.
-> 
->   Skipping getpid() at a PTRACE_EVENT_SECCOMP stop, with a filter that
->   kills the process on unknown syscall numbers:
-> 
->   op=SECCOMP, nr=-1 (before)   error          r3 left as is   SIGSYS kill
->   op=SECCOMP->EXIT (this)      -ESRCH         -ESRCH          -ESRCH
-> 
->   (*) user_notification_wait_killable_after_reply timed out under TCG
->       while another VM was running; it passes 5/5 both with and without
->       this series on an idle x86_64 KVM guest.
-> 
->   ppc64le results were obtained with an earlier version of the powerpc
->   fix [2] applied.
-> 
->   Not tested: MIPS, arm64, riscv, loongarch, real hardware.
-> 
-> Changes in v11:
-> * once the system call is skipped, PTRACE_GET_SYSCALL_INFO reports the
->   stop as a PTRACE_SYSCALL_INFO_EXIT one, as the syscall number and
->   arguments may have been overwritten by the return value (reported by
->   Sashiko [3]); a later PTRACE_SYSCALL_INFO_SECCOMP update is still
->   rejected, now by the generic check on the stop type
-> * selftests/ptrace/set_syscall_info.c: check PTRACE_GET_SYSCALL_INFO
->   after the system call is skipped
-> 
-> Changes in v10:
-> * rebased to Linux 7.4-rc2
-> * no longer depends on the powerpc fix [2], which addresses a bug
->   already present in the source tree
-> 
-> Changes in v9:
-> * selftests/ptrace/set_syscall_info.c: check for seccomp filter support,
->   fix failure report
-> * rebased to Linux 7.3
-> 
-> Changes in v8:
-> * skip the system call via a seccomp per-task flag instead of
->   syscall_set_nr(-1), as suggested by Michal Suchánek
-> * new helper ptrace_set_syscall_info_seccomp_skip() instead of a bool
->   argument to ptrace_set_syscall_info_exit() (Michal Suchánek)
-> * once the system call is skipped, reject further
->   PTRACE_SYSCALL_INFO_SECCOMP updates during the same stop
-> * selftest: also test an error return value and the above
-> * dropped the Reviewed-by tags of Oleg and Dmitry, as patch 2 changed
->   significantly
-> 
-> Changes in v7:
-> * rebased to Linux 7.3-rc1
-> 
-> Changes in v6:
-> * selftests/ptrace/set_syscall_info.c: improve messages in case of failure.
-> 
-> Changes in v5:
-> * reworded the explanation for not supporting PTRACE_SYSCALL_INFO_ENTRY yet.
-> * selftests/ptrace: removed a redundant check.
-> 
-> Changes in v4:
-> * Reworded the commit messages for clarity.
-> * Renamed the local variable child_op to op in ptrace_set_syscall_info()
-> * Clean up and improve the coding style of selftests/ptrace/set_syscall_info.c
->   (suggested by Dmitry V. Levin)
-> 
-> Changes in v3:
-> * restrict the syscall skipping feature to PTRACE_SYSCALL_INFO_SECCOMP
-> 
-> Changes in v2:
-> bugfix: _NONE -> _EXIT transition was erroneously permitted
-> 
-> Davide Berardi (1):
->   seccomp: let the tracer skip a syscall independently of its number
-> 
-> Renzo Davoli (2):
->   ptrace: add PTRACE_SET_SYSCALL_INFO syscall skipping support
->   selftests/ptrace: add a test case for PTRACE_SET_SYSCALL_INFO syscall
->     skipping
-> 
->  include/linux/seccomp.h                       |  33 +++
->  include/linux/seccomp_types.h                 |   4 +
->  kernel/ptrace.c                               |  49 +++-
->  kernel/seccomp.c                              |  11 +-
->  .../selftests/ptrace/set_syscall_info.c       | 249 +++++++++++++++++-
->  5 files changed, 342 insertions(+), 4 deletions(-)
-> 
-> base-commit: 7e1392a42ea288d70a266f6553fe06f57f8647ea
-> -- 
-> 2.55.0
-> 
