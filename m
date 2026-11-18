@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794992483;
-	b=eG0ZXOLwiFg8Cqxw8TypXz1XE2Ks8yQqkRJnZCM8JYlforeHD+DZMrc9jsC7vnBtLPXq
-	 wWvE0MXHFRUQhRBEcUy68Ul5sJXIwZXNfQOGCY6C+YUhlyHD54oGVY51sSMZnGxSPtGce
-	 m8hCRIwqvhklea76+mjdRstBOhqBvdUKLO5Y0poQDgSCQKv7ImOuS6IPG4ZphAFfCHcBx
-	 P9bKlLr7KiVxSHL8/LsNq4DFxjrIlt08960HiwcWIRZ9XSPEModPwNSV54jQz4LGxV4qy
-	 4DGWxOsWhI/ERVCS6LHudvSA8X7kEDosLaQyyMxYBsqk9CDjNsyyaKenx3hOGIwQ0lw==
+	t=1794992569;
+	b=hwuauEM1bBDk/fXIhUHpbTIN6BGaEo0LXRnGPZhoos+KXjmATOH83kUGTwjma6RG+oMA
+	 hx2iSKmgWUdqMKWeJYZpOrpGDxVPkPAQm9+GEWUAWfHgCNII5hFLHuOquUE+yiQpYwhIZ
+	 RJ6bCBQOZS+j/uTqbhP7VydYQ6lKYYWhXyyq4tv2+//ns3Rzwer/q3cbawPTdlZFVpAp+
+	 HC9OiM0xqI9XwLfD/yw9DI3CQPJCaZg7jAXiWiPiCoOzAWshShpjg2VBDKozUDJ9JgQRd
+	 mpOJxYVDcCTDI838U33rWxfx+8vwEpSypS2uDGey5ozK60L/JCJx3x/ujTNWFW70Pcw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794992483;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794992569;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=r3zKqF+kTssGoSAglKwaVff1yakHy07R69gEEdogQZI=;
-	b=dDhST5HYDTtZ0b2Jo97a3Hioegk7UUnWECOzO2E5oSum/PQIHVVcOpf4bwxNkO/hS3q/
-	 LR0CMbhOFMmsIKt3T9YdbAgdIpNpHZ1O2yC7hBtJPZAfQvy5cSd6VHVBd0TI7+mRa+3yq
-	 305q99nhq0NzvnXVQTdmDnxqlNfo7EslSMkwYRvNjlagkms2fDLtEfimmh3mIXd89Iqgf
-	 qhtQ28+k/rZ6tMRNEZ3ofQQmrPAIPtfEH9U2iopC4oZuxj1pOXDflf3XcZLu4BNeoLhQk
-	 OmfdmvUZTAPtg6hOXdTTIvwNXeJhYpedu0EpJjXPIXRJszABbuL6TKcs0k+6pXsOA0Q==
+	bh=pLn6fncZGa4fgL+fOqpgq5YRYTggYFIcZ3+38mE0Nvc=;
+	b=tFRMeXZZ/NlXTLlNdxPCb3+KcHZF3AQQ0GafY+E8qmKcEmS1WBnzbGO3xWy94E9+cAuq
+	 b0mdxi/AN3VK2Z0HjU4SsHPd9nE9D/1SEN5RHcsja0GNF5E6s41N4ZrvhbTYtluheZ4Zb
+	 2KAOnef5zaujWhdEnctAR+vLMEJYuo831aHDQ8j12xBfc7MBJd2Rex6XHCSCaKZyspR+4
+	 9g4t/V/8H0DcywLJVtI2ZFL0W6kujp/kVk6et4VfZBH8g6se0R1hrsLsyqefSW5VJzSK4
+	 k0SpKTu50bvs31UMUkjfX7ssHvGoi0ba2gb73+VV2P00GvLxuse/WslUFCb5vz6680A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fOfeMSw0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JRGdLTAs;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70113606A320;
-	Wed, 18 Nov 2026 09:01:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82486606A31C;
+	Wed, 18 Nov 2026 09:02:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fOfeMSw0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FF11F000C5;
-	Wed, 18 Nov 2026 09:01:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JRGdLTAs
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA511F000C5;
+	Wed, 18 Nov 2026 09:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794992483;
-	bh=r3zKqF+kTssGoSAglKwaVff1yakHy07R69gEEdogQZI=;
+	s=k20260515; t=1794992569;
+	bh=pLn6fncZGa4fgL+fOqpgq5YRYTggYFIcZ3+38mE0Nvc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fOfeMSw000DsM9A69Oli12bUEKPpD/X/XKxt/LB8/e357NHtOSWRFyQzYkzDeHR87
-	 XPi6EI22BdpJ5u+QsVeCPZG/YoLcdMwq42Q85DcDpnfiYQ2vJp71xxVh8wAl9iVs5/
-	 xKfx/pQepXEI2isOmHqlVgWhSKlgPftdJnAybpFWZWvqED5PDisRhL3hUckZQqQ7Su
-	 7RQk36bKKUsNorsTBAhk85iO58854iR1HSnxFh0L42vALOoIhUyq4sHJIEnw8ijRoE
-	 d/HzpOLB+C0l7pEFc1ZU74iKvRkljEn2qzsXd0tjhoNr9+bN3dCopLwl/u2J9yy/pK
-	 M/kqh8c1Y0FOw==
-Date: Wed, 18 Nov 2026 10:01:06 +0100
+	b=JRGdLTAsXBvvBhLBMNip+PBzFeCWDHNGjtE/29dINX+9MVgmhVBLES9E+pEgXct03
+	 EaY9TvK82FuPptmwjz5VrUCPSr+2JAdhpavzvKdMddAWW3XiiJkmTW4yxfYTFqrE4s
+	 llB+3lnJvZm6LHLGcjo+pQ0tetlRwHocyPblj+j3nThU/CjmJ/zmDUfGDxnCMo2R16
+	 ByEQjpAM4b4jvbfCpeb7+b9bdmuTsTgxEbGSutaNgNz+SAjG9Bc4/NiSb5P9tlV7Yc
+	 vqjdaNvm0Bg16bzvsTMwBHAw2pVe6rUiiZpVj+Fd4v4PtQuJ8Jwy7v5d+MplCUwp5P
+	 Py3LGm7/SaKLw==
+Date: Wed, 18 Nov 2026 10:02:36 +0100
 From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
@@ -71,13 +71,12 @@ Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
 	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
 	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	Josef Bacik <josef@toxicpanda.com>, stable@kernel.org,
-	"Gregory Price (Meta)" <gourry@gourry.net>
-Subject: Re: [PATCH v2 05/15] mm/hugetlb: keep surplus folios when the pool
- shrinks
-Message-ID: <av1pUsRqz3qA0UGi@localhost.localdomain>
+	stable@kernel.org, Chris Mason <mason@kernel.org>
+Subject: Re: [PATCH v2 06/15] mm/hugetlb: fix mremap() racing with page
+ migration
+Message-ID: <av1prAuFVxsdBsIP@localhost.localdomain>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-5-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-6-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -89,46 +88,44 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116-fixes_hugetlb-v2-5-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-6-4dd9e94ea9ac@kernel.org>
 
-On Mon, Nov 16, 2026 at 07:29:26PM +0100, David Hildenbrand (Arm) wrote:
-> From: Josef Bacik <josef@toxicpanda.com>
+On Mon, Nov 16, 2026 at 07:29:27PM +0100, David Hildenbrand (Arm) wrote:
+> Migration of anon hugetlb folios walks the anon_vma, so the file's
+> i_mmap_rwsem does not serialize it against move_hugetlb_page_tables().
 > 
-> Surplus folios are accounted per node. When shrinking the pool,
-> set_max_huge_pages() removes free folios through
-> remove_pool_hugetlb_folio() and accounts them as persistent folios.
+> There are various issues with that. Most importantly, move_huge_pte()
+> releases both page table locks before the TLB is flushed. Migration can
+> then find the destination entry and finish migration, reusing the old
+> folio while the TLB still has entries cached.
 > 
-> It can select a node whose folios are all surplus and leave its surplus
-> count larger than its total count. Free surplus folios can back
-> reservations created by gather_surplus_pages().
+> Hold the anon_vma write lock across the move and the final TLB flush.
+> This also prevents concurrent rmap walks from missing entries moved
+> during rollback.
 > 
-> For example, with nr_overcommit_hugepages = 8 on two nodes:
+> When we must allocate a destination page table, flush the TLB before
+> dropping the anon_vma lock, then reacquire it after allocation.
 > 
->   (node columns show total/free/surplus)
+> Dropping the lock only works around lockdep: hugetlb folios are not
+> reclaimed or migrated by allocation compaction, but their anon_vmas
+> share the lock class used by ordinary anonymous memory. Having a
+> separate lock class for hugetlb's anon_vma (like already done for
+> i_mmap_rwsem via hugetlbfs_i_mmap_rwsem_key) requires more thought.
 > 
->                                       total free surp   node0   node1
->   mmap() of one page, bound to node 0     1    1    1   1 1 1   0 0 0
->   node1/nr_hugepages = 7                  8    8    1   1 1 1   7 7 0
->   nr_hugepages = 6                        7    7    1   0 0 1   7 7 0
->   munmap()                                7    7    1   0 0 1   7 7 0
->   nr_hugepages = 0                        1    1    1   0 0 1   1 1 0
+> There is a concern that this can block page migration of anonymous
+> folios quite a while ... which is not really different to what happens
+> to page-cache folios today. If ever a problem, we can temporarily
+> release the lock.
 > 
-> After shrinking to six persistent folios, node 0 has no folios but its
-> surplus count is still one. Releasing the reservation cannot clear that
-> count, and shrinking the pool to zero leaves one free page on node 1.
+> So let's keep it simple for now.
 > 
-> A later write to node0/nr_hugepages underflows the unsigned per-node
-> persistent count: 0 - 1, resulting in allocation of many folios.
+> It is a shame that hugetlb has to implement everything core-mm implements
+> in a different way that just screams for problems.
 > 
-> Use persistent_huge_pages_node() to skip nodes with no persistent folios,
-> as adjust_pool_surplus() does. This also excludes temporary folios.
-> 
-> Fixes: e4e574b767ba ("hugetlb: Try to grow hugetlb pool for MAP_SHARED mappings")
+> Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
 > Cc: stable@kernel.org
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-> [ david: cleanup code and description ]
+> Reported-by: Chris Mason <mason@kernel.org>
 > Acked-by: Muchun Song <muchun.song@linux.dev>
-> Tested-by: Gregory Price (Meta) <gourry@gourry.net>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
 Acked-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
