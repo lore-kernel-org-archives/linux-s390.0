@@ -1,70 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.57
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795016832;
-	b=hR1ckGNCd+DR52NEQ/Q/V2zxfl+oX12BZWdNMkLKfwfQ/enT0zL6BYRVkOc4Ku0M9nzQ
-	 kZxpYip7CB/k+KXM72s1k94r0qBcbT6efL0LYlcjM17CLLl7wB0QcerM28WERlMMcKRCr
-	 YEvnCB1orxThqmj/b/SS7dBvBtmGM4+L/dZ4ue7QRglrrzwotX/t+h3Qqg76lVPNSPv03
-	 RqxKra2/IftW1Bf56Ji17V3L+3WdbZ2vUFIeDYQ0GZ6hPu7UkNWWa0h8n51oTnG62OF6P
-	 EKIQ5Wfp86aKlJJqsz1nQ2VqD4BCJ0ObQ5h3s9nHBmIg+Y+21eQLvIDJVl2fiYQuOCA==
+	t=1795024389;
+	b=vEdQRGsY4TrgWmm/TydpqnPQWVL7ivqQGUw7gzhMU5Zg+OZ3FCNTcqCp2W3OUB+eO+MS
+	 ECnjxq2OIxkXSmRomZAS2btLvlMcLiZrdE0874CuSJVJinlSbCtCMLEdBSAYp5TSgtx+G
+	 eMeDgYa/SmRmPFIaA9A+9uhhQM3l2eSgBPH0o/w6GSSM5pK2d6WqtrbInV83APWTj9aRg
+	 xI5hdIENpyST3CsyrVs1T2uPEry1mhHAIEZvn+fUeZ+OBlb2yWyYVI5keV0WnJT9n3whe
+	 CKnzaVll96hk43R3sLnrOMD2sXYn8fN+pEf+kM6C0JWh2JZpGyP2arSwT2isDtoo22g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795016832;
-	h=DMARC-Filter:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To:X-Rspamd-Pre-Result:
-	 X-Rspamd-Server:X-Spamd-Result:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
-	 X-Rspamd-Queue-Id:X-Rspamd-Pre-Result:X-Rspamd-Action;
-	bh=flMGPLDMTpq68z1lJ74ODL+EiAGhlUNC3nFdUWIDwBE=;
-	b=n/+lCBkNWBFu0jLHajKOPrG/TN+giYEFpzhI6B2xNxZBE32mrnXE6Ly++sTxnsiRg6ma
-	 z4vb3Ur1+3WDEmUXYpCpZm3eha1BPQ7alsylOq3JwDNNsloYjTKk1x1pu+Kf1FEgTX2jI
-	 Nm0ZLBpy7AyvavOYOgIhumpdT53ofxEx/kQ9ZXfjmwRiTEhAtFcju/dGX4FZYNXY6SSJr
-	 yzufikrVtrX7AgZUty0qrhJbmafW6z6dHTT8pwuNph5XGENezJqUXVFVlxQy3KTHudzvB
-	 ESooXWG2zyKI+M/l5aaOagwtGdINma9EqxOoO6+XcdQV5xheWQaDOxde0Ov90qTChxw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795024389;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=mIvlMhQp2XPMKkyqstwBRddoJIhsg5ZvouNFjygJYDk=;
+	b=c+eVNtD76cCrOa2vexTYym6pBCNQV72XQ3KdEoVmxuNMgQBxZv5y01fHjCeuitaYqp3P
+	 tVKOBnwB1lvd3W0KXsdG7VvHwvfd0Ss5fmqa5Px0LVxHTaEp2FEMW4L+Nm1oTigNE8+I8
+	 NUwb+WcsGlE3h5Hq29cJuNBk9eSJ1banGbuJHYKFBJZkhYFrZhbKODZL8fjcfjboQZbF8
+	 chFvEaGCMbKhTvpeaDNnXLvlgYXurQJIdXc2gZYHKmDMe2V7WrObr8itUKVKhQDnz/RSX
+	 IJRCEO3sjku9swduPOZZdJ/CcAOLTATbwNQEkyUCPWdh0192Iz9WHxKJjHBHuf6c0EA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.de;
-	spf=pass smtp.mailfrom=suse.de;
-	arc=none smtp.remote-ip=195.135.223.131
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=kKrkgOt9;
+	arc=none smtp.remote-ip=95.215.58.57
+Received: from mta1.migadu.com (out-57.mta1.migadu.com [95.215.58.57])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468B9606A320;
-	Wed, 18 Nov 2026 15:47:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 468B9606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 5A73A1F798;
-	Wed, 18 Nov 2026 15:47:10 +0000 (UTC)
-Authentication-Results: smtp-out2.suse.de;
-	none
-Date: Wed, 18 Nov 2026 16:47:09 +0100
-From: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To: Renzo Davoli <renzo@cs.unibo.it>
-Cc: linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-	Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
-	Will Drewry <wad@chromium.org>, Thomas Gleixner <tglx@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Shuah Khan <shuah@kernel.org>, "Dmitry V . Levin" <ldv@strace.io>,
-	Alexey Gladkov <legion@kernel.org>,
-	Eugene Syromyatnikov <evgsyr@gmail.com>,
-	Davide Berardi <berardi.dav@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, strace-devel@lists.strace.io
-Subject: Re: [PATCH v11 0/3] PTRACE_SET_SYSCALL_INFO: add support for seccomp
- syscall skipping
-Message-ID: <av3Ifd4saO2_6Slq@kunlun.suse.cz>
-References: <20261114181923.370930-1-renzo@cs.unibo.it>
- <av2PKIf8YsEPro8O@kunlun.suse.cz>
- <av2i9kbZyMRJE9D6@cs.unibo.it>
- <av2pRG1JT9te8IiM@kunlun.suse.cz>
- <av2yDgdBWfTxvZca@cs.unibo.it>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61EF6606A32C
+	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 17:53:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 61EF6606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=kKrkgOt9
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=+m7k99GokHGG2Xt0WNDUpUu/POJp/u8hXMkzLb7HkPI=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1795024385; v=1; x=1795629185;
+ b=kKrkgOt9Z0+Uxd0OLSeRAMXHHLAwszcLDUbKbF12OkJtRBtdtWKPCEIzYjNBS/HTPbsasfAS
+ uB5YRPSbid1q4JNdkyBI3GN/ci90xJ1VOlf8DjQgJu1KHxicG+32bBCr18ovse2tMz48PwuBhzD
+ 9MA0algsT312UDIoJhrsXcmk=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 55e39e18abac30ad;
+	Wed, 18 Nov 2026 17:53:05 +0000
+X-Mizu-Trace-ID: 55e39e18abac30ad
+X-Migadu-Flow: FLOW_OUT
+Date: Wed, 18 Nov 2026 18:52:30 +0100
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Thomas Huth <thuth@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org, 
+	Laurent Vivier <lvivier@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, Nico =?utf-8?B?QsO2aHI=?= <nrb@linux.ibm.com>, 
+	Chinmay Rath <rathc@linux.ibm.com>, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	Amit Machhiwal <amachhiw@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH] Move position-independant code flags into
+ the target specific Makefiles
+Message-ID: <av3l0ZC64ouIp4KN@orel>
+References: <20261113120101.145183-1-thuth@redhat.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -74,63 +68,35 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <av2yDgdBWfTxvZca@cs.unibo.it>
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[];
-	TAGGED_RCPT(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
-X-Spam-Level: 
-X-Rspamd-Queue-Id: 5A73A1F798
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Action: no action
+In-Reply-To: <20261113120101.145183-1-thuth@redhat.com>
 
-On Wed, Nov 18, 2026 at 03:11:26PM +0100, Renzo Davoli wrote:
-> On Wed, Nov 18, 2026 at 02:33:56PM +0100, Michal Suchánek wrote:
-> > As I understand it the new s390 code resolves the problem by storing the
-> > syscall number outside of the registers. Then the return value can be
-> > set directly. It does not depend on using the generic entry but on the
-> > architecture adding storage for the syscall number in struct pt_regs,
-> > and implementing the code to determine where to get/set the syscall
-> > value depending on the syscall stage.
+On Fri, Nov 13, 2026 at 01:01:01PM +0100, Thomas Huth wrote:
+> The settings for position-independant code are currently quite a mess:
+> It depends on the target whether we need the flags or rather should even
+> disable PIC / PIE, but currently the settings are spread between the
+> main Makefile (-fno-pic is the default, unless CONFIG_EFI has been set)
+> and the target specific Makefiles.
+> This leads to some weird situations where we have -fno-pic in the CFLAGS,
+> but link with -pie in the LDFLAGS since we still want to get a relocation
+> table, but then again need to add a "-z notext" to the linker flags to
+> avoid warnings about relocation entries in the text segment.
+> Let's face it: Always adding -fno-pic / -no-pie in the main Makefile is
+> a bad idea. Move the settings to the target specific Makefiles instead
+> where we know what we really want, and then we can finally drop the
+> "-z notext" settings, too.
 > 
-> Right, thanks for the correction: what matters is a separate storage
-> for the syscall number on the architectures where it shares a register
-> with the return value, not the generic entry code.
-> 
-> > However, it seems that extending struct pt_regs breaks userspace ABI
-> > (probably because kernel refuses to transfer partial pt_regs to/fom
-> > userspace) which makes it unclear how the int_code that is used by this
-> > new code could be added to the s390 struct pt_regs in the first place.
-> 
-> On s390 int_code is not new: it has been in the kernel-only part of
-> struct pt_regs, after user_pt_regs, since aa33c8cbbae2 ("[S390] cleanup
-> trap handling"), and the user ABI (s390_regs, user_regs_struct) does
-> not include it. Heiko's patch only redirects the ptrace accesses to
-> gpr2.
-> 
-> On architectures where struct pt_regs is itself the user ABI (e.g.
-> alpha), the storage does not need to be in pt_regs: MIPS already keeps
-> the syscall number in thread_info.
-> 
-> This is also why this series uses a per-task flag at the seccomp stop:
-> it does not depend on where the architecture stores the syscall
-> number.
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  Makefile            | 6 +-----
+>  arm/Makefile.arm    | 2 ++
+>  arm/Makefile.arm64  | 3 +--
+>  powerpc/Makefile    | 5 ++++-
+>  riscv/Makefile      | 1 +
+>  s390x/Makefile      | 3 +++
+>  x86/Makefile.common | 5 +++++
+>  7 files changed, 17 insertions(+), 8 deletions(-)
+>
 
-It does not have to know where the architecture stores the syscall
-number when using syscall_get_nr and syscall_set_nr. However, the
-storage for the syscall number has to be somewhere, and for powerpc
-there is AFAIK no such storage.
-
-Thanks
-
-Michal
+Acked-by: Andrew Jones <andrew.jones@linux.dev>
