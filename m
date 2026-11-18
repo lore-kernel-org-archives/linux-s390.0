@@ -1,83 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794992648;
-	b=qmWlQD6woUrzWEFutCRTMXrvPoeelRcL7sm5uM9wz0yC0zfUjRv5Yti0FwXsn79kruYY
-	 06poPN/QVWcN2abxZUra2yGdO/9huGhMRZewkFSOnSBMO0LoShLJtSDsR8KWAhPB/V/ih
-	 qn4q7K2RxD+UcDzHTKQXaZloKDl85Zf25zb8mZR9ZsfTB17YetyHWMV5Xm7pPKKvwoV3F
-	 Bivzsn8KkeEJAndIajzuJkd0vGni2g8XcwSop2yGWo/nm/wipR/P/mriLh9m+VgwYP7Ez
-	 2UdL2uunNeUcM7eYHOmRd/I/v/cHtEinDYmn3oxd1CavUfZaOtFCKzyhaFrwu6LiI5A==
+	t=1794993089;
+	b=SfXzNakQDa7gqlgbUoLt3Q+GtrNWsIMn5zoZoc9m9WJ3KwNUcLTrgdyylLwQAC7q4wn5
+	 vrOWCRK5tStptenq3rMy/O4CfcDSyOexlMsuyOXyzNLvcOdpL5hCzZNYfVb9hBVWKiH7U
+	 n6crtA6c3nMn4JA17bF/xA2FQJG7YmJaaX9WueUUH+rYAny1Bicdtjs68pg8w5QUl2Cxr
+	 RWT/JxNJjc8rFY71XQUQsPTv6UzVUBsHuXSESlHDrNEhNeDPixyjKOpBVWKFISWQtiaeb
+	 RrH7XoC30ubsRqaiEFMycvRNv/S76uYI9tgcdZCvz70rtK+vhYKaWo+A5HRi6N74L4g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794992648;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=/ILw4EFux7bTkf5RNu3Ik+2UTxpkbYziGgraDHdKyo4=;
-	b=C6GXyioPCa1qq8jmosDq37gyRofZ/1TMDoYTzBBztStwUVrXzcX3CxV0Hzx4UZGlE8T9
-	 e0XKuKBJ6cIKVAug7KdSmDOYUe2L/R1+2efKjCyfma7h8i2+3VG1d/ooPIK4H73oYLuN+
-	 8518zDMqlt2FB1XlMZHNudoFUGNB3a3xcq6sChbbHVIV1hvSTs9Q7JVwmPbsl2iWvAWq+
-	 gj53wHKoA1JB49ZAKEg5l4jUCLLrGJ06bC66ujWps0mu60JxR+aOpKFX5A/I0p5VdChq4
-	 jwpXpwqYph8+cKqbtFB7EqZFv65R551A7bQgC8wtI6xPy8fjYBL3VkZJJ7wx+bIb//g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794993089;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=YGpixNBxWXCW1MjpAmJloCJpQLDbcvvCFftHkMbvGwc=;
+	b=RYDvR1c/iiAJOMmv5ixLHGMVHCPDqleQZW3ZZUbQRJ7a2nMfMwOb57+YBmrfNoGEK9Lv
+	 5Je5yqj/WPYvpBTPHrh35x3hPXTJTpUn3R3v/eMZogTcdtqQtz3Gk6lLr8+GUYLlklmsu
+	 zPdFnAsPDLriKylii3X22a0fecM54dObEiOmkEDFbE0ph+zchAL2pNS04qp6cadI1NPaH
+	 2hcxXzLPxhJS0pFuW+bE9z5NjFZv0k/Nuyj33JJZms2NatZ0oPKloSMdncV78tLpbQQZf
+	 PMsaupPRf26FU4XVqIPR/lTGMsQNFHRSks+R4WoJeeVjUSoU+eCwpyw2Vl1y7HNbr+A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GxLWD3N7;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=g2s4Iku7;
+	arc=none smtp.remote-ip=209.85.128.41
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB0F606A31C;
-	Wed, 18 Nov 2026 09:04:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B40606A31C
+	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 09:11:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E4B40606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GxLWD3N7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C9E1F000CE;
-	Wed, 18 Nov 2026 09:03:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794992647;
-	bh=/ILw4EFux7bTkf5RNu3Ik+2UTxpkbYziGgraDHdKyo4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=GxLWD3N73udbUDoNblg7Ifu79ktDf2tMPQZBPZqOeRhnEGWEZm7cUXVyjJ1dnGv5i
-	 l3BIwO3wcRqh/opIRo3nC8VYsRjIQHTV2Z4Wp8Fk3nsEgpEC9o77OtjcDP3eGFN7Fb
-	 n0MZW/am2GOXPaqhqQa+rFDYtnX3TblWDpKMk25PbbLNOINBG12hHwFhiI9ihwCobM
-	 VY5YhSvOPK+r9knEQz2YZCvaUHzkAa7KgIXsQ7UnIahtmy9PqzvnfJTtC767GGKR4j
-	 o18rv44b5AyfSff3CIXYD7OvaDKnLyI1Tg9wwp9KU2+/ayRnE1vvZxgnUG/oEapTsr
-	 jDapuh74AaHyA==
-Date: Wed, 18 Nov 2026 10:03:52 +0100
-From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mel Gorman <mgorman@suse.de>, Andy Whitcroft <apw@canonical.com>,
-	Miaohe Lin <linmiaohe@huawei.com>, Michal Hocko <mhocko@suse.com>,
-	Rik van Riel <riel@surriel.com>, Hugh Dickins <hughd@google.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
-	Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Nick Piggin <npiggin@gmail.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	Josef Bacik <josef@toxicpanda.com>, stable@kernel.org,
-	Daehyeon Ko <4ncienth@gmail.com>
-Subject: Re: [PATCH v2 07/15] hugetlbfs: fix unmapping folios from private
- VMAs
-Message-ID: <av1p-MN1hMfZDuBL@localhost.localdomain>
-References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=g2s4Iku7
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4a214c5c4c0so7389595e9.3
+        for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 01:11:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794993087; x=1795597887; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=YGpixNBxWXCW1MjpAmJloCJpQLDbcvvCFftHkMbvGwc=;
+        b=g2s4Iku7fL1iTpQaoQ708ygu6fzygbaE3zOXWXqM2MbDKrmoFPXbpRNn/oB1g93lvQ
+         z5AqF2xM8Zd2xkzLJcHIL7kyUU4ZqUeUbjYi9p/+iXy0d/SpfRQy0dSprtNIa6kkJd+n
+         wsNgPp88gBZY0BDKjaOZQ7yOHgN/JcGSDoQ9YvjW12uWCHIvmAy0FXlyIhXqB7VFlCPP
+         +EibaSR72QQxvUZsQ+6k17i5SVeNRD0miwLTN8lIfZ71RID6+xxVT662FNSdV6USC++b
+         JTBAFKky90kvtDDZ2CQ///rf0mmoWyqIRAzn7Qdlu8bJHfU4SFQJxRtCpROJbkaVvN6e
+         FW/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794993087; x=1795597887;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=YGpixNBxWXCW1MjpAmJloCJpQLDbcvvCFftHkMbvGwc=;
+        b=zjolDyRs9SlwImwU99nmiOrfPc+sOR5Kt31m62FmNQCIxsH2PEVD5xkxbFkJ64NljN
+         RcQXl1dsY7ajRBoh8UKYj5tCtrwSFIaG8gntVaZ/6EkAclFZSv7355s2uRADoXia7nOk
+         3+NwWOakVdCx6jRNTfDBrsJIRsSZhCjm050pvCES1+paAxP0HqXz/Ku25/v4ZaTIwbRu
+         Fda3q16RyicNCdU/XA6reTSj3ujAwHQwWeSoM3cmQic9fKFEptZYVka+ALxs7XfQSpSn
+         YNo2bZiiu7WhWnoNevYNG02xa+Jsk/NYNIuJTMhpeNv79/X8ikM6Wli2+rtmH4SBYWjo
+         A0TA==
+X-Forwarded-Encrypted: i=1; AL+hErHuccOKC/ZsYXsUGH3vn2K1VbycfKmwLiUlioSi7glLVRiJXWPGmDeMqAN8nVDj+v05LtnP6ZLILIi9@vger.kernel.org
+X-Gm-Message-State: APuU4Z/sk3hSff4r85bGI/x2aY7h4yFggHb3Wg+lUJ/LQQBt1Qa2AyuK
+	yA7Om0+KSf2ZDInTDu+FRlhNGZfs9w55N8vPBuT6aDJnoiduUMbbJdTR
+X-Gm-Gg: AYBFou2jT6Fxv4paOX8GmSpC+nTpY3ysB5ZVayGqXp4qfdzKos/rwWg5GGmcB2kgnh2
+	m1sloCXkBbq0foMm+jZwydne/VJz3zh//36Vg6JayTYNwvPyOX5pumCL7UQG9JG6pW/Xj6zHmtI
+	H8xQyyDPZXZn16t3Sl6Lp/jfmVd9J8/8yl55NYWFFW8OSfEWDg6V7iUgV2ZnmSHNIL/SSY84KDo
+	dy7JNyRFAzdgtHcSqBCZEZ4Q4UwghvI+e61uaAWaJpCrZdLqpZ7oIyKJ7OxB7fwEJq4tKusR5uO
+	52SCIwkej7qieaIysBce+U6GcTiO12ByIdMkdKYlY7H6pA7Eo2fEIHxSzrYzBpL1B2QZ/UqlJNU
+	HNsigpt+kt9xmZoLoX4otYJHGaNufslgZsmfaCCkf0jQ3LXjQeCBofiJoTxU+utyyCIwpwNgu0/
+	LpDL2U0hTw6iQslwfaOmJ50POmcGANUx+xT89mvI10u9IuYEaIWNFPSuUZ7QS/ejXSwDhbkQTu2
+	cNs8lbrB9RZiVOJcnyy6i3mJuqlbX2/bcU+8+dhOJx2aCeEZt4V4eKVNCnQm47rj6+NhGEv8HMA
+	mcU5yGT6PecR4z1jd+/3ZGseq9d23GqJsQsBahvp0Q0s6Df2pz1OShqs0sOpVasXHQ==
+X-Received: by 2002:a05:600d:6011:b0:4a2:1050:aff with SMTP id 5b1f17b1804b1-4bb7da12dd2mr34320085e9.6.1794993087333;
+        Wed, 18 Nov 2026 01:11:27 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb78430752sm137000655e9.12.2026.11.18.01.11.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Nov 2026 01:11:27 -0800 (PST)
+Date: Wed, 18 Nov 2026 09:11:26 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: "Mike Rapoport (Microsoft)" <rppt@kernel.org>, Vasily Gorbik
+ <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, David Hildenbrand
+ <david@kernel.org>, Sven Schnelle <svens@linux.ibm.com>, Vlastimil Babka
+ <vbabka@kernel.org>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 10/14] s390/sclp_cmd: Replace page allocator calls with
+ kzalloc()
+Message-ID: <20261118091126.25efaea8@pumpkin>
+In-Reply-To: <20261116152216.165348Aa5-hca@linux.ibm.com>
+References: <20261108-s390-sclp-ready-v1-0-3e7c90eb6676@kernel.org>
+	<20261108-s390-sclp-ready-v1-10-3e7c90eb6676@kernel.org>
+	<20261116152216.165348Aa5-hca@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -87,37 +105,68 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261116-fixes_hugetlb-v2-7-4dd9e94ea9ac@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, Nov 16, 2026 at 07:29:28PM +0100, David Hildenbrand (Arm) wrote:
-> From: Josef Bacik <josef@toxicpanda.com>
-> 
-> hugetlb_unmap_file_folio() assumes vm_private_data points to a struct
-> hugetlb_vma_lock when hugetlb_vma_trylock_write() fails. Since hugetlb VMA
-> locking was extended to private VMAs, this can also happen when
-> vm_private_data contains a resv_map pointer; treating it as a
-> hugetlb_vma_lock corrupts memory and can cause crashes or hangs.
-> 
-> Only take the VMA lock when a shareable lock exists, as additional locking
-> is only needed for PMD table sharing. The fault mutex and i_mmap_rwsem
-> already provide the required protection for private VMAs.
-> 
-> Fix generated by an LLM and sent by Josef Bacik in private.
-> 
-> Fixes: bf4916922c60 ("hugetlbfs: extend hugetlb_vma_lock to private VMAs")
-> Cc: stable@kernel.org
-> Tested-by: Daehyeon Ko <4ncienth@gmail.com>
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-> [ david: simplify description and comment ]
-> Acked-by: Muchun Song <muchun.song@linux.dev>
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+On Mon, 16 Nov 2026 16:22:16 +0100
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-Acked-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
+> On Sun, Nov 08, 2026 at 10:58:41AM +0200, Mike Rapoport (Microsoft) wrote:
+> > _sclp_get_core_info(), do_chp_configure() and sclp_chp_read_info()
+> > allocate the SCCBs used to read the CPU information, to configure a
+> > channel path and to read the channel path information.
+> > 
+> > These buffers can be allocated with kmalloc() as there's nothing special
+> > about them to go directly to the page allocator.
+> > 
+> > kmalloc() provides a better API that does not require ugly casts and
+> > kfree() does not need to know the size of the freed object.
+> > 
+> > Performance difference between kmalloc() and __get_free_pages() is not
+> > measurable as both allocators take an object/page from a per-CPU list for
+> > fast path allocations.
+> > 
+> > For the slow path the performance is anyway determined by the amount of
+> > reclaim involved rather than by what allocator is used.
+> > 
+> > While on it, allocate only the amount of memory the SCCB actually
+> > requires in _sclp_get_core_info() rather than rounding it up to the next
+> > power of two. An SCCB must be page aligned and kmalloc() guarantees that
+> > the alignment of an allocation is at least its largest power of two
+> > divisor, so the extended SCCB is still page aligned.
+> > 
+> > Replace use of __get_free_pages() and get_zeroed_page() with kzalloc()
+> > and free_page[s]() with kfree().
+> > 
+> > Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > ---
+> >  drivers/s390/char/sclp_cmd.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+> > index 1dc93d945be6f..6aaf1f6a3633f 100644
+> > --- a/drivers/s390/char/sclp_cmd.c
+> > +++ b/drivers/s390/char/sclp_cmd.c
+> > @@ -102,7 +102,7 @@ int _sclp_get_core_info(struct sclp_core_info *info)
+> >  		return -EOPNOTSUPP;
+> >  
+> >  	length = test_facility(140) ? EXT_SCCB_READ_CPU : PAGE_SIZE;
+> > -	sccb = (void *)__get_free_pages(GFP_KERNEL | GFP_DMA | __GFP_ZERO, get_order(length));
+> > +	sccb = kzalloc(length, GFP_KERNEL | GFP_DMA);  
+> 
+> It is a bit subtle that this really works. EXT_SCCB_READ_CPU is 3 * PAGE_SIZE,
+> so we end up with a guaranteed 4k alignment from the slab cache, which is
+> indeed sufficient here. But this is really not obvious, and not as stable as
+> before, IMHO.
+> 
+> I'd prefer to have this changed to:
+> 
+> 	sccb = kzalloc(PAGE_SIZE << get_order(length), GFP_KERNEL | GFP_DMA);
+> 
+> which comes with the same alignment guarantees as before.
+> 
 
- 
+Would it be better (more obvious) to round up EXT_SCCB_READ_CPU ?
 
--- 
-Oscar Salvador
-SUSE Labs
+David
