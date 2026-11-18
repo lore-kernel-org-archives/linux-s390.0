@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795014107;
-	b=ljreU0UVsSNIQJa7u/t04DjvYkTRo5rAX/Gz2oW0mHghgaPLed+XJ0WEhs0Vnn6ph1XW
-	 5W2i1A9cRxzeiMuzIPy4Ovsn8XSQechNO2VUEYfFD+/qRg/M/WlzCGSLUagOgyS4K/Qdi
-	 d21lndPNyWuXjHbMF2i4uWx4wr3iSOoD7/Re1JUxTMMq70TeMRGDITNe2odZF+pYjbJ15
-	 T/74F0qmX6Lm+fQZnpPtZKY2cSrBQQkG/hNEn1R1Fyb+7CBnoY9ciU3yJvZYuvZFxalr/
-	 ZrgA7q9PIyvyih8rKnDmhydsUXb/QZUlXoVn8s/KvwZnS779CVHl81wgLu08Td87K8g==
+	t=1795014315;
+	b=yWnQzQuVNag2bg0Jmaq4G56UGMLDa8ptJx8oNgmFOrYbsdYDK0c32XeaIr3/B/tyC6ux
+	 V2aFI+F+kJNxpUuWEk5fGP9yOinrN3rulP2D8C3wkfrmB9luzmuh6KJfgfU0NAO50SHlK
+	 9Emt+NjAbtMphAhChBcsmNXHRa5X5Mge0WuL3xWXLXlAUfX4RGl/UhC/1e46xfYKbY6tU
+	 4m9xyHx03C4BjX65NpL2GhEwR3KtuhtXSgXVpfQihx3pxKhC4/J8L1PGf8hLJSO07THrn
+	 7KwCum8CfKIj0xaXdfaatYGlR+bx8GcVbT2fJrRrxqXmGcskqLy1wDrURydE6vlJnvA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795014107;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795014315;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=260xEPAm4+yEuIbZ5dhkFJ+UgkfgbzGzYew7hQHuFZc=;
-	b=HwUbm4jNs+qusAblOBmyuUE/48etuWqNtfi7tr5abqMxG3BF1CsvloVJ5W4fi93Rl+jb
-	 Twzi73Gg/paBtCzZxZ3JJujayTy/4JmPZ+i9CnMzrohaMKpem9JKLXB4kwxk6NnNaLCoO
-	 sAv5h5w/Mf/2ExPieWIe+3xJBT8giX0G65uS1bja7vYmA3hA8GgUt0nyc/+u99BdsfExP
-	 iqR1tN7CXg9/S/axmgsQvS7rcMk1B/7QYPsgqg2f2JkBXu4m0TX/Z//hZd7gShbK/7Fa3
-	 hqAubngrqH2f1S3UIHa48qZqsVT7w+vlaGUzpyPDyGUeWWMTywFeZmCMj/8C7Kp+47g==
+	bh=1DBEgVzCB2zAozA+kZvtZOWRns5cKTgtfqVEyIEa/qE=;
+	b=OdsHSha5y+7EHUN2mR8RRgxOA1IVFWMpGii50Ui8KSenLmYk+wI9uC9Dn3Gp3Lw5wLcR
+	 R/HY23bRz4+eVMISo3g+wyRXrtqKOOXuvCXL1zr2EKNpX2hjrll37gTbk0EIdmOEoM8Rq
+	 9Yef3az2DJ2FvRPC8CmaD1bBdKYDf59u76zJXAsF8l+JJSo7OXl3uKZ2B/lR7y97UXYrI
+	 3y90Irf5Jqh7KmDL+x9dVV/LDo8zKJ+XcrgOZ3fo/I+ieS9t4BskKgkzP4PIkNrvDk9v2
+	 edm2rDxz3X1BSEgcbwvwlByXZiCGLZIC0g8CVCiHQDNLQXPagMrhbHD8ujmIxyrqGPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NINMazIp;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ijgYJ1gb;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8825C606A325
-	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 15:01:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47D0606A32C
+	for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 15:05:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NINMazIp
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD041F000C4;
-	Wed, 18 Nov 2026 15:01:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ijgYJ1gb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 354EE1F000C4;
+	Wed, 18 Nov 2026 15:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795014107;
-	bh=260xEPAm4+yEuIbZ5dhkFJ+UgkfgbzGzYew7hQHuFZc=;
+	s=k20260515; t=1795014315;
+	bh=1DBEgVzCB2zAozA+kZvtZOWRns5cKTgtfqVEyIEa/qE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NINMazIpZCLNbGWw866+wxLPVLJpciBjNCoshkPZY1f/S44J0UvDF9bMW161l+BHH
-	 8pvRCCPqlQdtpbNVIcOlejzAIZJmdYKH9BrVqp+FgZig89IPxECREaVAqoqVeB/pAb
-	 ooVpqafof9UngS2EubXSbuhNz28VHNa8QLCQodZwQpDeO3+y4bqvGrxrcdc/M7QE54
-	 UxqCUsgtRhZAVmY3P4dYKZGRupmNyH/ZjndmcH6wEWmepV324lIbf9Ruwv5LpMSMP1
-	 VNSr3Ax3II64L++am2hAykyXuLbjuy72yP+/PuJkH/vfV09o7u14WsaD3Rg5yfEgqK
-	 AYtRyrZZ3q1nw==
-Message-ID: <sashiko-outbox-221280@kernel.org>
+	b=ijgYJ1gbUEgQUT7dDrVW8gO9Bq1eRK+QUXzef0DMg/GEfqMpsIPUO62NFq9S3ZRyE
+	 EC2enzH+Fpa4qgRvnZ2nMDpSJ/NHtb611m8DZ/3B1pYyD8PlwYC7tVRh1o5lvtCQiN
+	 LZAtgO2t10Tt6w6e90MZq1NaLDZ6Wl19SgnnTrT6ckEL/B9hmUd374KWFlxGBLJVm1
+	 b2Qszp9Y0Q2g3tjnYYwZOxrJDFLZ62wBfhTpJAsc3N4L6mJRM7IwoTQCkcJi1pUtI+
+	 1TrVAMZlAOEa8cGzsv5yBMJd2DJhI5PY7k7c+4S9wDCpZ7P9sa6wu0EflR9GwFb7JM
+	 i7f2rVnpqu0zg==
+Message-ID: <sashiko-outbox-221285@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/8] s390/module: Add error handling to
- module_alloc_ftrace_hotpatch_trampolines()
+Subject: Re: [PATCH 3/8] s390/kexec: Let crash_protect_pages() warn in case
+ of an error
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261118144709.202520-5-hca@linux.ibm.com>
+In-Reply-To: <20261118144709.202520-4-hca@linux.ibm.com>
 References: <20261118144709.202520-1-hca@linux.ibm.com>
- <20261118144709.202520-5-hca@linux.ibm.com>
+ <20261118144709.202520-4-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 18 Nov 2026 15:01:46 +0000
+Date: Wed, 18 Nov 2026 15:05:14 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,31 +62,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Low] s390/module: inaccurate return value in commit message for
-  trampoline alloc
---
+> Let crash_protect_pages() print an error message in case set_memory*()
+> fails.
+>=20
+> This doesn't buy too much since a failing set_memory_rw() would result in
+> a crash of the caller as soon as a write to the memory area happens.
+> Fixing that requires larger changes - for now only print a message.
+>=20
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-commit 1f1b0c01e4a7101a1a14aadfdd4c9c1dbcd1303a
-Author: Heiko Carstens <hca@linux.ibm.com>
-
-s390/module: Add error handling to module_alloc_ftrace_hotpatch_trampolines=
-()
-
-This commit checks the return value of set_memory_rox() in
-module_alloc_ftrace_hotpatch_trampolines() and frees the allocated
-trampoline memory on failure.
-
-> Let module_alloc_ftrace_hotpatch_trampolines() return NULL, instead of
-> a pointer to a not executable page if set_memory_rox() fails.
-
-[Severity: Low]
-This isn't a bug in the code, but
-module_alloc_ftrace_hotpatch_trampolines() returns an int error code (rc)
-and leaves me->arch.trampolines_start unset rather than returning a
-pointer or NULL.
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261118144709.2025=
-20-1-hca@linux.ibm.com?part=3D4
+20-1-hca@linux.ibm.com?part=3D3
+
