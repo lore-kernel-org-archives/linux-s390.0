@@ -1,56 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795119766;
-	b=r3ie9LknFQ8w5NyY+mnTQuDI3M+O3uGM6q7pGqT6dLyvSDQc+q0YC4u+njVIHh3Ez/Fj
-	 ju5DIUog6bQEvsH5LPL9Xf98awUQwZGiLkIcTbZHe9IvtmVDj+JRKr0yZoK8PqoIy5yIj
-	 5HPt2E+vEUyK1RNrBXAVBQMtTzRaQ1PDyaO8oCRVwZelXgMZuvLSRrjQAzY/ySjBM81R6
-	 a3EKvuAgiiUSORfRKD7hU3BU2nMvI1GBQHq7lPCx46V9Xd8p+DHkBhv4/7BU2/1/OXTLp
-	 bUsfDgGBy5WL/JEbkMdPAUtOugDHwG1SHV5Z3RWG2eR0OuEolbahbJrU9RycsZVT9Lw==
+	t=1795119775;
+	b=xEfDoTyxQjTGlJ0ObOIo+dgNPz9AWtW+FiaIw+O+BBKU2T1Y7YQvk6tpRCDSD9mQkctG
+	 LWSCzXa+Ko6mj11GxURjk5D4UOJsh9dldS5CurtWPdnAsvDgYG3qyFBRogFxxp2xSmA6d
+	 g5BHdyNA1XOOkAPioC2cicOnpA+mLWDuSUCMQHDaLAT6f2/sds+Qh0K0URik7aCEUcHIC
+	 IXn2yXWnU2+IGnoBactUnBcJGSoQOJJjE6RvEQvjzzlmi1GWWSmabxk/v5NInDi485YBp
+	 osFhAKrHJ/F/b61Eo8ZXMcGrTx28mF/f2QcBFEs93BdCNmaW9fEWjZ3BqFcjBBP9hPg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795119766;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795119775;
 	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer;
-	bh=yNMTjhhXsIL4Mb+Flz3xYNDv20KzML1PcGmUq1IJ2BU=;
-	b=j2GEUaYtUKXkjWeWq3pxmtaLXlj6+YeLYdqc9arODnVK+JkN8HRfL5UnkK0+1DK5rf/c
-	 9/fi0jkEKHqrTZHsqndxhGa5HNIb1ry7dzU/ERWVb98utNtTNdYfXfldblyCFjOja+7No
-	 P5Bc4AyEKPfH3u/6/EBvAJgMaSrZzj7iWNwIImXNu55oDaxdHYcoVT5MyTP43+nf9CHZ5
-	 c6aXpY+vgHpmA+qAGUk2XvlEpV7+ncZbPbQ0wTn+1IRh3ROoL6mtBrbF5jFkfmZk0byCD
-	 ajx+E2udqTDcAEsOExzXNI3GzDE2egR8kiIsV9AK4kZIPHKJKLNeU1l0fZG/hDgjBew==
+	bh=sBvl/tfX3L01dY/yLa+7tQWPZwhvYeaQo4RDaoIrldY=;
+	b=SuhWkBKw4owlh6HlXzle0fs/+NSdienm8y2xlf4xBOxs6g+lhSOUEEwIE9v9m4lnlABv
+	 gEvR6aD9WP/welxzUtAho4I/Oa0QazQRMxE50/qq74w1dwFmRDWmI4zV/PO5fDnXWMD78
+	 dE17iN+57qi63/qMfyl2nRPp5PynhJ3UVIpiy5dp9wNnESMJeZqgHEAuYeXjNKFe184/D
+	 /knkVMIHLhpLV3gKreUExF0qCUzwUFyxm+b+XHCVxmamZwKemcGx9hMwRA+ZGfznJXtGS
+	 3X/Vgv2JGzUGCtQocarcpbWJ6xtgsPwCIknMgl8ukq7y6N9iRm0rDbXaeE7eVcB2jxQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=igalia.com;
 	spf=pass smtp.mailfrom=igalia.com;
-	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=Zy2LVbbN;
+	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=EcVj0Z1K;
 	arc=none smtp.remote-ip=213.97.179.56
 Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24DE9606E4DF;
-	Thu, 19 Nov 2026 20:22:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 24DE9606E4DF
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59325606E4EA;
+	Thu, 19 Nov 2026 20:22:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 59325606E4EA
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=Zy2LVbbN
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=EcVj0Z1K
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
 	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
 	MIME-Version:Subject:Date:From:From:Reply-To;
-	bh=yNMTjhhXsIL4Mb+Flz3xYNDv20KzML1PcGmUq1IJ2BU=; t=1795119765; x=2110479765; 
-	b=Zy2LVbbNaHM+iSQX8XGgB+kLXgNKLgBqqWaHZmWcodt8SNRGMfPwH5oc3CGNcqo+//fxySuETwc
-	DKvocWU35Yes2lOQ/ijZVEB2+pV7bCJInoi5ls4Fe4aVqWWv679OFV+Ogi2Qw0bPQwREawWMADBiQ
-	8+2MMVY1ffZD/JRqdRgHUhbYb+SbpWJDcCo3eP/wSwPt3ILXGgfSVHETxyxRtuWPSrl0XEjD446Sj
-	yLzVCiqnRWgew6R/QFkAqhZ7Oj3aNk0Jjk2NB/vHgiVaf21R0NfX4jQMGC0HEkLCNCwsVn43hFk/Z
-	lPxVFZ28/TwLl530dMTi3tTBmBf4cA4B6tlw==;
+	bh=sBvl/tfX3L01dY/yLa+7tQWPZwhvYeaQo4RDaoIrldY=; t=1795119774; x=2110479774; 
+	b=EcVj0Z1KGYHTSctcp+0rCSQPGVBHiC49XsLKXgolWZN2ijRdmriAs/8AuBma6bxEhPJ2XfEapC7
+	QpMm7WAfqD9q79m1Nno5zh68mAO3Mo+7JVmBe04B7XqClquCxTTKmASwGSQqfVBoBcP9q6FOkFauC
+	QnmDrUzosN0lENW00y0vmaI2CH6YpYXKB+4YUAKLWn4CJi0pVfi+semAnB+8gVQYmuZMfh/kHBzSL
+	/GbCz3iLp2gyCk36On9HGgV4I4tuEG/8ECM2vdCCAZ5RWBRN9jZOv6ED1OrCx52KdBF9vYlvTIJPp
+	r48XFFbjpY2J4JTWhcNFPTeNEu6ul2G7BW+w==;
 Received: from [177.172.124.218] (helo=[192.168.15.100])
 	by fanzine2.igalia.com with esmtpsa 
 	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1xU8ea-00000001cIK-0L1Y;
-	Thu, 19 Nov 2026 21:22:44 +0100
+	id 1xU8ei-00000001cIK-1FuN;
+	Thu, 19 Nov 2026 21:22:52 +0100
 From: =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-Date: Thu, 19 Nov 2026 17:22:02 -0300
-Subject: [PATCH v10 12/16] syscalls: Avoid matching substrings in the ABI
- parsing
+Date: Thu, 19 Nov 2026 17:22:04 -0300
+Subject: [PATCH v10 14/16] arm: Use common syscall table
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,7 +61,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261119-tonyk-syscall_table-v10-12-a7c9ebd900f6@igalia.com>
+Message-Id: <20261119-tonyk-syscall_table-v10-14-a7c9ebd900f6@igalia.com>
 References: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
 In-Reply-To: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
 To: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>
@@ -78,46 +77,133 @@ Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org,
  =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
 X-Mailer: b4 0.15.2
 
-Currently, the abi parsing for grep will match substrings. For instance, an
-ABI called `abc` will match also the ABI called `abcde`. Use the space
-limiter to match a complete word and avoid matching substrings.
+Remove some of the duplicated code by using the common syscall number
+table.
 
-While here, add a true command in the end of grep command to avoid the
-script exiting earlier and being able to do the cleanup.
-
-Acked-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: André Almeida <andrealmeid@igalia.com>
 ---
- scripts/syscallhdr.sh | 2 +-
- scripts/syscalltbl.sh | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/tools/Makefile    | 14 ++++++----
+ arch/arm/tools/syscall.tbl | 69 ----------------------------------------------
+ 2 files changed, 9 insertions(+), 74 deletions(-)
 
-diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
-index f2d670f45ec8..6372dbb1cb71 100755
---- a/scripts/syscallhdr.sh
-+++ b/scripts/syscallhdr.sh
-@@ -109,7 +109,7 @@ gen_hdr() {
- 	tmpfile=$(mktemp)
- 	offset_nr=$2
+diff --git a/arch/arm/tools/Makefile b/arch/arm/tools/Makefile
+index bc761ef61b76..97b71e387409 100644
+--- a/arch/arm/tools/Makefile
++++ b/arch/arm/tools/Makefile
+@@ -12,6 +12,8 @@ syshdr := $(srctree)/scripts/syscallhdr.sh
+ sysnr := $(src)/syscallnr.sh
+ systbl := $(srctree)/scripts/syscalltbl.sh
+ syscall := $(src)/syscall.tbl
++syscalltbl_common := $(srctree)/scripts/syscall_common.tbl
++abis := common,clone3,32
  
--	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
-+	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis+[[:space:]]" "$input" > $tmpfile || true
- 	while read nr abi name native compat; do
+ gen-y := $(gen)/calls-oabi.S
+ gen-y += $(gen)/calls-oabic.S
+@@ -39,20 +41,22 @@ $(kapi)/mach-types.h: $(src)/gen-mach-types $(src)/mach-types FORCE
+ 	$(call if_changed,gen_mach)
  
- 		if [ -n "$offset_nr" ]; then
-diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
-index 1e9cac32c02d..403a604e7c76 100755
---- a/scripts/syscalltbl.sh
-+++ b/scripts/syscalltbl.sh
-@@ -70,7 +70,7 @@ gen_tbl() {
- 	tmpfile=$(mktemp)
- 	offset_nr=$2
+ quiet_cmd_syshdr = SYSHDR  $@
+-      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --abis common,$* \
++      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --abis $(abis),$* \
++		   --common-tbl $(syscalltbl_common) \
+ 		   --offset __NR_SYSCALL_BASE $< $@
  
--	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
-+	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis+[[:space:]]" "$input" > $tmpfile || true
- 	while read nr abi name native compat noreturn; do
+ quiet_cmd_systbl = SYSTBL  $@
+-      cmd_systbl = $(CONFIG_SHELL) $(systbl) --abis common,$* $< $@
++      cmd_systbl = $(CONFIG_SHELL) $(systbl) --abis $(abis),$* \
++		   --common-tbl $(syscalltbl_common) $< $@
  
-                 if [ -n "$offset_nr" ]; then
+ quiet_cmd_sysnr  = SYSNR   $@
+       cmd_sysnr  = $(CONFIG_SHELL) $(sysnr) $< $@
+ 
+-$(uapi)/unistd-%.h: $(syscall) $(syshdr) FORCE
++$(uapi)/unistd-%.h: $(syscall) $(syscalltbl_common) $(syshdr) FORCE
+ 	$(call if_changed,syshdr)
+ 
+-$(kapi)/unistd-nr.h: $(syscall) $(sysnr) FORCE
++$(kapi)/unistd-nr.h: $(syscalltbl_common) $(syscall) $(sysnr) FORCE
+ 	$(call if_changed,sysnr)
+ 
+-$(gen)/calls-%.S: $(syscall) $(systbl) FORCE
++$(gen)/calls-%.S: $(syscall) $(syscalltbl_common) $(systbl) FORCE
+ 	$(call if_changed,systbl)
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index 8e479c445de0..c92bc7623a7f 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -464,72 +464,3 @@
+ 400	common	migrate_pages		sys_migrate_pages
+ 401	common	kexec_file_load		sys_kexec_file_load
+ # 402 is unused
+-403	common	clock_gettime64			sys_clock_gettime
+-404	common	clock_settime64			sys_clock_settime
+-405	common	clock_adjtime64			sys_clock_adjtime
+-406	common	clock_getres_time64		sys_clock_getres
+-407	common	clock_nanosleep_time64		sys_clock_nanosleep
+-408	common	timer_gettime64			sys_timer_gettime
+-409	common	timer_settime64			sys_timer_settime
+-410	common	timerfd_gettime64		sys_timerfd_gettime
+-411	common	timerfd_settime64		sys_timerfd_settime
+-412	common	utimensat_time64		sys_utimensat
+-413	common	pselect6_time64			sys_pselect6
+-414	common	ppoll_time64			sys_ppoll
+-416	common	io_pgetevents_time64		sys_io_pgetevents
+-417	common	recvmmsg_time64			sys_recvmmsg
+-418	common	mq_timedsend_time64		sys_mq_timedsend
+-419	common	mq_timedreceive_time64		sys_mq_timedreceive
+-420	common	semtimedop_time64		sys_semtimedop
+-421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
+-422	common	futex_time64			sys_futex
+-423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
+-424	common	pidfd_send_signal		sys_pidfd_send_signal
+-425	common	io_uring_setup			sys_io_uring_setup
+-426	common	io_uring_enter			sys_io_uring_enter
+-427	common	io_uring_register		sys_io_uring_register
+-428	common	open_tree			sys_open_tree
+-429	common	move_mount			sys_move_mount
+-430	common	fsopen				sys_fsopen
+-431	common	fsconfig			sys_fsconfig
+-432	common	fsmount				sys_fsmount
+-433	common	fspick				sys_fspick
+-434	common	pidfd_open			sys_pidfd_open
+-435	common	clone3				sys_clone3
+-436	common	close_range			sys_close_range
+-437	common	openat2				sys_openat2
+-438	common	pidfd_getfd			sys_pidfd_getfd
+-439	common	faccessat2			sys_faccessat2
+-440	common	process_madvise			sys_process_madvise
+-441	common	epoll_pwait2			sys_epoll_pwait2
+-442	common	mount_setattr			sys_mount_setattr
+-443	common	quotactl_fd			sys_quotactl_fd
+-444	common	landlock_create_ruleset		sys_landlock_create_ruleset
+-445	common	landlock_add_rule		sys_landlock_add_rule
+-446	common	landlock_restrict_self		sys_landlock_restrict_self
+-# 447 reserved for memfd_secret
+-448	common	process_mrelease		sys_process_mrelease
+-449	common	futex_waitv			sys_futex_waitv
+-450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
+-451	common	cachestat			sys_cachestat
+-452	common	fchmodat2			sys_fchmodat2
+-453	common	map_shadow_stack		sys_map_shadow_stack
+-454	common	futex_wake			sys_futex_wake
+-455	common	futex_wait			sys_futex_wait
+-456	common	futex_requeue			sys_futex_requeue
+-457	common	statmount			sys_statmount
+-458	common	listmount			sys_listmount
+-459	common	lsm_get_self_attr		sys_lsm_get_self_attr
+-460	common	lsm_set_self_attr		sys_lsm_set_self_attr
+-461	common	lsm_list_modules		sys_lsm_list_modules
+-462	common	mseal				sys_mseal
+-463	common	setxattrat			sys_setxattrat
+-464	common	getxattrat			sys_getxattrat
+-465	common	listxattrat			sys_listxattrat
+-466	common	removexattrat			sys_removexattrat
+-467	common	open_tree_attr			sys_open_tree_attr
+-468	common	file_getattr			sys_file_getattr
+-469	common	file_setattr			sys_file_setattr
+-470	common	listns				sys_listns
+-471	common	rseq_slice_yield		sys_rseq_slice_yield
+-472	common	fchroot				sys_fchroot
 
 -- 
 2.56.1
