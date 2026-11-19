@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795079400;
-	b=STWkTssUEa38N5IzESJHjEsN5cnh1+qBfK7aZX61LtJTaUyFVB/H4GLwMIyEWpYXk8R6
-	 EcZw463Brn7Sc4I7cw29RMQbP0b3HXbhM7qwN4Kl0vUYUr8mbpjsvRofOCqh0hbg1X0PI
-	 TmVwiKwFwELX1NvLOly+X4IVqqSD3z+xVruiWXawAPQetsPLUit57jipPDRxkZ6uuZsFA
-	 64H8GSp8dIkaPWCf3tPaCzguSyEmVJiHNSBuquvx10MQmrG+MKKFbq99hcVH4ai1LLMaR
-	 GapFeJ4IJLpCyox08op6zp++faati6FoGNZgIIkqTx++SpUTora0WuoWIYQ6+hSEcGw==
+	t=1795079502;
+	b=U2OzCsAgrsMhQ9R3oDqKmhd96aI0GfEZxe/H5aYEo4xRnEnAws4JaEhykXPLbY5GsZP2
+	 RL/vO9K9+xNeAXcjXJq7M5+4xUsvTOPhWAMTSwhThvSWKbiH1v0HTJMaHdZojdQ+rORyM
+	 w0dQCWGnqpNVtShhEdw1RiyoEkOV5aDiDKgh6MgzdmVz3iVTN7HJlijb/ZU/Co6lOyp74
+	 VjZgf4tcvYddhkn6MukJATFPishDmWffplgSMqg2nOmP7OqkyKEEIaj8toww6lqoDk+O0
+	 dE56mdeV/dupJFHMM5p14D8o8s1bt7NBtM3c4i8yU6Se3+PK1SToWLzC65BUApO5B6Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795079400;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795079502;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=ZGhE24qIBqiTNN8z+BFa93ke6YAjy7suuxpu/4LDT3E=;
-	b=tFSN4AjQVljwhUKpulwYw8JQ863+V2ml31N2hMlDwkQ20bjc63iOrBfXXRMZIkaNSN6z
-	 Iw/uWL1JfPxqbsUv+aIyQDfTFNFXYsvDcnFRfVIFp3wRtewi3rQ1NgLr24uATYkqBnnQn
-	 X3pxgsHof8sJSQC1OENp5eI5F4Oj6ldoaDa05qsnwscbnMa6QGhR+Ib2xROMjj55R06oV
-	 3t1Xl1B3OaKLo+m8l62FySecKMyCDSndDJ/ZTj69pqspmY02Ex9fjUZ9cxo2ZZLYuNM7N
-	 t1FedUQZILE5y1qxh9QhoJh6nQq2fIhCtR1hamSLhL/Ni87dti4sio/cXpP1YMCJelw==
+	bh=+ob3yII6XgPfaGzBlNNgVC1u1nxxTdD3c2/x1BrWMGM=;
+	b=SkeiGIVOrmzV/TYkj90NFsbdeiLeMz9cPTTlqpz4a6KYsKvkoVb7Xn1inbLxZ6U3oVOl
+	 3N9SM/MousinL4SIYqe2sWsORrCHmwGILqv9BD6IBl6kllr3aBRF6MSkLwJqZFzSRGl2J
+	 XYQyZFnD0CKafcyY3xZtwluZT4SHImSub3gdITIWlJeue8YfZ+npR+lqa1uFFcMm5OPHv
+	 ufV0M2xfKrRbUTXkhMzj6bPMvK4Esd6e3RcuYiZZQeSGoM8CxVz7zZTPKsic+E9Tc/Jw+
+	 zZItS81dwokoj53K8RzqqsOeJk8sxjRaR+DKoE9YmJoXZ++xoIFVCG/oPhDvUO+dFFg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NBOLjtDN;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oCAqElg+;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24841606A320;
-	Thu, 19 Nov 2026 09:10:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 121AE606A320;
+	Thu, 19 Nov 2026 09:11:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NBOLjtDN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C2A51F000C4;
-	Thu, 19 Nov 2026 09:09:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oCAqElg+
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28301F000C4;
+	Thu, 19 Nov 2026 09:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795079400;
-	bh=ZGhE24qIBqiTNN8z+BFa93ke6YAjy7suuxpu/4LDT3E=;
+	s=k20260515; t=1795079501;
+	bh=+ob3yII6XgPfaGzBlNNgVC1u1nxxTdD3c2/x1BrWMGM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=NBOLjtDNHucTwb27MjevugAZuIv7/bosEyeF0DijnNaXGSk17S47LQkxkz6Wi2F02
-	 +bEWRZhQGyz1eabWT0EqltvKgLkeniA4fJ+KRGAhWgvhip5VALR992fXbQDwRqbhpz
-	 KpUWQc60q5yZcpiUVe8o4+EjpocWIzN075V/ZUg90SIx7d6cICIXOCxGc9oKiYeHLT
-	 zOxQUhJHODAaVcgTSL6YBIpPUOiX8/6xnbJbJZb/lm+rArzgjy1fOiKtj47JjLHy2f
-	 H2MhsQ01rf8p0pTvHKT3BkH/KsDrBKz8g17dBXVKzS60/L2AHKoCMYG6nMpy01udOW
-	 QygD50i/z1d8Q==
-Date: Thu, 19 Nov 2026 10:09:48 +0100
+	b=oCAqElg+jHpUv5NZi3+X5pT71z2hb8IbZEPK5BleYGMiMxx+phX6OjUT/P/4JUK2Q
+	 gHVX8e7WqtiDEHBKb5OeG3+JgdTndcnYo+GJ4u74ENd96k6WZheR7PExY00+0aU+fN
+	 oTV78DY/bCF6fuGrMLPl96Z2obRF3NzoMJzPTDcBtla5/DdGBhEyFt4AGOfdP2jkyn
+	 wgW8UBwgVdqvAGib+vgTEmLFnEg4B6mqeSe1TfYDkZ1XM1hOX+fI3Qjn0gkajd6TLh
+	 U5sKOqVa8tgXrJoD6aa8iOCHtuoYt75M1hI6VQVHKNjM3LzrR800nK0vZnwiwLPZFb
+	 Wfp9a+v0hoLhA==
+Date: Thu, 19 Nov 2026 10:11:30 +0100
 From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
@@ -71,12 +71,12 @@ Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
 	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
 	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	stable@kernel.org, Josef Bacik <josef@toxicpanda.com>
-Subject: Re: [PATCH v2 08/15] mm/hugetlb: serialize page-cache allocations
- with truncation
-Message-ID: <av683B0FDj-xB-7w@localhost.localdomain>
+	Josef Bacik <josef@toxicpanda.com>
+Subject: Re: [PATCH v2 09/15] mm/memfd: recheck the page cache before
+ allocating a hugetlb folio
+Message-ID: <av69QsxDuugzEJPL@localhost.localdomain>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-8-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-9-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,77 +88,32 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116-fixes_hugetlb-v2-8-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-9-4dd9e94ea9ac@kernel.org>
 
-On Mon, Nov 16, 2026 at 07:29:29PM +0100, David Hildenbrand (Arm) wrote:
-> Truncation can remove an inode reservation while a fault is still
-> allocating its folio. UFFDIO_COPY and memfd pinning can also consume
-> reservations beyond the new i_size. This can underflow resv_huge_pages
-> and leave folios beyond EOF.
+On Mon, Nov 16, 2026 at 07:29:30PM +0100, David Hildenbrand (Arm) wrote:
+> A concurrent fault or PIN request can populate the page cache
+> after memfd_pin_folios() misses it in the page cache but before
+> memfd_alloc_folio() takes the fault mutex. The latter still tries to
+> allocate another folio and can return -ENOMEM even though the requested
+> folio is already cached.
 > 
-> The main issue is that truncation takes the fault mutex for folios in
-> the page-cache, but it has no clue about faults that are still being
-> processed concurrently.
+> In particular, hugetlb_reserve_pages() finds the existing reservation-map
+> entry and reserves nothing. If no global reservations remain,
+> alloc_hugetlb_folio_reserve() fails even when the pool has free pages,
+> effectively failing memfd_pin_folios().
 > 
-> Matthew Wilcox raised mapping->invalidate_lock in a different upstream
-> hugetlb locking discussion:
+> Recheck the page cache before reserving or allocating. If the folio is
+> present, drop the lookup reference and return -EEXIST so
+> memfd_pin_folios() retries its lookup.
 > 
->   "although I wonder if we still need the fault mutex array, given that we
->    now have mapping->invalidate_lock?"
+> This is probably not worth backporting to stable.
 > 
-> While it likely cannot remove the mutex array entirely (concurrent page
-> faults have to sync ... ), we can at least use it to fix this problem.
-> 
-> Hold mapping->invalidate_lock shared across the size check, allocation
-> and page cache insertion or reservation rollback. Truncation takes it
-> exclusively around i_size_write() only for now: it waits for concurrent
-> allocations to finish updating the page-cache or rolling back reservations
-> before changing the size. Subsequent allocations see the updated i_size.
-> 
-> Let truncation release the lock for now before unmapping and removing
-> folios to preserve the existing lock ordering. Cached-folio faults and
-> private allocations do not acquire the new lock.
-> 
-> Use it to synchronize with truncation, keeping the fault mutexes to
-> serialize allocations for the same index.
-> 
-> Locking order is now:
-> 
->   fault mutex -> hugetlb VMA lock (read) -> invalidate lock (read) ->
->   folio lock -> PTE lock
-> 
-> And on truncation:
-> 
->   i_rwsem (write) -> invalidate lock (write)
-> 
-> Add hugetlb_pgoff_valid() to not repeat the same size check multiple
-> times. Memfd needs a bit of care, as it traditionally allowed partial
-> folios to be pinned: the size check in memfd_pin_folios() allows for
-> that.
-> 
-> Fixes: 1c9e8def43a3 ("userfaultfd: hugetlbfs: add UFFDIO_COPY support for shared mappings")
-> Fixes: 188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
 > Fixes: 89c1905d9c14 ("mm/gup: introduce memfd_pin_folios() for pinning memfd folios")
-> Cc: stable@kernel.org
 > Reported-by: Josef Bacik <josef@toxicpanda.com>
-> Link: https://lore.kernel.org/all/ajMfdQf-Fspwmstr@casper.infradead.org/
+> Acked-by: Muchun Song <muchun.song@linux.dev>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
 Acked-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
-
-Just one thing:
-
-mm/rmap.c has a description of the lock ordering for hugetlb:
-
- "
-   * hugetlbfs PageHuge() take locks in this order:
-   *   hugetlb_fault_mutex (hugetlbfs specific page fault mutex)
-   *     vma_lock (hugetlb specific lock for pmd_sharing)
-   *       mapping->i_mmap_rwsem (also used for hugetlb pmd sharing)
-   *         folio_lock
- "
-
-We should update it to reflect the updated locking order, right?
 
  
 
