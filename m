@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795116889;
-	b=cta3jDrKCveBFUe52T9pgY4Ufq/jNnuGzYEihcZrbDjvAVX0M0u8KI2FQTVZAZ4/UGOM
-	 DQ8xd27v8Lh/cj/1bvank7SHxsI8JEPbWN4n17v+Q0SgHa1fP8ppvvyoTjdYAWFXZLmkI
-	 gZEN7iHm57s05lm+h3aNqx/f26rYdyYqh+nRoq2oCg0FLTgAslj599GTki3C8tmuXkmOJ
-	 f5I8Y0FVgLAaV8kp7ar77SplSZheDaMvIHah2DPHqo1Md6AECZoJAfuP0mgRdXryOo4iZ
-	 k4bz/rH/y8l/1LJ8MDNs4ZxpOb8PHq4xWTy6lC9DII4Eocykdp3fWwzcvQUiviAcI9w==
+	t=1795116921;
+	b=FRJ6rNCbwKkA2506+WG/7IgY4IyzwutCxJz91rmBSDHFOKOSv3dHPlT+saz/s+toa7hv
+	 jXmG/NhnWj5aZy0l6VXLN75fmGe0jKVDmttIRDU2Gj0J1h6XaPdbnYiCDZ7vWBlPSJIjK
+	 A0XGecTr5gGIpyZBoG1lMsGkAl5VlakwcOJRrqNUByAudYYMqKtb5AxydY3zhsg30wEUc
+	 KcvQ1XNbRzz6stv9H2dLvnO3Y1ublkqx3lu3hc8iEs57k/TZa9de+V3YxWzhRv3221N/B
+	 /ouE/JGvYiIiwTvKQysbtO2ucmBLbohPYmP35ergRt3WNJ+EOx/fNLkx/2Y6LsTg1CQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795116889;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795116921;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1R9x6uI59Mzw3Ci+eY/t8XpDTfhjfmm9l3Pj32e6piY=;
-	b=FEl9qOMS4EWAgbtzL7P+x2nO9HseH3E5Tpa0gfkLBuAc1UsnI4ZBGJrgVMhllC6w45Zg
-	 Vm6vcXpXZR4fQQtFqG90Dp0eA5KRLgW/pLJjc2xRa5jzNHGUmZIE1fDptSUetP+SYzFg+
-	 4EnOKbcGz+eoOb0V+A3KdYRdvugrI5fHxm6M6UOi7g95+wm2NYknMS4CDF6/xlacHtsfp
-	 aJospQVKuZdorTSN10g2TK+g1tJWkKx04hOLorqWo9VnBV6tyJrCp1CxljqjAgvcMAc98
-	 0Gm7PoWntLonIuhBySBZZ9+hR7pdNrILsjHqWxh6RzdUv6U8vf1oVLkQCekM1g5HUbw==
+	bh=WkO0sCnxEFbGdExsIju+s6+1h09L7g+00PP00V2QmU4=;
+	b=Hm0tF1MQU07bAairos/lk/W8VU3C+cfOHVS/utYJpenYeHY5/adFXIqXpFyX+iyp41Bx
+	 L/8NDKJ9uk2QJTtUJGqz2MoccyL9vPf1LPBdJEKKxZIvfCiucgxHd91c3L8EuTOdWEIoJ
+	 D4vVh7Rl16PA+lKQ/sXYQ91haL3kISxE15fu/02GxlmMBFDkQc7YBGQO+N1wBS9Ymj7p7
+	 JM5Y32s10/byY5xoM28/uVA+npGDFwAA0ELqn+SlAITOpwiVGTxb/PBddgsuCpySzlY31
+	 aS4C2VQkZyIYZ5QO5i3fJUxA/nAP3imjDMHwmnoIJdT7rR1SHE0vp57eZFw17FQPR/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EqEfvRUF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=myLe98+Z;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A10A606A324
-	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 19:34:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1B2E606A325
+	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 19:35:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EqEfvRUF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A563A1F000C4;
-	Thu, 19 Nov 2026 19:34:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=myLe98+Z
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 435811F000C5;
+	Thu, 19 Nov 2026 19:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795116889;
-	bh=1R9x6uI59Mzw3Ci+eY/t8XpDTfhjfmm9l3Pj32e6piY=;
+	s=k20260515; t=1795116920;
+	bh=WkO0sCnxEFbGdExsIju+s6+1h09L7g+00PP00V2QmU4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EqEfvRUF6fesVoLW0ehsy6sP2nUsIAr57HJOr+c4kD7KEwRG4wx6cQ4Z3wVcB5xm6
-	 WPojCy+Wy/KlG2cOUOGpVgdFxZPgkFu0MjeTqU/xSxpBTMcVVVS3T8UbUyqC4jZgwQ
-	 eE2ALVaXZyCSwLu2x8+tIPE9tcouNLv2zaWnSjBGt/1fIBxb8gk8C9Vzr05xk8FCzx
-	 SGE8heYPNfhLAfIo7mwdt/1dNId5fG2pXdFGDcTubVsOx9ZEJys5oK18xqWZ5ywnsi
-	 KcyeWUbBbMBSR20F3x/XokI6/R54EYv9pPJoRcVznNpyk1Z8Y5GRn1/seyvJFPAMuB
-	 shBKfhjJfZB1w==
-Message-ID: <sashiko-outbox-223937@kernel.org>
+	b=myLe98+ZBjNcRCOfQUfL8gG0X2IJbIFfAS6HxIJhBDNkjYx3LySxU5yoOWg3iXXgf
+	 AmyXmuCK388IHwe7/CipmySsJ06iYhdJXWq2jMejKvDcHdl3U9XLuNsoBplllCt9sI
+	 QGCSLhKMqVFUY86KTDIHNk42OAKpjYx6a4qm5GqCoeBdoeIGcyYVTVVp6qUT6pP/ta
+	 zx6aktDUCj/R/cYOFfSUs36H3Iq0eE+k+/6LvYWXjV3XGQLlqUeNfoAdTq869Zk/vz
+	 MQkMIM3rEpk4jksioTTCRN75mwAHNJReZ7kxtzEm0JfZvCAHe+EOvz/xz8uq8QGJhm
+	 fnYc+CvkC+K8A==
+Message-ID: <sashiko-outbox-223940@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 9/9] kobject: Require explicit initialization of
- struct kobj_type::release
+Subject: Re: [PATCH v4 5/9] dlm: Wait for kobject release before freeing
+ dlm_ls
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ian Rogers" <irogers@google.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261119192520.1983406-10-irogers@google.com>
+In-Reply-To: <20261119192520.1983406-6-irogers@google.com>
 References: <20261119192520.1983406-1-irogers@google.com>
- <20261119192520.1983406-10-irogers@google.com>
+ <20261119192520.1983406-6-irogers@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 19:34:48 +0000
+Date: Thu, 19 Nov 2026 19:35:19 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,31 +63,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Documentation/core-api/kobject.rst states:
+> struct dlm_ls embeds a struct kobject (ls_kobj), but dlm_ktype lacked a
+> .release callback and dlm freed the lockspace structure directly via
+> kfree(ls). With CONFIG_DEBUG_KOBJECT_RELEASE=3Dy, freeing ls before the
+> delayed kobject release runs causes a use-after-free, and unloading the
+> module while the delayed release is pending results in an instruction
+> page fault.
 >=20
->   "One important point cannot be overstated: every kobject must have a
->   release() method, and the kobject must persist (in a consistent state)
->   until that method is called. If these constraints are not met, the code
->   is flawed. Note that the kernel will warn you if you forget to provide
->   a release() method. Do not try to get rid of this warning by providing
->   an \"empty\" release function."
+> Add a completion ls_kobj_done and dlm_ls_release() to complete it when
+> the last kobject reference is dropped, waiting for it in free_lockspace()
+> before kfree(ls) and in the new_lockspace() error path before module_put(=
+).
+> Also delete the kobject via kobject_del() before stopping dlm_recoverd
+> to close the window where concurrent sysfs writes could wake the stopped
+> recovery task.
 >=20
-> Annotate struct kobj_type::release with __must_init so the compiler
-> diagnoses any struct kobj_type initializer that omits .release.
->=20
-> For the remaining legacy struct kobj_type definitions that still omit a
-> release callback, explicitly initialize .release =3D NULL and document
-> each site's lifetime status:
-> [ ... ]
->=20
-> This change does not alter runtime behavior at these sites.
->=20
-> Link: https://lpc.events/event/20/contributions/2392/
+> Fixes: 8a4cf500f1dd ("dlm: drop kobject release callback handling")
+> Acked-by: Alexander Aring <aahringo@redhat.com>
 > Signed-off-by: Ian Rogers <irogers@google.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119192520.1983=
-406-1-irogers@google.com?part=3D9
+406-1-irogers@google.com?part=3D5
 
