@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795116591;
-	b=otWL837teX1BQnxVLpJ7IQF+0VV0tB0u9vQF7nPMlBHbQfv1lnZ7WXaH7GRH3HhkSpH8
-	 cqKZbSNxouns4xMkiz2n7xQ9VpbrzFoXyu4qToErujpHuwJLdQeTSwP4C5VAfZu55slHl
-	 83m4D27dhAHSziJ8c6fZ5vZG4DHVDIHChkn5zBekPy6vxwq2+iEHhVHdih3TG6GGEYTQH
-	 MPGdBSOEhSgrp5q/5vTX+KhmaVSeOQiqnUQR+4EvTv6dpz6h+pEpinccvG3L7o0VlaIoF
-	 NCrGHV6MMdQCMYZzzrEpT/6+n0tWHBEelj1RkrpAB/oOZvgS3JtdiO88ZTs5GoKMrWg==
+	t=1795116592;
+	b=CD43vAs8EpBLgJNdWsDzjO+O82npjvfFbPCxNr33/zsBbeQQt0XmmgQWm4yYUGf9wHYn
+	 HIOszjD+wxZTxBu/wjUEguzexOELsLiJzfkNb3vPS/+Pb35CySNb3ZBNG1rkB4MM4d3wM
+	 KaZKGBYtWLXqpJ/z4jylszJA1FdDtsjX7AMl+e17LjjxnKEiRyfmY+fCb6POepi+t7K+k
+	 Xphmv4Co5ZZw/8o/YuTExf2VcLS+2XHue21r3SmjLhqvZUjxI4G0OxvbDPtey4JL3z75f
+	 eG4FQNDKRj9DlML5TxWtxd4tOEkH5kEx7ThfGtS16f4LykKGnRDeO8BRyIJTawj5GyA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795116591;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795116592;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=iRgK08fUMa356gDCh7+eebgK7ti3qV4KIQceNAM7BpQ=;
-	b=IwK2cNkopFaJva7VU9CPmztZo50mCJvSQxiYlYSn/wzkS/glz9nimFnINZ/Lg9P7OZoW
-	 Gqt8YDLBBF2L9XzcR27YDLFNfLFjCq6EYEvgzv25uv8CrqZixs7ZZxRXaw0buSMsihFaO
-	 bCJRdy26mnWYEL29YVetj8e1ywqo31RiyBPAZsC+YBUOez+DMcewT2NZFpsUn91v7+CC6
-	 doa8OnqCchi0hQAWiomjdLsUoyT2nWMLaAuGjiNRB9oeGX9Bw05XoaRwm6TdL5y5cDW3W
-	 mAp+PsoG/aNYsK/oszqEBXKRyDrY5NKKiyOyxhb93tfBBY+EJ2z4Phj5eWSeI5GOJHw==
+	bh=9cP1K6+igbWY7s8klRCQSvp3lFHhlYO8eN9Z8Epz/fY=;
+	b=e3HXY/QQh+ws8nsszn0I+pqeDEjU4Q5eip4qoSR5c+38HKvwpl/UJjvPrZZxNIDH/YAU
+	 lk+lOcD/XJfzQwRlqSkC+nC7/gYMun8Zs4sUjvuLMS2Rp1KUeXWs1F8kJMrg/ATBYN7Lj
+	 rQFVTavWMaD1DKy3uvxWvH2ntviwNmwGLufDmLI/G/n1uZUBIvcIWIKJW/SYfRblTpl9X
+	 fiTkSvatjxND47QmIylWKEmGaoz6iwdqeKHUFYX7Al1fjqlLvEm8XtHaOFJOMBCTWA4Cb
+	 K+QFfTHfEGxwOgevTI0u1O9tQjyjsTgyGatB0UgzpN1Cx/gLfkKUEEkbdg42lI2wBUw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=isbiWMTn;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fKR15U8K;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E4C260A380D
-	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 19:29:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79D33606A330
+	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 19:29:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=isbiWMTn
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C731F000C6;
-	Thu, 19 Nov 2026 19:29:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fKR15U8K
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF241F000C7;
+	Thu, 19 Nov 2026 19:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795116591;
-	bh=iRgK08fUMa356gDCh7+eebgK7ti3qV4KIQceNAM7BpQ=;
+	s=k20260515; t=1795116592;
+	bh=9cP1K6+igbWY7s8klRCQSvp3lFHhlYO8eN9Z8Epz/fY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=isbiWMTnVC1So2cJi1T3ID8K6PYF8tSO42kyM3CaSniTvJHgzgoLPsYw1IjahS10I
-	 rI6YqupBnl4wyjZcBhwF3S4ux0Uqqq7XcXXa2ggLiZ1lzeot7rJtwu8OHbNlmYIdNZ
-	 TYkE4XQkzd8DmypVv8t60rlZNTIV6QNiJTsmwfTgM/a4HSrJ//CDiZcjNF8Tz7feWH
-	 IcEjirI6d/9dhhA3Hd6AFBqTYD59MI5Ji4WiZwqfXWsDIh1CcmCQIPUe2Qf9dos+1W
-	 zQUeGflP6++01A1zV0mK1LrMFtFHC44Vl7iqQ5evWWdCGOFo8yej3D18IAQLELWajS
-	 2Yb78yPyNr6xg==
-Message-ID: <sashiko-outbox-223918@kernel.org>
+	b=fKR15U8K+6NtIvCCMzY2hRC1EabW2qNLua3hET9hq5zfl9n/6rM/dYashwYVd5EyF
+	 g2UolGmGA5lMfSwVfze1ekv3m/rvw1TcCosNFa4LIURsf7e9julKUSCuLmaEi/D2tl
+	 7EX9hCSyHaR7wFXmUCpZL0m8LfddW0ikhGWIifceeUchjpwEtVdifCipKg4h2l0YMi
+	 lETF0VyBd8tUshiwb5zweixHRUmM01VoEHhoJ+rsgyUvWWdJfkfaPvc/eok4mc6ga8
+	 1Rko7zds6LOBmPwKVvUd56uM1c7elfEu1Kmueam8jEU146jT+qv2ZBsmN+PkNoZFZw
+	 0sWXxkYuTJsow==
+Message-ID: <sashiko-outbox-223919@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 7/9] ubifs: sysfs: Use kset_create_and_add() for
- ubifs_kset
+Subject: Re: [PATCH v4 1/9] Compiler Attributes: Add __must_init macro
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ian Rogers" <irogers@google.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261119192520.1983406-8-irogers@google.com>
+In-Reply-To: <20261119192520.1983406-2-irogers@google.com>
 References: <20261119192520.1983406-1-irogers@google.com>
- <20261119192520.1983406-8-irogers@google.com>
+ <20261119192520.1983406-2-irogers@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 19:29:50 +0000
+Date: Thu, 19 Nov 2026 19:29:51 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,22 +62,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> ubifs_kset was a static struct kset using a custom ubifs_ktype that
-> had no default_groups and no .release callback. With
-> CONFIG_DEBUG_KOBJECT_RELEASE=3Dy, unloading the ubifs module while delayed
-> kobject release is pending causes a use-after-free on the static kset.
+> Clang supports the 'require_explicit_initialization' attribute on struct
+> fields to indicate that a field must be initialized explicitly by the
+> user when the object is constructed. When an aggregate initializer or
+> uninitialized variable omits an annotated field, Clang emits a
+> -Wuninitialized-explicit-init warning (enabled by default).
 >=20
-> Replace the static ubifs_kset and empty ubifs_ktype with a dynamically
-> allocated kset via kset_create_and_add().
+> Add the __must_init macro to include/linux/compiler_attributes.h (which
+> is included by include/linux/compiler_types.h and
+> include/linux/compiler.h) so kernel structs with error-prone
+> initialization (such as mandatory callbacks or cleanup handlers) can
+> enforce explicit initialization at compile time, as discussed at the
+> Linux Plumbers Conference. The shorter __must_init spelling, rather than
+> the attribute's full name, keeps annotated struct members readable and
+> was suggested by Greg Kroah-Hartman.
 >=20
-> Fixes: 2e3cbf425804 ("ubifs: Export filesystem error counters")
-> Tested-by: Zhihao Cheng <chengzhihao1@huawei.com>
-> Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+> [ ... ]
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Reviewed-by: Kees Cook <kees@kernel.org>
 > Signed-off-by: Ian Rogers <irogers@google.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119192520.1983=
-406-1-irogers@google.com?part=3D7
+406-1-irogers@google.com?part=3D1
 
