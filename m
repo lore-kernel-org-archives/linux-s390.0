@@ -1,108 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795079307;
-	b=f6PQjdx5NAfGHVsvb66GnT7ogBRhCrnBtodjBEd8v8x+m69HqNB6kZf/LTMsFJ0F2h0t
-	 gGo4NzjoZiSNKd87lQdxtkKtYDTXSZXyPiBqJrGT7eTtFfoZQKOX8a5YUZzOsMVjiEpVa
-	 dW5EpGa1T7icvSrQENm3LgzaaEuTSfI9k3P032qEveJ5G0cXqdPfTSDRiLLPIR40rl12Q
-	 YXUZV+E62TiHPG6Ptsw1zPcCBmTvCmJFPPV04SMGcjj0pMiBqUEFnBJCnHFbKcpONrxk3
-	 lKwDAJpbcwqW+XQmaCS0UnuXA4ECyboYmHTXFopAbPJILaFHEo1ZZW1ayWId2qUJuSg==
+	t=1795079400;
+	b=STWkTssUEa38N5IzESJHjEsN5cnh1+qBfK7aZX61LtJTaUyFVB/H4GLwMIyEWpYXk8R6
+	 EcZw463Brn7Sc4I7cw29RMQbP0b3HXbhM7qwN4Kl0vUYUr8mbpjsvRofOCqh0hbg1X0PI
+	 TmVwiKwFwELX1NvLOly+X4IVqqSD3z+xVruiWXawAPQetsPLUit57jipPDRxkZ6uuZsFA
+	 64H8GSp8dIkaPWCf3tPaCzguSyEmVJiHNSBuquvx10MQmrG+MKKFbq99hcVH4ai1LLMaR
+	 GapFeJ4IJLpCyox08op6zp++faati6FoGNZgIIkqTx++SpUTora0WuoWIYQ6+hSEcGw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795079307;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Message-ID:Date:MIME-Version:User-Agent:Subject:
-	 To:Cc:References:Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=Kz8J37H4DeouxxnfmLQnTk7ot6ZN48ljpuTfbkjcgec=;
-	b=NvCHcPDeq+cvSo5gJHw39wagb/i2YmpmHtDvJS28hlYrel8a8X5PAzY8RCoK47ww739K
-	 z0O/CpGChEMYgO9iOJBjWut+Q8bEJEL5mBXfWUlGce4WAnKj3zy59uGqI3YlaKqimuCmo
-	 w1xXf10em5SfOcKIgvSrYmCCYSML0C6vz+Fl0ZBipYpIIuh29z4s8d7hVFx3nL57OI7kn
-	 65JLENooE2vSynQ5+KmwKpS+7ZMdv2GX8c/owusabfV/aMpasttGSwXG+FmtLLPkYqwbw
-	 w7qbhsJkW7GBg15D9te6o3rMXl9lR96y7FvimsHiEHPn5xH3GGd5IRIc+gKzNRRysWg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795079400;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=ZGhE24qIBqiTNN8z+BFa93ke6YAjy7suuxpu/4LDT3E=;
+	b=tFSN4AjQVljwhUKpulwYw8JQ863+V2ml31N2hMlDwkQ20bjc63iOrBfXXRMZIkaNSN6z
+	 Iw/uWL1JfPxqbsUv+aIyQDfTFNFXYsvDcnFRfVIFp3wRtewi3rQ1NgLr24uATYkqBnnQn
+	 X3pxgsHof8sJSQC1OENp5eI5F4Oj6ldoaDa05qsnwscbnMa6QGhR+Ib2xROMjj55R06oV
+	 3t1Xl1B3OaKLo+m8l62FySecKMyCDSndDJ/ZTj69pqspmY02Ex9fjUZ9cxo2ZZLYuNM7N
+	 t1FedUQZILE5y1qxh9QhoJh6nQq2fIhCtR1hamSLhL/Ni87dti4sio/cXpP1YMCJelw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H7qoftmV;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=d+SxXpfa;
-	arc=none smtp.remote-ip=170.10.133.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NBOLjtDN;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274E8606A324
-	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 09:08:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 274E8606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24841606A320;
+	Thu, 19 Nov 2026 09:10:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H7qoftmV;
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=d+SxXpfa
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1795079306;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Kz8J37H4DeouxxnfmLQnTk7ot6ZN48ljpuTfbkjcgec=;
-	b=H7qoftmVOYUKTsufx6gRwd68m8nLY9RaH6MRLDytHI98CFI5VtHe5csou4GqYneEHYdI85
-	yRdU1W5IJo81n1qo+KmWabMp+pEQzR8/tOuEp/o/0IRTkm+9qamSEAmzC7260VlxgYlqx/
-	eerLGkO2erZoVvpebCKoTgLyHp4/dFw=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-350-1oZ9_T4rNy6eRyKeYMZQow-1; Thu, 19 Nov 2026 04:08:24 -0500
-X-MC-Unique: 1oZ9_T4rNy6eRyKeYMZQow-1
-X-Mimecast-MFC-AGG-ID: 1oZ9_T4rNy6eRyKeYMZQow_1795079304
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-48e0ef019a4so1538045f8f.3
-        for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 01:08:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1795079303; x=1795684103; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Kz8J37H4DeouxxnfmLQnTk7ot6ZN48ljpuTfbkjcgec=;
-        b=d+SxXpfaGdhxO9wOg2xbT406cBG2QsAycj6YbAWgNPdgWJw7ViLix7V6Aqgotc+Bvv
-         YG8CfRZtaCSHDnH/+lypD8eSThLIWOrcSlFBYZUU6n5GHiK3BUKNUmpAYGjv2pjoWJAJ
-         IJYzxgxnGruWqUqYa1LA4qBcbwEhVvbsc2YMb3+RinGlB0O6TgQpAJmCh/iThEzXPNMp
-         1u/32WZvAWFUWmZjRdvuZRE4MY3+u3Vrb04PIL7SE/mpHy/jgioohmHIJY3lAegYrs03
-         hvgQw/KQB2dt99OpKgxo+JsmUX+4iP+gJ4AtOgCDGa5rlnNp7vjQs43T9tbobOwy6ANO
-         Mw3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795079303; x=1795684103;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Kz8J37H4DeouxxnfmLQnTk7ot6ZN48ljpuTfbkjcgec=;
-        b=QuAvJVQ64muMSnxn5wFcJmtmuxq0MPyuOXnT+r+g8yA4OoBZo9ZaSaU6qUiItKHljU
-         Wbm/YiEdkSLyHWJMaNQ2vOohPLTpCQFDgcNKZtKKGKPc1rGrzQmQRJmBfeadgaxe424A
-         DdMX2RrSUhYvzcTNdYU5vrdjjBNRQX23OPRx/90g6s3cW93rT9CCxeEA+ttbyLJna7hU
-         arp+4oCvMNTxdCfGbEk/7u92KTtkMh2j6w+ArqnVui5Myh82hY7Zuy+clmxakNlDbl6h
-         +0O81Pv1+Jh00kQq8MKs+DgbGDtszvob8JcAnn1MG+NHc7BU7J5ytYNWgsb+zN4d3qO5
-         rEuw==
-X-Forwarded-Encrypted: i=1; AL+hErGurKnYdHWlganr5Z2AatAUwj/EeQxaE7g/rLhL1qanb5vIZJB58lKkNe7vT7VoGnhK/PgZvjFv/W8O@vger.kernel.org
-X-Gm-Message-State: APuU4Z80FmOqiE+zeQB60QlcyXy9/LMqxRwVU+t5RvhwExZQi2Lp5TA1
-	w6njOIofnBQ4wBGhSZ0hTrb4WRmMwL3HEmwd2wwnxCa7hM69XcBNzPgunY6DQ2038ajKnKL51Qe
-	pvUY+n7IuzIFcvtCwLlV4N+ln4059/MCrgdCyB6eCkrGNRmR0yyRFdOckkZSBmpc=
-X-Gm-Gg: AZFdTZdzWB7U+42h691rWEdxF7tE9KXeEtIC6W/9DMeoe0ECFNfFcwxRj9EFAHWdAP1
-	q6uVOwA3YaGGMtcENnI4+zPZwf5rgDmlDhPtsfBRmP/0hCBloUVtCmKBncZe5h/YgFctraRFOGN
-	KtITrG5Dta31xRG+H31JrwHHUzCQbs42+ezQE03ryCl8j2y37gVj7kBondj0Kdfq5tGg+xRZ9/a
-	DdKvMPlMVaeIQwARNMw8zH4ToV8tk248l/nlxcLtAzx8uKu6YSz1kO6mtpuI/b7sViPjHfe7+r+
-	BuMm4ovQnjqOFVP+sXSeGRM5O5AqBZuw6lBZHETc8AEQFmkGM/x1Uchl7wYOI5e0ALopL5lHww0
-	h+3jKcczuHCGZ580y2ZV4LPVZVruj8MmO/TdeTAVMccSuNJNzCUrlZpvnVVKXn0cTSVhs1dntBt
-	R0vBlU50Rpqww/mRnRE+qYvNh6sKy+fldThO8JHt1du+N5
-X-Received: by 2002:a05:6000:d8a:b0:4a3:a0f:ecf0 with SMTP id ffacd0b85a97d-4a63bdb0aabmr8503552f8f.55.1795079303248;
-        Thu, 19 Nov 2026 01:08:23 -0800 (PST)
-X-Received: by 2002:a05:6000:d8a:b0:4a3:a0f:ecf0 with SMTP id ffacd0b85a97d-4a63bdb0aabmr8503486f8f.55.1795079302690;
-        Thu, 19 Nov 2026 01:08:22 -0800 (PST)
-Received: from [192.168.88.30] (ip231-128-192-82.pool-bba.aruba.it. [82.192.128.231])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4a6575a5c28sm9677805f8f.59.2026.11.19.01.08.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 19 Nov 2026 01:08:22 -0800 (PST)
-Message-ID: <9f3269af-64e5-4752-825b-5747cf8ddd86@redhat.com>
-Date: Thu, 19 Nov 2026 10:08:20 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NBOLjtDN
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C2A51F000C4;
+	Thu, 19 Nov 2026 09:09:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795079400;
+	bh=ZGhE24qIBqiTNN8z+BFa93ke6YAjy7suuxpu/4LDT3E=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=NBOLjtDNHucTwb27MjevugAZuIv7/bosEyeF0DijnNaXGSk17S47LQkxkz6Wi2F02
+	 +bEWRZhQGyz1eabWT0EqltvKgLkeniA4fJ+KRGAhWgvhip5VALR992fXbQDwRqbhpz
+	 KpUWQc60q5yZcpiUVe8o4+EjpocWIzN075V/ZUg90SIx7d6cICIXOCxGc9oKiYeHLT
+	 zOxQUhJHODAaVcgTSL6YBIpPUOiX8/6xnbJbJZb/lm+rArzgjy1fOiKtj47JjLHy2f
+	 H2MhsQ01rf8p0pTvHKT3BkH/KsDrBKz8g17dBXVKzS60/L2AHKoCMYG6nMpy01udOW
+	 QygD50i/z1d8Q==
+Date: Thu, 19 Nov 2026 10:09:48 +0100
+From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+	Naoya Horiguchi <nao.horiguchi@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Mel Gorman <mgorman@suse.de>, Andy Whitcroft <apw@canonical.com>,
+	Miaohe Lin <linmiaohe@huawei.com>, Michal Hocko <mhocko@suse.com>,
+	Rik van Riel <riel@surriel.com>, Hugh Dickins <hughd@google.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
+	Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+	stable@kernel.org, Josef Bacik <josef@toxicpanda.com>
+Subject: Re: [PATCH v2 08/15] mm/hugetlb: serialize page-cache allocations
+ with truncation
+Message-ID: <av683B0FDj-xB-7w@localhost.localdomain>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-8-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -112,123 +86,82 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 0/4] net/smc: fix the failover cursor switch and wrap
- rollover
-To: hexlabsecurity@proton.me, Dust Li <dust.li@linux.alibaba.com>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Jakub Kicinski <kuba@kernel.org>,
- Eric Dumazet <edumazet@kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Sidraya Jayagond <sidraya@linux.ibm.com>
-Cc: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
- Tony Lu <tonylu@linux.alibaba.com>, netdev@vger.kernel.org,
- Wenjia Zhang <wenjia@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>,
- Hidayath Khan <hidayath@linux.ibm.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, Simon Horman <horms@kernel.org>,
- Wen Gu <guwen@linux.alibaba.com>, Stefan Raspl <raspl@linux.ibm.com>,
- linux-rdma@vger.kernel.org
-References: <20261113-b4-disp-1a9ab9b0-v1-0-4a7c8d85d849@proton.me>
-Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20261113-b4-disp-1a9ab9b0-v1-0-4a7c8d85d849@proton.me>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261116-fixes_hugetlb-v2-8-4dd9e94ea9ac@kernel.org>
 
-On 11/14/26 05:14, Bryam Vargas via B4 Relay wrote:
-> smc_switch_cursor() runs at SMC-R link failover under send_lock only,
-> while smc_cdc_tx_handler() and the rx path update the same cursors under
-> the socket spinlock. Its catch-up orders the peer's consumer cursor
-> against local_tx_ctrl_fin with smc_curs_comp(), which misorders two
-> cursors across the u16 wrap rollover. The v9 cover of the CDC cursor
-> bounds series [1] lists the race against smc_cdc_tx_handler() and the
-> rollover as not fixed there; Sashiko's review of v8 [2] reported both.
-> The same switch has a third problem: a successful completion on the old
-> link handled after the switch still credits bytes that are being resent.
+On Mon, Nov 16, 2026 at 07:29:29PM +0100, David Hildenbrand (Arm) wrote:
+> Truncation can remove an inode reservation while a fault is still
+> allocating its folio. UFFDIO_COPY and memfd pinning can also consume
+> reservations beyond the new i_size. This can underflow resv_huge_pages
+> and leave folios beyond EOF.
 > 
-> 1/4 takes the socket spinlock around the switch. 2/4 tags each CDC pend
-> with a switch generation and credits a completion only from the current
-> generation and never backwards; both checks rely on 1/4's lock. 3/4
-> computes the catch-up from the signed cursor distance, bounds it by the
-> bytes sent and advances the RMB cursors across wraps; it uses
-> smc_curs_sdiff() from 2/4. 4/4 uses the same helper for the urgent mark
-> in smc_rx_update_consumer(), which has the same rollover problem.
+> The main issue is that truncation takes the fault mutex for folios in
+> the page-cache, but it has no clue about faults that are still being
+> processed concurrently.
 > 
-> Tested in an x86 KVM guest on a v7.4-rc2 KASAN kernel, with net/smc of
-> the base below built as a module, over soft-RoCE on a veth pair between
-> two network namespaces. Unless noted otherwise the RMB is 16 KiB, the
-> send buffer 64 KiB, and the failover is triggered by deleting an rdma
-> device. The module had test counters and test-only knobs, named where
-> they are used below. Three controls pass with and without the series: a
-> failover with no knob, one after 1 GiB with both cursors on the same
-> wrap (there the series is 1/4 to 3/4), and an urgent byte on the
-> reader's wrap. Leaving out 1/4, either of 2/4's two checks, 3/4 or 4/4
-> makes its test fail. No KASAN splat or WARN in any run. On a
-> PROVE_LOCKING build of the same kernel, a failover with no knob and the
-> first test below give no lockdep report with 1/4 to 3/4 (4/4 takes no
-> lock); with the two locks of 1/4 taken in the other order, lockdep
-> reports the inversion.
+> Matthew Wilcox raised mapping->invalidate_lock in a different upstream
+> hugetlb locking discussion:
 > 
-> - Send buffer full. A completion handler held by a knob at its credit
->    decision while a test hook takes the link down on another CPU, and a
->    second knob holding the resend until the application has written: on
->    net the switch runs while the handler is held, sndbuf_space ends 4096
->    over the buffer size, and the application's new data replaces bytes
->    still to be resent; the reader gets wrong data. With 1/4 the switch
->    waits for the socket spinlock and the stream is intact.
-> - Two completions on the old link held back by a knob and handed back
->    after the switch, send buffer full, the resend held as above: on net
->    they credit 8192 bytes that are still to be resent, and the reader
->    gets wrong data. With 2/4 they credit nothing.
-> - The peer shut down its write side, so the switch moves the link
->    without a rewind; an old-link completion held back by a knob is
->    handed back after one on the new link: on net tx_curs_fin moves back
->    and sndbuf_space ends 4096 over the buffer size. With 2/4 nothing
->    moves.
-> - 1 GiB through the RMB, so that at the failover local_tx_ctrl_fin is
->    on wrap 0 and the peer's consumer cursor 12288 bytes behind it on
->    wrap 65535: on net the catch-up runs, sndbuf_space goes 20480 over,
->    an RDMA write is refused (remote access error) and the reader gets EOF
->    65536 bytes short while every send() succeeded. Also on net, with a
->    16 KiB send buffer and one 48 KiB send() after the failover, send()
->    takes 36864 bytes and copies 12288 of them past the end of the send
->    buffer (a test counter; KASAN does not see it, the buffer is
->    page-allocated). With 3/4 there is no catch-up, all data arrives,
->    and send() takes 16384.
-> - Old-link completions held back by a knob while the peer reads 24576
->    bytes past local_tx_ctrl_fin, then the failover: on net the catch-up
->    is 8192, 16384 short, and the connection stalls with no write space.
->    With 3/4 it is 24576 and all data arrives.
-> - 1 GiB through the RMB with the reader stopped on wrap 65535 and an
->    urgent byte sent so that it lands on wrap 0, no SO_OOBINLINE: on net
->    recv(MSG_OOB) fails with EINVAL, the urgent byte is never consumed,
->    and the sender, which waits for that, sends nothing more (its send()
->    times out with 32768 bytes unsent). With 4/4 the byte is read OOB and
->    the stream is intact.
+>   "although I wonder if we still need the fault mutex array, given that we
+>    now have mapping->invalidate_lock?"
 > 
-> The series is on net and does not depend on [1]. Patches 1/4, 2/4 and
-> 4/4 apply on top of [1] as they are; 3/4 conflicts with [1] 6/6 in
-> smc_switch_cursor(), where 3/4's version replaces 6/6's: 3/4 bounds the
-> catch-up by the bytes sent, which is tighter than 6/6's bound,
-> tx_curs_prep (by inspection). With [1] alone, [1] 3/6 keeps send()
-> inside the send buffer, but the misordered catch-up still runs: it
-> advances the cursors by up to tx_curs_prep - tx_curs_fin bytes without
-> sending them on the new link and tells the peer they are in its RMB (by
-> inspection).
+> While it likely cannot remove the mutex array entirely (concurrent page
+> faults have to sync ... ), we can at least use it to fix this problem.
 > 
-> Not run, by inspection only: a CDC received during the switch (1/4), a
-> consumer cursor that is ahead across the rollover (3/4) and one past the
-> bytes sent, where 3/4's bound applies. Not run with 1/4: a completion
-> handled between the switch's first two cursor copies, which leaves
-> tx_curs_sent and the producer cursor out of step; [1] measured that case
-> without this series.
+> Hold mapping->invalidate_lock shared across the size check, allocation
+> and page cache insertion or reservation rollback. Truncation takes it
+> exclusively around i_size_write() only for now: it waits for concurrent
+> allocations to finish updating the page-cache or rolling back reservations
+> before changing the size. Subsequent allocations see the updated i_size.
 > 
-> Test patch and logs on request.
+> Let truncation release the lock for now before unmapping and removing
+> folios to preserve the existing lock ordering. Cached-folio faults and
+> private allocations do not acquire the new lock.
 > 
-> [1] https://lore.kernel.org/all/20261112-b4-disp-0287c16e-v9-0-e5e8fa688177@proton.me/
-> [2] https://lore.kernel.org/all/179364387382.3131.13471253186660322977@kernel.org/
-SMC maintainers: please have a look.
+> Use it to synchronize with truncation, keeping the fault mutexes to
+> serialize allocations for the same index.
+> 
+> Locking order is now:
+> 
+>   fault mutex -> hugetlb VMA lock (read) -> invalidate lock (read) ->
+>   folio lock -> PTE lock
+> 
+> And on truncation:
+> 
+>   i_rwsem (write) -> invalidate lock (write)
+> 
+> Add hugetlb_pgoff_valid() to not repeat the same size check multiple
+> times. Memfd needs a bit of care, as it traditionally allowed partial
+> folios to be pinned: the size check in memfd_pin_folios() allows for
+> that.
+> 
+> Fixes: 1c9e8def43a3 ("userfaultfd: hugetlbfs: add UFFDIO_COPY support for shared mappings")
+> Fixes: 188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
+> Fixes: 89c1905d9c14 ("mm/gup: introduce memfd_pin_folios() for pinning memfd folios")
+> Cc: stable@kernel.org
+> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Link: https://lore.kernel.org/all/ajMfdQf-Fspwmstr@casper.infradead.org/
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-Thanks,
+Acked-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
 
-Paolo
+Just one thing:
 
+mm/rmap.c has a description of the lock ordering for hugetlb:
+
+ "
+   * hugetlbfs PageHuge() take locks in this order:
+   *   hugetlb_fault_mutex (hugetlbfs specific page fault mutex)
+   *     vma_lock (hugetlb specific lock for pmd_sharing)
+   *       mapping->i_mmap_rwsem (also used for hugetlb pmd sharing)
+   *         folio_lock
+ "
+
+We should update it to reflect the updated locking order, right?
+
+ 
+
+-- 
+Oscar Salvador
+SUSE Labs
