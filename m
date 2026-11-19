@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795079502;
-	b=U2OzCsAgrsMhQ9R3oDqKmhd96aI0GfEZxe/H5aYEo4xRnEnAws4JaEhykXPLbY5GsZP2
-	 RL/vO9K9+xNeAXcjXJq7M5+4xUsvTOPhWAMTSwhThvSWKbiH1v0HTJMaHdZojdQ+rORyM
-	 w0dQCWGnqpNVtShhEdw1RiyoEkOV5aDiDKgh6MgzdmVz3iVTN7HJlijb/ZU/Co6lOyp74
-	 VjZgf4tcvYddhkn6MukJATFPishDmWffplgSMqg2nOmP7OqkyKEEIaj8toww6lqoDk+O0
-	 dE56mdeV/dupJFHMM5p14D8o8s1bt7NBtM3c4i8yU6Se3+PK1SToWLzC65BUApO5B6Q==
+	t=1795079996;
+	b=dcaNz1SKYCIqDRfua7062YB9+7ddj5yiC1IzQ4AOvS1YMcZPjpqiBkXBrYzl/fSKzoDx
+	 dwNPgi99RwhZHTLib+ueR/USIRo/tvo6CsASVR5V916ZEItrbPo8EkXSkzh0TAKsMGuK3
+	 KDBcjd2P8/+p4gdHeJwKo8fwhiWKSdGcYnqY+d5685LDzZtvos9XxaUIQIdjekhaPDsLJ
+	 miTGxIhOo0JENB2IRlpfsd2d18pWkfq7wgTQQDs9iUswRYyfHK5SLZaZRxZp+HYeBV+Ag
+	 HoWwiHnToy8VnE7NwZ8ut2nYp0PVxtakspSnSMzABx+sHu37vXtjqBqCa/jkkq4q8+A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795079502;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795079996;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=+ob3yII6XgPfaGzBlNNgVC1u1nxxTdD3c2/x1BrWMGM=;
-	b=SkeiGIVOrmzV/TYkj90NFsbdeiLeMz9cPTTlqpz4a6KYsKvkoVb7Xn1inbLxZ6U3oVOl
-	 3N9SM/MousinL4SIYqe2sWsORrCHmwGILqv9BD6IBl6kllr3aBRF6MSkLwJqZFzSRGl2J
-	 XYQyZFnD0CKafcyY3xZtwluZT4SHImSub3gdITIWlJeue8YfZ+npR+lqa1uFFcMm5OPHv
-	 ufV0M2xfKrRbUTXkhMzj6bPMvK4Esd6e3RcuYiZZQeSGoM8CxVz7zZTPKsic+E9Tc/Jw+
-	 zZItS81dwokoj53K8RzqqsOeJk8sxjRaR+DKoE9YmJoXZ++xoIFVCG/oPhDvUO+dFFg==
+	bh=9F+PqeTKayL2InwlVERF9AhfXlGn4mSe033kr4lKz1o=;
+	b=yKqNOueAzKIPasuQLWsEmWU1ZY1YYFpOoF+LcGSIjDlGaSf9mP3z7ZRg536lZhd3wgJH
+	 /9Ap9gte2pCZnqQJIYDu5eg04YQdbbF9GQdTSOmDM0wupP5fiRuNAr4QJwky75HWXs4Rz
+	 bVmefDD0SpG9/vbeKzVk+bzGIBTnp4Sblm0QBytAt7Sjj35lipQsatziHmJrSpLfbsQ6F
+	 2ewUwVNrNrmcBnz2jzPJ+ZznJv+9HB2KcqiJMwmayuP6D+kUzEaUBd7ZQ2ygstbzbhlpx
+	 eY3c2skbq7mu8Vq0BfU1hdTElfMD8zeUpXm8B12uWY49qz27inuKm9siAYiZo5SDSBg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oCAqElg+;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="BwGgpGq/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 121AE606A320;
-	Thu, 19 Nov 2026 09:11:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02C36606A325;
+	Thu, 19 Nov 2026 09:19:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oCAqElg+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28301F000C4;
-	Thu, 19 Nov 2026 09:11:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BwGgpGq/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 404C31F000CC;
+	Thu, 19 Nov 2026 09:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795079501;
-	bh=+ob3yII6XgPfaGzBlNNgVC1u1nxxTdD3c2/x1BrWMGM=;
+	s=k20260515; t=1795079995;
+	bh=9F+PqeTKayL2InwlVERF9AhfXlGn4mSe033kr4lKz1o=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=oCAqElg+jHpUv5NZi3+X5pT71z2hb8IbZEPK5BleYGMiMxx+phX6OjUT/P/4JUK2Q
-	 gHVX8e7WqtiDEHBKb5OeG3+JgdTndcnYo+GJ4u74ENd96k6WZheR7PExY00+0aU+fN
-	 oTV78DY/bCF6fuGrMLPl96Z2obRF3NzoMJzPTDcBtla5/DdGBhEyFt4AGOfdP2jkyn
-	 wgW8UBwgVdqvAGib+vgTEmLFnEg4B6mqeSe1TfYDkZ1XM1hOX+fI3Qjn0gkajd6TLh
-	 U5sKOqVa8tgXrJoD6aa8iOCHtuoYt75M1hI6VQVHKNjM3LzrR800nK0vZnwiwLPZFb
-	 Wfp9a+v0hoLhA==
-Date: Thu, 19 Nov 2026 10:11:30 +0100
+	b=BwGgpGq/s8LdaixY6UA2dpl6cyOlv1U26xLUHK3qsAmF6KXzFhdJnAytG8CXWrQBM
+	 XVeINsUMo6TefJjonhgO+dU2JDcGut71ZynTXwmmsacy26fqvKspQwAEe3pW9YxRYb
+	 SRVUpuAwBCNykQtoTyrgySODnUAnTtj+r6Z7KtbXyKiUSyXpa3s+UnhtCFOL6mULIv
+	 zw1B6CY2f91QpZTQOHg4aiwKYj5x1Ad1onk/4u3eM/C9w5Up2vCqXyTIjYc9NeP5b3
+	 YxNFrYfFFPs6Iajczpo3yenRQC+cX3+gHptB5mKZSBkRA8zyHVly+82sPqdzFKldFy
+	 gy+890bIbmpJA==
+Date: Thu, 19 Nov 2026 10:19:43 +0100
 From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
@@ -71,12 +71,12 @@ Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
 	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
 	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	Josef Bacik <josef@toxicpanda.com>
-Subject: Re: [PATCH v2 09/15] mm/memfd: recheck the page cache before
- allocating a hugetlb folio
-Message-ID: <av69QsxDuugzEJPL@localhost.localdomain>
+	Chris Mason <mason@kernel.org>, stable@kernel.org,
+	"Gregory Price (Meta)" <gourry@gourry.net>
+Subject: Re: [PATCH v2 11/15] hugetlbfs: do not grow a sealed file in mmap()
+Message-ID: <av6_L080RpmFYham@localhost.localdomain>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-9-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-11-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,34 +88,61 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116-fixes_hugetlb-v2-9-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-11-4dd9e94ea9ac@kernel.org>
 
-On Mon, Nov 16, 2026 at 07:29:30PM +0100, David Hildenbrand (Arm) wrote:
-> A concurrent fault or PIN request can populate the page cache
-> after memfd_pin_folios() misses it in the page cache but before
-> memfd_alloc_folio() takes the fault mutex. The latter still tries to
-> allocate another folio and can return -ENOMEM even though the requested
-> folio is already cached.
+On Mon, Nov 16, 2026 at 07:29:32PM +0100, David Hildenbrand (Arm) wrote:
+> From: Chris Mason <mason@kernel.org>
 > 
-> In particular, hugetlb_reserve_pages() finds the existing reservation-map
-> entry and reserves nothing. If no global reservations remain,
-> alloc_hugetlb_folio_reserve() fails even when the pool has free pages,
-> effectively failing memfd_pin_folios().
+> hugetlbfs_file_mmap() grows a file when a writable mapping extends beyond
+> EOF. We are missing seal checks similar to hugetlbfs_setattr() and
+> hugetlbfs_fallocate(), allowing a user to grow a file that has F_SEAL_GROW
+> set.
 > 
-> Recheck the page cache before reserving or allocating. If the folio is
-> present, drop the lookup reference and return -EEXIST so
-> memfd_pin_folios() retries its lookup.
+> To fix it, skip the resize when F_SEAL_GROW is set; mmap() still succeeds
+> without growing the file.
 > 
-> This is probably not worth backporting to stable.
+> We currently also allow CoW mappings to grow a file. Disallowing this,
+> maybe even only for read-only file descriptors, could break existing
+> userspace, so we have to be more careful. QEMU's file backend is an
+> example user that might rely on such things, and would suddenly start
+> getting SIGBUS when faulting in memory outside EOF.
 > 
-> Fixes: 89c1905d9c14 ("mm/gup: introduce memfd_pin_folios() for pinning memfd folios")
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> So be careful and focus on F_SEAL_GROW for now.
+> 
+> Fix generated by an LLM and sent by Chris Mason in private.
+> 
+> Fixes: ff62a3421044 ("hugetlb: implement memfd sealing")
+> Cc: stable@kernel.org
+> Signed-off-by: Chris Mason <mason@kernel.org>
+> [ david: drop comment; simplify+extend description ]
 > Acked-by: Muchun Song <muchun.song@linux.dev>
+> Tested-by: Gregory Price (Meta) <gourry@gourry.net>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
 Acked-by: Oscar Salvador (SUSE) <osalvador@kernel.org>
 
- 
+> ---
+>  fs/hugetlbfs/inode.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+> index 7f64bdc07aa80..68761e1ed4d2e 100644
+> --- a/fs/hugetlbfs/inode.c
+> +++ b/fs/hugetlbfs/inode.c
+> @@ -157,7 +157,8 @@ static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
+>  		goto out;
+>  
+>  	ret = 0;
+> -	if (vma_test(vma, VMA_WRITE_BIT) && inode->i_size < len)
+> +	if (vma_test(vma, VMA_WRITE_BIT) && inode->i_size < len &&
+> +	    !(HUGETLBFS_I(inode)->seals & F_SEAL_GROW))
+>  		i_size_write(inode, len);
+>  out:
+>  	inode_unlock(inode);
+> 
+> -- 
+> 2.56.1
+> 
 
 -- 
 Oscar Salvador
