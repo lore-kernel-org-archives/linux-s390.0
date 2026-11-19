@@ -1,58 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795065775;
-	b=IIv7vPBU3EEpE8/UlZ3ntjot4/IVVOQzPXe5CS57Hp5uWEHLJKnRLCuh7OXOHaqRJYCD
-	 Bv2e8XRR1wIrPZ3tnyjkU8ENT/KbJjZd54CEUcCzAW6OfQmsP8eg7TB+jvqNuiFh7526v
-	 wP3M8DGOwqYFKqAxn4vZaZI9IjTYCnzZlCt8fYPVM6cH/hOf9N+scBCy/Tb5fuTgTkW2J
-	 JhOX+u68dAE4jmS0JvjjYPWrJpAzCpg+SM73kRMrrMKN27txh3V5z7zI0T42sySsCt8cr
-	 xJkjp2w6Ys5mUAmuT5y95DhK7ZNBTKIYgNz454LReM/wIcuq0LbsR+jHxIhjmC1T6hQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795065775;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=pe74ZXYn2WDsw3Ol33eh4++aTps2Da/80GDrdZC3gDk=;
-	b=U5x+CBhoVYAY0fsnB/2vGpOydN+zIEND9KOMX9zTEfAdPHKGpLK4JgD2N82KyGeZqjqi
-	 ywcyDl/VXeG3sa47amfOgCGNloDPQIZlORFLBHtCIW4EgIzEWgkEUvUg4Ju0MM5h1RBWF
-	 IKhMIQtJWpyJ/9+ospquxPQ2Fc6S4wO9wpfN11Ypy7dWwG8AERcj38kigD45V5RW10b4X
-	 BMzVwvoNeB5K7HTjMfJ1+hrWceNKbAR+bLoeU2FT0yGj2io58Sw+LUcSULqUQzt23SRT5
-	 15F0gKH1vWxfv/qqBK3ZNv/Jrta8pPqgw6F72EnklizduDLnujxzjzTOLPfslAUs4ow==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SUU17zE8;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.172
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795067160;
+	b=EFwMg0Khgad+CLoLasxxQ+olaH9bcY+2lyy2jMbTRBdEYJlP3RmWxkWNQoPv5BLmRa/Y
+	 TK/S6paLsi6RWo+IfJ8oxmYFUakliRDe5tMmOiGWNq6F6keyMhWTJE743JYXWpNd/174/
+	 EFKY5k4PJA2cxij9ICgalQQHVS7BlMNVrEsTNc88mT5ShzvYzbPZFjwIFJ0/qbPQkRVm5
+	 JgOMafvEbA7+orPMDv+RMljVOxr4JKYFsXrhGtHtf9EdNEWKT8a7m40VUMO4kqKn11Mn+
+	 46n0ZdumXiGN7ZX9aRxJZE8BEdZEfXkK/dT3B3FgCyQk+VrdUN4gY7UGnqu6lFOXMpA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795067160;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=cIkoHsOVRZS7gIowPl6xkao6tH+bfcK9X/Z+HF8PGU0=;
+	b=A6Qwwlep7hMwWD/6wZYXSYPSA0PAuHcIrTAPhQ7+SDAYnVafJa7mW0yFvF84MNq33wzf
+	 e/FkpLCELgrpEp/DhGfF4toxalonr7NHeqkU4eD0t7IIbjcJlrta7A1vAY3AsVq/q1uez
+	 w0wzhL9i5qMmiMFxW3k1aabdm+S84OkiGZjdIY8VzESTsrlHf/YtSgXS+sZ78gW5XGlMH
+	 SXQY9LzHaJZB+4/uCGDJyyqLubyES/ldltWWtNocN4Zc6IR9yE3HxrEg4efIwp7MAEXd2
+	 k96XpIx+CilA1fJg/7qIPHLj3TU4khNfI9mVV8V3N5FDWJjclWOymBwOZAH1oyKyWVg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=G9sTcZLh;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.172
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5202A606A320;
-	Thu, 19 Nov 2026 05:22:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 168E6606A333
+	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 05:45:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 168E6606A333
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SUU17zE8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16461F000C4;
-	Thu, 19 Nov 2026 05:22:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795065775;
-	bh=pe74ZXYn2WDsw3Ol33eh4++aTps2Da/80GDrdZC3gDk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SUU17zE8VpihVtbndd7sY+fXqYy6N3WSv0yJc7A5PDv4B/3tUtdtoqZGPLDr8vlUn
-	 j7AD1Gc/hXQKbGBmXmg6Vh5bwZV9Ivkpg6wNnxgXitHoGQiEPFfewqwwoLiA2rKFLq
-	 hg97ESfJscX9f3SUZAAuoTZ8j/4f4+kmMVvJ4h9ATRJcObNUBYru4yJKOBHzJ7cW6V
-	 jQWnOMKZu0B85eoOxFtOC2f7J3lzHtCRnyu3X79C3aH8Xaj2QWGgfaWsg0dN0jpZHe
-	 n8tJKFbKCsS7KmElKp9NTS+e2ox/6mtZZynHCzU/cnduplZ/OHRQooOAbQPpKWUcsU
-	 /UKC0GS0N5z5A==
-Message-ID: <sashiko-outbox-222474@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/vfio: Allow untainted use of driver_override
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Alex Williamson" <alex@shazbot.org>
-Cc: linux-trace-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261119051507.3306075-1-alex@shazbot.org>
-References: <DMYH4ED3GWDO.29DGXPK4M82VR@kernel.org>
- <20261119051507.3306075-1-alex@shazbot.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 05:22:54 +0000
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=G9sTcZLh
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-55be673e029so117441cf.1
+        for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2026 21:45:58 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795067158; cv=none;
+        d=google.com; s=arc-20260327;
+        b=hgUVkpI6YdSwO6G6iqhd0/jtXnr8hCmdXI4GjDYfz+LwE8ZQ7/IpN2lTlb9QCYnAtZ
+         mR2z6lTEtyCsUfMWprSa00h+Hs+Ud+bE+UQBHcHcv2eCSYRGVBWr047U9dmmMohwPoc8
+         E6KhckEtCrnE2XaHenesuLLEfhDl7tc5Z+14rOt9Tt8gZhQif9d8gL0EHYmZB4OLUyRH
+         BRo1p6pS1zrgz+y0mJz/SA7mmiPpIxqE5CBFOu8xyDUr78TU0+Q1EInyDcg/ixAWrGFg
+         /tfanjFJ1VI5mHuOwb2f7HAgupyvIqE+LsLqzMH479aH+CrNwMf2DvcWi2BcLtkSD8fu
+         vOPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=cIkoHsOVRZS7gIowPl6xkao6tH+bfcK9X/Z+HF8PGU0=;
+        fh=v5Sc+thvNCHhJWK3ZmpqME4IklM3dTZQXW7epkmhxK0=;
+        b=qxAMvb/iFQix+NUrBfj01NrEq7T10WEt8T4s62zzDywvAQVLcuHf97dLvuhoTqcJpE
+         zQJORdtBv7OUYo6j21/x/Wzhpjf/WgQcZmdLxB460BcuKigcTAroBbB+2algajaPJYUR
+         N2IGMgUfwstYTdywsZOeP0ywho6NsEXPs6ZkFta01SQhSfKVtpZgI6+qRGHnVcI9og1a
+         o33tj505BV63T8j00nWool5RxIxasjCwvTLj7iWotNFELktD1NHPBTxRqqphBgJaYnir
+         kG7T67s7xNNLnl7l9P16DwtMuy0sJ9FgOBF/eKDI1soVPcj/W9HMMKV9c1LblKeIB1I/
+         MzlA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1795067158; x=1795671958; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=cIkoHsOVRZS7gIowPl6xkao6tH+bfcK9X/Z+HF8PGU0=;
+        b=G9sTcZLhDZovHsgCx5Yv7CDMxJM8G5FDawL5JBd36y8NAy88YZsvFaSPGxL2OJDQWl
+         D8l1zhaslplXpC+LH5CUyVM6fiya54hKkm3044CoRWwH6cYkMSxwEs9IE4R9vJJik3G9
+         PaGymfho5RIhVhS+d5TUg18WON8Y60WBZxMM5gYyXKhy/KCwkwn+iT9No3gldijeO5tx
+         xp5Gg8oePFUL/bdSJWKKtm4OA3cKKfEuUGn9FzCr/u57K1nN+6BjTy/XuUfYpf49AuBU
+         GF3mrNTIV4ZWpGu4KegbuhUlLkOSriAaKH7KHmdnomUVdJlrrfe8QiZH1hsMd7fqVOCf
+         HQmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795067158; x=1795671958;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cIkoHsOVRZS7gIowPl6xkao6tH+bfcK9X/Z+HF8PGU0=;
+        b=FmkGftyacxPVvf4u88fuIpT0ZdPjNDPd50zMSWgGKHTH75skRyxAqRgdLqtOIsAMzU
+         FyMTtHuSiyOKM5qzlLmu9bpJvr4R5oq92xCr8Qy4CtsNVNKOzlHxJ/EJPluY3ZT2rzgy
+         BgWgB9qQldeNRqRA6aMQy5O1Agocy1c78avaRYuKyoHKpJbSBvdisw/AGDrgtVBM53mf
+         FQ+0bmM32c9jsEh8oNXXxcZP3ysJUci9mR+DhJKTE3CUu30K1yB93hweXSoc1e4q8M34
+         rkEN1ugstUJPUqOr1w4K6di7NsbCp1J7ACirdrw+qpARCVPz/8jbsPzflJAnngiCa96J
+         Ruug==
+X-Forwarded-Encrypted: i=1; AL+hErGOuJ6z8kEBoKvckMKBvmFkIvN9fDrB+JYBG5feJF+RdfCECjun/oxdTtReaIpX/50BvBZlWbHGXuPY@vger.kernel.org
+X-Gm-Message-State: APuU4Z8MoPOce52qPH4TAu6+zfGuo31PRi8gC8B5QrQ5DAJl0YHablB7
+	35qMBgLHxr5DQdKtKPkJyKDVAgD3M/br6G9W8d1hjL/W9n6cnf9Vp5NK+olY7WyfEUlcVk9KBSE
+	Wku6vccS3ym46YtFX4DfE26viVcuaog/BgXyl0GeU
+X-Gm-Gg: AYBFou0eJ83gSkWxi1M4yeaiUVuSbk0G2YbFY05TgC5D9Xf0IJaHTGN6AySRHaIuTm0
+	b+u2IJJYmxdJLg9IYfTSMcGRfmvD2qfdLAoKd6YgPhcZtOtudejcOdk7xf3qOmsO4AKKu2YQlhw
+	p8LpO9ATJn9fYkr6x+so8TSuYEyPhl/8qZSukNZNdiUoZcT2DIIsTv8Z+uXpbZavF+1WPVXpHVj
+	dSwmQ8troGKMOH73OOAqR9AibNisFC4QnAvUcY5BB4g8wZxqL0rzy3a6xkFDEHa7oBdeokeBEO+
+	Vf+s4B99q5hSrzYyly6FcuNkV2aLdQF6g64inT8NDvNfhZrhrlOaXlrbuyfB/R2oy8jlbSsYDXs
+	g1dC+2wMaxp17TY3Ff9v8EgYT0wT/j06+BOYA
+X-Received: by 2002:a05:622a:4808:b0:536:934f:7da2 with SMTP id
+ d75a77b69052e-55d6c7995f9mr6557911cf.2.1795067157461; Wed, 18 Nov 2026
+ 21:45:57 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,52 +103,110 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261108223913.3624571-1-irogers@google.com> <20261108223913.3624571-10-irogers@google.com>
+ <DMYN979QJFNV.LM3T6O68OHW6@kernel.org>
+In-Reply-To: <DMYN979QJFNV.LM3T6O68OHW6@kernel.org>
+From: Ian Rogers <irogers@google.com>
+Date: Wed, 18 Nov 2026 21:45:45 -0800
+X-Gm-Features: Aa3M54p8GzPfKDPQ_HJcPbdLHGq3vwK7n9VGnVvnVB1ODjbFHeHwrlgOfVCaaEo
+Message-ID: <CAP-5=fXrMyfLFXq6CiqwWMSbtYVRNESxuDo-ddqNwDmq5Nm4SA@mail.gmail.com>
+Subject: Re: [PATCH v3 9/9] kobject: Require explicit initialization of struct kobj_type::release
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kees Cook <kees@kernel.org>, 
+	Miguel Ojeda <ojeda@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>, Nayna Jain <nayna@linux.ibm.com>, 
+	Srish Srinivasan <ssrish@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Juergen Gross <jgross@suse.com>, 
+	Stefano Stabellini <sstabellini@kernel.org>, 
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <ndesaulniers@google.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>, Alexander Aring <aahringo@redhat.com>, 
+	Felix Kuehling <felix.kuehling@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+	Zhihao Cheng <chengzhihao1@huawei.com>, Sumanth Korikkar <sumanthk@linux.ibm.com>, 
+	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, driver-core@lists.linux.dev, 
+	llvm@lists.linux.dev, linux-hardening@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, 
+	linux-s390@vger.kernel.org, gfs2@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, linux-mtd@lists.infradead.org, 
+	amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] s390/vfio: unknown field support_driver_override in struct
-  device_driver
---
+On Wed, Nov 18, 2026 at 1:11=E2=80=AFPM Danilo Krummrich <dakr@kernel.org> =
+wrote:
+>
+> On Sun Nov 8, 2026 at 11:39 PM CET, Ian Rogers wrote:
+> >  static const struct kobj_type cpuregs_kobj_type =3D {
+> > +     /*
+> > +      * Pre-existing: info->kobj is embedded in per-CPU cpu_data;
+> > +      * cpuid_cpu_offline() only calls kobject_del().
+> > +      */
+>
+> All of these comments carry a =E2=80=9CPre-existing:=E2=80=9D prefix, but=
+ that doesn=E2=80=99t
+> distinguish cases with broken lifetime management from those where the st=
+orage
+> remains valid despite the API misuse.
+>
+> For example:
+>
+> > diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xcp.c b/drivers/gpu/drm/=
+amd/amdgpu/amdgpu_xcp.c
+> > index ab14079d1c42..0847134a1391 100644
+> > --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xcp.c
+> > +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xcp.c
+> > @@ -797,6 +797,11 @@ static const struct sysfs_ops xcp_cfg_res_sysfs_op=
+s =3D {
+> >  };
+> >
+> >  static const struct kobj_type xcp_cfg_res_sysfs_ktype =3D {
+> > +     /*
+> > +      * Pre-existing: xcp_res is embedded in struct amdgpu_xcp_cfg
+> > +      * rather than freed individually by kobject_put().
+> > +      */
+> > +     .release =3D NULL,
+>
+> Being embedded in another structure doesn't explain what guarantees that =
+the
+> enclosing allocation outlives the kobject=E2=80=99s final cleanup.
+>
+> Could you please drop the =E2=80=9CPre-existing:=E2=80=9D prefix and make=
+ that distinction
+> explicit? For broken cases, describe the lifetime problem and mark it as =
+needing
+> a follow-up fix. For cases where the lifetime is safe, explain what guara=
+ntees
+> that safety, while acknowledging that omitting release() still violates t=
+he
+> documented API contract.
+>
+> Also, do you plan to follow up on those cases?
 
-commit a91edca560e83afe4c0101413f2c0a4218259662
-Author: Alex Williamson <alex@shazbot.org>
+Makes complete sense, thanks Danilo!
 
-s390/vfio: Allow untainted use of driver_override
+Auditing all 17 files in patch 9 with that distinction in mind:
+- Only 3 built-in sites (arm64 cpuinfo, ACPI hotplug profiles, and
+s390 sclp_mem) have backing storage that genuinely remains valid for
+the lifetime of the kernel.
+- The other 14 files either free/zero an enclosing dynamic or devm
+allocation without waiting for final kobject cleanup, or are tristate
+modules that unregister static kobjects/ksets on module_exit and can
+unmap module memory before delayed cleanup finishes.
 
-This commit sets the support_driver_override flag on the vfio_ccw_sch_driver
-and vfio_ap_drv driver structs.
+I've dropped the "Pre-existing:" prefix, documented the specific
+guarantee or FIXME lifetime hazard at each site in v4, and yes, I plan
+to send follow-up fixes to the respective subsystems once __must_init
+is in place.
 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> index 7546bd137e4e1..77765cde87f78 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -375,6 +375,7 @@ static struct css_driver vfio_ccw_sch_driver =3D {
->  	.drv =3D {
->  		.name =3D "vfio_ccw",
->  		.owner =3D THIS_MODULE,
-> +		.support_driver_override =3D true,
->  	},
->  	.subchannel_type =3D vfio_ccw_sch_ids,
->  	.irq =3D vfio_ccw_sch_irq,
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio=
-_ap_drv.c
-> index 8e69ed286bb9c..2d47dc6432698 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -62,6 +62,7 @@ static struct ap_driver vfio_ap_drv =3D {
->  	.on_config_changed =3D vfio_ap_on_cfg_changed,
->  	.on_scan_complete =3D vfio_ap_on_scan_complete,
->  	.ids =3D ap_queue_ids,
-> +	.driver.support_driver_override =3D true,
->  };
+Thanks,
+Ian
 
-[Severity: High]
-Does struct device_driver have a support_driver_override member in this
-tree?  Without the driver-core prerequisite adding that field to struct
-device_driver in include/linux/device/driver.h, building vfio_ccw_drv.c or
-vfio_ap_drv.c fails with an unknown field error.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119051507.3306=
-075-1-alex@shazbot.org?part=3D1
+> Thanks,
+> Danilo
+>
