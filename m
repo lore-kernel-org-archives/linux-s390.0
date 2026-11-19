@@ -1,91 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795118102;
-	b=T++rk+MVAEcFClw+jGOct1kMwSuVzRWHc7UMcBC4NyMOuHPGQmY6gN+wPOFSm4/NA2ot
-	 GFbL5wnjxZ0dJAasNmzyUezCWwLh3dStrAtg2PePLTTsp7urrk3QpaF9tKBPkI9zwoPuS
-	 9raU+5fATvQix+fm3Md3S0h/34au3KFuk8L+w8N1npUZUAeRsf/70LIDXR8riqDVTUC9l
-	 Qk9PaGJ0rjkLS/Z/mWU/fBfjJwzOTGXVDdaPisadap7MNOwv0nwp3d1dYUV3duyIUuozt
-	 ylpxJkgaKwLITC4HL33CswpP+fE8teHt7CZreGSU88fikaFd4VxSegMSX47qjuDVqrw==
+	t=1795119720;
+	b=G91RKRqfCaib6VnHTc3t4HigYR46z70ozzw+tOCZqaxB/q9FQasnuEhOrWn/sU21Y2FI
+	 CL/FCPPxB3+hnsdjT3fSrR8iTqy8aUmT7Aoyrpgms5Pgk/fZNhtnYqfCUMrTWHURM5WvG
+	 k3fFvotPro0VwVDLJmqr7tqA3IR0jh2ujzpjU5tAM3ljHIghTIZn2zG4f1JFegblvr2Oe
+	 rR4y+9iAWXl42I8UzXz3pPXjGXs6YYDdYaL2eyXHl87fJA6FOVoD5RgTJVypbcq1HJbLm
+	 T9NIrPSHeAs4j09LR0uy8ojfmDXrxv40dFJOLxepRVomtDdEUksbjCyYGr5DLYCGtmQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795118102;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=qUumBf+yvrMPq1LrevvQ5muT+FYrWL10mpJk4Q9mBhs=;
-	b=OKG56EuIkfF6zkz82Vaix2mJnmfbe8KFEREty115LnSY7RnVeuLKc34sDeFmnoI5GAkQ
-	 VNko9N2J+iqNTUQIkEu5FhYTTXShlTm8T7LBWH2//Mf+VKjOi8/FoqUOAJvXy6Z1By8Ug
-	 KUX+iYvyuGBQXDYzq0wC8RmN+c+ejOYNRswcWOy9E6kunBHgQI5Juq93O2YnAgsxM87aW
-	 BZJW54wKZR6uzJnYuhqV0iYiN9Z6gW8YxqQlM7VTLzMesGI88eZj8ThJWvl3Is0g2w3NY
-	 wWJNtB+/TaAdj8vYpxIdDkDowXqcixQ6M0CNsM5wqzUISKVjrXG3QGb8cVLfK+5nbyw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795119720;
+	h=DMARC-Filter:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer;
+	bh=lKqTvjfVAMuV2tixJjKzEjlDg6oeaFaEwcBN1UQ2ZBQ=;
+	b=sTPZcVFEqJidyE1IBgt6ZKo0Zbs29V4oHyZA6dk/9OPRttHMoAZTaRbQMqeBWjNzmVg4
+	 M64X2+sE2YneC6L+0+ZPhXHn/D9Rh7ROiPx4wsCsGKzw8og29BcmgPvQVP2OOpCAm3Ccv
+	 mIExsip7AGc2wq8neN+daSPjJ28be2DaholVweD2GQrSDvENXuyXjsZ3y+OY0kdxUR8ih
+	 /73yMDMHXr16pSWwni1Ai2pKRGIZbGj8TJ2XOmxdWzuOnybWHLu3RmXhZ4AnQMtwumIpM
+	 AqRl38ayvj0zgjF9f5pEO8EazlFP6x4xxHDgDCm84JJtbhO2G3npwaSFmERjPX4GvhQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=oH5kjYX9;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dmarc=pass header.from=igalia.com;
+	spf=pass smtp.mailfrom=igalia.com;
+	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b="r/pSEXxD";
+	arc=none smtp.remote-ip=213.97.179.56
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FECF606A337;
-	Thu, 19 Nov 2026 19:55:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9FECF606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC9E5606A331;
+	Thu, 19 Nov 2026 20:21:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CC9E5606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=oH5kjYX9
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AJJQFod3857977;
-	Thu, 19 Nov 2026 19:54:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=qUumBf+yvrMPq1LrevvQ5muT+FYrWL
-	10mpJk4Q9mBhs=; b=oH5kjYX9JwBL3BFCiA2GQ6Q0kF7PljV4Ig5NqfH9+actUW
-	nVGJwCz2iYbXEvdWmTjDSUuRVVFhrOOgPovyBsJlLF2wVYjkVEMkSM6fvI+PA7Lp
-	w1ga34y1+4Rm+L1fHDHTXecWG+FAXzDq+ZhR1KUIvlP6d1xE49TriutdUf/+tRqq
-	EuAvStznYVOanupDLm7bcAkk3ULo+avEDQFlwY+8zcBueCyPidDdslJkjPL1ptSC
-	8jkIEV+Cf20veeO7n6aAvZTHBqMr9PREmZjNay6trYLcbCKUay/92tIqj5eZ7Tv0
-	epJnjgdOOWTM1LzoEaM8b/uw7uCocYMurpVIWGeg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105w3bfy-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 19 Nov 2026 19:54:55 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AJJ4vhQ1345955;
-	Thu, 19 Nov 2026 19:54:54 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j1hd6xfy0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 19 Nov 2026 19:54:54 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AJJsow518022692
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 19 Nov 2026 19:54:50 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8ACEE20043;
-	Thu, 19 Nov 2026 19:54:50 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E2EB20040;
-	Thu, 19 Nov 2026 19:54:50 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.80.212])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 19 Nov 2026 19:54:50 +0000 (GMT)
-Date: Thu, 19 Nov 2026 20:54:48 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vlastimil Babka <vbabka@kernel.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 00/14] s390/sclp: replace page allocator calls with
- k[mz]alloc()
-Message-ID: <e7aece4e-7dc5-455b-a631-721ab99e2546-agordeev@linux.ibm.com>
-References: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=r/pSEXxD
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From:From:Reply-To;
+	bh=lKqTvjfVAMuV2tixJjKzEjlDg6oeaFaEwcBN1UQ2ZBQ=; t=1795119718; x=2110479718; 
+	b=r/pSEXxDxhVPCQy3OjmmLOJLN9mwpAJAg66ni/PRgwHzZwdEMQvhxwNCG9bo/R2jbwEY5A8Q7Fv
+	tZaYmUTG8MB6qiqpSV+qz/0HVKtqpkaHJxs4wX9iW+TXvLHhSwLDjvueMW62SqDt48KXRbBxPSmiF
+	wiNGPRxeTbKqeaBee45IUGte+KC+WRPBSNzZdG83L7P67V2evkVwSG8n5D5izgAcp24Z5zTDvDMSU
+	WSKdEzrIcbePfax0ZaD/z6ImzNny1Ac2DOSUx3+vN2KAjMZV4Fto25mH6x6126aWD4+C40nmGW+9a
+	tu6rB7q1mpKXF+bvJf/EDpcn3Nkg+PaK8mbA==;
+Received: from [177.172.124.218] (helo=[192.168.15.100])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1xU8dm-00000001cIK-1RKD;
+	Thu, 19 Nov 2026 21:21:54 +0100
+From: =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
+Subject: [PATCH v10 00/16] syscalls: Add a shared table for all archs
+Date: Thu, 19 Nov 2026 17:21:50 -0300
+Message-Id: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -95,102 +60,190 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261117-s390-sclp-ready-v2-0-e518c99622c6@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vArSZlzO0-sG1YYaAhCwBZXx_D79nzTA
-X-Authority-Analysis: v=2.4 cv=Z8x5j3RA c=1 sm=1 tr=0 ts=6aff540f cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=TmjFby08mKWOAxAHkrkA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: vArSZlzO0-sG1YYaAhCwBZXx_D79nzTA
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTE5MDA3NyBTYWx0ZWRfX+ubZyRpjqjTH
- Xytrqff2ozuSNCaIc95w3XNzQ9CC2eY0BHIygLD0QeHf+LwN9clBqt7Sllqxsljpx1mEpsrg3a6
- Z1sG4870orpJ7cJc4abB74Byat9rmCg=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTE5MDA3NyBTYWx0ZWRfX0MpdOWjivhif
- wZns8I+PVrQ5LC9X77eNl+V4C33psnPXCO52ttyXNbzw1OQ1fpY3OILtyBvGpm5PvA7G/3XvlZ+
- QIQZ9aS4Ne+dR+GCD0a/TmQLlhnNlF2Q2AFnhRQFqlLPLaVsH5dH01rfKfEoEhZ63JjIrndzJpH
- ulYGtNY9qanc2Brq08wYa86teWuMNrAAlEzLdP/AqaJNU4OPDl3Kf2zXm7il4R4asuNhjJGoyuE
- eII89dvWMkSr1DEAqeScFsKwYn9+T9wJyPy40ovOKeLkorLHrvFFHhJV7BjOv2bj7iq/Wndbq+K
- tWziYtDz4fGigKdpH2EPszOlUdG8JAiK23zBvFNa/GQWynr+U33iZtEooNTbh9D/yA0N7aOUk6L
- hmueakbV8n68hC3fJeFx/mCPk97Uy6H6dikQTJSQWwsD3/NQbRei2nGBM4zJJulIZ2qhujuV9wz
- 3DGGUtt7XJgCq6BA2ig==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-19_05,2026-11-19_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
- adultscore=0 bulkscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611190077
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43Q207DMAwG4FeZck1R4pwcrngPhFBO3QLdippSM
+ U17d9IhsaJ0iEtb9vdbPpEchxQzedicyBCnlFN/KAWjdxvid/awjU0KpUGAgqIaRDP2h+Nbk4/
+ Z2657Ga3rYmMAnXPMgXKOlM33Ibbp88I+PX/X+cO9Rj/O1DyxS3nsh+Mld2Lz3N8JE2toY7zkD
+ FEAD/YxbW2X7L3v92SOmGCJ6HUEZkQG0bIYhWZthfArgvQGwguivZAWuJfUyQoRC4TBOiJmRGC
+ gAMYGQStE/gORBeGBIzegvaKmQtQCAVxHVEHaELhEIZVvWYXoK2LYjZ/oGRE+YIuRg6p/gkvkx
+ iVYEBohKOptYDxWiPlBGKNyHTEFwcBAS0QZjP+FnM/nL220kPTyAgAA
+X-Change-ID: 20260724-tonyk-syscall_table-928bbb1b26bb
+To: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>
+Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org, 
+ linux-kbuild@vger.kernel.org, kernel-dev@igalia.com, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev, 
+ linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ linux-perf-users@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, 
+ Magnus Lindholm <linmag7@gmail.com>, 
+ =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
+X-Mailer: b4 0.15.2
 
-On Tue, Nov 17, 2026 at 03:06:52PM +0200, Mike Rapoport (Microsoft) wrote:
-> This the next episode of conversion of page allocator calls to kmalloc
-> family :)
-> 
-> This series covers SCLP buffer allocations.
-> 
-> = tl;dr cover letter copied from the previous posts:
-> 
-> This is a (small) part of larger work of replacing page allocator calls
-> with kmalloc.
-> 
-> My initial intention a few month ago was to remove ugly casts [1], but then
-> willy pointed out that Linus objected to something like this [2] and it
-> looks like more than a decade old technical debt.
-> 
-> Largely, anything that doesn't need struct page (or a memdesc in the
-> future) should just use kmalloc() or kvmalloc() to allocate memory.
-> kmalloc() guarantees alignment, physical contiguity and working
-> virt_to_phys() and beside nicer API that returns void * on alloc and
-> doesn't require to know the allocation size on free, kmalloc() provides
-> better debugging capabilities than page allocator.
-> 
-> Another thing is that touching these allocation sites gives the reviewers
-> opportunity to see if a PAGE_SIZE buffer is actually needed or maybe
-> another size is appropriate.
-> 
-> For larger allocations that don't need physically contiguous memory
-> kvmalloc() can be a better option that __get_free_pages() because under
-> memory pressure it's is easier to allocate several order-0 pages than a
-> physically contiguous chunk with the same number of pages.
-> 
-> And last, but not least, removing needless calls to page allocator should
-> help with memdesc (aka project folio) conversion. There will be way less
-> places to audit to see if the user was actually using struct page.
-> 
-> The patches are deliberately kept small, so that every conversion can be
-> reviewed, and if needed reverted, on its own.
-> 
-> Also in git:
-> https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-sclp
-> 
-> [1] https://lore.kernel.org/all/20251018093002.3660549-1-rppt@kernel.org/
-> [2] https://lore.kernel.org/all/CA+55aFwp4iy4rtX2gE2WjBGFL=NxMVnoFeHqYa2j1dYOMMGqxg@mail.gmail.com/
-...
->  drivers/s390/char/sclp.c         |  9 +++++----
->  drivers/s390/char/sclp_ap.c      |  4 ++--
->  drivers/s390/char/sclp_cmd.c     | 13 +++++++------
->  drivers/s390/char/sclp_con.c     |  5 +++--
->  drivers/s390/char/sclp_config.c  |  4 ++--
->  drivers/s390/char/sclp_cpi_sys.c |  4 ++--
->  drivers/s390/char/sclp_ctl.c     |  5 +++--
->  drivers/s390/char/sclp_ftp.c     | 14 ++++++--------
->  drivers/s390/char/sclp_mem.c     | 12 ++++++------
->  drivers/s390/char/sclp_pci.c     |  8 ++++----
->  drivers/s390/char/sclp_sd.c      | 20 ++++++++++----------
->  drivers/s390/char/sclp_sdias.c   |  5 +++--
->  drivers/s390/char/sclp_tty.c     |  5 +++--
->  drivers/s390/char/sclp_vt220.c   |  4 ++--
->  14 files changed, 58 insertions(+), 54 deletions(-)
-> ---
-> base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-> change-id: 20260907-s390-sclp-ready-05ebba1ea5e9
+While implementing a new syscall, we need to wire up it's number to the arch
+table. Since syscall number 403, all architectures are on sync regarding the
+number (except alpha), which make things a lot easier but more repetitive as
+well. Have a look at commit b36d4b6aa88 ("arch: hookup listns() system call"),
+with 15 lines of mostly:
 
-Applied, thanks!
+  +470    common  listns                          sys_listns
 
-> --
-> Sincerely yours,
-> Mike.
+There's already a "common" table shared with a bunch of archs at
+`scripts/syscall.tbl`, but due to historical reasons some archs will never be
+able to move to this table and share all the numbers.
+
+The generic table starts from 403 (clock_gettime64), the first common syscall.
+
+I've compile tested for arm32, arm64, s390, mips, sparc and alpha by comparing
+the syscalls_*.h and unistd_*.h files generated before and after this patchset.
+For most of cases the files are identical, for the few cases that they are not,
+there's a note in the commit explaining why they are equivalent.
+
+This patchset depends on recent alpha commits (from "alpha: fix saved registers
+in page-fault oops dumps" till "alpha: use generic CPU device registration
+until") that can be found at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/lindholm/alpha.git
+  branch: for-next
+
+Thanks!
+	André
+
+Changes in v10:
+- New patch for synchronizing perf with the new common table
+- Fixed missing oabic entry for sys_syscall
+- Reworked --common-offset option to make the syscall numbers look like #define
+  syscall (<offset> + <nr>) instead of the final number
+- Rebased on top of new syscall alpha patches
+- Link to v9: https://patch.msgid.link/20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com
+
+Changes in v9:
+- arm: get arm32 back. The local syscall table entries was splitted making
+easier to deal with OABI, OABI with compat and EABI.
+- Link to v8: https://patch.msgid.link/20260918-tonyk-syscall_table-v8-0-0e2d60cad13e@igalia.com
+
+Changes in v8:
+- syscall.tbl: Fix clone3 entries for nios2 and openrisc.
+- arm: Dropped arm32 from patchset for now, till we figure a good way to deal
+  with OABI issues
+- mips: Removed common file (syscall_n.tbl) for syscall_n32.tbl and
+  syscall_n64.tbl
+- alpha: Fix __clone3 entry
+- Link to v7: https://patch.msgid.link/20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com
+
+Changes in v7:
+- mips: Fix rules to make it rebuild when tables file change
+- mips: Update unistd_%.h rule to new table files
+- arm: Add back syscalls from 403 to 423. arm can't use the common table
+definition for those syscalls, because the common table defines compat entry
+point for some of them, and arm32 does not. On arm32 with OABI, this will cause
+linking issues.
+- Replace mktemp -p with mktemp, to make it more portable
+- Link to v6: https://patch.msgid.link/20260828-tonyk-syscall_table-v6-0-fdd358456cf1@igalia.com
+
+Changes in v6:
+- Rebased on top of 7.3-rc0: new syscall fchroot()
+- Fix compliance with POSIX shells
+- Add $(syscalltbl_common) to the prereq build files, so the build is triggered
+if the common table changes
+- v5: https://patch.msgid.link/20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com
+
+Changes in v5:
+- Add archs lists to Cc
+- alpha: Change custom alpha_syscall to __syscall
+- mips: Use "common" for all ABI tables
+- mips: Kept it as a single table for n32/n64
+- Fix bug introduced by mixing --offset and --compat-offset
+- v4: https://patch.msgid.link/20260812-tonyk-syscall_table-v4-0-748d0229ad40@igalia.com
+
+Changes in v4:
+- Replace cln3 with clone3 in the ABIs
+- mips: Get rid of custom mips ABIs (o32, n32, n64) and use 32 and 64
+- mips: Unify n32 and n64 tables
+- Add alpha to the syscall party, along with it's adaptations
+- Remove --no-compat option and define SYSCALL_WITH_COMPAT() macro for archs
+that need it
+- v3: https://patch.msgid.link/20260807-tonyk-syscall_table-v3-0-7c45a23c50b5@igalia.com
+
+Changes in v3:
+- Removed x86 for now, let's wait till x32 is dropped
+- Added much more archs
+- v2: https://patch.msgid.link/20260727-tonyk-syscall_table-v2-0-95d4f1ee471f@igalia.com
+
+Changes in v2:
+- Managed to move to the real first common syscall: 403 (clock_gettime64)
+- Added -no-compat option to be used with x86_64
+- v1: https://patch.msgid.link/20260724-tonyk-syscall_table-v1-0-9c53188423da@igalia.com
+
+---
+André Almeida (16):
+      syscalls: Make --abis parsing more robust
+      syscalls: Create unified partial table for all archs
+      scripts/syscall.tbl: Use the common table
+      s390: Use the common syscall table
+      sparc: Use the common syscall table
+      mips: Remove duplicated syscallnr.sh
+      mips: Get rid of custom mips ABIs for syscall tables
+      mips: Use the common syscall table
+      syscalls: Add an option for offsetting the common table
+      alpha: Define entry point for set_mempolicy_home_node syscall
+      alpha: Use the common syscall table
+      syscalls: Avoid matching substrings in the ABI parsing
+      arm: Reorganize syscall table and separated the ABIs
+      arm: Use common syscall table
+      perf: Add an option for common table for build_tables()
+      perf: Synchronize syscall tables with shared table
+
+ arch/alpha/kernel/syscalls/Makefile                |  14 +-
+ arch/alpha/kernel/syscalls/syscall.tbl             |  49 --
+ arch/alpha/kernel/systbls.S                        |   1 +
+ arch/arc/kernel/Makefile.syscalls                  |   2 +-
+ arch/arm/kernel/entry-common.S                     |   4 +-
+ arch/arm/tools/Makefile                            |  15 +-
+ arch/arm/tools/syscall.tbl                         | 153 ++--
+ arch/arm64/kernel/Makefile.syscalls                |   4 +-
+ arch/arm64/tools/syscall_32.tbl                    |  69 --
+ arch/csky/kernel/Makefile.syscalls                 |   3 +-
+ arch/hexagon/kernel/Makefile.syscalls              |   2 +-
+ arch/loongarch/kernel/Makefile.syscalls            |   4 +-
+ arch/mips/kernel/scall64-n32.S                     |   1 +
+ arch/mips/kernel/scall64-n64.S                     |   1 +
+ arch/mips/kernel/syscalls/Makefile                 |  28 +-
+ arch/mips/kernel/syscalls/syscall_n32.tbl          | 735 +++++++++---------
+ arch/mips/kernel/syscalls/syscall_n64.tbl          | 707 ++++++++----------
+ arch/mips/kernel/syscalls/syscall_o32.tbl          | 827 ++++++++++-----------
+ arch/mips/kernel/syscalls/syscallnr.sh             |  26 -
+ arch/nios2/kernel/Makefile.syscalls                |   2 +-
+ arch/nios2/kernel/syscall_table.c                  |   1 -
+ arch/openrisc/kernel/Makefile.syscalls             |   2 +-
+ arch/openrisc/kernel/sys_call_table.c              |   1 -
+ arch/riscv/kernel/Makefile.syscalls                |   4 +-
+ arch/s390/kernel/syscall.c                         |   2 +
+ arch/s390/kernel/syscalls/Makefile                 |  12 +-
+ arch/s390/kernel/syscalls/syscall.tbl              |  49 --
+ arch/sparc/kernel/syscalls/Makefile                |  12 +-
+ arch/sparc/kernel/syscalls/syscall.tbl             |  69 --
+ scripts/Makefile.asm-headers                       |  11 +-
+ scripts/syscall.tbl                                |  69 --
+ scripts/syscall_common.tbl                         |  84 +++
+ scripts/syscallhdr.sh                              |  83 ++-
+ scripts/syscalltbl.sh                              |  46 +-
+ tools/perf/arch/arm/entry/syscalls/syscall.tbl     | 153 ++--
+ .../perf/arch/mips/entry/syscalls/syscall_n64.tbl  | 707 ++++++++----------
+ tools/perf/arch/s390/entry/syscalls/syscall.tbl    |  49 --
+ tools/perf/arch/sparc/entry/syscalls/syscall.tbl   |  69 --
+ tools/perf/check-headers.sh                        |   1 +
+ tools/perf/trace/beauty/syscalltbl.sh              |  38 +-
+ tools/scripts/syscall.tbl                          |  69 --
+ tools/scripts/syscall_common.tbl                   |  84 +++
+ 42 files changed, 1875 insertions(+), 2387 deletions(-)
+---
+base-commit: 17ef53bb8c797a1a9a60021355c636bf63c46886
+change-id: 20260724-tonyk-syscall_table-928bbb1b26bb
+
+Best regards,
+--  
+André Almeida <andrealmeid@igalia.com>
+
