@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795092923;
-	b=1B9cXT49Xzjy1a8eFydjTNuZ/lkyw6JBG4PIj7PLnDo0+fX0U3FRVSzppAKQcYVQ2949
-	 7Y3+kpJfuWVrWtNkoqVZGe0dF3ZZ3SEFKbhtUcPpKRZih3sdKJnM01VSIuBNK1ttqPPTd
-	 x2W8aIR83Mu3XMDb6uwUHGvwBwq+nhrSZ1gzQzvG0hygOgH24+A7LFGfwhwBSPtVYwIu6
-	 jtnCfkQeqmjtczu2/T8jKHawi5/BHZfRXWE/NFhnmf5KVsk4vUIOBLk+mzauAxrkjjSsQ
-	 hEcYiShADCfq0MFYDJcirNim4mZVOucLhERO8AK/5gI8A529xSSXXrbxlr+MAgesoGw==
+	t=1795093086;
+	b=s1ZtWqR9qK1QeUlUruZuSbTvFAmhcI2Mya2bcH7Oy/b7zwthmNlB4FU6a8tZlTZzBdxo
+	 u5ETFzZaUCR3PbZGwtoxeb0uvCkKCe1S29UY526xB7n1w5JcJ+cDD8nWP5aKLaCxQNGIY
+	 H67c46s1wkcE2JzDOlaQabor1sVZH1GhqlmlE7HqGBiaDT5b6UvtneETALtKSoFEjA9wK
+	 UC0CuGX+qHREVcOKZP4eHKUSXNDniwmvnZjEjs3uRJpLVFIy1oxfeM3NRktZBZbEc0S87
+	 s0iJnjC1qKNxypZ/4EnWeXlo5KrgyeTzu8araI8MZLv0ibu9GIMb06gk7wl8CBcQ9JA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795092923;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795093086;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=nYKkU96QcEegYDBZoex7LnmQcPsYVfYg4uNNfbI5yq8=;
-	b=IIrJokWjsiZg48Mf4sKOW2EtiFIyiLKAUPJChigNgD/TYIdgP7oeo9zkHX5q1oq7paWB
-	 GrBmKUluIEmmUgoeglPp/ocMzhVEKKQ0LYsRX8bJV46z3nzDCfP5cCClPgQReXN2WwL6Q
-	 p5+olMgt+4EYbLCR7FHP6tjEcalVfWdHeVY6m3EhLULEcjsOGVPvrAB4lc7cPvMfmNLKe
-	 Oo18X/ku8mIwthw0fjf0L6bfxIfR+0qWT9lsmQrQiV0RBl3dxzA4CbHp90w8ICphN0fZO
-	 qgBM/hNBuLscw4qYVeK+EPsSCL0gRvwpeeEtDj0fA+bXERUz2IPp2LcjAbftKHv0yvQ==
+	bh=lM88TxdmzrvxGgSKsPTafF1Ixpi7japL3r8pF6i6ejo=;
+	b=0eMqnWq15gbcq3YozP+D+9PEViPPecEYDBCyfTeiJGZG2c0G02xFrwZF7KH1B58/4ip7
+	 irah3rNJ/TQ1D1UyEBnmN3mbgE4+9Z4TEl2mG/pcvBQRdrDTgA2v8lux+wPL45RA/fCGU
+	 Zn0OxP7947ZJB7f+eKtySMC2lOG49wYFDLwdLD4p4oOSyB+xh3P/ST4BBrBxm1ohU4f68
+	 qq5lQtdOW+P06NhI8Jxr2RCLcSgZT2Vp0PveVceit4ugzWYmgsV3+Af3BVLxpwqnH4aR4
+	 eWVEqvHMkhVn7yvPxgu9nJek1nYeVAQl7zYe3iFc/W1ZcCzav9QQJK6SY+s2HemY3MA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kZ2RBZne;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eG6byf3h;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8342D606A332
-	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 12:55:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BD1E606A33C
+	for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2026 12:58:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kZ2RBZne
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14D891F000C6;
-	Thu, 19 Nov 2026 12:55:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eG6byf3h
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEDF21F000C4;
+	Thu, 19 Nov 2026 12:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795092923;
-	bh=nYKkU96QcEegYDBZoex7LnmQcPsYVfYg4uNNfbI5yq8=;
+	s=k20260515; t=1795093085;
+	bh=lM88TxdmzrvxGgSKsPTafF1Ixpi7japL3r8pF6i6ejo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kZ2RBZneRsNGW58BIZSGUGZO05C85D4R/Xc7rV5oQ1LjG2GQaHkbQTQ4egBNSK3xd
-	 JIZTcm4Xtqi9B0o+asmNgG8KebOTETlL9WaJ+FN2jp9GxASK2KbwOGw57OU2nJEFwJ
-	 xDSggAKh+n3f0JOX/tNKhwHqR87fKeb25jo63wUWmt6aInXJhGGhbExd4dnaCEY05k
-	 gtWFC0lZAlQbzEf7NdjtD/nL/lL1ZkfNYP4kttkHDt1pM0SaYZrNwl8E+xDDZ+tHf1
-	 iLddtOp58t/PyG4aan76FEYVU2+wxDboW734QDcp/AnfRz9BYsF3DDWsYTukl7qCwb
-	 cqT+U0Ycql8Hg==
-Message-ID: <sashiko-outbox-223126@kernel.org>
+	b=eG6byf3hjyF0NL4jIFG8Xf8nSzofjGy2JU9ZAQy4nUPsrIBVsC9Na1wLyAWoiNb0C
+	 E0SEdKcX4HcinIIrkFcmeTqgGemWyUJDZi4jfNOPClli+zJhh7yLRCsMSl/W8qW/ZB
+	 DivSVK2rkPnj2GW0yT8IvUoRtqubDZGtsszKnyjvscGSsqmCRHVljzXIXRRBx0qcDG
+	 4nbn2p0AK0Puen7uY9gNlhJpcYc4e88RbH1Q3c4HIRXRw8b0wonDnQF0UeRyDoiHKi
+	 hp6DPpiq9eze17w79ZEF1kNUQukmF9K9wGM2oxY1vbSniKDyGuGh5UU7SqpuZbZEDh
+	 bziAKNbJj30BQ==
+Message-ID: <sashiko-outbox-223127@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 1/2] KVM: s390: vsie: Do not overwrite guest 3 state
- on early validity icpt
+Subject: Re: [PATCH v1 2/2] KVM: s390: selftests: Add vsie validity
+ interception tests
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Gautam Gala" <ggala@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261119124936.33396-2-ggala@linux.ibm.com>
+In-Reply-To: <20261119124936.33396-3-ggala@linux.ibm.com>
 References: <20261119124936.33396-1-ggala@linux.ibm.com>
- <20261119124936.33396-2-ggala@linux.ibm.com>
+ <20261119124936.33396-3-ggala@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 19 Nov 2026 12:55:22 +0000
+Date: Thu, 19 Nov 2026 12:58:04 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,32 +62,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> shadow_scb() calls prepare_cpuflags() first, which can reject the SCB
-> provided by guest 2 with a validity interception. This happens before
-> the guest state (gpsw, gg14, gg15, gcr, cputm, ckc, todpr, pp) and the
-> control fields (gbea, fpf) are copied from the original SCB into the
-> shadow SCB.
+> Add tests for validity interceptions raised during vsie shadow SCB
+> setup. An interception raised before any guest 3 state has been copied
+> into the shadow SCB must report only the interception data (icptcode,
+> ipa, ipb) to guest 2. It must not write back guest 3 state, in
+> particular cpuflags, ihcpu and icptstatus.
 >=20
-> The error path still calls unshadow_scb(), which copies that state from
-> the shadow SCB back into the original one. The shadow SCB does not hold
-> guest 3 state at this point:
+> Check the early validity interception with a new and a cached vsie
+> page, for the RRF, SLSV, GED+GED2 and ESA mode cases. The cached case
+> leaves stale state in the shadow SCB (for example a non-zero
+> icptstatus), so that a bogus write back to guest 2 is detected.
 >=20
->  - For a new or recycled vsie page, get_vsie_page() has cleared the
->    shadow SCB, so the guest 3 state in the guest 2 SCB is overwritten
->    with zeroes.
->  - For a cached vsie page that is looked up again by SCB address, the
->    shadow SCB still holds the state from the end of the previous run,
-> [ ... ]
-> so that no stale interception data is passed on to guest 2.
+> Also check that a valid guest 3 still has its state written back, and
+> that validity interceptions raised later (shadow_crycb(), pin_blocks(),
+> unmapped prefix) still report the reason code and leave the SCB
+> unchanged.
 >=20
-> Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtual=
-ization")
-> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> The early validity cases fail without the preceding vsie fix. Skip the
+> test if SIEF2 is not available, and skip the GED+GED2 and CRYCB cases
+> if facility 78 or 76 is missing.
+>=20
 > Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119124936.3339=
-6-1-ggala@linux.ibm.com?part=3D1
+6-1-ggala@linux.ibm.com?part=3D2
 
