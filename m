@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795080112;
-	b=zKZfx1a4jQ5J/G0OHu2AUTdeu+0lG+cIevKypVhjjNLfVfzqs6+mS0qrwTUpElLS2MLG
-	 EptaSMDfLgHkK/9tqYvhplj2TrbsWajdNNSrM2r1KuK7bU1WWIULchkZ2/af+89AdMyqH
-	 B0Bac7P9+PpMRSfDxtVapi9Wpq6i7YwiXquY+4hbGrjcXDyp4THzDHULG+ie0HjXnXEpC
-	 O34acrsCgbe4uT+NPadBmMw11ELzBka1LV8Fyh2oHqjbxetl4Dc9gxgoPh1aH220ntriQ
-	 iuvSJVTt97+0JVCF7sFhG0lb0TVzJMIePy6RBDQwKWDxMeQ6CPQnKl9iRv0EY6Vhluw==
+	t=1795080331;
+	b=e/gg/t2oBsmLw7IyD++kFkesNW3N4S9WBkqkOJTXM4OupesuHGhZP2RtcZD0N9hp6zv9
+	 kFO5YLtqY4hUEXDDPb77yoEJKTcSf02hkP9jOwGuCbI8lLhkrQvaH7rnfUeJb2B4s8drP
+	 NfyiP9zFMVt0Dwg4P4y4SymrGqkrGQdy4uQrIez7NBCgGjKRcoxQXolk/YjacUBqpD8VX
+	 CG/Y4BhLOuxnIRkGY5RR/CIMagSCIijDSmUQbx2DO2Elyfcuj7LKNi4fNqSoVzJCRb0xk
+	 xGB20N5FWIQLh9eDsH0AGU67OoAvMHisnmo9vCXhtsON5v19cL+3Nc4LwRpP0KjBkTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795080112;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795080331;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=5Wr5mBmCRIZACCxxVm/06jDLVb0/ss7nm5ggZMozLNA=;
-	b=22WEEWvPMycouyAI2i8tgxrm1nzj6Yfx6RD7r/9OlaKsweiAH709oNu1x1NNzcO7dDhF
-	 jaSszUZN2htz3Y/sJ0Edb0NIo2FlVqQIv5Dg3UJdE4EH3i4iHitE1ksBu1nVFvF+Votxv
-	 57xwpaMg61EuDqCFtMEn6RzGrWWGeaVlghpzW/eqnc63VMZf384j5USY+j6pTkvTeySDG
-	 c0KvhCh+V/ZqdSjD/vHuCf7cHq7c/BmWHuSJNzW1lt4d7nhjdgSojMF8vmc/8RpKX2yqd
-	 w5YK3hgdYo1GyAc4e0J1aitPnfjL2uicRhQNNM5C8DYqpU+TCv9PPqqvkWhvwAL1MWg==
+	bh=ykzNXonS4EXpUTddVAokRRmNVBMx3zTvxuXv3tt6jrA=;
+	b=tOHZmFUQqCDS1UHv0n01FV2mlmvd8EHTUhiIbbrXdiAssdeJYCzK7KyX3M83SfkADz0x
+	 Ymjyj1e/+BVzgmcGcR9WXI9iZX2HAwGJ/FgyeC6nVR9EcX24V8UVilrLwyZLvKBpqcLOC
+	 FiCY+nfwESIj9qfZx0vcS7lnvOhyd0sAkuPGIXuQSXLk7WuT8UAmhbY5ghXyc/ugIq9wZ
+	 vI6rBh1f9RjqQ26H7qewBLocWuTQ60RYb3ty7hyc5XmmzUKQ1d72lRwOh0kXwPid3LDpv
+	 Zuma5bJgfQsnHR/15ExkwVIaLU+gy7N8pl14KCtYnrr6fq2X3vZjptblNuWB2uQwSAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nsjvME0P;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="U/a7b/tR";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1696F606A32A;
-	Thu, 19 Nov 2026 09:21:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4209606A320;
+	Thu, 19 Nov 2026 09:25:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nsjvME0P
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CEF1F000C5;
-	Thu, 19 Nov 2026 09:21:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U/a7b/tR
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC2281F000C5;
+	Thu, 19 Nov 2026 09:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795080111;
-	bh=5Wr5mBmCRIZACCxxVm/06jDLVb0/ss7nm5ggZMozLNA=;
+	s=k20260515; t=1795080331;
+	bh=ykzNXonS4EXpUTddVAokRRmNVBMx3zTvxuXv3tt6jrA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=nsjvME0Pz0scMadhgpwHZPUo0otG94zFoSunBqCc/ZSA51ayJFG8XqUgDzzVs9Kfq
-	 3P+ziEEQQJWx3OysvzemIRFFeoie9jwxaDw22jftfAxZgwFDyhMCvLx5A4P3f8620s
-	 1eWHtIXTDL1mhK8xJXXRt4XlGQI/HnGU3ZC/PIv/tfgU6XMBYyWP+YwFXlhGUaJCg4
-	 ZOdBHhg+WiQFjUzLs9J5RL8/A/ACyTs7vPnDwfbaENEsz0bqTu2Jtq8PFV1wXKxqIC
-	 lEi+uM3OYdUCpyTUH1K3L12s49gJNUVKHPYKHuEktEtvpC35sURPiFFyWMN6vajWEG
-	 E2Ax/gq4PoIng==
-Date: Thu, 19 Nov 2026 10:21:39 +0100
+	b=U/a7b/tRhB8CSGT20eIHplkYFnOjIl0jl1P2BKWpqserpdTar8rZB/iL+28k4xgEX
+	 RAe4srUmFH860mmQuuqauf+aCBEZMA05LBWTZJeFuWc4/pDEw7H4zNwyJ9jjFBkEgO
+	 P1oN9DABuhlAvY9p6B9nv+OU3L2aK6i2S3Z5jBQRrL3hBhH6u7EDKVIkeVQpciiQ3s
+	 gzclqEsBfSrLpqV19oScY15ygIOAL6spSiDl9Ma8gcJSmE8KSomJVIfweRJutFtVJ2
+	 gFuDyLF9ZxXpXQaziu8mrHK12yt2wZuazhsdwVwHpf+Sge8TYoD6aWdk9lFGdz4FmE
+	 XzmO5ASh87W4w==
+Date: Thu, 19 Nov 2026 10:25:18 +0100
 From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
@@ -73,11 +73,11 @@ Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
 	Chris Mason <mason@kernel.org>, stable@kernel.org,
 	"Gregory Price (Meta)" <gourry@gourry.net>
-Subject: Re: [PATCH v2 12/15] mm/hugetlb: keep surplus folios that are
- reserved
-Message-ID: <av6_o6kr6Thpc0ds@localhost.localdomain>
+Subject: Re: [PATCH v2 13/15] mm/hugetlb: fix reservation leak on min_size=
+ mounts
+Message-ID: <av7Afqpp-C9pqcR3@localhost.localdomain>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-12-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-13-4dd9e94ea9ac@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -89,37 +89,61 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261116-fixes_hugetlb-v2-12-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <20261116-fixes_hugetlb-v2-13-4dd9e94ea9ac@kernel.org>
 
-On Mon, Nov 16, 2026 at 07:29:33PM +0100, David Hildenbrand (Arm) wrote:
+On Mon, Nov 16, 2026 at 07:29:34PM +0100, David Hildenbrand (Arm) wrote:
 > From: Chris Mason <mason@kernel.org>
 > 
-> free_huge_folio() may restore a reservation, but still returns the folio
-> to the page allocator if its node has surplus huge pages.
+> Failed allocations for CoW mappings can leak reservations on hugetlbfs
+> mounts with min_size= and no size=. The leaked reservations survive
+> unmount.
 > 
-> For example, start with no hugetlb folios and allow one surplus 2 MiB
-> folio:
+> Note that this is only an accounting error and not a memory leak.
 > 
->   1. Mount hugetlbfs with pagesize=2M,min_size=2M. This allocates and
->      reserves one surplus folio: free=1, reserved=1.
->   2. Create a 2 MiB file and write to a shared mapping of it. The fault
->      consumes the folio and its reservation: free=0, reserved=0.
->   3. Unmap the file and truncate it to zero. The mount's reservation is
->      restored, but the surplus folio is freed: free=0, reserved=1.
+> HPG_restore_reserve makes free_huge_folio() restore the global
+> reservation without returning it to the subpool. This assumes the
+> reserve map holds the reservation. However, a CoW mapping may have no
+> reserve map, or the map may already account for another folio at the
+> same index.
 > 
-> Besides losing a hugetlb folio that is required for a reservation, this
-> can also make available_huge_pages() underflow and cause other issues.
+> Commit 58db7c5fbe7d ("mm/hugetlb: fix avoid_reserve to allow taking
+> folio from subpool") allowed owner CoW allocations to consume subpool
+> reservations. Commit 51e1de00acdb ("mm/hugetlb: simplify
+> vma_has_reserves()") later extended this to CoW mappings without a
+> reserve map.
 > 
-> Keep the folio in the pool if it is needed to cover reservations,
-> including any reservation we just restored.
+> For example, with a subpool minimum of one page and a
+> MAP_PRIVATE|MAP_NORESERVE mapping:
+> 
+>                                       subpool       global
+>                                       rsv_hpages    resv_huge_pages
+>   1. Mount                             1             1
+>   2. Allocate using subpool reserve    0             0
+>   3. Free on error with flag set       0             1
+>   4. Allocate without a reservation    0             1
+>   5. Free and return to subpool        1             2
+> 
+> Call folio_clear_hugetlb_restore_reserve() for CoW mappings when
+> map_chg != MAP_CHG_REUSE, meaning no reserve-map reservation was consumed.
+> This lets free_huge_folio() return subpool reservations to the subpool
+> on error.
+> 
+> Do not set the flag again if region-cache allocation fails during
+> rollback: that would undo the flag clearing and skip returning the
+> reservation to the subpool. This also fixes the older case where setting
+> the flag invents a reservation for an unreserved allocation for a CoW
+> mapping.
+> 
+> The doc still mentions PagePrivate at various places: future work should
+> clean that up.
 > 
 > Fix generated by an LLM and sent by Chris Mason in private.
 > 
-> Fixes: 07443a85ad90 ("mm, hugetlb: return a reserved page to a reserved pool if failed")
+> Fixes: 846be08578ed ("mm/hugetlb: expand restore_reserve_on_error functionality")
+> Fixes: 58db7c5fbe7d ("mm/hugetlb: fix avoid_reserve to allow taking folio from subpool")
 > Cc: stable@kernel.org
 > Signed-off-by: Chris Mason <mason@kernel.org>
-> [ david: simplify comment and description ]
-> Acked-by: Muchun Song <muchun.song@linux.dev>
+> [ david: simplify comments and improve description; updated Fixes ]
 > Tested-by: Gregory Price (Meta) <gourry@gourry.net>
 > Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
 > Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
