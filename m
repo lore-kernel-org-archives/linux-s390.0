@@ -1,82 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795206088;
-	b=xGtaWCksOFFsBbVO3ahfgxPzBrmugNK9Ju0kA4/LQ9be4OE44tD6CLqTIYJJ3oEswd7M
-	 e4v5B+96GRoKxzF581F+fBP3dpR5K+LvnYd6ZHEF0I/YvUeWhNJMrQBj4YDavhFWDLDRY
-	 JrdvP4L7fn4DFPRER5QhV+x4gCmqwAkIVx/hupi33QpRe2B7t9J9NktVxhxxNfj65cIRV
-	 dI85hgYy3f/QmpJbEZ4j8eOUk02gtft43TAEmagz/YhvlTZABXoopIu6Uw1Rs84XKlCsX
-	 gTYnsjy3fZyGVDMy0ZviDrMsDWeLbIcknsQN7D3wXP6jp6dGWeUAI0hIel2N+dR8Acg==
+	t=1795206225;
+	b=IyIEgxDPvBKC7HFhwfbiuEiU6p0ZgJoQ0hTGJuI1cx3RrJ6Q1Xpi8AD26zL/Wowpshww
+	 zFH/pnX3zKrsF0TpPndWTEVKdQf0A4cPPyDOUEghAIDYjXH8jlBbq48MUs8YtSwwAan5U
+	 287Do+zCK8ow346FwlXWv+YFT3GHBS3nWjfmoDswbAY6imqHIkqd+MkUFZLu8fI5XtHR+
+	 5cus7Cmq/ND8y6CYbOgoKZqR2ohxNmbWLCWv9RRf6SrLDlJ1ShDYEmbOeK6iBCLbl9DrQ
+	 xcxbXg9DxpO7c6QIk5jOEhkbz2YK6a5TmRjrkiM2VIlToO1RoShh80zUkLjTXdhxOUw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795206088;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
-	bh=FhubQ0AwqwjKKa4eYGPVP/A6yHZrg9Mpv8xAmXRO44Y=;
-	b=Ij2enmmz/2Bz+KPQvvl2SqpaJFotTobrSA98NYBFdEPF8WDyX6+6SUwmNJ3k3v7FtLP7
-	 +IEoYXPcdySgdYuKW7uk6vyyelOlP8CxLRfnarfnrrR/sdTUykrfVkKIaMmTgq3ZmVryk
-	 GNgmI8G2Il2MjBhGyJQXA4SedsXhOm7ikpiyytUg2LBMJO7ZeDDDDcayhU73FH9XE6Jpg
-	 2HrgAa5H2anV1lqVXjSYmsmjOqMCokHRluLkbhSnRmTJoUGdtGMJXoLmrTCP6ogx9OCLd
-	 pPEuECYPl1XnUmsehbNFisHf1YKFuzQNI3B9UPtN9DRrJswRfI1hZWfc2LSv5f6vyBw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795206225;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=KEYiBc1XjEbR3CQxbZcQGPLYtP8W2IuZQxHxW8BKFwM=;
+	b=lhhuIoV5kdDToc/wNmm9cuj0Lss87Ad15piHVhdc9u1H3cGj3AgJviFlp5P2GonH6aPH
+	 j35sJyEAFZh4LMo4hRrMvIkP3DnjGRRRvW4KCX6jbDE71uT3fFXihcX+cvuT2delKB4SJ
+	 M3ELFFbCL6w6arCX7qcijzSROjJVL0o0xNPTQ6AUPRNTrKSzDnlCbKh0LRnLv4ZkA7ZO8
+	 SpN5QHbe7CznRvrZFtiIaMkWBMFU922kc46Twij+MwVoA5FXkztxHAJgPcHp6cFqWIzbn
+	 vXBcz/SdOHYpTXKlsmYLCD48AwD5weQ4lVdKZhyx4L3FWjPor65VSlV2kiZuTcxf7tg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jQBjBqzG;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=atpT7sro;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 447D360A260A;
-	Fri, 20 Nov 2026 20:21:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 087DF606A320;
+	Fri, 20 Nov 2026 20:23:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jQBjBqzG
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id F21721F000C4;
-	Fri, 20 Nov 2026 20:21:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=atpT7sro
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B96701F000C0;
+	Fri, 20 Nov 2026 20:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795206087;
-	bh=FhubQ0AwqwjKKa4eYGPVP/A6yHZrg9Mpv8xAmXRO44Y=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=jQBjBqzG9wwGKgTzZ5RMcA461vYrebLjyuQVHxrMJIqVm6XCJroPZ2h9EzUP1NEuA
-	 u4q+mf95gFoA8IW250eIZU2W0j1/vSAhqkx1C0dlekzJVvN0bdbNNWp28gyMm2VPCW
-	 b4iTDPCGGsqOMBqAzbKqPUIQJarXsSX278GxUahwpHF+/sfv3N2I+y5I6aLg9gYzdO
-	 +rxuOihQ4f1ULAKCRdfKwCdvz2J8MOEl3zD6WFxuyXj6tBwZLrzDJIRPedq63s+/lv
-	 REUz6Qw2D/1KQfSp6Bv19VQNXAdR384dD0+9UhoiG/vhaLtWXbnwQwmpjWM/6x1eM1
-	 iQbBrcm1nn4iA==
-Date: Fri, 20 Nov 2026 21:21:13 +0100
-From: Nicolas Schier <nsc@kernel.org>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, Sasha Levin <sashal@kernel.org>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	linux-kbuild@vger.kernel.org, linux-s390@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-kernel@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>
-Subject: Re: [PATCH 2/2] devicetable-offsets: Get struct cpu_feature from a
- device-id header
-Message-ID: <awCruYkI2TkxJfPC@levanger>
-Mail-Followup-To: Nicolas Schier <nsc@kernel.org>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Sasha Levin <sashal@kernel.org>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	linux-kbuild@vger.kernel.org, linux-s390@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-kernel@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>
-References: <179424040477.1704532.18231793404479518924.b4-ty@b4>
- <av8Uv7EV3sLqUBfr@derry.ads.avm.de>
- <20261119194738.GC875856@ax162>
- <awAtvSIQeLJq2hvF@monoceros>
+	s=k20260515; t=1795206224;
+	bh=KEYiBc1XjEbR3CQxbZcQGPLYtP8W2IuZQxHxW8BKFwM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=atpT7sro8YgB0dHVBt8x703ctb2QCvDseefAX2YTskJZpofRPJO37A3OXtGiK/gON
+	 afNq/anjdZRaNfeBaIoGoego3qFaJkF6Xqi7MjyiTNhzi6d36LckyqrVllCwdzaDR7
+	 38iASBnxST8iQDnvWHUWgWPFJvnqs/fMKSOF8/K7b/FWXvBqKqBg010P94qaYs5RiI
+	 tDLluATlCL93N3k35RWtZc1mOBzcE8UUgBM7zYyO2GkwHfLSOgg5PUQd73woIkA5cL
+	 coI3IfnDcTsbZtXfLvyut0alo5WOtDZHxnODsyusML/k0zvmRcpl5VDRdvDKic5THx
+	 0Zj9EK0h6V6rw==
+Message-ID: <sashiko-outbox-226043@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v10 02/16] syscalls: Create unified partial table for
+ all archs
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>, "Masami
+ Hiramatsu" <mhiramat@kernel.org>, "Arnd Bergmanon" <arnd@arndb.de>
+Cc: "Christian Brauner" <brauner@kernel.org>, linux-kbuild@vger.kernel.org, kernel-dev@igalia.com, "Thomas
+ Bogendoerfer" <tsbogend@alpha.franken.de>, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, "Arnaldo
+ Carvalho de Melo" <acme@kernel.org>, linux-perf-users@vger.kernel.org, "Ingo
+ Molnar" <mingo@redhat.com>, "Magnus Lindholm" <linmag7@gmail.com>, nathan@kernel.org, nsc@kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261119-tonyk-syscall_table-v10-2-a7c9ebd900f6@igalia.com>
+References: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
+ <20261119-tonyk-syscall_table-v10-2-a7c9ebd900f6@igalia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 20 Nov 2026 20:23:43 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,59 +66,74 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <awAtvSIQeLJq2hvF@monoceros>
 
-On Fri, Nov 20, 2026 at 12:25:48PM +0100, Uwe Kleine-König wrote:
-> Hello,
-> 
-> On Thu, Nov 19, 2026 at 12:47:38PM -0700, Nathan Chancellor wrote:
-> > On Thu, Nov 19, 2026 at 04:24:47PM +0100, Nicolas Schier wrote:
-> > > So my questions:
-> > > 
-> > >  * Shall we keep it the way it is to keep the original patch order
-> > >    (bisect might fail on the two commits before this patch)?
-> > > 
-> > >  * Or shall the patch be moved before Uwe's (removing the 'Fixes' tag,
-> > >    and rewriting the commit msg)?
-> > > 
-> > > I am in favor of the latter.  Are there any objections?
-> > > 
-> > > 
-> > > [1]: https://git.kernel.org/kbuild/c/f1dc66c38b7eb4b2fb946a2fd6929250ecd2d85a
-> > > [2]: https://patch.msgid.link/bc9fbf5784f6788e10c749a05d56c42bdb68f3d9.1792144769.git.u.kleine-koenig@baylibre.com
-> > 
-> > If history is already being rewritten, I believe it is always good to
-> > fix potential bisection issues like this. Rewriting the commit message
-> > (and maybe some of the diff?) and placing it in an order such that the
-> > build cannot break sounds great to me (but others are free to disagree).
-> 
-> Full ack. I think the danger to hit that point during bisection is
-> small, but I like the 2nd option as this reduces the small chance to 0
-> in that case that people yell at me :-)
-> 
-> So from my side: go!
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] syscalls: inaccurate comments for ABI names and emit_nr()
+  parameter order
+--
 
-Thanks!
+commit c623dfa13f12a7f67002b068bc004d808cd6477b
+Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-I'll send a patch that combines both patches in a few minutes.  I plan
-to replace
+syscalls: Create unified partial table for all archs
 
-  * Move struct cpu_feature to <linux/cpufeature.h>
-    https://patch.msgid.link/bc9fbf5784f6788e10c749a05d56c42bdb68f3d9.1792144769.git.u.kleine-koenig@baylibre.com
+This commit adds scripts/syscall_common.tbl for syscall numbers shared acro=
+ss
+architectures and updates scripts/syscallhdr.sh and scripts/syscalltbl.sh to
+accept a --common-tbl option.
 
-and
+> diff --git a/scripts/syscall_common.tbl b/scripts/syscall_common.tbl
+> new file mode 100644
+> index 0000000000000..8085030eb869e
+> --- /dev/null
+> +++ b/scripts/syscall_common.tbl
+> @@ -0,0 +1,84 @@
+> +# SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
+> +#
+> +# syscall numbers shared by all architectures
+> +#
+> +# The format is:
+> +# <number> <abi> <name> <entry point> [<compat entry point> [noreturn]]
+> +#
+> +# The abi can be "32", "clone3", "__cln3" and "memfd_secret"
+> +#
+> +# clone3 stands for the common clone3 entry, used by most archs. Some ar=
+chs have
+> +# their special entry and should use "__clone3".
 
-  * devicetable-offsets: Get struct cpu_feature from a device-id header
-    https://patch.msgid.link/f610c07f39df15f3e7ebdc63bfcd759ca7a687a8.1794233316.git.sashal@kernel.org
+[ ... ]
 
-with it.  Please complain in case of objections or inappropriate tags.
+> diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
+> index bad1ab606a0fb..8f7dfcf19a4c5 100755
+> --- a/scripts/syscallhdr.sh
+> +++ b/scripts/syscallhdr.sh
 
-Have a nice weekend!
+[ ... ]
 
+> @@ -69,13 +76,35 @@ guard=3D_UAPI_ASM_$(basename "$outfile" |
+>  	sed -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' \
+>  	-e 's/[^A-Z0-9_]/_/g' -e 's/__/_/g')
+> =20
+> -grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$infile" | {
+> +emit_start_guard() {
+>  	echo "#ifndef $guard"
+>  	echo "#define $guard"
+>  	echo
+> +}
+> +
+> +# emit_nr(prefix, nr)
+> +emit_nr() {
+> +	local nr=3D$1
+> +	local prefix=3D$2
 
--- 
-Nicolas
+[Severity: Low]
+In scripts/syscall_common.tbl, the header comment lists "__cln3" instead of
+"__clone3" and omits the "common" ABI used by most entries in the table.
+Also, in scripts/syscallhdr.sh, the comment above emit_nr() documents the
+arguments as (prefix, nr), whereas emit_nr() takes nr as $1 and prefix as $=
+2.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119-tonyk-sysc=
+all_table-v10-0-a7c9ebd900f6@igalia.com?part=3D2
