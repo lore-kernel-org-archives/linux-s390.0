@@ -1,86 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795178204;
-	b=j1OkS5GEo4/UjAvzAsMqqWbNNUVYuV4bIfh4W0/pJHT8gSm7GMtaQnFH7nr2sdG29mf1
-	 eOzlnIrBk9qe7k8/jD0O2olne2oPp6R5vyz89KmYSxdEcTkFAgWMerFUJuMJ8PwG9L3RM
-	 2NSS2F0y8j+OyjMNAi6FcH4NH4YoWcnXcFJuVqQ4bszDNNyB5IAN/VUy2pfuDsj6JSqgW
-	 aJ944O7mPtwSff2L4PfaVKxg17pl5fj9MyjRaoQjAi8uynnK7HrdjJXbbsAGtIVEuCtXR
-	 AiYWy8Cg/Povo8qGb3uZhtysY/rHUBYD/NjGg7UpYhQvt/aUqw10XeAgVd3hLtOMt1w==
+	t=1795178761;
+	b=3f+zdW2Cv037Ekk4zzb3Bwg/qxb9iJIw5cmip2EbeHBUzpTblxlaVerULXCZV+Ojy2Nd
+	 PZ+xmA3U5xwHO9xCGYhi/FHSYKx5kADKMzb7/F6H7Xv0BA3OI777ZqZE1NbK608w2xO1I
+	 bMlrteUBqLGAv/JsITj040nn/Cv5dXsjmXq3r4HR5C1OHvYK5qKTH6aPz+B7p1q5lnCNV
+	 DPU4NyYRi5Xz4/0vIPKX0UzbLdCDoPDmfg0qUsU5pBIWLvfwwLDQ/x7vWuXxq18UET6Uc
+	 81RuZDKrz3XikRhfI0HwnOJ752zfkiPlPn39ZodNH+Qb1/1M4N23x7AdS1f0/S3s4fQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795178204;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
-	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key;
-	bh=WeOrsjpJfRBrNwFvy+AQY39SEDxtlUWfYfyLARDn2qU=;
-	b=m0fWsQeyxnzYXGOpxUNFtOjVm2PI4oKnLw49x385HMOj/2S4B3ZCSvXIXaaJ0ehnkv6K
-	 YQUGrJGWIkcAQA+hG7mkywv24vfohcKv1XWiW6K6lvlzGyeCJtcZhY1TkmwEYJe1/uBJr
-	 GChPE970k0mhPWS3mX2TV2PNM3BCE9ZKReMrq8RrKBp76WU+DUa9b2Cg8DuIMs7qVu9kp
-	 pljn4xxeLrbCyr9rgCmSEuBZm933T4M6e27P3x7IoifXMb7cM/E1GF1CO12e9+zFpXwjh
-	 IbX/cuVZnH1Kw+xhj+vQ+07p97zPBIYeUwUvDOacwCgiXSYIo9/KyUtzc4DQC7sJUZQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795178761;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Proofpoint-Reinject:X-Proofpoint-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=A2lctlwYtriSyDX+8a84R0H8qTM0RWQIPGwcyCVle44=;
+	b=DPZ/aAkUtxFBfWjqS2mGi+Zx++Lj/7+qgedbKIGuYIVPnNEvrdbhu39qmzGA6hI2gBeb
+	 yguPKmvmgI1wfGLIhlxFfIZSGPDwU8noqNxrMCZCyuXGXW8j9NDuqQ1Ve69e1gE2v2Uh+
+	 hA2VQYAojMQ6qvs9uhIP2/AyMmhRdQ/lcFMOf3w0z/FbHIMiiURt7ZukbpAuIfZefuI3m
+	 hFu0qU7JMv8zeqDYObl9gdazsQrGIivyxY4RE0eJ+T2ut2sqExC98sHI5F/qPIDBnghLI
+	 sgVrCFR64bJpbXx2HzgxdnQgjiQSEUYDxP6QhVSrH/SwIwD00xVtOxRCkeTYLihnK9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=soleen.com;
-	spf=pass smtp.mailfrom=soleen.com;
-	dkim=pass header.d=soleen.com header.i=@soleen.com header.a=rsa-sha256 header.s=google header.b=HXJed8Xe;
-	arc=none smtp.remote-ip=209.85.217.51
-Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com [209.85.217.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=tY7PS0GB;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BD43606A331
-	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 12:36:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9BD43606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=soleen.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=soleen.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47D74606A33A;
+	Fri, 20 Nov 2026 12:46:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47D74606A33A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=soleen.com header.i=@soleen.com header.a=rsa-sha256 header.s=google header.b=HXJed8Xe
-Received: by mail-vs1-f51.google.com with SMTP id ada2fe7eead31-7d2e43ff4b4so1517607137.0
-        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 04:36:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google; t=1795178202; x=1795783002; darn=vger.kernel.org;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=WeOrsjpJfRBrNwFvy+AQY39SEDxtlUWfYfyLARDn2qU=;
-        b=HXJed8XePExKCaS/vsWCG+uafaTv62pJ6qXxW1wwlMZ3vS7gQbPwNq2sz55VVp/LV1
-         XYd2msAHHJJneZRvET6yTJCphUbc6s0hbKMQ7VkdKX4MKlZGn8FY711cxvJGkAYR89t+
-         bElC+gf83tdHlqm/K0d4evHuovT7um6IDl9nenV4l/WY7qPMNX2PFsUnwbre98hV0EcI
-         aEtRGm9SfkjwBAnozD4WvD77w1sSzl8D9qFwD4V416ptnYy+Sgi14GBtK+clNF1Mri6g
-         H+oDntwuHWPd0TzdPGu2iOGgWdvKkhez9gyEJdgFQgqfgsF3Fd99PX2LnPAdQaChuMcI
-         fyGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795178202; x=1795783002;
-        h=message-id:date:references:in-reply-to:cc:to:from:subject
-         :content-transfer-encoding:content-type:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=WeOrsjpJfRBrNwFvy+AQY39SEDxtlUWfYfyLARDn2qU=;
-        b=2iNzeHWQHyGe4DSCqSCXXbi3dJdSognqGb4OdCGK9Aa8ZVZThvSdVXKdNJJg+tkSXy
-         doW/mZTrB+JG8Rrqlo7u1i0STNIA68QnPIxX7+mL+iHzjzIlnbIkLVU6TU1VHqopwus9
-         H15iFMg4WrJV3PEjjSuczRYBGEaIWAvMNcHdsmF8u4aUN2+i9ThjJ4OOluJ3KuSJrXqo
-         Ph6V4t/U7XR+siTQPsaD4tQMYfVLU9+WpOwKg7SrjYUK22ZF5IHbJOWGEBO4JXdIashz
-         EhBb89CL5rRvm3lHQ1Vbe1eP9b6aLykocZ8tP/X5+JhwtJck+2Xx1WBKZc5Cj/XKfOr7
-         hAhg==
-X-Forwarded-Encrypted: i=1; AL+hErGpLLkkVNExKYtFairCoWPvIBTvQILbNxv9XEpvJJeXSaeOK2k0qNavX8G6b7qE+MUxt+eQLI1dSGSV@vger.kernel.org
-X-Gm-Message-State: APuU4Z/xlB3zrSwgIyIE0XpptNFvr9N2tYhQfX4KnfMNMcVc++S+Y4BA
-	w2cw6GsJi63pwSJ9gnEw6G3V/7QEa6QbiUGqCEZQIJLBgbUmVO5Pq4Hbsscx1W63smk=
-X-Gm-Gg: AZFdTZc8gXLlxpmSpxL5j43wwX8ilcqjicXxkGKf0KzmkgQnUZD4Kugb3FKbH6c2EtH
-	ngOWhjTGll/apZprzBfAIYILn1iu9HNDTZE/c5TF/EEpAxwhFSGGhc9abGo+VuyviYiOvpKzVwu
-	FBeefAXgelpz11+nt6mGBAdbt8MTPYZHyRuR5l9c1hdKWnzSxMqjtIKW/rgJtrsb6fcOxUCFk5G
-	IZM2XLhWWSKsbtJZ9jIu3xbPwYz6+Z7KpiL12WIabZA4+qydsWGe3EHuHtkFSLBiClxvroU27gV
-	13gyfqjppRjN4QLi9cC/Ytyyr4p7YD8KeQf/YupQJFmWLKEon3ZM3J9VLvVP051zlYfhA87A43d
-	uVFUd0uGOn5zAiv08+TuKk7YqsAYXUFz0DVEvogT5rM1BaZsO3vpVEUq7QYc7+yZRuGXuKNjPBH
-	QcDHc04wrr1iam8AK9hVVcab8ETJAM3AxvHJj8OU8VTgkUNUWvSGbbj89BQLE5e6T2bsxSu55G8
-	fxCquZAfautkEKnx336QxC9JcHceO9nmz9q1feSV+mnJWlz0B272UZi3Bmaa382juiPuoD9MvjH
-	7Utj4bzKy9nJFJRm8l9hCv3GfmM4dFijsp2oev6koTrb0Ebc/aiCEUt5P83qfhgb8kZwR6celon
-	78+Y2VTPcCp2hJzKa8YhSwvjAQBE4VCUmUngVUFAqWVY6k/k=
-X-Received: by 2002:a05:6102:6441:b0:7cc:905a:331a with SMTP id ada2fe7eead31-7d739660c9fmr746735137.14.1795178202521;
-        Fri, 20 Nov 2026 04:36:42 -0800 (PST)
-Received: from soleen.c.googlers.com (57.233.150.34.bc.googleusercontent.com. [34.150.233.57])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7d6e80cb440sm2765262137.7.2026.11.20.04.36.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 04:36:42 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=tY7PS0GB
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKAu3Mn1243432;
+	Fri, 20 Nov 2026 12:45:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=A2lctlwYtriSyDX+8a84R0H8qTM0RWQIPGwcyCVle
+	44=; b=tY7PS0GBnH3GsZI3wxTsdaWVYxVn9u+b+nj7EwcHQXvRrJGtJWAVr4EWW
+	qybRDbyW+ljRDUWEco8JsIq5lQY8DrJgu3Raz0ouNCEBclij6eDa4J5FvIGFvs7f
+	kaHO7Xzs687axR7B6/Cf0HUcNcTJbbNBV+ZZflq4bkMdmdgHiLCV5a8aPjzi/bsJ
+	S16zAsXlM4z/ABTu9zFEz05M2cMJwn2o9pPfXSQ1W0BbgRBoDZVk54AIRsALKqhj
+	nmYN9vivWspFjiuwf2OLc5xOb8VTptwlkHfyDQ1Wi7yjcZyH7d1PV/2Ovz8VQLZ5
+	35PCWtCPu3HVbUl7nyJgW8/hhmK5A==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105s0dky-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 20 Nov 2026 12:45:43 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKAo6EY4130935;
+	Fri, 20 Nov 2026 12:45:43 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j1v9xg2k8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Nov 2026 12:45:43 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AKCjd5r51904828
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 20 Nov 2026 12:45:39 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B3262004B;
+	Fri, 20 Nov 2026 12:45:39 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0E37520043;
+	Fri, 20 Nov 2026 12:45:39 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 20 Nov 2026 12:45:39 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
+	id EAC02160DEF; Fri, 20 Nov 2026 13:45:38 +0100 (CET)
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com
+Cc: hidayath@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, Mahanta Jambigi <mjambigi@linux.ibm.com>
+Subject: [PATCH net-next 0/3] net/smc: fix clcsock lifetime vs asynchronous paths
+Date: Fri, 20 Nov 2026 13:45:31 +0100
+Message-ID: <20261120124534.430200-1-mjambigi@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -90,76 +96,80 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH 0/2] arch, kexec: declare kexec and crash capabilities
- in Kconfig.kexec
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Andrew Morton <akpm@linux-foundation.org>, 
- Baoquan He <baoquan.he@linux.dev>, Borislav Petkov <bp@alien8.de>, 
- Catalin Marinas <catalin.marinas@arm.com>, 
- Dave Hansen <dave.hansen@linux.intel.com>, 
- Geert Uytterhoeven <geert@linux-m68k.org>, 
- Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, 
- Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
- Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Palmer Dabbelt <palmer@dabbelt.com>, 
- Pasha Tatashin <pasha.tatashin@soleen.com>, Paul Walmsley <pjw@kernel.org>, 
- Pratyush Yadav <pratyush@kernel.org>, Rich Felker <dalias@libc.org>, 
- Russell King <linux@armlinux.org.uk>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Thomas Gleixner <tglx@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, 
- Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
- x86@kernel.org, Alexandre Ghiti <alex@ghiti.fr>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Cong Wang <cwang@multikernel.io>, Mark Rutland <mark.rutland@arm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- "H. Peter Anvin" <hpa@zytor.com>, 
- "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
- Shrikanth Hegde <sshegde@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>, 
- kexec@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-sh@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- loongarch@lists.linux.dev
-In-Reply-To: <20261119-arch-kconfig-v1-0-37c276fe4d26@kernel.org>
-References: <20261119-arch-kconfig-v1-0-37c276fe4d26@kernel.org>
-Date: Fri, 20 Nov 2026 07:36:31 -0500
-Message-Id: <179517819160.302903.17107992182494080507.b4-review@b4>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=279;
- i=pasha.tatashin@soleen.com; h=from:subject:message-id;
- bh=6sWQl9lmqjTJk3yxh91YK+fuuFKvUf1mQEwavRJAVng=;
- b=owEBbAKT/ZANAwAKAbt3KEzbc3reAcsmYgBrAD7YSNYHVf2cFGXSq25iXRKWCRXN4f0ixFmnf
- ++ItKpA2qWJAjIEAAEKAB0WIQRBMaqT7LRvGvB/NmK7dyhM23N63gUCawA+2AAKCRC7dyhM23N6
- 3tiPD/d31VAJSvGrL/uVfmPyx9aQ56Xv29nKPQ6VnqwxP+xMB94zunEWD8SU+Mc33Jsi99L7q8T
- EfGGkXbTCSoGd7NQv3bSnhUhMQVXfpkd18XOnWbNd0iZdBWi4KwA6+/bOhxsYpO/vNSV52HyHUl
- YH2tsnNB0E6EUN5P7dsJ2PqcWD6QjGrbW/xN/5ItrxWqVXu7AFWAGG87321F8utMVUAjMd5pbNX
- gMmicb9aVIU7JY8k0q7PhcEcRAKBjeq1d52NlSDCQyaltHTGY5+29RgVN9juLHJk/Aqy3s15ERG
- gm7x8LUDOEKOpRB5wWYYeKgpWsUscytR/AC4OBQTujXKhQIWBnWrzxr6tjgdacQJt/i9O9RHd1G
- 2mft4ocO42XqcRceZtQr6UzRDuVwoDTDwn7Tgr1GRPVmpKWKbzpatvf9WPoIEE1p4+zITr10dGz
- r/38wDLPSJghOgD31RGTysREDXP/fCAYar6DdmmMDK63vuMssMRCUOe16Xd0DOIZIG4FAZ7iix4
- P8e8ny0z7tfxqx4vm+6CsIaWgFvVAxYu7Aw1xAruadzsWe+u5UqQLLBY6z+0k76JoRaBMkkcS25
- JEuj8uFaMFXD2ei4JRlUNt57apqgQNCbvhYb6KUTHwP7pocn/UNfKH5JCi9KQCFr7OzuMoLGVJq
- hED2RJ/U2jV7C
-X-Developer-Key: i=pasha.tatashin@soleen.com; a=openpgp;
- fpr=CAAAB722DD22A081F0D49F35633A6A993D43B569
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: mVajBoqCZhyOBC6PnndldJlMHu3zg39k
+X-Authority-Analysis: v=2.4 cv=e8uT2qp/ c=1 sm=1 tr=0 ts=6b0040f8 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=e0kRlRqOptjlawYriWYA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIwMDA0OSBTYWx0ZWRfX23UL19bdfffL
+ DGM1z4haIrBM0XDxvcmEpI3q/pb0+4YtKRwm6YYH0PcHAy0T5sCKjDaPUfD2wkszyQGJ18akxT2
+ dehgC80hO6dyrbJhEG0fbdtjdNwWFcU=
+X-Proofpoint-ORIG-GUID: qZgiATnaRMkBQYwKYJw5La-BgKnNtvNj
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIwMDA0OSBTYWx0ZWRfX1YIM50WSNLkn
+ XYNp8wy5fe0poHBh/DfyJ4nvXn9UZqt717gPrGoEdGenBTE+/Jfxc2yLYevsULUHlFro8dwS9MT
+ GC9vdD+tuw6AgIFgUFkcJpSGQYkzs9bjic+F6Bh0s03wUpVWfc3U0tkuCRQm6F401vj1p/Fe/tJ
+ OVFpD5zaooPY9uE+eumwuBZIAe4pXVF/+h/l3N/81II+zbSAA3FPP+UCyDXkUe4Iv1wVNVSPKqb
+ 7CO2j6wMcUPFiUQP4Jcb6LfuOMioLFVvAjowdxIYD3EaY+qP6rxM4nX9ki6RlRe2sgyyVJWgyCs
+ nnXcsZAraDDzWYqcwNqWPHtMMor7xWwwIpLQptcjrRQUMkpNvARWVEvB++K4Vjnmxo/D1uzmqKk
+ RWefYbsVUwCRz4oUda6VC3ONOwNLKctvlidzviT6jKr5mphHYzhTVNYbU0o9d1l7+zm0o8qOQIq
+ nqRgxmruo0MTRLpZk1Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-20_04,2026-11-19_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0 malwarescore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611200049
 
-On Thu, 19 Nov 2026 08:16:56 +0200, Mike Rapoport (Microsoft) <rppt@kernel.org> wrote:
-> arch, kexec: declare kexec and crash capabilities in Kconfig.kexec
-> 
-> The intention is to take it via kexec tree.
+The internal TCP socket (clcsock) of an SMC socket is freed by
+asynchronous paths: link group termination reaches
+smc_close_active_abort() and peer close reaches
+smc_close_passive_work(), and both can run while the SMC socket is still
+referenced by an open file descriptor. A task that uses the fd at that
+moment, for example getsockopt() or a socket diag dump, then operates on
+a released socket.
 
-Acked-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+Free the clcsock only when no socket file can reference it: from the
+socket release paths, after the socket has been unhashed, and from the
+abnormal close paths once the socket has no file left. The decision is
+made under the socket lock, and the accept path holds the same lock
+across the accept-queue state check and sock_graft(), so a connection
+that is being accepted cannot lose its clcsock to an asynchronous close.
+The clcsock_release_lock is no longer needed: a socket operation on a
+file is serialized with smc_release() by the file reference, and the
+listen work is covered by flush_work() and cancel_work_sync() in
+smc_clcsock_release().
 
--- 
-Pasha
+Trade-off: with an open file, a clcsock now stays allocated after an
+abnormal close until the application closes the SMC fd. The SMC
+connection is already torn down and its TCP connection has been reset or
+shut down; only the local TCP socket remains allocated until then.
 
+Patch 1 makes the lifetime change and is self-contained. Patch 2 removes
+the lock and the checks it made necessary, and serializes the accept
+path with the asynchronous close. Patch 3 documents the invariant and
+adds a destructor warning for it. The diag dump keeps its NULL check: a
+socket is hashed in smc_sk_init(), before its clcsock is created.
+
+This is hardening found by code walk, not a fix for a reported
+regression, so the series targets net-next and carries no Fixes: tag.
+
+Mahanta Jambigi (3):
+  net/smc: keep clcsock until socket release
+  net/smc: remove the clcsock release lock
+  net/smc: document the clcsock lifetime
+
+ net/smc/af_smc.c    | 123 +++++++++++++++---------------------------
+ net/smc/smc.h       |   8 ++-
+ net/smc/smc_close.c |  35 +++++++++----
+ net/smc/smc_diag.c  |   3 ++
+ net/smc/smc_inet.c  |   9 ++--
+ 5 files changed, 82 insertions(+), 96 deletions(-)
+
+--=20
+2.50.1 (Apple Git-155)
