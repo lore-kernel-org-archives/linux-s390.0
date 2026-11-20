@@ -1,103 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795173952;
-	b=x6hH/AcifgJQg8YzDK5AftED9hhBbS+MHg7k5dC9Man+8lJbIQjeih8QvBv0k51Kf4et
-	 4A97dZCJJao/9BgHd2XX53CBX6N4gjN628yipXyjXxSNcSSLiP+6KPEmTfLzWL5iegTMg
-	 QUxXl0JeNv8EHeygIT+E/aeYXSCSVUzPsr+396+rrB2L7OGHT/Qeil6wWryjeMN6tP3Ms
-	 cjnxH9VEkHvnnRTeHZUofrPzSvw7FnNwc9MGOrsohev0cLLeLzeCCsEsT1g4IQe0WP9Vt
-	 RX9JunDlvYYzLsLzVgjvZUaMASSozRS01MR8TVJ3ZJDz6B3m1ORNL2KJ9OH5mVuKVYg==
+	t=1795174650;
+	b=3xxyY81UaLGlBWy1zQOXNoEc9zWMiZTBRWWS65xh6+Qbhx9Hez3mk7w4Dmou4HJ5UG+V
+	 irjqsSgLdkqRUKDneOYerRBZTxxo1+CLcgZ8dLbT5P9UnsL3lLp1UNFKu8O4HLEQH7urU
+	 uXL0Irf8iZatz2FP4yDWZTsgCzKE18BBeFVFN+MyGKSfIPP12GoW/sSTpuV9pMtl5lTQA
+	 qE8NaiIo29kKVgw1Iieo7ahIKF3QB09h55oXUdqG+2KwtEO7icchghYWN9/+fdkAaV95K
+	 /lefmT8dmArhtwBDcnMhhxQT5NaVvzOtpZoHLRzokYb4RUgtH6v0Zsq2GHz3Zc7laPg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795173952;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=NcV0t79NYJ/mK1aZ8pQRTmJ9otnohMh+O0hfCgV3Lfg=;
-	b=O3uNUZ2wcuXuT1BZvDVOomujPRkmgJvNyOKKHd3BBHCHcBwzoQOGMD0unG6HFx2JUloh
-	 cHhT1qEirdhG9o607P80X0yvjk/tCBlAYxr6y9+2k9xdgUSAZRs3GF42UCmzF3RCHsWI8
-	 ON6OWtYNxravm0lys3FlQlPDZ7IMDyKI5pyOnH+05H6+wMAoiKCCg+oCbx8ORlCiaGUV/
-	 Euy8oT5UN9n0HR6F7Z8Mnb6WV+jHBNjSdYewnpejQJo/B31QAeo/87ynchyaXw8QEmMsw
-	 Z3Yq8CaaR5yKcfAjSDnRF4svCj2RRRA69DySQSAcAgdGlp6DvZ2lBBHYAXtM6uT76lA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795174650;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Proofpoint-Reinject:X-Proofpoint-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=bNDGK4UI7JVDed+fyjj3bo9xPV3mWmMM9QpU4oudZxc=;
+	b=tKvUg+AzPlQLH3WkPK1fLwJldVr1bS4A2uUWvcJvTHMdeXtThAm/yCYBCjE8iWoiWojq
+	 Nxq/KwR+wKnIh125GkzCygRudXQwf9uS//T9VWw/3D3jh2MXVagkwvBGmB3YZk4zPje5E
+	 WJIErsXyycd6WfvEWfHiB4lRTnMpYvzcFOV+tOnsN5CUIxi9dnQxTYEbL8sCNdqhEAqON
+	 rbRFHQ5n0fR6KpSH2cjL8Z1Yum2T5kndjHZs0VcuGtjB5QOsJw7xauUNdSPI89u22Xu2z
+	 aVs+Hf3J5NJMbT8Eny2I0ZO5fMKpoWMxVN3xHFb2Dd78zoiFsmNxdFhEsiB8Km+L7dg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CiypTjF2;
-	arc=none smtp.remote-ip=209.85.128.50
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="P/bTawFy";
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E237B60A2611
-	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 11:25:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E237B60A2611
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EADB5606A325;
+	Fri, 20 Nov 2026 11:37:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EADB5606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CiypTjF2
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4bb85e07aadso8497915e9.1
-        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 03:25:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795173950; x=1795778750; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=NcV0t79NYJ/mK1aZ8pQRTmJ9otnohMh+O0hfCgV3Lfg=;
-        b=CiypTjF2jy/+DduTc91OBItjPmjWpksDx731Tt8/ASANkcMr1qve4vciEqTA7oaXjS
-         Xc1+NzyNM/1DbXQFxqX7HWPOn6ouSdVuX4ofW2to7spZnhnTL9JBforLhr/Dnzua54x+
-         dVB1ngsDoIsn8vk6NHMS9eE2JwW0muMQwBMYLUNt/IMxqlhdj5Y2e0tA+MtWKgxPXVpW
-         ThSeGhuoKFMCiAvhH6HiHCvM76x1BzJ15t5W0Fr9VLPZrwD8pVVhd2YSms8QQ2AbP1+e
-         Pg1GX4IfQf91KCY6EVW1dUwu5e8lYiA9oSsKMy/zisB1TuqrmGv3rBGMzzgwsDwfN2T4
-         Injg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795173950; x=1795778750;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NcV0t79NYJ/mK1aZ8pQRTmJ9otnohMh+O0hfCgV3Lfg=;
-        b=wIBAfalb+a7iBtghJpd9ASt5MYOCn+ODrj6pDxEoZ+K+IxF08isOEi0aU6VKh6/+sm
-         DkLCSoRcuQ7+azYvm4Ml6ayJzldI0VfQJ2Cos/VGmurhanWMehx8TDVUgWsUcUxotq7n
-         V6WyRfJmE6INQcRBIP0gPazQZ5M2LlH0Wy6RqikVcmHuXJG+hyfFGz5VueYaEeUTZt/w
-         xKzgVTtnFOvcHXTw1JvzrA7xKcY8H9HIr2aQcU6XsNDOmBYvrQf8KG8e8rosSkVFQx0/
-         oYRLShJxCpXB0bOjvouIDYvAnfk+p7e3jBABcMQ63dKLmRCAeEDzkOtxY717w5qZrbUS
-         t+Ug==
-X-Forwarded-Encrypted: i=1; AL+hErE84I1plFqCauyyQoXkiAMmKuejTAFSi4epfHRbtupMbqUlb+SFWSZiBDxad0BB59ilUVUQk1rMEg9k@vger.kernel.org
-X-Gm-Message-State: APuU4Z+vP/RvYP0JR2i3Gy3nIPtKVtg8wHRzqjV+YTj/4eWmY7dm6uFr
-	f3V0eSZL3rA0j/Y7cCqFGcGC9sOm9w9VwxWeciefwLlNu+ek2u6ks5CdEWZsGGh4+xU=
-X-Gm-Gg: AYBFou2lV5pD8/86fVKRW8v2iVofTVAqDtgo3dTgWErJ50jXPMCei0eZ9QgRY3hRnkR
-	0kpliJtFMuI7WFZM6J2ZYkOeB5bJzQyMVIxkKt5CMtyc6YfE9ySsf5HRVpCm8eWOaguZKLu5DtO
-	QQ565mQk1V/pKS3Pw7ohbhj0aIXkqVNt4K+a9gMJ0sr0kr31Crd9TQpMuEX3KHcDegFEdpk1UCY
-	D4pPCuPTs1XcN/EHS3RFcIzdRDiby05xClzTiKFmGHKyNphLWKfreBB9x6wl/JGB2WGpYLiBzDk
-	7TzdkVZ5xa2NJreJvgleOqq767hGTMKg82wFAO6hM96KDKdxUot0A0GVnYvD02iCkhndkEZoQqs
-	EAGRdi6wpvrqqhkwrKdFVkK6EfGa8Vs32x0VcCSSPeUbfsERYMqtyfWgrmw3+De2SOK0d+CTnJt
-	ovuH4pju82aZIhSFGZEI2OKwsi46Ki1oIgoY4Te6uvI7Y2UzNu1Kx0Hqe8tPYGwiFXa2srFzERd
-	2xxaE4HzcBo+Wbycs2ERGRR3uFUg4GZwaxoPmtbHo+8KZ8IqbmKHzu50qmHalTdL709sniVs/Gb
-	IKZcf6ch0t8I/LFWol+G8bf9rEACBNN2iyaFIIscA5xUTbaX13JTji1ZgeEyxpyEAH0SGW7EcB3
-	SQI/ee6dbbP9iElY8
-X-Received: by 2002:a05:600c:64c7:b0:4bb:68c4:2044 with SMTP id 5b1f17b1804b1-4bb887fe725mr56451745e9.11.1795173950208;
-        Fri, 20 Nov 2026 03:25:50 -0800 (PST)
-Received: from localhost (p200300f65f19a904be03815e1634e776.dip0.t-ipconnect.de. [2003:f6:5f19:a904:be03:815e:1634:e776])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884b8429sm117437835e9.14.2026.11.20.03.25.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 03:25:49 -0800 (PST)
-Date: Fri, 20 Nov 2026 12:25:48 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Nicolas Schier <n.schier@fritz.com>, 
-	Nathan Chancellor <nathan@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>, 
-	Harald Freudenberger <freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	linux-kbuild@vger.kernel.org, linux-s390@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"kernelci.org bot" <bot@kernelci.org>, Nicolas Schier <nsc@kernel.org>
-Subject: Re: [PATCH 2/2] devicetable-offsets: Get struct cpu_feature from a
- device-id header
-Message-ID: <awAtvSIQeLJq2hvF@monoceros>
-References: <179424040477.1704532.18231793404479518924.b4-ty@b4>
- <av8Uv7EV3sLqUBfr@derry.ads.avm.de>
- <20261119194738.GC875856@ax162>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=P/bTawFy
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKAu3F01243432;
+	Fri, 20 Nov 2026 11:37:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=bNDGK4UI7JVDed+fyjj3bo9xPV3mWmMM9QpU4oudZ
+	xc=; b=P/bTawFyKmTrxJb9km1l+ZwZzpezT132SBswVnHDsPZD9Ar5pAyjhaioL
+	5tVE4omRNpgpgOzEC33IaeyxSkey/vQzvSe7SY+GRttclX4OfguUfAblDV/1+uvG
+	c2SqRDuULuR7JntMPS3Rzqa6CQwUK0f8ddCvLj/KOKOnH6MYtleWB6WnhXCvGNec
+	aPzTymsI1UjWe1t+1rXEl2/97WbgxwtUU4nVHz5Z3LtMyVlR4/Hb0M98owCmeGyj
+	dM/viX+cowVmkoxLm0KO6dqVKwEXnIEkf8RUzGD4t92P+oO20hqhZRRzdiP5aton
+	XHByEpjPaw3mhg8C9rlqE2ezbNNZw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105s023h-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 20 Nov 2026 11:37:14 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKAo06g1107116;
+	Fri, 20 Nov 2026 11:37:14 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j1bb5kunb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Nov 2026 11:37:13 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AKBbA2K50594184
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 20 Nov 2026 11:37:10 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 15AB22004B;
+	Fri, 20 Nov 2026 11:37:10 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA53820040;
+	Fri, 20 Nov 2026 11:37:09 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 20 Nov 2026 11:37:09 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
+	id C6087161068; Fri, 20 Nov 2026 12:37:09 +0100 (CET)
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com
+Cc: hidayath@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, Mahanta Jambigi <mjambigi@linux.ibm.com>
+Subject: [PATCH net-next] net/smc: validate smc_diag_req length before reading diag_ext
+Date: Fri, 20 Nov 2026 12:37:08 +0100
+Message-ID: <20261120113708.3950966-1-mjambigi@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -107,67 +96,63 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="tv3l72rardngbokt"
-Content-Disposition: inline
-In-Reply-To: <20261119194738.GC875856@ax162>
-
-
---tv3l72rardngbokt
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 2/2] devicetable-offsets: Get struct cpu_feature from a
- device-id header
-MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 71PAhncLYfGjMu00Rerr-YyoUyRjLMKt
+X-Authority-Analysis: v=2.4 cv=e8uT2qp/ c=1 sm=1 tr=0 ts=6b0030eb cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=vWuhhF-FjSUm6uSirrwA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIwMDA0NSBTYWx0ZWRfX1wCr0Mdwn2ZV
+ QAajzY4C5Ua/Vj/DO0RcinyOI3kByuAPNaREVHLCCYPFRGEl4v0ptGtHZsxONyCLIZmHfzZO0xc
+ 5urg6FMo9NvE45TRu8Aeium4c3zMn1I=
+X-Proofpoint-ORIG-GUID: ddHUqvYonBTXZ1aHdKK7-C_ZPon1CD4y
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIwMDA0NSBTYWx0ZWRfX7BahzPQY2UM1
+ DUPL1RvsWD1i7vqybhmM4z24F4OauwHGWh8iR7VJGQUfISFmZrVTtSZLc/GlidiCfyXcY2kVvdf
+ n4WY8m0GmPOay4/Rp51SPFW2IyQ/wJ3/2viud9QWeiDgLOIhZA7UlEamp9QCPrdBcYvZ+vsDnj5
+ QW3Z4u0iuVMctdhKLInNkeslMFw9VUsERPmLfZugU0jpvHjY6NaXjzzmwhCaF3pdMKhHquCMeIw
+ H0/z4kDLWNVvAS0SqtRHOiDPD0W2UAfS3BR1qYVHsTTAHsliK2oWoInqJLgndZsc6piT31Af2WS
+ oONLi0aKipK2CYUt4i9mL/A/QLow7cqo8DIatX6ncl/iaEU/CPIvFDFRFenovYdp5koKhSjbREj
+ wap//JHmcSTJfPA73d3K0cOht36mrPHSmMtlrRT2c5FehUBXCei1DcDXfHXGlC4KOk7NMfuhAz9
+ pmSp+nTmqWziogY60QA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-20_04,2026-11-19_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 spamscore=0 bulkscore=0 malwarescore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611200045
 
-Hello,
+__sock_diag_cmd() only validates nlmsg_len against sizeof(struct
+sock_diag_req) (2 bytes). smc_diag_handler_dump() schedules a dump
+without a further check, so the dump path reads diag_ext at offset 3 of
+struct smc_diag_req from uninitialised skb tailroom. Add the missing
+nlmsg_len guard, matching every other sock_diag handler.
 
-On Thu, Nov 19, 2026 at 12:47:38PM -0700, Nathan Chancellor wrote:
-> On Thu, Nov 19, 2026 at 04:24:47PM +0100, Nicolas Schier wrote:
-> > So my questions:
-> >=20
-> >  * Shall we keep it the way it is to keep the original patch order
-> >    (bisect might fail on the two commits before this patch)?
-> >=20
-> >  * Or shall the patch be moved before Uwe's (removing the 'Fixes' tag,
-> >    and rewriting the commit msg)?
-> >=20
-> > I am in favor of the latter.  Are there any objections?
-> >=20
-> >=20
-> > [1]: https://git.kernel.org/kbuild/c/f1dc66c38b7eb4b2fb946a2fd6929250ec=
-d2d85a
-> > [2]: https://patch.msgid.link/bc9fbf5784f6788e10c749a05d56c42bdb68f3d9.=
-1792144769.git.u.kleine-koenig@baylibre.com
->=20
-> If history is already being rewritten, I believe it is always good to
-> fix potential bisection issues like this. Rewriting the commit message
-> (and maybe some of the diff?) and placing it in an order such that the
-> build cannot break sounds great to me (but others are free to disagree).
+Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
+Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+---
+ net/smc/smc_diag.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Full ack. I think the danger to hit that point during bisection is
-small, but I like the 2nd option as this reduces the small chance to 0
-in that case that people yell at me :-)
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 15485a08d9a0..ed578279dcd0 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -245,6 +245,9 @@ static int smc_diag_handler_dump(struct sk_buff *skb,=
+ struct nlmsghdr *h)
+ {
+ 	struct net *net =3D sock_net(skb->sk);
 
-So from my side: go!
++	if (nlmsg_len(h) < sizeof(struct smc_diag_req))
++		return -EINVAL;
++
+ 	if (h->nlmsg_type =3D=3D SOCK_DIAG_BY_FAMILY &&
+ 	    h->nlmsg_flags & NLM_F_DUMP) {
+ 		{
+--=20
+2.50.1 (Apple Git-155)
 
-Best regards
-Uwe
-
---tv3l72rardngbokt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsALjoACgkQj4D7WH0S
-/k4lAAgAru4huUD6XgX/xEc0md/r2uTYSHfAeG9y3GIzcVC+zkGIzmFUEZ2+X4HN
-rc4d07ok+2mGRZ9v9k7dO2SUzjDaoahlVqRd5ldtCwi2b03QrEfGe2Bkte8IiCCM
-0vWjLcJWss62UN3gAxmKMHIxKvKcYFle+LjAYqi8dWM+YPc2SXS0gqmTZISLjEXN
-HHeBGqcecdsyrFtzxYnMLvmdJ9vefsQNNlLcyy6V/EUtnk2yt1k5ZwXozAUEojXQ
-OhiuLXypzkqUPvCXOQKtrqveg6g0hxnDtqlFTZfptssoqxNVMwLsN52Nsic5nzT2
-9LO+HiyUPz5SPNVTac2QsyHue4WN2g==
-=RzUQ
------END PGP SIGNATURE-----
-
---tv3l72rardngbokt--
