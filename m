@@ -1,158 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795173098;
-	b=Zn9J9B3VSOoBUwqLGLAzrqy2dx+rJmIqsfqm6CMjFewd8i7uHlh7N+XHRWZ70jJBO5rY
-	 FPRFFrNp7Oyyb3YQjMzcmyZDAfUC2uu9s1AyPBhJjwE2OSFSnMmKqjfQCKGdsHw3LoRht
-	 MyMDjgsv3OD3jX2C3/csIJKlLdovo0MhAfuGVsOlTu+lL0f2ZwFyXg71AqUx5AskOCZHz
-	 k9Hvft5EcxqsxN1Z1lhkc+CjMc4GchLNCCtmppUs847/vkDCIedZqIsAnECKGO28PyCnR
-	 oRuHXc2e/6+IVjMl/DqZMlCctcI3zol29JkjO5MQxM2L5iNswhHVP9VYW1dWmls3aOg==
+	t=1795173101;
+	b=TY5Si0bsVnhNBaLHZqaf5imi5PEIlKRkMpRDSfoHSTSUgzlYzvgOtLlRa5vf9R1RfzLU
+	 LCJUqDwLrrpsu2qM7ipYIH285HmrtTsjVDVMV8zT9AReRdp1NMEMUnCHH8gsphA2xD+qy
+	 RsuAUyzqfxg9xvIZ8PUiDbWgFBAZ4VTmQk4E25FiYCnzSsg66MuLGqCPUEBbtPtYZ7kWs
+	 A97xifT2tHZFNtzlMsu/2Lj2IPcmJUPnyDFHtnHH6uIz/RcQdsLFkNu4NFPZN6HGEBI/C
+	 58WR/bIaJRZnxoNTlBDczVPh/afsPo60nQnPHMGcutED6IEYhGju6XaQUnBCWtGVMdA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795173098;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795173101;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
-	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
-	bh=6iowvnjr0RIgWlIDQQOFrlHY5uCtXtYYlYEEp/cOH20=;
-	b=2n8wvut21kfYS9izW9z4eE9bu8KUci++ikyYny/KyWXtp4loW/bWG0PG5u6KwiQ9EDvX
-	 KRuU6t9AkkGVUUAu1bKSO7tH9D32GDIiZjMlQWBnhj+GfWDt4mOnmewanEE+bzuBjEvj1
-	 VBkQwlos1NOK25VNFeLuhFJmLAUwJhzc4MY7jFedfkv1DRKES+tMRw6f+KNSvx9lKzcpe
-	 95vpJEWkfIMGLat+bnJz2mMY3qZG90hll9eA1efHoZf6slhA9wHdacZzaowqXuafVlZvq
-	 TW4U3pIRs1z3FI165FtOoUhFhRgJCU0OFw1i9HRqcqlpvginmCumts2w+gNb7P29kzA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
+	 Content-Transfer-Encoding;
+	bh=cJsM+MQDScvHYXZpHmUi9y/qw9WP8MQjdcWo+D8X4wU=;
+	b=H2jGqe4NFzv7K5iBPHS/QZD3lcfKkfTKzX0NdtkQI35cLO7a5ruePrKujFEhAaeVFkyn
+	 fDXJstRAKvdsTFZMl2cucyZK334VwWZtUBlEasywkqgGO2B5jtcScInG4EdFn5eY7z/y4
+	 QntLohtLTzYdxlLJ0qBGFcRWX5xMNNojGbEDGsN3lry0mDra5vXJfG8xbfSJQ5ZmFPasZ
+	 bZmURRSumER2adP8zk20yaTkltEO4LCNugzIvtmc/8oWCcnR9qGxoOI/h2oX1IdIAAsiZ
+	 PwL2DFAykiiSxe8zNI2UDGJRtCHj6qWb9Y72NZx6ZN/CsvQtx6dXqBR6feufOcv9s0w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=baylibre.com;
 	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=cy0T8JFY;
-	arc=none smtp.remote-ip=209.85.221.52
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CnCAGgbb;
+	arc=none smtp.remote-ip=209.85.221.50
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 706EB60A263F
-	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 11:11:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 706EB60A263F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3BDA60A5BC6
+	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 11:11:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F3BDA60A5BC6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=cy0T8JFY
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4a7b8abe209so525413f8f.0
-        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 03:11:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CnCAGgbb
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-4a34ffd3e39so395698f8f.0
+        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 03:11:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795173093; x=1795777893; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6iowvnjr0RIgWlIDQQOFrlHY5uCtXtYYlYEEp/cOH20=;
-        b=cy0T8JFYf6te/xTc1kjLehflkRMCyCLyy11kt5kR0iiTkUeh72a0VfbQtLsWdxQKbC
-         cFhL1NyNlrILzdeaX46VwkVy4MeXP+mFwxsgogALnuIqFabIzDYbfPIl3XyCnmwy3ai5
-         8T6EK3t8OE8eX7WpS5CBBnJ9gcHuPx45xGmWl0vctudKI11NB8OsFG4EaWegB9jAqjdE
-         yLVMj47I7qQc00jYFIsxNT/1utXJQ9rQvvCMZFbRZLgflQn5wfH6nc0qoZ6hPFJoQBZA
-         5jVraI3baGqMgrr/3P3ZFrjwysBQ3aAxoi2icTr9AnuVXVlkHmUvOvgDDhNFO4YMaSSw
-         JBMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795173093; x=1795777893;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+        d=baylibre.com; s=google; t=1795173099; x=1795777899; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=6iowvnjr0RIgWlIDQQOFrlHY5uCtXtYYlYEEp/cOH20=;
-        b=eoS8Qn+NziLmYaYqN9JTkmxo7xD8QvrL6ybKwxDfzQ/yIX8KWz2ia3ZHYnIIDf58dn
-         Or4UtRcDkr1WzkJCMwHUINFOgWDSmLeFksmilUSpcR5gLcDo0Kd695ap7/Qjv1p04+1I
-         8PNJw8sz979NBwacrDhyvWvETL21LPW/3soksqVoYQT+6nS1bkmaY4KJS1FaBJchttXk
-         PeF7jM9udqR5rliDdBUDcsU8XWEzcZAo/qbdDlC4pktqotvq2XUpaR82JGTzuch8btat
-         i6WAdUaNAeRiXXA1rjG3WrGcH92qk6lwIE3dWdsDaJM1+TWFpin+FLp0uyhDeS1rqRqp
-         2q9Q==
-X-Forwarded-Encrypted: i=1; AL+hErErtPWV3KK8Q9VNHREqLEXQ16jFntg0v2QbFTITm2q/5oeQ8oTaXdkGRIAadYUxxxb9urw0qj0tFgbt@vger.kernel.org
-X-Gm-Message-State: APuU4Z+1MvL5m42VN9d/58Z63gDBuIDjbFYKQY4XJ8rS2wghwyFpyryp
-	b3dfAl/3asUqLQ/4H27OwAjLfvRsCF67LxjssEr48gCU6JLCexKpr8hMcAfMhZjdAwY=
-X-Gm-Gg: AYBFou17BtHx8u0IRdnvh7uKFUV58imTIrSco9zAbKKY9/3KYd6oSbMspBadl+a5Qt4
-	wXt5j4/qG5R5SBChhmRQv7AaOziEjbxAe2lOlqK2GGkQNmk5Qf7EXnZ3xMYRbSKE0iAk4adfUC0
-	582SH0MGZKmQJ6SbdiqSiWr1uV/elQba9Rlxc6mbCTzDgscaFOD3UGU9h3sHV0ypFnhYYkNczu8
-	cqEzmrmBCUeQ55KNPdng1uKk3TxHaowJW3hlh+putiAjMa9p0ob1tj+tqEcDitTKC94MGDciPkl
-	iYu9bBTPZXHUYm/Z75D14kgNzgmosFY7dDqXruWW79ThdfnEx5VO4KQ7M0pwmPH814BYxZ4GEOS
-	CLyBg0STUmj8NdU6Zi82912Y7gYIRVyHk+oFe1W1/bjLIhZCCo5YJyL//yBZis/AKTMFxjxgoY4
-	mzPa8b9jO0PN91Us1otCuZFVcUYUIOmfQ0NvGZw7JH/Pm3g0CnUEYeZkR59wyIVgb3rbwMWUGMs
-	wS0Yi0vYWAMdVAmvb3Bfm5diWGrst3c0TD2uVMpQj7/23Fhb37YJ0paFddG2zA6SWC1dtAo5paL
-	FhvkQI2TUEKizad/222jLXe3WxSDZwdVL5hf/9UKb3lh9qZOA9cyjLaaEXfLjEgBBJtwnjRPVnd
-	qj6WWNJx0zaLKbgWx
-X-Received: by 2002:a05:600c:3b0e:b0:4a1:efba:511 with SMTP id 5b1f17b1804b1-4bb8882508emr60110635e9.35.1795173092340;
-        Fri, 20 Nov 2026 03:11:32 -0800 (PST)
+        bh=cJsM+MQDScvHYXZpHmUi9y/qw9WP8MQjdcWo+D8X4wU=;
+        b=CnCAGgbbEqFA9jzaANJ+NwiS72MZwGiwPVI4mGe4oZS+cFWLanYLm5knHTkil4TNaX
+         dpstToWTnnhWXhEy94X+q90MyF04FWEvSWyZWsK4C+Pk5W0+kG3//tIAxH7gS6v/XlNm
+         DxvIL3LPq+fD02ayh2h+6FXDDFttLt8NtUX/T3wHysmyfXrxh7eiNv+J8pfWiGI/c1Qz
+         TehOsuEtSNgvf+rzhq67zS5UQqc3D3HtOSlufRXLYvhv6/VTsgH7aQmyWOq6Pd92/gVL
+         sLpC/6lGIPGLpy9Z1i7WI/LnujNOtMr3cHvsfKRNMgjsUVHYqhT4HRJpvD6w5UW+IaX5
+         1hCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795173099; x=1795777899;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cJsM+MQDScvHYXZpHmUi9y/qw9WP8MQjdcWo+D8X4wU=;
+        b=UpzyTinpg+vJPHIzzc7hXPMUuTrSyDa3mRQAt4+cGjKDa234SCSKXXOuyr4N/4Llk6
+         jWlJvgQJ9D2gN5JE4CMbx0MlRVyCJNiVZW+WDz1r+Qv6IQXgipc53+/9vcGgehKWd90g
+         GOl7szAAr+J1ppRYtcrEqjBcAwzNRzoyu4ZNesD0UX3hfQmEI7AD9hsxMQyO43x6kPrh
+         GE1tkRWmQL7nmuTCTV5Rr0CPqjS9up04xk6bxzhI5oMZLVRNBpa7AbHBbOlqt4fJzppd
+         Pb2Sln7/5mrs9FATDffY/6zVi7QFemAraprIWZNRpRmyKkGeCKiG+SSgwP2tCykfV0ja
+         ATUQ==
+X-Forwarded-Encrypted: i=1; AL+hErF1efTP0jzrbRGJxYf1ClqH0U2Y0YiROTIOYg8Ef2Q8H2ZVU/LVeG/NjMUarhzYOL6pU4GCB1yCmoKx@vger.kernel.org
+X-Gm-Message-State: APuU4Z9eWpN8P4YRnwtB1o/Hwb0kDCyQzibBxwJPV95E247+k6UFNmVZ
+	TV8Zaiuq6pMP5oHlw/HfuQmGzGrHBhVV0UhWB2QbqwEnqVUC6YlvN0hTG2YgP6roxKU=
+X-Gm-Gg: AYBFou1x2iRHykxWMI0ap1sUHunKuEojOC6naYDrg3rnnhIljup9MbHd7jIFXR9/z+H
+	IUfkuzs42wPW1jKGxnfbBk1WK2RULjV1CXzVEG6ytTTFkMUxkw9JWSoe7X714kFCIPQsraeRkyQ
+	XiTnfiP3wCXkGONRXCV6sfo5qXI7d4UDyZ789BqzcdXgEjKagwuHbSN3GCxhkyaFEeJO/mK9R9P
+	bVu9Nv3TBOUq82jaYCzYQXICGO7c3PNp2kNt5PcCm/7/B5AWrWHql9aJbH1a53wOKZqa7h8exBN
+	YVcuKBEFW/koBE724JdKio3Z1hUvPgccMfPSBnUEEx1vtM0uDddmCs5ilTPJAUt2yAOSGdFPzl2
+	eIxUJ3XYezPreb4GoB1V7yNInEIj8LbfmgXFBBK2zOu5K9EWgpN3h7CEnXjFdsqtptyYR/i1ver
+	RTkGlg1s0gThNo5s3V4ewDmurL0Kcono09C6I7nAX1Sn5HYOBNnvNpHo4GCERL5PDOlXReegcBM
+	iKDEgT9dUjs6Ki1MDH1cwVg/NQcNaOsgigQrWGqT/h8MUpxB4My3ke+1n3vrzi2kePXtxRDCbh9
+	zFtTN6n9T1CUtqwaHU3G1y1NZYojEJ3Z8cCuAlKwTy+xuSDSIxUqds8v91nDpVKXkx0vwtbaePN
+	hz7jDjFq2ywg3MreX
+X-Received: by 2002:a05:600d:6510:10b0:4a1:811c:8078 with SMTP id 5b1f17b1804b1-4bb8881de57mr39648455e9.26.1795173099366;
+        Fri, 20 Nov 2026 03:11:39 -0800 (PST)
 Received: from localhost (p200300f65f19a904be03815e1634e776.dip0.t-ipconnect.de. [2003:f6:5f19:a904:be03:815e:1634:e776])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884a15absm67887745e9.9.2026.11.20.03.11.31
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884ab091sm110162205e9.11.2026.11.20.03.11.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 03:11:31 -0800 (PST)
+        Fri, 20 Nov 2026 03:11:38 -0800 (PST)
 From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Ioana Ciornei <ioana.ciornei@nxp.com>,
-	Longfang Liu <liulongfang@huawei.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-	=?utf-8?q?Micha=C5=82_Winiarski?= <michal.winiarski@intel.com>,
-	Eric Auger <eric.auger@redhat.com>,
 	Eric Farman <farman@linux.ibm.com>,
 	Matthew Rosato <mjrosato@linux.ibm.com>,
 	Tony Krowiak <akrowiak@linux.ibm.com>,
 	Jason Herne <jjherne@linux.ibm.com>,
 	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Mark Brown <broonie@kernel.org>,
-	Abel Vesa <abelvesa@kernel.org>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Brian Masney <bmasney+clk@redhat.com>,
-	Jerome Brunet <jbrunet+clk@baylibre.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Srinivas Kandagatla <srini@kernel.org>,
-	Sylwester Nawrocki <s.nawrocki@samsung.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Jaroslav Kysela <perex@perex.cz>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Bradley Morgan <bradley.morgan@linux.dev>,
-	Armin Wolf <W_Armin@gmx.de>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	linux-doc@vger.kernel.org,
-	driver-core@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-pci@vger.kernel.org,
-	Alex Williamson <alex@shazbot.org>,
-	Mostafa Saleh <smostafa@google.com>,
-	kvm@vger.kernel.org,
-	qat-linux@intel.com,
-	virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org,
+	Holger Dengler <dengler@linux.ibm.com>
+Cc: Alex Williamson <alex@shazbot.org>,
 	Vineeth Vijayan <vneethv@linux.ibm.com>,
 	Peter Oberparleiter <oberpar@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	linux-s390@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	linux-clk@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-remoteproc@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	Takashi Iwai <tiwai@suse.com>
-Subject: [PATCH v2 00/10] driver core: Disable driver overriding by default
-Date: Fri, 20 Nov 2026 12:11:01 +0100
-Message-ID: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+	kvm@vger.kernel.org
+Subject: [PATCH v2 04/10] s390/vfio: Allow untainted use of driver_override
+Date: Fri, 20 Nov 2026 12:11:05 +0100
+Message-ID:  <a53e12ad841fb18e45b3cf7a4580846943ed0c6d.1795171088.git.u.kleine-koenig@baylibre.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+References: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -163,109 +113,52 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4896; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=zb+igsuXLt8tOTuUjhzAr7HaxCaZLq4II70BN40Br9Y=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBrACrJx1qga/LvoqPeQ2w7AGsIzkvZ0u8Ei7ilD OnkWyRDOleJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCawAqyQAKCRCPgPtYfRL+ TrT2B/4h+7Q3cE0LlxcXdMzSjo72DibWSV5sOQkmoVdvDT2jirOpWioUU86bki4NAIk6Z4fKuAQ Tq67UAFcdu/x0sb+TsWnSkdYqWbFXP1E9qqHzS6LbgG2Wo9AfXLnJRQPoIkCW5R3i/w6jmyDLiI LkWjw6qUO85o5cf3veZf7uvTVs/F1HlPcGi5H2XR8SEvtsTQoNcOqyDD/XO+JfY5VRim2QTygzC /LqpSYXX2fMI/PZcft+vtXeHkKEsua161Yxgcwt3mnXV1cWuUQhOgqkI5MNgrbn/8PHF60B4GWC cbYFOHiY7+15odYG/kF7YqO0HOLOodN9ndNTOKA9GdiXGD/D
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1609; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=KVkwXeeDf67yBEMp7oUHRQtChMTeOlX43NbtH/KeOAk=; b=owGbwMvMwMXY3/A7olbonx/jabUkhmwGrYvrt8oZ1tuWmU/b73WXTdFsZ91iafF4ge1RU/U3p lTP2cTdyWjMwsDIxSArpshi37gm06pKLrJz7b/LMINYmUCmMHBxCsBE3lix/3f5F7BD8V6NmNW2 s7duzvu1LMMlVuvUhJLk6JyuRJVHZwq+hQQ8WXU5/9fbHBZTlqNJOlnnPmrm5LU8WSFXWFvMGtl RsvOfSmCOZwmHzrETZ89d0azbv2nm8eTWNp2wdQHJaYrl6tde/v30/AKf64SLLpbcS36dvdvune SssVDTwsn3jp9EDFczz2y+tJgZaW8mdMo3WC9b8rnlS1Ja0lq3fZVRlok7+kpS8ve1pOgsdMtJt 9LQ5fD516reuXu/U3GMTvvRlDLWRknP6WnP8o88z5Rzd7/9zU9C+1a9gdmfZXYMdVmW8uu9WPK3 c/H55U2+83Cj6qWg5xmvkoQkP1QukF47Q8Nnktm8nd8A
 X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 
-Hello,
+From: Alex Williamson <alex@shazbot.org>
 
-here comes v2 which addresses the review feedback I got for (implicit)
-v1. See https://lore.kernel.org/linux-kernel/20261116110853.3418077-2-u.kleine-koenig@baylibre.com
-for the discussion about that previous submission.
+The vfio_ap and vfio_ccw drivers bind devices through driver_override.
+With the introduction of the support_driver_override flag in the core
+driver struct, it's now required for drivers to declare themselves as
+driver_override compatible, otherwise driver_override bindings will be
+denied or generate a kernel taint.
+
+Set the support_driver_override flag on the vfio_ap and vfio_ccw driver
+structs.
+
+Signed-off-by: Alex Williamson <alex@shazbot.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c   | 1 +
+ drivers/s390/crypto/vfio_ap_drv.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 7546bd137e4e..77765cde87f7 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -375,6 +375,7 @@ static struct css_driver vfio_ccw_sch_driver = {
+ 	.drv = {
+ 		.name = "vfio_ccw",
+ 		.owner = THIS_MODULE,
++		.support_driver_override = true,
+ 	},
+ 	.subchannel_type = vfio_ccw_sch_ids,
+ 	.irq = vfio_ccw_sch_irq,
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 8e69ed286bb9..2d47dc643269 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -62,6 +62,7 @@ static struct ap_driver vfio_ap_drv = {
+ 	.on_config_changed = vfio_ap_on_cfg_changed,
+ 	.on_scan_complete = vfio_ap_on_scan_complete,
+ 	.ids = ap_queue_ids,
++	.driver.support_driver_override = true,
+ };
  
-The objective is to deny force binding a device to a driver that isn't
-prepared for that. There are many drivers that run in a null pointer
-exception when this happens and only very few drivers are supposed to be
-used like that. So the first patch implements an explicit opt-in for
-drivers and denies other matches; the remaining patches implement the
-opt-in for drivers that rely on it. This makes it unnecessary to fix
-individual drivers to explicitly refuse such bindings. See commit
-1e50a0349012 ("iio: adc: mcp3564: reject devices without match data")
-for an example of such a driver-specific fix.
-
-Changes since (implicit) v1:
- 
- - Rework parameter parsing to just use `allow_driver_override` on the
-   kernel commandline
- - Add review tags
- - Add patches by Alex Williamson setting .support_driver_override in
-   pci and vfio drivers
- - Add patches for uio, spidev and a few more drivers setting
-   .support_driver_override
- - align wording in Documentation/admin-guide/tainted-kernels.rst with 
-   tools/debugging/kernel-chktaint
-
-It is sensible to merge the driver core change (patch #1) together with
-the individual driver patches setting .support_driver_override because
-with the driver core change the driver override doesn't work any more
-for the unmodified drivers (unless the new kernel parameter is provided
-and a taint is accepted). So I suggest (once there is agreement that the
-patches are fine) to merge them all in one go and provide a stable
-branch in case a driver was missed to be adapted. I can create such a
-branch and ask Greg or Linus to pull it, or Greg can do that.
-
-So if you're the maintainer of one of the drivers touched by patches #2
-and later and assuming your ok with that patch, please provide your Ack
-(plus the required coordination if applicable) for not merging via your
-usual tree.
-
-Best regards
-Uwe
-
-Alex Williamson (3):
-  PCI: Allow untainted driver_override for PCI stub drivers
-  vfio: Allow untainted use of driver_override
-  s390/vfio: Allow untainted use of driver_override
-
-Uwe Kleine-König (7):
-  driver core: Disable driver overriding by default
-  uio: Allow untainted use of driver_override
-  spi: spidev: Allow untainted use of driver_override
-  clk: imx: scu: Allow untainted use of driver_override
-  remoteproc: Allow untainted use of driver_override
-  slimbus: qcom-ngd-ctrl: Allow untainted use of driver_override
-  ASoC: samsung: i2s: Allow untainted use of driver_override
-
- .../admin-guide/kernel-parameters.txt         |  6 +++
- Documentation/admin-guide/tainted-kernels.rst | 54 ++++++++++---------
- drivers/base/bus.c                            | 51 ++++++++++++++++++
- drivers/clk/imx/clk-scu.c                     |  1 +
- drivers/pci/pci-pf-stub.c                     |  1 +
- drivers/pci/pci-stub.c                        |  1 +
- drivers/rpmsg/rpmsg_ctrl.c                    |  1 +
- drivers/rpmsg/rpmsg_ns.c                      |  5 +-
- drivers/s390/cio/vfio_ccw_drv.c               |  1 +
- drivers/s390/crypto/vfio_ap_drv.c             |  1 +
- drivers/slimbus/qcom-ngd-ctrl.c               |  1 +
- drivers/spi/spidev.c                          |  1 +
- drivers/uio/uio_dmem_genirq.c                 |  1 +
- drivers/uio/uio_hv_generic.c                  |  1 +
- drivers/uio/uio_pci_generic.c                 |  1 +
- drivers/uio/uio_pdrv_genirq.c                 |  1 +
- drivers/vfio/cdx/main.c                       |  1 +
- drivers/vfio/fsl-mc/vfio_fsl_mc.c             |  1 +
- .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  3 +-
- drivers/vfio/pci/ism/main.c                   |  3 +-
- drivers/vfio/pci/mlx5/main.c                  |  3 +-
- drivers/vfio/pci/nvgrace-gpu/main.c           |  3 +-
- drivers/vfio/pci/pds/pci_drv.c                |  3 +-
- drivers/vfio/pci/qat/main.c                   |  3 +-
- drivers/vfio/pci/vfio_pci.c                   |  3 +-
- drivers/vfio/pci/virtio/main.c                |  3 +-
- drivers/vfio/pci/xe/main.c                    |  3 +-
- drivers/vfio/platform/vfio_amba.c             |  1 +
- drivers/vfio/platform/vfio_platform.c         |  1 +
- include/linux/device.h                        | 19 +------
- include/linux/device/driver.h                 |  2 +
- include/linux/panic.h                         |  3 +-
- include/trace/events/module.h                 |  3 +-
- kernel/panic.c                                |  3 +-
- sound/soc/samsung/i2s.c                       |  1 +
- tools/debugging/kernel-chktaint               |  9 ++++
- 36 files changed, 144 insertions(+), 55 deletions(-)
-
-
-base-commit: 7cfbf79c66c63e807ea452abf0546e6f6d6833a6
+ static void vfio_ap_matrix_dev_release(struct device *dev)
 -- 
 2.56.0.rc1
 
