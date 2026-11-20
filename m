@@ -1,108 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795173101;
-	b=TY5Si0bsVnhNBaLHZqaf5imi5PEIlKRkMpRDSfoHSTSUgzlYzvgOtLlRa5vf9R1RfzLU
-	 LCJUqDwLrrpsu2qM7ipYIH285HmrtTsjVDVMV8zT9AReRdp1NMEMUnCHH8gsphA2xD+qy
-	 RsuAUyzqfxg9xvIZ8PUiDbWgFBAZ4VTmQk4E25FiYCnzSsg66MuLGqCPUEBbtPtYZ7kWs
-	 A97xifT2tHZFNtzlMsu/2Lj2IPcmJUPnyDFHtnHH6uIz/RcQdsLFkNu4NFPZN6HGEBI/C
-	 58WR/bIaJRZnxoNTlBDczVPh/afsPo60nQnPHMGcutED6IEYhGju6XaQUnBCWtGVMdA==
+	t=1795173952;
+	b=x6hH/AcifgJQg8YzDK5AftED9hhBbS+MHg7k5dC9Man+8lJbIQjeih8QvBv0k51Kf4et
+	 4A97dZCJJao/9BgHd2XX53CBX6N4gjN628yipXyjXxSNcSSLiP+6KPEmTfLzWL5iegTMg
+	 QUxXl0JeNv8EHeygIT+E/aeYXSCSVUzPsr+396+rrB2L7OGHT/Qeil6wWryjeMN6tP3Ms
+	 cjnxH9VEkHvnnRTeHZUofrPzSvw7FnNwc9MGOrsohev0cLLeLzeCCsEsT1g4IQe0WP9Vt
+	 RX9JunDlvYYzLsLzVgjvZUaMASSozRS01MR8TVJ3ZJDz6B3m1ORNL2KJ9OH5mVuKVYg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795173101;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795173952;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
-	 Content-Transfer-Encoding;
-	bh=cJsM+MQDScvHYXZpHmUi9y/qw9WP8MQjdcWo+D8X4wU=;
-	b=H2jGqe4NFzv7K5iBPHS/QZD3lcfKkfTKzX0NdtkQI35cLO7a5ruePrKujFEhAaeVFkyn
-	 fDXJstRAKvdsTFZMl2cucyZK334VwWZtUBlEasywkqgGO2B5jtcScInG4EdFn5eY7z/y4
-	 QntLohtLTzYdxlLJ0qBGFcRWX5xMNNojGbEDGsN3lry0mDra5vXJfG8xbfSJQ5ZmFPasZ
-	 bZmURRSumER2adP8zk20yaTkltEO4LCNugzIvtmc/8oWCcnR9qGxoOI/h2oX1IdIAAsiZ
-	 PwL2DFAykiiSxe8zNI2UDGJRtCHj6qWb9Y72NZx6ZN/CsvQtx6dXqBR6feufOcv9s0w==
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=NcV0t79NYJ/mK1aZ8pQRTmJ9otnohMh+O0hfCgV3Lfg=;
+	b=O3uNUZ2wcuXuT1BZvDVOomujPRkmgJvNyOKKHd3BBHCHcBwzoQOGMD0unG6HFx2JUloh
+	 cHhT1qEirdhG9o607P80X0yvjk/tCBlAYxr6y9+2k9xdgUSAZRs3GF42UCmzF3RCHsWI8
+	 ON6OWtYNxravm0lys3FlQlPDZ7IMDyKI5pyOnH+05H6+wMAoiKCCg+oCbx8ORlCiaGUV/
+	 Euy8oT5UN9n0HR6F7Z8Mnb6WV+jHBNjSdYewnpejQJo/B31QAeo/87ynchyaXw8QEmMsw
+	 Z3Yq8CaaR5yKcfAjSDnRF4svCj2RRRA69DySQSAcAgdGlp6DvZ2lBBHYAXtM6uT76lA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=baylibre.com;
 	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CnCAGgbb;
-	arc=none smtp.remote-ip=209.85.221.50
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CiypTjF2;
+	arc=none smtp.remote-ip=209.85.128.50
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3BDA60A5BC6
-	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 11:11:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F3BDA60A5BC6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E237B60A2611
+	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 11:25:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E237B60A2611
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CnCAGgbb
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-4a34ffd3e39so395698f8f.0
-        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 03:11:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=CiypTjF2
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4bb85e07aadso8497915e9.1
+        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 03:25:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795173099; x=1795777899; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+        d=baylibre.com; s=google; t=1795173950; x=1795778750; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=cJsM+MQDScvHYXZpHmUi9y/qw9WP8MQjdcWo+D8X4wU=;
-        b=CnCAGgbbEqFA9jzaANJ+NwiS72MZwGiwPVI4mGe4oZS+cFWLanYLm5knHTkil4TNaX
-         dpstToWTnnhWXhEy94X+q90MyF04FWEvSWyZWsK4C+Pk5W0+kG3//tIAxH7gS6v/XlNm
-         DxvIL3LPq+fD02ayh2h+6FXDDFttLt8NtUX/T3wHysmyfXrxh7eiNv+J8pfWiGI/c1Qz
-         TehOsuEtSNgvf+rzhq67zS5UQqc3D3HtOSlufRXLYvhv6/VTsgH7aQmyWOq6Pd92/gVL
-         sLpC/6lGIPGLpy9Z1i7WI/LnujNOtMr3cHvsfKRNMgjsUVHYqhT4HRJpvD6w5UW+IaX5
-         1hCA==
+        bh=NcV0t79NYJ/mK1aZ8pQRTmJ9otnohMh+O0hfCgV3Lfg=;
+        b=CiypTjF2jy/+DduTc91OBItjPmjWpksDx731Tt8/ASANkcMr1qve4vciEqTA7oaXjS
+         Xc1+NzyNM/1DbXQFxqX7HWPOn6ouSdVuX4ofW2to7spZnhnTL9JBforLhr/Dnzua54x+
+         dVB1ngsDoIsn8vk6NHMS9eE2JwW0muMQwBMYLUNt/IMxqlhdj5Y2e0tA+MtWKgxPXVpW
+         ThSeGhuoKFMCiAvhH6HiHCvM76x1BzJ15t5W0Fr9VLPZrwD8pVVhd2YSms8QQ2AbP1+e
+         Pg1GX4IfQf91KCY6EVW1dUwu5e8lYiA9oSsKMy/zisB1TuqrmGv3rBGMzzgwsDwfN2T4
+         Injg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795173099; x=1795777899;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+        d=1e100.net; s=20260707; t=1795173950; x=1795778750;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=cJsM+MQDScvHYXZpHmUi9y/qw9WP8MQjdcWo+D8X4wU=;
-        b=UpzyTinpg+vJPHIzzc7hXPMUuTrSyDa3mRQAt4+cGjKDa234SCSKXXOuyr4N/4Llk6
-         jWlJvgQJ9D2gN5JE4CMbx0MlRVyCJNiVZW+WDz1r+Qv6IQXgipc53+/9vcGgehKWd90g
-         GOl7szAAr+J1ppRYtcrEqjBcAwzNRzoyu4ZNesD0UX3hfQmEI7AD9hsxMQyO43x6kPrh
-         GE1tkRWmQL7nmuTCTV5Rr0CPqjS9up04xk6bxzhI5oMZLVRNBpa7AbHBbOlqt4fJzppd
-         Pb2Sln7/5mrs9FATDffY/6zVi7QFemAraprIWZNRpRmyKkGeCKiG+SSgwP2tCykfV0ja
-         ATUQ==
-X-Forwarded-Encrypted: i=1; AL+hErF1efTP0jzrbRGJxYf1ClqH0U2Y0YiROTIOYg8Ef2Q8H2ZVU/LVeG/NjMUarhzYOL6pU4GCB1yCmoKx@vger.kernel.org
-X-Gm-Message-State: APuU4Z9eWpN8P4YRnwtB1o/Hwb0kDCyQzibBxwJPV95E247+k6UFNmVZ
-	TV8Zaiuq6pMP5oHlw/HfuQmGzGrHBhVV0UhWB2QbqwEnqVUC6YlvN0hTG2YgP6roxKU=
-X-Gm-Gg: AYBFou1x2iRHykxWMI0ap1sUHunKuEojOC6naYDrg3rnnhIljup9MbHd7jIFXR9/z+H
-	IUfkuzs42wPW1jKGxnfbBk1WK2RULjV1CXzVEG6ytTTFkMUxkw9JWSoe7X714kFCIPQsraeRkyQ
-	XiTnfiP3wCXkGONRXCV6sfo5qXI7d4UDyZ789BqzcdXgEjKagwuHbSN3GCxhkyaFEeJO/mK9R9P
-	bVu9Nv3TBOUq82jaYCzYQXICGO7c3PNp2kNt5PcCm/7/B5AWrWHql9aJbH1a53wOKZqa7h8exBN
-	YVcuKBEFW/koBE724JdKio3Z1hUvPgccMfPSBnUEEx1vtM0uDddmCs5ilTPJAUt2yAOSGdFPzl2
-	eIxUJ3XYezPreb4GoB1V7yNInEIj8LbfmgXFBBK2zOu5K9EWgpN3h7CEnXjFdsqtptyYR/i1ver
-	RTkGlg1s0gThNo5s3V4ewDmurL0Kcono09C6I7nAX1Sn5HYOBNnvNpHo4GCERL5PDOlXReegcBM
-	iKDEgT9dUjs6Ki1MDH1cwVg/NQcNaOsgigQrWGqT/h8MUpxB4My3ke+1n3vrzi2kePXtxRDCbh9
-	zFtTN6n9T1CUtqwaHU3G1y1NZYojEJ3Z8cCuAlKwTy+xuSDSIxUqds8v91nDpVKXkx0vwtbaePN
-	hz7jDjFq2ywg3MreX
-X-Received: by 2002:a05:600d:6510:10b0:4a1:811c:8078 with SMTP id 5b1f17b1804b1-4bb8881de57mr39648455e9.26.1795173099366;
-        Fri, 20 Nov 2026 03:11:39 -0800 (PST)
+        bh=NcV0t79NYJ/mK1aZ8pQRTmJ9otnohMh+O0hfCgV3Lfg=;
+        b=wIBAfalb+a7iBtghJpd9ASt5MYOCn+ODrj6pDxEoZ+K+IxF08isOEi0aU6VKh6/+sm
+         DkLCSoRcuQ7+azYvm4Ml6ayJzldI0VfQJ2Cos/VGmurhanWMehx8TDVUgWsUcUxotq7n
+         V6WyRfJmE6INQcRBIP0gPazQZ5M2LlH0Wy6RqikVcmHuXJG+hyfFGz5VueYaEeUTZt/w
+         xKzgVTtnFOvcHXTw1JvzrA7xKcY8H9HIr2aQcU6XsNDOmBYvrQf8KG8e8rosSkVFQx0/
+         oYRLShJxCpXB0bOjvouIDYvAnfk+p7e3jBABcMQ63dKLmRCAeEDzkOtxY717w5qZrbUS
+         t+Ug==
+X-Forwarded-Encrypted: i=1; AL+hErE84I1plFqCauyyQoXkiAMmKuejTAFSi4epfHRbtupMbqUlb+SFWSZiBDxad0BB59ilUVUQk1rMEg9k@vger.kernel.org
+X-Gm-Message-State: APuU4Z+vP/RvYP0JR2i3Gy3nIPtKVtg8wHRzqjV+YTj/4eWmY7dm6uFr
+	f3V0eSZL3rA0j/Y7cCqFGcGC9sOm9w9VwxWeciefwLlNu+ek2u6ks5CdEWZsGGh4+xU=
+X-Gm-Gg: AYBFou2lV5pD8/86fVKRW8v2iVofTVAqDtgo3dTgWErJ50jXPMCei0eZ9QgRY3hRnkR
+	0kpliJtFMuI7WFZM6J2ZYkOeB5bJzQyMVIxkKt5CMtyc6YfE9ySsf5HRVpCm8eWOaguZKLu5DtO
+	QQ565mQk1V/pKS3Pw7ohbhj0aIXkqVNt4K+a9gMJ0sr0kr31Crd9TQpMuEX3KHcDegFEdpk1UCY
+	D4pPCuPTs1XcN/EHS3RFcIzdRDiby05xClzTiKFmGHKyNphLWKfreBB9x6wl/JGB2WGpYLiBzDk
+	7TzdkVZ5xa2NJreJvgleOqq767hGTMKg82wFAO6hM96KDKdxUot0A0GVnYvD02iCkhndkEZoQqs
+	EAGRdi6wpvrqqhkwrKdFVkK6EfGa8Vs32x0VcCSSPeUbfsERYMqtyfWgrmw3+De2SOK0d+CTnJt
+	ovuH4pju82aZIhSFGZEI2OKwsi46Ki1oIgoY4Te6uvI7Y2UzNu1Kx0Hqe8tPYGwiFXa2srFzERd
+	2xxaE4HzcBo+Wbycs2ERGRR3uFUg4GZwaxoPmtbHo+8KZ8IqbmKHzu50qmHalTdL709sniVs/Gb
+	IKZcf6ch0t8I/LFWol+G8bf9rEACBNN2iyaFIIscA5xUTbaX13JTji1ZgeEyxpyEAH0SGW7EcB3
+	SQI/ee6dbbP9iElY8
+X-Received: by 2002:a05:600c:64c7:b0:4bb:68c4:2044 with SMTP id 5b1f17b1804b1-4bb887fe725mr56451745e9.11.1795173950208;
+        Fri, 20 Nov 2026 03:25:50 -0800 (PST)
 Received: from localhost (p200300f65f19a904be03815e1634e776.dip0.t-ipconnect.de. [2003:f6:5f19:a904:be03:815e:1634:e776])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884ab091sm110162205e9.11.2026.11.20.03.11.37
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4bb884b8429sm117437835e9.14.2026.11.20.03.25.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 03:11:38 -0800 (PST)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Eric Farman <farman@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>
-Cc: Alex Williamson <alex@shazbot.org>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: [PATCH v2 04/10] s390/vfio: Allow untainted use of driver_override
-Date: Fri, 20 Nov 2026 12:11:05 +0100
-Message-ID:  <a53e12ad841fb18e45b3cf7a4580846943ed0c6d.1795171088.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
-References: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
+        Fri, 20 Nov 2026 03:25:49 -0800 (PST)
+Date: Fri, 20 Nov 2026 12:25:48 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Nicolas Schier <n.schier@fritz.com>, 
+	Nathan Chancellor <nathan@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>, 
+	Harald Freudenberger <freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	linux-kbuild@vger.kernel.org, linux-s390@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	"kernelci.org bot" <bot@kernelci.org>, Nicolas Schier <nsc@kernel.org>
+Subject: Re: [PATCH 2/2] devicetable-offsets: Get struct cpu_feature from a
+ device-id header
+Message-ID: <awAtvSIQeLJq2hvF@monoceros>
+References: <179424040477.1704532.18231793404479518924.b4-ty@b4>
+ <av8Uv7EV3sLqUBfr@derry.ads.avm.de>
+ <20261119194738.GC875856@ax162>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -112,53 +107,67 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1609; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=KVkwXeeDf67yBEMp7oUHRQtChMTeOlX43NbtH/KeOAk=; b=owGbwMvMwMXY3/A7olbonx/jabUkhmwGrYvrt8oZ1tuWmU/b73WXTdFsZ91iafF4ge1RU/U3p lTP2cTdyWjMwsDIxSArpshi37gm06pKLrJz7b/LMINYmUCmMHBxCsBE3lix/3f5F7BD8V6NmNW2 s7duzvu1LMMlVuvUhJLk6JyuRJVHZwq+hQQ8WXU5/9fbHBZTlqNJOlnnPmrm5LU8WSFXWFvMGtl RsvOfSmCOZwmHzrETZ89d0azbv2nm8eTWNp2wdQHJaYrl6tde/v30/AKf64SLLpbcS36dvdvune SssVDTwsn3jp9EDFczz2y+tJgZaW8mdMo3WC9b8rnlS1Ja0lq3fZVRlok7+kpS8ve1pOgsdMtJt 9LQ5fD516reuXu/U3GMTvvRlDLWRknP6WnP8o88z5Rzd7/9zU9C+1a9gdmfZXYMdVmW8uu9WPK3 c/H55U2+83Cj6qWg5xmvkoQkP1QukF47Q8Nnktm8nd8A
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="tv3l72rardngbokt"
+Content-Disposition: inline
+In-Reply-To: <20261119194738.GC875856@ax162>
 
-From: Alex Williamson <alex@shazbot.org>
 
-The vfio_ap and vfio_ccw drivers bind devices through driver_override.
-With the introduction of the support_driver_override flag in the core
-driver struct, it's now required for drivers to declare themselves as
-driver_override compatible, otherwise driver_override bindings will be
-denied or generate a kernel taint.
+--tv3l72rardngbokt
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 2/2] devicetable-offsets: Get struct cpu_feature from a
+ device-id header
+MIME-Version: 1.0
 
-Set the support_driver_override flag on the vfio_ap and vfio_ccw driver
-structs.
+Hello,
 
-Signed-off-by: Alex Williamson <alex@shazbot.org>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
----
- drivers/s390/cio/vfio_ccw_drv.c   | 1 +
- drivers/s390/crypto/vfio_ap_drv.c | 1 +
- 2 files changed, 2 insertions(+)
+On Thu, Nov 19, 2026 at 12:47:38PM -0700, Nathan Chancellor wrote:
+> On Thu, Nov 19, 2026 at 04:24:47PM +0100, Nicolas Schier wrote:
+> > So my questions:
+> >=20
+> >  * Shall we keep it the way it is to keep the original patch order
+> >    (bisect might fail on the two commits before this patch)?
+> >=20
+> >  * Or shall the patch be moved before Uwe's (removing the 'Fixes' tag,
+> >    and rewriting the commit msg)?
+> >=20
+> > I am in favor of the latter.  Are there any objections?
+> >=20
+> >=20
+> > [1]: https://git.kernel.org/kbuild/c/f1dc66c38b7eb4b2fb946a2fd6929250ec=
+d2d85a
+> > [2]: https://patch.msgid.link/bc9fbf5784f6788e10c749a05d56c42bdb68f3d9.=
+1792144769.git.u.kleine-koenig@baylibre.com
+>=20
+> If history is already being rewritten, I believe it is always good to
+> fix potential bisection issues like this. Rewriting the commit message
+> (and maybe some of the diff?) and placing it in an order such that the
+> build cannot break sounds great to me (but others are free to disagree).
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 7546bd137e4e..77765cde87f7 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -375,6 +375,7 @@ static struct css_driver vfio_ccw_sch_driver = {
- 	.drv = {
- 		.name = "vfio_ccw",
- 		.owner = THIS_MODULE,
-+		.support_driver_override = true,
- 	},
- 	.subchannel_type = vfio_ccw_sch_ids,
- 	.irq = vfio_ccw_sch_irq,
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 8e69ed286bb9..2d47dc643269 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -62,6 +62,7 @@ static struct ap_driver vfio_ap_drv = {
- 	.on_config_changed = vfio_ap_on_cfg_changed,
- 	.on_scan_complete = vfio_ap_on_scan_complete,
- 	.ids = ap_queue_ids,
-+	.driver.support_driver_override = true,
- };
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
--- 
-2.56.0.rc1
+Full ack. I think the danger to hit that point during bisection is
+small, but I like the 2nd option as this reduces the small chance to 0
+in that case that people yell at me :-)
 
+So from my side: go!
+
+Best regards
+Uwe
+
+--tv3l72rardngbokt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsALjoACgkQj4D7WH0S
+/k4lAAgAru4huUD6XgX/xEc0md/r2uTYSHfAeG9y3GIzcVC+zkGIzmFUEZ2+X4HN
+rc4d07ok+2mGRZ9v9k7dO2SUzjDaoahlVqRd5ldtCwi2b03QrEfGe2Bkte8IiCCM
+0vWjLcJWss62UN3gAxmKMHIxKvKcYFle+LjAYqi8dWM+YPc2SXS0gqmTZISLjEXN
+HHeBGqcecdsyrFtzxYnMLvmdJ9vefsQNNlLcyy6V/EUtnk2yt1k5ZwXozAUEojXQ
+OhiuLXypzkqUPvCXOQKtrqveg6g0hxnDtqlFTZfptssoqxNVMwLsN52Nsic5nzT2
+9LO+HiyUPz5SPNVTac2QsyHue4WN2g==
+=RzUQ
+-----END PGP SIGNATURE-----
+
+--tv3l72rardngbokt--
