@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795206225;
-	b=IyIEgxDPvBKC7HFhwfbiuEiU6p0ZgJoQ0hTGJuI1cx3RrJ6Q1Xpi8AD26zL/Wowpshww
-	 zFH/pnX3zKrsF0TpPndWTEVKdQf0A4cPPyDOUEghAIDYjXH8jlBbq48MUs8YtSwwAan5U
-	 287Do+zCK8ow346FwlXWv+YFT3GHBS3nWjfmoDswbAY6imqHIkqd+MkUFZLu8fI5XtHR+
-	 5cus7Cmq/ND8y6CYbOgoKZqR2ohxNmbWLCWv9RRf6SrLDlJ1ShDYEmbOeK6iBCLbl9DrQ
-	 xcxbXg9DxpO7c6QIk5jOEhkbz2YK6a5TmRjrkiM2VIlToO1RoShh80zUkLjTXdhxOUw==
+	t=1795206226;
+	b=JfO/BEqA6RIAs/aqtDN5pwru+3FTuMwO0jwdUj1Mc6VZTtdV0e0RaKS1urNShdIA0x01
+	 2bwSYnWae2tVaLX23kgARmX3G1h2Cxdem5r/d0O1TPX2chE1XnZ5fDzoc5/9NKKAmTQ/R
+	 buV93BH0IrhvBkPpcNTFLxhvDIqjpCtaOMdncTWeNOtxnwztM0hiAWIs0un0pdrPLfcBF
+	 9APv2Wh2tRzmJBJN3M7W5nwYYGq/xwxQlwCNL6xCXRij65ekFa+hTRrjoyIEibyADtkaL
+	 fnrsEN7t5ZUAPH7BulHNtbbShmgMBFFPAhQRt7uJ5DrHwh36qcswsRUGzFbDmxUY1zg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795206225;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795206226;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=KEYiBc1XjEbR3CQxbZcQGPLYtP8W2IuZQxHxW8BKFwM=;
-	b=lhhuIoV5kdDToc/wNmm9cuj0Lss87Ad15piHVhdc9u1H3cGj3AgJviFlp5P2GonH6aPH
-	 j35sJyEAFZh4LMo4hRrMvIkP3DnjGRRRvW4KCX6jbDE71uT3fFXihcX+cvuT2delKB4SJ
-	 M3ELFFbCL6w6arCX7qcijzSROjJVL0o0xNPTQ6AUPRNTrKSzDnlCbKh0LRnLv4ZkA7ZO8
-	 SpN5QHbe7CznRvrZFtiIaMkWBMFU922kc46Twij+MwVoA5FXkztxHAJgPcHp6cFqWIzbn
-	 vXBcz/SdOHYpTXKlsmYLCD48AwD5weQ4lVdKZhyx4L3FWjPor65VSlV2kiZuTcxf7tg==
+	bh=P+3KjbvPrSMSpGkYM4nGg66MtVNXtf6m9cvlU1bxYnI=;
+	b=FRKYEZL3Fj+Y4yPL+prEQ9oLzw8mOWcJS1U30b3dMTW7+JgOGG1kY50ZcJR9Izb5Nv9Q
+	 lFN/yAxZ5sxqqEZmG2YEOFdCVU3YzBhqplnSlZBKYSLjjkFal69H/yJw+Fl4B744fRqi0
+	 VcFphZmA7vNMX1wXaE9Ltyx/5l7OZyuRhJrSTK34SgKENCzCFR6G6vIcKVaX0EPF2+P7k
+	 +ikDuqqleUOfJz6IDN43YrlhGcV2nYcm3QNISJyI9WM2sjpqXevBqPo7jitq8InJx1uLV
+	 iMvYHW5fuLB1ftJ+BxPa/vFcvjUOwqX2YRLQc/yihb1dEBvMa4oFwBgfCOy2TSC+zEA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=atpT7sro;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DoZtPXM5;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 087DF606A320;
-	Fri, 20 Nov 2026 20:23:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 685C7606A6D2;
+	Fri, 20 Nov 2026 20:23:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=atpT7sro
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B96701F000C0;
-	Fri, 20 Nov 2026 20:23:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DoZtPXM5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 296241F000C4;
+	Fri, 20 Nov 2026 20:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795206224;
-	bh=KEYiBc1XjEbR3CQxbZcQGPLYtP8W2IuZQxHxW8BKFwM=;
+	s=k20260515; t=1795206226;
+	bh=P+3KjbvPrSMSpGkYM4nGg66MtVNXtf6m9cvlU1bxYnI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=atpT7sro8YgB0dHVBt8x703ctb2QCvDseefAX2YTskJZpofRPJO37A3OXtGiK/gON
-	 afNq/anjdZRaNfeBaIoGoego3qFaJkF6Xqi7MjyiTNhzi6d36LckyqrVllCwdzaDR7
-	 38iASBnxST8iQDnvWHUWgWPFJvnqs/fMKSOF8/K7b/FWXvBqKqBg010P94qaYs5RiI
-	 tDLluATlCL93N3k35RWtZc1mOBzcE8UUgBM7zYyO2GkwHfLSOgg5PUQd73woIkA5cL
-	 coI3IfnDcTsbZtXfLvyut0alo5WOtDZHxnODsyusML/k0zvmRcpl5VDRdvDKic5THx
-	 0Zj9EK0h6V6rw==
-Message-ID: <sashiko-outbox-226043@kernel.org>
+	b=DoZtPXM5JigttgqN4LUMTrh8WhBWxhLLLGdUH7+2Vrek6bTE7ecT3vKYUp3Fabj5z
+	 CrIhYL/Rm9tk/3gH5bvZ9SnduQQ+oWYckzfsHX+N4cbcF+KtXMDCDou763TwM2j0ck
+	 RG302uBA5xB+SJZXKV1gdDDsQdJPVlONDpOLrAo9huYYAk/vubGblqFenM3My4V1QN
+	 m7g/6X3LTqX78cJZXPZuVBDJuESAz+l1IklBGJlAZPiu9J934UmRWk20ThemCmYuBz
+	 n3B03uC6L43o+L9ibx2QpcNwfeTZpQmx6pW6LTrkqE6LLqQlKCJYUpGC4MIt617wEe
+	 EtqC8SqS4SuGA==
+Message-ID: <sashiko-outbox-226053@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 02/16] syscalls: Create unified partial table for
- all archs
+Subject: Re: [PATCH v10 12/16] syscalls: Avoid matching substrings in the
+ ABI parsing
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>, "Masami
  Hiramatsu" <mhiramat@kernel.org>, "Arnd Bergmanon" <arnd@arndb.de>
@@ -52,12 +52,12 @@ Cc: "Christian Brauner" <brauner@kernel.org>, linux-kbuild@vger.kernel.org, kern
  Molnar" <mingo@redhat.com>, "Magnus Lindholm" <linmag7@gmail.com>, nathan@kernel.org, nsc@kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261119-tonyk-syscall_table-v10-2-a7c9ebd900f6@igalia.com>
+In-Reply-To: <20261119-tonyk-syscall_table-v10-12-a7c9ebd900f6@igalia.com>
 References: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
- <20261119-tonyk-syscall_table-v10-2-a7c9ebd900f6@igalia.com>
+ <20261119-tonyk-syscall_table-v10-12-a7c9ebd900f6@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 20:23:43 +0000
+Date: Fri, 20 Nov 2026 20:23:44 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -69,71 +69,61 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] syscalls: inaccurate comments for ABI names and emit_nr()
-  parameter order
+- [High] syscalls: gen_hdr() and gen_tbl() regex breaks empty --abis and
+  repeats $abis
 --
 
-commit c623dfa13f12a7f67002b068bc004d808cd6477b
+commit f6d8a94774818a17d8d32b3ba41a79a1af1107a1
 Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-syscalls: Create unified partial table for all archs
+syscalls: Avoid matching substrings in the ABI parsing
 
-This commit adds scripts/syscall_common.tbl for syscall numbers shared acro=
-ss
-architectures and updates scripts/syscallhdr.sh and scripts/syscalltbl.sh to
-accept a --common-tbl option.
-
-> diff --git a/scripts/syscall_common.tbl b/scripts/syscall_common.tbl
-> new file mode 100644
-> index 0000000000000..8085030eb869e
-> --- /dev/null
-> +++ b/scripts/syscall_common.tbl
-> @@ -0,0 +1,84 @@
-> +# SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
-> +#
-> +# syscall numbers shared by all architectures
-> +#
-> +# The format is:
-> +# <number> <abi> <name> <entry point> [<compat entry point> [noreturn]]
-> +#
-> +# The abi can be "32", "clone3", "__cln3" and "memfd_secret"
-> +#
-> +# clone3 stands for the common clone3 entry, used by most archs. Some ar=
-chs have
-> +# their special entry and should use "__clone3".
-
-[ ... ]
+This commit updates the grep patterns in scripts/syscallhdr.sh and
+scripts/syscalltbl.sh to require trailing whitespace after $abis and
+appends "|| true" so the scripts continue to cleanup when grep finds no
+matches.
 
 > diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
-> index bad1ab606a0fb..8f7dfcf19a4c5 100755
+> index f2d670f45ec86..6372dbb1cb715 100755
 > --- a/scripts/syscallhdr.sh
 > +++ b/scripts/syscallhdr.sh
-
-[ ... ]
-
-> @@ -69,13 +76,35 @@ guard=3D_UAPI_ASM_$(basename "$outfile" |
->  	sed -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' \
->  	-e 's/[^A-Z0-9_]/_/g' -e 's/__/_/g')
+> @@ -109,7 +109,7 @@ gen_hdr() {
+>  	tmpfile=3D$(mktemp)
+>  	offset_nr=3D$2
 > =20
-> -grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$infile" | {
-> +emit_start_guard() {
->  	echo "#ifndef $guard"
->  	echo "#define $guard"
->  	echo
-> +}
-> +
-> +# emit_nr(prefix, nr)
-> +emit_nr() {
-> +	local nr=3D$1
-> +	local prefix=3D$2
+> -	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
+> +	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis+[[:space:]]" "$input" > $tmpf=
+ile || true
+> diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
+> index 1e9cac32c02d2..403a604e7c760 100755
+> --- a/scripts/syscalltbl.sh
+> +++ b/scripts/syscalltbl.sh
+> @@ -70,7 +70,7 @@ gen_tbl() {
+>  	tmpfile=3D$(mktemp)
+>  	offset_nr=3D$2
+> =20
+> -	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
+> +	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis+[[:space:]]" "$input" > $tmpf=
+ile || true
 
-[Severity: Low]
-In scripts/syscall_common.tbl, the header comment lists "__cln3" instead of
-"__clone3" and omits the "common" ABI used by most entries in the table.
-Also, in scripts/syscallhdr.sh, the comment above emit_nr() documents the
-arguments as (prefix, nr), whereas emit_nr() takes nr as $1 and prefix as $=
-2.
+[Severity: High]
+Does this regex match any lines when --abis is omitted?
+
+When --abis is not passed (such as on m68k, microblaze, sh, and xtensa),
+abis defaults to an empty string and the pattern expands to
+"^[0-9A-Fa-fXx]+[[:space:]]++[[:space:]]".  That pattern has nothing to
+match the ABI column, so grep matches zero lines, "|| true" suppresses the
+exit status, and gen_hdr() and gen_tbl() silently generate an empty
+syscall_table.h and a unistd header without any __NR_* definitions,
+breaking the build on those architectures.
+
+In addition, when --abis is passed, "$abis+[[:space:]]" puts the "+"
+quantifier on the parenthesized $abis group rather than on [[:space:]],
+matching repeated ABI names instead of one or more trailing whitespace
+characters.  Initializing abis to "[^[:space:]]+" by default (or only
+requiring trailing whitespace when $abis is non-empty) and moving "+" to
+"[[:space:]]+" would avoid both regressions.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119-tonyk-sysc=
-all_table-v10-0-a7c9ebd900f6@igalia.com?part=3D2
+all_table-v10-0-a7c9ebd900f6@igalia.com?part=3D12
