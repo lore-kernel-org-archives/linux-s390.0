@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795131006;
-	b=rMSjKMMwe6rWaOO1M7RQ4n8gz96cwUHUMgsZJmJpmqtXNSML9KtN04wmvjFrN7u+5bKz
-	 BHKLlXraSQ5cUNYRBPpOuvAiPHqmDrr3z1cVc2vXQ3w7qURqPEqrfdwi5DgtG0BD1bfXC
-	 WeSdS4NATb6VUsNnhggLRD+882O3yTAzC8dSdqGqOxBomLuiihObnY/cDQyCQ9XEbB2c4
-	 q0Fjisg2gNyoLgo3PHPLYjN/qg7zxJmdnsKKSvIoR5ZPqSEJ61Ye5ZY25BqtEHpJfPWqr
-	 eicVLUqXOE80hLK8e6NZ/MwQzlVguBJmRM3uVGVXjAoIVXVYtE24QADh1jN2vUl9jQQ==
+	t=1795141815;
+	b=cxAv5xbw1LoPFfzq7AdwCFfEnUKIiGEFSZ8de+yi6ggrTC7zNmerTIbKJoGRopI9OZ91
+	 7JZZ2sKxKAj5r9Laahhg/IlBD0whSl/EnCI49VmESgPDaBlniJW0ciHlUn3WP48YGqB76
+	 Q/VpGxYmN03rVkf7BwfMWaQgVHxrmQfMsY+FoKnusUnU6iA7MgTdkl7xGuhN3c945TxIU
+	 nBraoStiUPQlYV+vOyuIMMky9QUb/ATGFvXvFIv5AygJGg1ArJnd+VXdQKZb6zdPhHsoT
+	 U7n+9P3fW8Zl175vEOwcvZbos5qufSGRbq1TV4myUN4m24Nw+PgmiGCFh/2QFt5HdqA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795131006;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795141815;
 	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
 	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
 	 In-Reply-To:To:Cc;
-	bh=DWg9qHRxGrI8RIln0yvvTi/qV4EItOlaWMXukxuCsJA=;
-	b=pcdd9barLzg4J69lQ4ECzFUsFzBBGoGr7huMXDXZZXOGAY8nYvf/9IC5I3ohpqu2kuwq
-	 XMA3cU6vRXhx5DHtRs58+QedVux4YvCJV++vISy7a/n3GzrroHGcIciYZqgPPkXF2mT9h
-	 2gbH3NkbC6cF/cUD0o5Dsegu0/NHIrux07oSYO2UQkWhmkDVXIxCLuZ6I7ZxYH1JA7NPP
-	 87kNQWWCjqlt9EvYjbar3I9CHzovABU2J/+79sjJNE1hgMXr4GCOugaAczKHI0Bd/c39N
-	 rcBc5dXrWFILjADJWhgVi2ctCMTulALzmaCTz+iC3G4GDStF8EQ+dVnAlfcQlMhTRww==
+	bh=Td+Vsqa3uWyWCc7Hm2r5ZpUErDn/P4Yv0JOR4vVhes8=;
+	b=Lk/zb4rBh8873gaI3nz9cO2Z3gp1LlXKIX9g5xZj3N8ZagvrO4gYZz3DlePtVsqhEoNA
+	 JgeGdGhob/TBcSUQC3WaftK1RhCR9zNt6i9sWvrpEbD44Y77yU4rsSW+qzcEw4HJqdAEW
+	 9xj3RYhgh81m1FVmMC0uRAMgoDdRpXGoGTsYhlhtupqoBYABsYPx84kZnVKumCNDMzRMX
+	 NWJV6+aZ6OnaohIZTdRetAqccos43p+A14reHCwxKxG2emn/o8U7kGUSlUqqwUv87OApL
+	 n9gI2eQkE/FjqGjLYzeYq3lf5UXaDA7KhchmRC3+wTF5DEnYvgCL5mpa4w+rA521EVA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SZX6FXe5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CK+bpFFg;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C637606A32A;
-	Thu, 19 Nov 2026 23:30:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3A3F606A331;
+	Fri, 20 Nov 2026 02:30:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SZX6FXe5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF15B1F000C6;
-	Thu, 19 Nov 2026 23:30:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CK+bpFFg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8102E1F000C4;
+	Fri, 20 Nov 2026 02:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795131005;
-	bh=DWg9qHRxGrI8RIln0yvvTi/qV4EItOlaWMXukxuCsJA=;
+	s=k20260515; t=1795141814;
+	bh=Td+Vsqa3uWyWCc7Hm2r5ZpUErDn/P4Yv0JOR4vVhes8=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=SZX6FXe5d8jQufXqT/cesFjasKNuivTyeCROdgvHQj/nm9L1upeXwdBzwT2Ab23o4
-	 5i4ilyPRgH8n1fx2mod8wJszTWJQbHycvkxSkDJLouHhHINlYm1dPUOVKxEAtSWMna
-	 Hz5p6qJthyoSQb/J4UAZh0A2x/jg8mNYSBDaaR50wobJjTY66LVP22geOeazp9V5Dr
-	 8OBqW8oY9geT3LLhkPkoUQRQZyByjE/4jTTe6Zwdp58DPW6oLorWxjPFnhcPDJVnd1
-	 n9L+fbkaxJJgz3YB72sjOmXZnZQDzP/YBGBbHchR5V1v3YTbUO7vj2GzPzcttcX8uY
-	 vpmTdTewHMitQ==
+	b=CK+bpFFguijfJKmzZKcJNITnckMyDEzSzrTSBw1jlfKSSNwa+trNJzo89EE+CplPi
+	 AsNdOW4Nn5y9ewhFEID49uhHkA/I0FLKWuIkpPF5HkXgDAPv9bgq/PfJl7v5wjOFr/
+	 +UkrBfiO9YvkSg76RdN/Ef/XDEiUH+B7LPPpOeaKWzGc6c0Gczy3MwW3IZ2TPBcgvY
+	 r0pStiIdEryiMhCkOo3ICb0LQss9pq8HdSvIrtw3en1kD/Ue9e/H2lnjBCKA+2aebb
+	 od619LuSbfurt7sJHRCMZriS2BQV0Uj89xLr8sduLIC3VDV0scf/bxZCmWHo1GX/Kv
+	 PgfVkGbE7ihww==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B44AF3808209;
-	Thu, 19 Nov 2026 23:30:05 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 773F23808209;
+	Fri, 20 Nov 2026 02:30:14 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,46 +54,55 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: check every link before skipping the RMB
- registration
+Subject: Re: [PATCH net-next v2 0/5] net: annotate data-races around sysctl
+ knobs
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <179513100453.3921246.8361050512284832541.git-patchwork-notify@kernel.org>
-Date: Thu, 19 Nov 2026 23:30:04 +0000
-References: <20261113-b4-disp-08835f86-v1-1-b2ee1b9b94e2@proton.me>
-In-Reply-To: <20261113-b4-disp-08835f86-v1-1-b2ee1b9b94e2@proton.me>
-To: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: edumazet@kernel.org, sidraya@linux.ibm.com, dust.li@linux.alibaba.com,
- alibuda@linux.alibaba.com, mjambigi@linux.ibm.com, pabeni@redhat.com,
- kuba@kernel.org, davem@davemloft.net, horms@kernel.org,
- linux-s390@vger.kernel.org, guwen@linux.alibaba.com, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- tonylu@linux.alibaba.com
+ <179514181302.3985754.10655105132001474225.git-patchwork-notify@kernel.org>
+Date: Fri, 20 Nov 2026 02:30:13 +0000
+References: <20261118045137.174026-1-jiayuan.chen@linux.dev>
+In-Reply-To: <20261118045137.174026-1-jiayuan.chen@linux.dev>
+To: Jiayuan Chen <jiayuan.chen@linux.dev>
+Cc: netdev@vger.kernel.org, dsahern@kernel.org, idosch@nvidia.com,
+ davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, matttbe@kernel.org, martineau@kernel.org,
+ geliang@kernel.org, achender@kernel.org, alibuda@linux.alibaba.com,
+ dust.li@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, mptcp@lists.linux.dev,
+ linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
+ linux-s390@vger.kernel.org
 
 Hello:
 
-This patch was applied to netdev/net-next.git (main)
+This series was applied to netdev/net-next.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Fri, 13 Nov 2026 14:11:44 -0500 you wrote:
-> From: Bryam Vargas <hexlabsecurity@proton.me>
+On Wed, 18 Nov 2026 12:51:15 +0800 you wrote:
+> This series annotates data races around a few sysctl knobs under net/.
+> They are read without any lock while their handlers update them with
+> WRITE_ONCE(), so add READ_ONCE() to the readers, and WRITE_ONCE() to the
+> handlers and netlink paths that store to the same fields with plain
+> writes.
 > 
-> smcr_lgr_reg_rmbs() skips the MR registration (its fast path) when the
-> RMB is registered on every active link, but the check reads is_reg_mr[]
-> at the index of the connection's link for each link it walks. An RMB
-> that sits unused in the pool when a link is added is not registered on
-> that link. A later connection on the older link that reuses it takes
-> the fast path, never registers it on the newer link, and its
-> CONFIRM_RKEY still gives the peer an rkey for that link. After a
-> failover to the newer link, the peer's RDMA writes into the RMB fail
-> with a remote access error, that link goes down too and, with no other
-> link left, the link group is terminated.
+> There are no Fixes tags. Done one knob per patch this would be well over
+> a hundred commits, so I grouped them by subsystem and feature instead to
+> keep the review manageable. If maintainers prefer, I can split it up
+> further with a Fixes tag on each one, as several smaller series.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net] net/smc: check every link before skipping the RMB registration
-    https://git.kernel.org/netdev/net-next/c/7e23d36038cb
+  - [net-next,v2,1/5] inet: frags: annotate data-races around fqdir->timeout and fqdir->max_dist
+    https://git.kernel.org/netdev/net-next/c/871c4d55bcc2
+  - [net-next,v2,2/5] ipv6: annotate data-races around icmpv6 reply sysctls
+    https://git.kernel.org/netdev/net-next/c/74a8695588fd
+  - [net-next,v2,3/5] mptcp: annotate data-races around pernet sysctls
+    https://git.kernel.org/netdev/net-next/c/9b01b1ed4b27
+  - [net-next,v2,4/5] rds: annotate data-races around core rds sysctls
+    https://git.kernel.org/netdev/net-next/c/89452de7ed3d
+  - [net-next,v2,5/5] net/smc: annotate data-races around smc sysctls
+    https://git.kernel.org/netdev/net-next/c/88c1e8ba3024
 
 You are awesome, thank you!
 -- 
