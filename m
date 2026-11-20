@@ -1,101 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.47
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795183529;
-	b=aNJwYV2OrjtUNMi8Kw+iivkxCPRlEkXqFbKs0GT+SoqBJCRF4u6hY1FHRJt7PzqisLdk
-	 w/c8LW2pgi+G4gbLUnAp3m6zSokRNU4bsqjv4AVvjVY2nNtwmZQedtBaJGGJ1zyD6yek7
-	 GN+Ow5tV7hFJyctUdNuQXSyeFI4dSapODDEdK0GcJLlqULvLeZx4T/keuyNWU5kNAa6k0
-	 IfOD9q9AuWp4Lt3IpDpd+XVPUXuMDuEAzzIOKwcybSWQi2mBBkrd40914HxclbqxuvFRO
-	 NqQs3rdDs93jiVHM7yyJ9DKd4wVjC8E6t8srOJr3akmNs5vUCQzKi8dvLhdfpACSrdQ==
+	t=1795184067;
+	b=ilYfzmMMmU+D+SbFGw6MQeHApcJCTZSUhNbuYUZT+25PU5WvA/SWt7jBzpKEvlOIqQJL
+	 98m8Bnp+677l8NbXutIFtCH2sHIZSgUbfgV0W45vW0m5EQQDU4d4w5GalqsYFfnQq5GoZ
+	 PdbngHEFoA7oXti5BHZjGlS4dzzTNSAsGTKL93gDjsfd8deadIoklMtkoPR4FuPWRFEsg
+	 QybQpX9uFKmucxy4O/D1zeFVJYG06sOaJkVVCQsZyuAWbQXKWg26kY4VXMgS46pRLSw8u
+	 CMnUQKsWXPs1sWyT3UdGN9dxP2X3X12sYOh+WHRSY3U2KGVvJ6atQRJyHblRQhU/ZeA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795183529;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=fKhA2P1ewRK9WeXDzZdZmZPm69l3JUWOOFfVIt+9Bkc=;
-	b=eBQNhtuyYqe41qvKNaJLP3/VpRNgFIJ1AC/Y4K6oZSmiQWJPDtq6JMg43GrTFiYVAbvL
-	 yqY9fOjbegLjkaykqJt7z1jrCVzVh8G7GsfJsf5UdOKKbpW7a3xBWmJj7NHuRvB2tMSOX
-	 fr6uuG5I/HELzEHrW91MG901Zzs7iz+QetxrU8ZP4tbICJCOfKoCy5+puGQMyS+9ycb+j
-	 ENgkBLSjXrpR239wkT5dBK43KlXzauZAqjRC3dGXHJs3kDeGP+lnfU29jKgrhaIKBFYfx
-	 /awgYiyxtviQfmE3CFDamJz4Siptiy/jrIj9sNqh23Zf9jyI1hssgDMz16J7NvSq9Ag==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795184067;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=PvPx8KemO0xcM9BvIjOEVvpcXVwQS3ehLVp+q+/Y12c=;
+	b=Rn+4Fg+pps8FwYGfgFGUcBaKEHaQCiHgpyBpFhflAMuEgV/52AOv9BAYL/tbvfSZOmuy
+	 17gJU5rnLZQUEAlBx8Du16TrIqFJUYFXKvhOq7YTvA+oGioSnSKASbTB/OJzfplzgism5
+	 vaFzCDzHUHtwO474PMGjrSSY+LRJms1k1uQLQ1ELXYB/W5WdFDaYaaEfthfWtuywEEd6c
+	 K3tfQRxIIC1Vbfw0/hVmag/R6wan+PC1lwFItlmRkJBvldnOu97PSYbdBBJKPG1SerWDd
+	 GsA3gVSYyKymmxw/N4pOfbt2WYo62o2dzprhXOwfysdSMSOI/1DqctkpYGeBd/PvFyQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=mgy+KYAs;
-	arc=none smtp.remote-ip=209.85.221.47
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=B5DXBemK;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49616606A325
-	for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 14:05:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 49616606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D65606A320;
+	Fri, 20 Nov 2026 14:14:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B3D65606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=mgy+KYAs
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-4a358881793so468527f8f.0
-        for <linux-s390@vger.kernel.org>; Fri, 20 Nov 2026 06:05:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1795183526; x=1795788326; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=fKhA2P1ewRK9WeXDzZdZmZPm69l3JUWOOFfVIt+9Bkc=;
-        b=mgy+KYAsx2ff/GlyARPQpLRhQzn1hTsj8RK0oyJ0U8IDIi3i2Ekd/L1lS57GTgj9F9
-         z6lwEGryBnNdQameZM/LfHBIk/8jIxMAWWq2Z+S+4TpaPKBlrEQ2lY/YnyTEGI6asLeB
-         23h1laoP9T4eKxyOErBq0FM+calCa3sB+SuGSJRnbuuGTX+OGqUSWrREi2K77ziAI7f7
-         ujfivtk4m6rgNgAVjwUzkCg2MU2wljjLiJ3W2QR3xZnenxfm5X81ksIwkI9yo/AKO1I8
-         n46Yb7BUZWimfV5xlZsukbZUxn54wPvDowc7uFuc4mA80QcPmJqX62E1xThV33+zJ39h
-         m2Cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795183526; x=1795788326;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=fKhA2P1ewRK9WeXDzZdZmZPm69l3JUWOOFfVIt+9Bkc=;
-        b=aVKJ7xhqA1JziHZVIxF8rgsKZGDn3/gjRycZOVy3QMf7lfGaqkzITAQ3SyOlRsrypD
-         pmgJD1o188Vq9jE1ODAJeQFUaquEM/DTX6Q/FLY6PYkd6OGb7/EWUBg8Fwe++yljfDEp
-         q2eNLs472JEL9FvdfRMK9+AvPiCrd13l6fBPm/bU1feIzfVcRNb7rDtAkP3q8CPsi8na
-         kA6CZI9zGszT2ffbjygQIMRTjUiJAriAflnh0gIiJmh9RgoeEFGLMwDTcuJQyGCebViT
-         Y7F6hB6JJq7/xICxq6hA0ou0n2MgZFfUKoU4Msg8KZyrlMdXeop/FWN9tGJOi2oibe5N
-         uxrw==
-X-Forwarded-Encrypted: i=1; AL+hErEaMVEcYtJgMREw7oDCvdfUerjsLueotxrzCjqtWtwaJ+LGD96f6OXJ5OAvZiU2ebFQ/mCe+s9kD8We@vger.kernel.org
-X-Gm-Message-State: APuU4Z8q5CajG/y1NhWB9VvRFV4NoL42h/sla6R1ehdPWtIgXbQpoJUE
-	3/WvlS+VPDmh+th0s/KkcwrFk5WJbA/SfqjghzuM08bMSKCg7Gu0OKIWObCjbt7/ufg=
-X-Gm-Gg: AZFdTZdCNAM6IqWLbH7Ql+lyrllpGYvZdgbbIlS/d+o596D9ow3WUVqz/KeeCNQtcPy
-	VnAq0Avz0z2+gfRlLrL5C5gXET0pEAxsUljYmIVZVBaW0e875clVPBKuw/nPqMJC21re6Se1+Hl
-	VuhVQOTb7P4KyovVu9wngqvIZ0O4L/CSBmoEdlRG12xm1FYHFlW0lg927xEtG76k1Fjahdngvhl
-	Sd6W58bjvXSx94kvfHMgasWgTM7YvclM/IA1xRHznxsTwjQHwlA6ovqFMtFXR/E7CfGuB4PyT5J
-	z5z1KZUlh6lZJBqs4/kO7oXVmKSF4QyOelCwDAfzv81syU+UGEhg3OyZ1P6uOmLkTmD9/owmgWg
-	Dn6VLnmNBgAiLCxP3IcID30JKOOO5Gj1WRSYKR73Czp2cQHH1jhsUPmPj7PnREk4R5+kujtffc2
-	JxgsiAcWYQK9c10QJOyjJcSUg5gTKnOz1nhbei8Q11w0ZxMCuQMC8vGiWWxwDlTySgVXRdYyAv3
-	Uw6E41+DbxBexIZQpH+KgdZ/JBSAyQdNK8iY5P0SL51e6Qx9GIOghcXKKaP879vscQlNjt2s+Ti
-	emxR8EIaNs7Rt2+tX8igAoTrMNhvuae8sMqNV8SezBQm1aDX8nfa6rhmwnL6cFaUR2+Nr5Tb2sD
-	mH03I/nrvOWL7SgFI+Li1FcQ+QFdVDJ2VAIBmHac=
-X-Received: by 2002:a05:6000:29d2:b0:4aa:831a:d0eb with SMTP id ffacd0b85a97d-4abb3c37a50mr4536615f8f.9.1795183526458;
-        Fri, 20 Nov 2026 06:05:26 -0800 (PST)
-Received: from localhost (p200300f65f19a9041d3eb07d772156f3.dip0.t-ipconnect.de. [2003:f6:5f19:a904:1d3e:b07d:7721:56f3])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4ab6c4353d6sm5825284f8f.56.2026.11.20.06.05.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 06:05:25 -0800 (PST)
-Date: Fri, 20 Nov 2026 15:05:24 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Eric Farman <farman@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
-	Tony Krowiak <akrowiak@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, 
-	Holger Dengler <dengler@linux.ibm.com>, Alex Williamson <alex@shazbot.org>, 
-	Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH v2 04/10] s390/vfio: Allow untainted use of
- driver_override
-Message-ID: <awBSb7VOGyCCBDv2@monoceros>
-References: <cover.1795171088.git.u.kleine-koenig@baylibre.com>
- <a53e12ad841fb18e45b3cf7a4580846943ed0c6d.1795171088.git.u.kleine-koenig@baylibre.com>
- <8548e9504ec70bec02c6f2cebf69ea91@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=B5DXBemK
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKAueo32861278;
+	Fri, 20 Nov 2026 14:13:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=PvPx8KemO0xcM9BvIjOEVvpcXVwQS3
+	ehLVp+q+/Y12c=; b=B5DXBemKh9Lh8Rak/aftkySB8nUn7NsasM5g/+jda1/202
+	SNHoaGCp4T50AfG5uoLucmeIAlvT28FDySN7p1NkD6ZtwATMuH03SW5Q07GNENBL
+	LZ8crLwhAp9yp516a+PR34CiZCkRsP1Uzum3VC3B7DLgM9v/MJ96zLNFPPuer3MJ
+	EzzVOF0TcZzPwB++1501FHuJDNsHZ1mUAKrl8Wz5m6WwODC8ajQQvRUHTNfQLbnV
+	D65Zv3Pw8HNWgu/r8A+wSIjspJXowyQ/dbRGgq/UWQbIwNf2dkuwF5eWySI59VZ0
+	ecI6tQDSJ7Zbd3DNa6/jIzSO/ax9WVj+5PFGXxHw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j105x8hq4-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 20 Nov 2026 14:13:49 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AKDVBTa1220811;
+	Fri, 20 Nov 2026 14:13:48 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j2q5ng6nn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 20 Nov 2026 14:13:48 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AKEDdaU47513900
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 20 Nov 2026 14:13:40 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DDBFB20043;
+	Fri, 20 Nov 2026 14:13:39 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B608F20040;
+	Fri, 20 Nov 2026 14:13:38 +0000 (GMT)
+Received: from osiris (unknown [9.111.86.180])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 20 Nov 2026 14:13:38 +0000 (GMT)
+Date: Fri, 20 Nov 2026 15:13:37 +0100
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Marc Zyngier <maz@kernel.org>
+Cc: Oliver Upton <oupton@kernel.org>, Fuad Tabba <fuad.tabba@linux.dev>,
+        Joey Gouly <joey.gouly@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Andreas Grapentin <gra@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Friedrich Welter <fritz@linux.ibm.com>,
+        Gautam Gala <ggala@linux.ibm.com>,
+        Hariharan Mari <hari55@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Paolo Bonzini <pbonzini@redhat.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: Re: [PATCH v3 01/23] KVM: arm64: Refactor idreg caching into
+ dedicated structure
+Message-ID: <20261120141337.222720-A-seiden@linux.ibm.com>
+References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-1-75e95980fb10@linux.ibm.com>
+ <87ik1z8gsy.wl-maz@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -105,111 +116,54 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="z5kdjss4jszejxnb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8548e9504ec70bec02c6f2cebf69ea91@linux.ibm.com>
+In-Reply-To: <87ik1z8gsy.wl-maz@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ifAOkSVLFCM3CzBERqJcC9NJg_rpimD7
+X-Proofpoint-GUID: ifAOkSVLFCM3CzBERqJcC9NJg_rpimD7
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIwMDA1NSBTYWx0ZWRfX1grFYOpSlxGw
+ 8U9gaIC7JaaXQFyArTP2A4hWJieHkkamYfmrPYx3g789KdPdqcGyBy/D//k1xZUO/aKYRm7wd94
+ Ku39vjASwOWmvQOP1BiIQYSMpAUaNbyY8cGOnYjdniXsPxKNBnpOpKq0IbNmOjW7h+mOMIFqlZ2
+ D12fcqRyN0Q8Dzpj8uJsm81mAiWtP2HGXzHwX3OfxYVDev84qTYQIpoaWWxXpALxsgvrJq2feQu
+ 7Y2foONElooJcrbPU0AEp8si+PAHtwolJRuL0i+rxnPZ3u0oYpRL6JFfrFEQTKkA/Gpyojc0CQP
+ Qs0WuDmgkafbkyu4WHYIPYbPbYBtDgw3G4s+VhNuZ8c4vlsihN57gNFQ4mGErRqUWeOOsPPwxCu
+ T0zJosPU7KFjQ8NQWg3bsRtOp8XlW+gn9R35ybhBCRVuPDgOP3/TWmIq7PE3KuASaFl27PvPeYB
+ YH0n81NxFpODIyhAqMQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIwMDA1NSBTYWx0ZWRfX7PEZIeKNrAen
+ Ko9rFLMVrRfFLFVd1IbxaNDtLwwIRNzqqlwdxybsCQ/kVtWEXSxjeCUfFIm6G/pC8kyzqQzy/4L
+ MjqKT4QezrVLsftKJw8+LmRsM8tmVwo=
+X-Authority-Analysis: v=2.4 cv=K+m3jCWI c=1 sm=1 tr=0 ts=6b00559d cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=5Px26FCybgXTlaf_HfoA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-20_04,2026-11-19_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 bulkscore=0 clxscore=1015 adultscore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611200055
 
+On Sat, Nov 14, 2026 at 05:27:09PM +0000, Marc Zyngier wrote:
+> On Fri, 06 Nov 2026 16:07:34 +0000,
+> Steffen Eiden <seiden@linux.ibm.com> wrote:
+> > 
 
---z5kdjss4jszejxnb
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v2 04/10] s390/vfio: Allow untainted use of
- driver_override
-MIME-Version: 1.0
+...
 
-On Fri, Nov 20, 2026 at 12:58:52PM +0100, Harald Freudenberger wrote:
-> On 2026-11-20 12:11, Uwe Kleine-K=F6nig wrote:
-> > From: Alex Williamson <alex@shazbot.org>
-> >=20
-> > The vfio_ap and vfio_ccw drivers bind devices through driver_override.
-> > With the introduction of the support_driver_override flag in the core
-> > driver struct, it's now required for drivers to declare themselves as
-> > driver_override compatible, otherwise driver_override bindings will be
-> > denied or generate a kernel taint.
-> >=20
-> > Set the support_driver_override flag on the vfio_ap and vfio_ccw driver
-> > structs.
-> >=20
-> > Signed-off-by: Alex Williamson <alex@shazbot.org>
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@baylibre.com>
-> > ---
-> >  drivers/s390/cio/vfio_ccw_drv.c   | 1 +
-> >  drivers/s390/crypto/vfio_ap_drv.c | 1 +
-> >  2 files changed, 2 insertions(+)
-> >=20
-> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c
-> > b/drivers/s390/cio/vfio_ccw_drv.c
-> > index 7546bd137e4e..77765cde87f7 100644
-> > --- a/drivers/s390/cio/vfio_ccw_drv.c
-> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> > @@ -375,6 +375,7 @@ static struct css_driver vfio_ccw_sch_driver =3D {
-> >  	.drv =3D {
-> >  		.name =3D "vfio_ccw",
-> >  		.owner =3D THIS_MODULE,
-> > +		.support_driver_override =3D true,
-> >  	},
-> >  	.subchannel_type =3D vfio_ccw_sch_ids,
-> >  	.irq =3D vfio_ccw_sch_irq,
-> > diff --git a/drivers/s390/crypto/vfio_ap_drv.c
-> > b/drivers/s390/crypto/vfio_ap_drv.c
-> > index 8e69ed286bb9..2d47dc643269 100644
-> > --- a/drivers/s390/crypto/vfio_ap_drv.c
-> > +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> > @@ -62,6 +62,7 @@ static struct ap_driver vfio_ap_drv =3D {
-> >  	.on_config_changed =3D vfio_ap_on_cfg_changed,
-> >  	.on_scan_complete =3D vfio_ap_on_scan_complete,
-> >  	.ids =3D ap_queue_ids,
-> > +	.driver.support_driver_override =3D true,
-> >  };
-> >=20
-> >  static void vfio_ap_matrix_dev_release(struct device *dev)
->=20
-> Hm, honestly I don' get this...
-> The driver_override is a bus thing. So the AP bus has support for
-> driver_override.
+> 
+> Overall, I'd like to see a first patch introducing helpers that the
+> code uses everywhere possible, then another patch that introduces the
+> structure, the renaming, and changes the accessors without touching
+> the rest of the code.
 
-Yes, and ap_device_probe() calls device_match_driver_override() which
-requires .driver.support_driver_override to be true to make the override
-work.
+Sounds good. I'll implement that.
 
-> The sysfs functions are in drivers/s390/crypto/ap_queue.c. There exist
-> currently
-> two drivers which shall be bound to an AP queue: vfio_ap and the default
-> driver
-> which is the zcrypt driver "cex4queue". It sounds like the driver needs t=
-he
-> tagging about driver_override support and then similar to the vfio_ap_drv=
-=2Ec
-> the static struct ap_driver initialization may also need a
-> .driver.support_driver_override =3D true line.
+Thank you!
 
-Can you please talk in form of a patch? I have difficulties following
-your words. (Hint: "the driver" is ambigous if you just talked about two
-different ones. Also what is "the static struct ap_driver
-initialization"?)
+	Steffen
 
-Alternatively something like: "I tested you changes and the xyz driver
-fails to bind, this is the respective kernel output: ..." would be
-welcome, too.
-
-Best regards
-Uwe
-
---z5kdjss4jszejxnb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmsAU6IACgkQj4D7WH0S
-/k6tMAf8CzB6okqp49LE9R3aOA1LqPPI2LOhdKWbHnK474C/TId/TESJtb6NeK9a
-/TiJzbw0cMmiZBWFX98POZtuxPs/p7E267I4HIiVSkJZbXIMTQLgRtNAwzQ2XHSG
-hGC6bCl/mo8FvF7Wgh4UDmKJf0ouYsnKSngydVHdAMge9AWdPLAwV/Mt22qoUPuf
-zTO+MmKjQ5gYxdV5B/bA6zHB3m9WhdotEJsK3fJqNr4Ey2gMKsfBSPhfX++rkr2K
-rLeBF3pOWEtGt96JPSOKF9uBsbrRdGNL/hRINeFMxcqFG2dqs07zOz+X5FKWSzH3
-Ba2MDNVrii6e5LmWPrJUf6CRttkdJw==
-=kxW2
------END PGP SIGNATURE-----
-
---z5kdjss4jszejxnb--
