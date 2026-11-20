@@ -1,57 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795206229;
-	b=LhVmU/sOeBulyENbtxXp7iFR4/mvuIbUVipMO1UUQ0mOYCHtdNZnH64fA92+388b9zsm
-	 0TYLCM1sZ5CFAryKWfwWygw3IxRj/htJykfjPfmz+HQa4rzCGmFMTZScmDNsE1Ker19ET
-	 hxdFWCrNWzeFYc6x+N+trQYaYbWMHWkxNRyOK6inhNeZ/wlsfjqU54P3bML3yShFOLcMj
-	 +iaWLj5CpBIi8sojQEmfnKkuNh/LMD1D9fM2uGigFGsYirnWfcoLWkjv+YFrWal0xylp5
-	 Woke2U45CUriKAvS+3A+KFH/uMm9YWiThlJguwi2qFVKPDVkFE6skBTZJ0cFZtNvaIA==
+	t=1795206228;
+	b=hnGW6wUX8oyy9Kk9OS5C7zCgEKVGty5yYjiQMy3hIlo3au1mdpMbTRlbt/usM7Oz7GRM
+	 007wQs/TztsNCERdeAAYeuniWKmgiZfBwH3En/4oy1TtHw4NZqZcC2bKoD/plfAFfmG+S
+	 kXRR0tfAlQtwyQ62klpK/S7aUiAUSIYydCbfmnScV3BrsA0Bmd2x0O4SwY6G0wJhsXk+a
+	 YubRqD5dcWOobPVJornJtzDDgyIMJvARoZCPCVYHwIHsd0v8GpL3lhuKvLu1D02RdXORa
+	 H4Yp/iUoWpvN4X3tgVsWjIfG3vTC1we97tdUkG2vhuCt7Fsmn//DDOrO2560svMYGwg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795206229;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795206228;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=m7+6zrMxeiS17890kA969H+H6NuDtTTgoFJXWPPZp/0=;
-	b=m1PTD8GMv/rhvmSLSwbpFmxqy5J7cfC8+iZdp3SivbOfPtAKsnzZSB2Bqcw0qw6jqbpw
-	 sV70Ga0eLXurc4mLRBU0gu65TVr49sP/T5Qq7zL2BKTvC6dQiARxz+uUIVZdfxjVDBMbB
-	 1M0zs8nbKhpExldHWSQ/v7PDbN3UFl++Op/2jxPu5JIrLoKt/A8nbPUbqbWBikSwM1I92
-	 5DDC/O7OrptO22bArohgiCgD6ni3sfAQjf2DG5wUMQs1Ud0YELy38PoaeCH+ymRwcuMp0
-	 D2e2QVVuXxTnQKkzauMem2+/cpPLk7SPFl9D0af+rwZvAktbLWkULdQ9hgvwlIntCvQ==
+	bh=qn/G3NK612ga2tPlKPik86puYrQY5a+E3I1AsiT+/Vc=;
+	b=1ZtDih4dlz1Yt4ZZubIdfb9Z47MUVFYEJkAmdB547wbLbUU0DBPeTqYBNS23iCd0oULY
+	 AXsXJ1vT9nST3Az4Ii0myvUIYixXHr3PWp6EzR475QiYqEtPExmzsPTf6ZJxzgpq4E6hG
+	 1ZZ9x9iJQx8OqEyuHTHjujFBIG+q7b96ajxG4bU32pitof/zcE9BkYs+wCj2JSSCi2R+l
+	 d+S0XhD5m2Putj8goEnTKS9vtJS457RSaSL2HYyX4hg8mrS3LtL3F6Q2pLWRH3Qavs1Ri
+	 deDDodEX+/HHyy3o7jFo10auvD2zMvVp5S762R54pS2rlL0ke00muOx6V3142ueIVVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LoFYeBBc;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IepDOpIj;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 516A1606A6E6;
-	Fri, 20 Nov 2026 20:23:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2D56606A32A;
+	Fri, 20 Nov 2026 20:23:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LoFYeBBc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D3961F000D0;
-	Fri, 20 Nov 2026 20:23:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IepDOpIj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906C61F000C4;
+	Fri, 20 Nov 2026 20:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795206228;
-	bh=m7+6zrMxeiS17890kA969H+H6NuDtTTgoFJXWPPZp/0=;
+	s=k20260515; t=1795206227;
+	bh=qn/G3NK612ga2tPlKPik86puYrQY5a+E3I1AsiT+/Vc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LoFYeBBcqj3fyQy7yNH68YvF7N7B+hrmS3PnP4bpA3dnGBZCg5zMrVuRrQsfivZLS
-	 zUNt56QxCl57KpsWow1UkpudvG29/u1XsYLbV8ouii4HWqAFDhLwhunXYch7umS0pW
-	 Wwuqv0WnshDTdkE0EWZJ6ZM4of8eNH1R+eSPV4RzlbdexGYUnd1MRBJMjJwsqrNVIB
-	 lVTQ1C2rZgScHaa0uL1SYaYsh3qgj2fJGbEIOAKW0wl8RY7TgJkygBw6tXI5BHzvLw
-	 2d7hh6eqzE/VvK5T2ZGtNhKppKKBXFWVCfaMgkPa10B48KF9IKIkXE6Yfp5IoBGgE6
-	 ujK//RFcjiFJw==
-Message-ID: <sashiko-outbox-226058@kernel.org>
+	b=IepDOpIjkDYtQ0N74HIntiAwfzdPIRfemHpEZWXnuydbl6bdSw+ATQwmZ/WPr7Xez
+	 ah2af6m7GS7q18/yMDImNP37Pfz1CYilV6VPFM8DiD92yoXP7+tCyoTL10hTPmRrPB
+	 8uDiMHe6iEeDcqGTRNzQQEeg734kgpE+qzYMcVWwhPlTOHzdUkkuIC32GItC3Gfzzm
+	 Zxf0NVUkG0jq+YXnWSXsE9Yyvm/Lwj1SyGKhIbqvVK38eJZdTC4vo8/CFotKZ0OKV3
+	 AzSnUim0oeMAzYwKvg/GY3RwvENZl8VRAler5wqflgTZsZvtelwu5v3p2m+rCzdVPg
+	 4VPiI02X7YZRw==
+Message-ID: <sashiko-outbox-226057@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 00/16] syscalls: Add a shared table for all archs
+Subject: Re: [PATCH v10 16/16] perf: Synchronize syscall tables with shared
+ table
 Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>
-Cc: linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, "Heiko
+To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>, "Masami
+ Hiramatsu" <mhiramat@kernel.org>, "Arnd Bergmanon" <arnd@arndb.de>
+Cc: "Christian Brauner" <brauner@kernel.org>, linux-kbuild@vger.kernel.org, kernel-dev@igalia.com, "Thomas
+ Bogendoerfer" <tsbogend@alpha.franken.de>, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, "Arnaldo
+ Carvalho de Melo" <acme@kernel.org>, linux-perf-users@vger.kernel.org, "Ingo
+ Molnar" <mingo@redhat.com>, "Magnus Lindholm" <linmag7@gmail.com>, nathan@kernel.org, nsc@kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
+In-Reply-To: <20261119-tonyk-syscall_table-v10-16-a7c9ebd900f6@igalia.com>
 References: <20261119-tonyk-syscall_table-v10-0-a7c9ebd900f6@igalia.com>
+ <20261119-tonyk-syscall_table-v10-16-a7c9ebd900f6@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 20 Nov 2026 20:23:47 +0000
+Date: Fri, 20 Nov 2026 20:23:46 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,19 +67,57 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Sashiko has finished reviewing this 16-patch series:
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] perf build: missing syscall_common.tbl prerequisite in
+  syscall_tbl_data
+--
 
-- Patches 1, 3-11, and 13-15: no issues found.
-- Patch 2 ("syscalls: Create unified partial table for all archs"): 1
-  potential issue (1 Low)
-- Patch 12 ("syscalls: Avoid matching substrings in the ABI parsing"): 1
-  potential issue (1 High)
-- Patch 16 ("perf: Synchronize syscall tables with shared table"): 1
-  potential issue (1 Low)
+commit b6aa45cdacf2e688edb9fc5934e6ecc0b534dbae
+Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-Detailed reviews have been sent as separate replies to patches 2, 12,
-and 16.
+perf: Synchronize syscall tables with shared table
+
+This commit synchronizes the perf syscall tables with the common syscall
+table infrastructure by moving shared entries to
+tools/scripts/syscall_common.tbl and passing it to syscalltbl.sh.
+
+> diff --git a/tools/perf/trace/beauty/syscalltbl.sh b/tools/perf/trace/bea=
+uty/syscalltbl.sh
+> index adc29af6e8917..cda2ea21a6ba8 100755
+> --- a/tools/perf/trace/beauty/syscalltbl.sh
+> +++ b/tools/perf/trace/beauty/syscalltbl.sh
+> @@ -104,20 +104,20 @@ cat >> "$outfile" <<EOF
+> =20
+>  #if defined(ALL_SYSCALLTBL) || defined(__arm__) || defined(__aarch64__)
+>  EOF
+> -build_tables "$tools_dir/perf/arch/arm/entry/syscalls/syscall.tbl" "$out=
+file" common,32,oabi EM_ARM
+> -build_tables "$tools_dir/perf/arch/arm64/entry/syscalls/syscall_64.tbl" =
+"$outfile" common,64,renameat,rlimit,memfd_secret EM_AARCH64
+> +build_tables "$tools_dir/perf/arch/arm/entry/syscalls/syscall.tbl" "$out=
+file" common,32,oabi,clone3 EM_ARM "$tools_dir/scripts/syscall_common.tbl"
+> +build_tables "$tools_dir/perf/arch/arm64/entry/syscalls/syscall_64.tbl" =
+"$outfile" common,64,renameat,rlimit,memfd_secret,clone3 EM_AARCH64 "$tools=
+_dir/scripts/syscall_common.tbl"
+
+[Severity: Low]
+Should $(srctree)/tools/scripts/syscall_common.tbl also be added to
+syscall_tbl_data in tools/perf/trace/beauty/Build?
+
+tools/perf/trace/beauty/Build {
+    ...
+syscall_tbl_data :=3D $(srctree)/tools/scripts/syscall.tbl \
+	$(wildcard $(srctree)/tools/perf/arch/*/entry/syscalls/syscall*.tbl)
+
+$(syscall_array): $(syscall_tbl) $(syscall_tbl_data)
+    ...
+}
+
+Without it in syscall_tbl_data, incremental perf builds will not
+regenerate trace/beauty/generated/syscalltbl.c when
+tools/scripts/syscall_common.tbl changes.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261119-tonyk-sysc=
-all_table-v10-0-a7c9ebd900f6@igalia.com
+all_table-v10-0-a7c9ebd900f6@igalia.com?part=3D16
