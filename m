@@ -1,63 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795289910;
-	b=MP3R60OMP1op5RLk/Cggq//ntJlYGfjF74f+/o3FMQifw1/iVRXXuBQoqR+bflP86myA
-	 MOz8k8S1/HVsJ4PQaWff5zbyY/wtv54dK/g6ROAJX4bqdTNdfvyH8xci4Vu/oxBr9j3j0
-	 nbO4jF0ymF+Pk/pP5v9vtpL1s8z0+QKmG3sistKfT3j0jxLph3hG7XUdrkXG5URNLiazi
-	 gf7ezC+fLY7nORNxWk/t2DTaUCCWtasWZE6iwY7Rw60Dm8HEWglLRMR/qDSnIobwX6MuL
-	 LK5By+w2i+l27yQP6emIMUERYWmWyqBzVGkAAiZeFZflFndqAgrMOXgkWUrUqO+zT9g==
+	t=1795292852;
+	b=kBWGPXWRrVXJ10C/avRImMlW8dO2zO2wyVfHBXR+gPxbN2YbE/T7pBrIhHOv1nz2rQfI
+	 e18m/VZdoS1z5QrE7GKCYMjeun8ufgviInd6vs9OFtWMmivMPDSTgYOHRO02V+00rKeXx
+	 20TjcR9xtoQ0lukRUPK0gNmXOBFOd5cq+Kt5ufaL/ZgX3ST7rcsstD8Dk2bgE/zZY7Ae2
+	 r611YB2oEajy2gCDPHh424hyoojSdOqF8unG15TRZYQL2Oft6ViSkpbDo2xak3f9X/oBQ
+	 hdgmORqjGfdTWacMEobadnx2X+0p/SZtoxnjiXCtMwGUt8oh7HUv7xu7tb6pwJ0WNwg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795289910;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=sS9FIrfW22SIhehTvpH3rdvmtslwIeEYozBr0OvaZe8=;
-	b=i8ffivDFz2m2OE2+NrxbFDq1JV4nfBGW1U4idyZoi3OOpQdvvWp96Mxj/nNdfuNi7+CC
-	 KvuU+q3wlPVIyMIl7n2vfHKF8RebuptS39fGvK6Z6Sz7Tj0yGFhOFjyHiKrJaWiQwpN2g
-	 QO4ORakK4uukpoSjj9m8cAov+S1ZLrxXtomHIYsLRFxyRnHUTVILg/ElqpFShNBPnmTse
-	 KjqC8YWieZM05Ht2x3D27MdwjgTFCbW3f1PIgfxdM37/IqSIWOdEenk6NjDkkCm8T+gyG
-	 zn+anB/9ozKZ/NQ6SmLnM6cHDxNeW9jT01x/8lPkpVdBguMUt6dcfZsxg3FlvfEHU/w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795292852;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=0re6fpub3fTmpH8TxeQSKcoylwCTw/SPGEPC0+vOGB4=;
+	b=t6Ks0ugKm4Ok9kLXQq15+WqtP04iXu5ldMXvXepi8oso6/VsrTTtQusB9qMZ31rFWxni
+	 5IiYnrLwUI6VMTzXgBA8EEZWVuMLmceJTlX/IpFRioaB/5GiShCZJnvpjNY4lXyEzjw5F
+	 aoJ1fo43YG/gi+UD+3RVzEV5vxanvLZWzUQ8ZWMVKYVtU+INKLuPjbKJiMO05UttyPJP6
+	 On/HHJJCGAoXYB5sQwSh5u5iN14T+RMS99gdJYccdOR8Y0f47qClYLrNuLkB62Kg1muCL
+	 rollTxQvmLdTqrx+53U/orqQdM/6I394Drq/fZlb0aN63yc0YIWNxU06cnnYJ7GcGGg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lMEGNHQ0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WycZltiE;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CFD0606A32A;
-	Sat, 21 Nov 2026 19:38:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC3D8606A320;
+	Sat, 21 Nov 2026 20:27:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lMEGNHQ0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 633BC1F000C0;
-	Sat, 21 Nov 2026 19:38:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WycZltiE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D621F000C0;
+	Sat, 21 Nov 2026 20:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795289910;
-	bh=sS9FIrfW22SIhehTvpH3rdvmtslwIeEYozBr0OvaZe8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=lMEGNHQ07oh2MwUfRgwkvZAZ27WeJo6vDD/l30AWPPpzJj5Q+NfMczzLMW8sfxzQ2
-	 S4pyJsc00F5CC8ChEwg9HqSdcKXUlnaSRaPcc+PfKz4E2SQ/ktqP6gkAbl5YmrP9zp
-	 tQdk8ujImGnzeOEELv3R6oy4k3Ku6FqcDAyXxKli2mxLjR/Jz3wuwS4/EYe3A7nse3
-	 q6zNUOAglc3+hvlWLqhelia66rFiXKv5uyUVKYzeX4IOaNsG1JZhw2v+D+nOqaOHVc
-	 73RfFZRDnZm/6Q5dwkV75tmV7wsAigidVFbsNq4pyfhtQ7GJrGoLPl23u1QH3WnoJ2
-	 cvWELJEQpL3OQ==
-From: netdev-bot+sinfo@kernel.org
-To: Piyus Kedia <piyus@iiitd.ac.in>
-Cc: alibuda@linux.alibaba.com, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>, netdev@vger.kernel.org,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, Kapil Vaswani <kapil@presceralabs.ai>
-Subject: Re: [PATCH net] net/smc: validate the peer's CDC cursors against our
- own buffers
-Date: Sat, 21 Nov 2026 19:38:28 +0000
-Message-ID: <179528990895.3294.1614564040906254045@kernel.org>
-In-Reply-To: <20261121193345.2148966-2-piyus@iiitd.ac.in>
-References: <20261121193345.2148966-1-piyus@iiitd.ac.in>
- <20261121193345.2148966-2-piyus@iiitd.ac.in>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	s=k20260515; t=1795292851;
+	bh=0re6fpub3fTmpH8TxeQSKcoylwCTw/SPGEPC0+vOGB4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WycZltiEXCZkOANAq82d6AZPfXwk6z02PQt7z4jj4OkvoDjoo/ffv+2dGKyojlSoJ
+	 Xli5U0eavl1n5q7d8YwOh+u+ZEmyc/d9V3fNmzhzFBpPgZNdkEt6HSVE9Qh7EwGdng
+	 69WCNueMOBgVIM35K+gXGynx8gFrQC80QdzxYzCnyxVaBEF+Hk7MHA6KhI9vqsS0hi
+	 fKN9WYjcdR9YvWUx0Q7s6EWmam6G7He0dOPt93/2u40dQtPSn6FeFV/iQkSamQIm9D
+	 FvhTGjRoVnMslTld9LM0KhYvXYAZlqIMBBu8V0QsyNnbw+5N9Kw6zES9wOC4wwm0aA
+	 dAM0snb+usuZg==
+Message-ID: <sashiko-outbox-227340@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Move struct cpu_feature to a
+ <linux/device-id/cpu_feature.h>
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Nicolas Schier" <nsc@kernel.org>, =?utf-8?b?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig@baylibre.com>, "Nathan
+ Chancellor" <nathan@kernel.org>, "Sasha Levin" <sashal@kernel.org>
+Cc: "Harald Freudenberger" <freude@linux.ibm.com>, "Holger Dengler" <dengler@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Huacai Chen" <chenhuacai@kernel.org>, "WANG
+ Xuerui" <kernel@xen0n.name>, "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>, linux-kbuild@vger.kernel.org, linux-s390@vger.kernel.org, "kernelci.org
+ bot" <bot@kernelci.org>, "Nicolas Schier" <n.schier@fritz.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261120202712.3377691-1-nsc@kernel.org>
+References: <awCruYkI2TkxJfPC@levanger>
+ <20261120202712.3377691-1-nsc@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 21 Nov 2026 20:27:30 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -66,23 +66,55 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
 
-Hi!
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] s390/pkey: build failure in pkey_cca.c and pkey_ep11.c due to
+  missing ap.h
+--
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+commit 543ef19435c07903669c00abccf0dfdd05854de2
+Author: Nicolas Schier <n.schier@fritz.com>
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+Move struct cpu_feature to a <linux/device-id/cpu_feature.h>
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account.
+This commit moves the definition of struct cpu_feature from
+<linux/mod_devicetable.h> into a new <linux/device-id/cpu_feature.h> header
+and updates <linux/cpufeature.h> and arch/loongarch/kvm/main.c to include
+the new header directly.
 
-*IMPORTANT*: If you do repost (for other reasons) - please include
-the relevant info in the cover letter or commit messages.
--- 
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
+Link: https://lore.kernel.org/r/f610c07f39df15f3e7ebdc63bfcd759ca7a687a8.17=
+94233316.git.sashal@kernel.org # [1]
+
+> diff --git a/include/linux/cpufeature.h b/include/linux/cpufeature.h
+> index 6aff540ee9e57..cd470987777f3 100644
+> --- a/include/linux/cpufeature.h
+> +++ b/include/linux/cpufeature.h
+> @@ -6,10 +6,11 @@
+>  #ifndef __LINUX_CPUFEATURE_H
+>  #define __LINUX_CPUFEATURE_H
+> =20
+> +#include <linux/device-id/cpu_feature.h>
+> +
+>  #ifdef CONFIG_GENERIC_CPU_AUTOPROBE
+> =20
+>  #include <linux/init.h>
+> -#include <linux/mod_devicetable.h>
+>  #include <asm/cpufeature.h>
+> =20
+>  /*
+
+[Severity: High]
+Does removing <linux/mod_devicetable.h> here break the s390 build when
+CONFIG_PKEY_CCA=3Dm or CONFIG_PKEY_EP11=3Dm?
+
+drivers/s390/crypto/pkey_cca.c and drivers/s390/crypto/pkey_ep11.c define
+arrays of struct ap_device_id (pkey_cca_card_ids[] and
+pkey_ep11_card_ids[]) without directly including <linux/device-id/ap.h>.
+They previously got that definition transitively through
+<linux/cpufeature.h> -> <linux/mod_devicetable.h>, so struct ap_device_id
+is now an incomplete type in both files.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261120202712.3377=
+691-1-nsc@kernel.org?part=3D1
