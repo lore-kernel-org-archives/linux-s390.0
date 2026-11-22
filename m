@@ -1,47 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795373089;
-	b=np3zTMCLC5KD+G87y7mEbgjZ+uuq9656RcB6UWx/uNtnT++Tj/o4yzLFfgRgqBFmjEG3
-	 PuSP9Igmi8mxIJ/s3jgpubaapLwwC4tzKQuPK8qkUAlyNiPh+RXHUtmrLlCnoV38iv1Rp
-	 xSZWfNVhRmvcKbxhN5s+2EdbjMy031rQD5mVIO9eWmQYdU37HhgsLQyzZ1ZPOgXiVnNJS
-	 ODTSYBwSekZilyaQi8FNJvXG85v1XN3zzjSmZwbcKrH5XF6n7iubPCVpQFv/Y+3dQWhV6
-	 7Xxz/YijQpbjhV3k8ihGctcONOTxN8zHFHU0TS0gXWALPScgjrsJ9CS7b1CZw6zs1YA==
+	t=1795376046;
+	b=SavoPmoxpTHCeaMaovUtfeaf2dyl/dpr3gweh6H4Zzi53137dkJg7b7bwVDxH/m/zd+m
+	 LwwvlvVSAhgy+S7/FK39ChsN6/WxbjH5y/bl3qEIrHP/pcpbXi4+jmBLSXPi8s2g7x0QV
+	 ZA59jQ+61IYBsPcIgj9CevLXx++AYfmNrZL2PhhyrMZxZjNPXnxuscbkyKBI1j1+NtvEe
+	 PMg2lhFjMeSKp2rd4Q2cIVGI1D25S1QVNCmIJ+cgrmdxVjpHY94urYmDihFdG2NJNOyiO
+	 qXGkdB+RrF3TxlLqhSSUYtIRooEIxBcQz9BxKPJe/f2Zt1nblIfTlemUvAquePZeGBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795373089;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:From:To:Cc:References:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=+mFUnJ0G0eEYTFMAR5FV99b/Z4DvZ9aEuSHItMsFjv8=;
-	b=xtyWzHB92cJE/gL9DdbY9gAbxvxjY7FjpLUTtUzqAy7jw0sE3U+3MzvppdleG1nX4zS8
-	 9PUdZrAo/3GbuqHQSFqzTSmFhBxtT+k3+UiZyECcBAjb/BQtAnPHmFN1tCROqfZrah8fk
-	 SnbMggjVbmKu5w2QIc6ALiAHFI5UaxZItLp1GJr+FrFi6puUK+aPKve8OZ1DngKNonpPO
-	 Qbs1uekxJap9yq9v8jpvjn2jfTwl/SHGRGDBHhRDkuNkKVyWjOM2LsclHjou1akbtBcMV
-	 RMYKN3Mndqr+1fOwxQNOl85YBBlXFAAWsOYUdFEZsVahk5osjLedG01gLHA3OF82Efw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795376046;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=7O1AJOC6TyT8w/nD4cSAhTXrc3NCeAQaDJZ0Ti+5Ssk=;
+	b=Jb2Rd8oQuLTiGfpYWT9Wtyfzcv+4iPlJ+IDX+tGIrxeUmTyItnwWUD0Qt12di72w+URN
+	 P4XVGN+Z84e1JXunyQ0xk+UoHqtJq+QqIAYg3ff7i6YmpJKBVicYLzr+qedCgK5wspqJf
+	 9pF4lj/U0H8gjnKrMtyg5dobbO+0P+/BoNS0Ns9E+3VvQIoRq4b4OODWp2hzzgwiGGQit
+	 zyc3t5GeaAdwRym2Qih1sVm9pD832cdwUUUmL8Svz++hkPxEr02flYFxiTscYisIJgs+m
+	 wismWD4DjCDf/6mF4jtephHxQv4SK4nisitfZBB/FGJh9TI290fj6pShojcJOcgjJsQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cpyh39c5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nyXqH+RV;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE8B606A320;
-	Sun, 22 Nov 2026 18:44:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FCCE606A31D;
+	Sun, 22 Nov 2026 19:34:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cpyh39c5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 042651F000CF;
-	Sun, 22 Nov 2026 18:44:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nyXqH+RV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93FA41F000C4;
+	Sun, 22 Nov 2026 19:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795373088;
-	bh=+mFUnJ0G0eEYTFMAR5FV99b/Z4DvZ9aEuSHItMsFjv8=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=cpyh39c50bNlYxatPg1dfUoMxxqhYKpWV6ZiCOkt6i6cBlt3OgZlIGIcLNGcvsxF7
-	 BUSuJKIotBJvGeTW00tOSqW6WS5ISVNtDAjKMVLG/HbMxhRcNxH8FLNETEUUeYUC+0
-	 jfpF1zA1Qysv7cT+KqxswBuxM6tPWJvupfyCJavn2tv/C6MKg+MXl4U0Aw8EG8DfzY
-	 2LN8QmWaq77+HD0OoH+BUUaBDQ23EVG2II3EdGs2MFpX9/S5WeOvhFlshr9Mmbfcsj
-	 kOXVwPj94xxH3ulkHyTn49CnEnZeZjO1pP5hXQWEwg4+dsZbQovxSnlIz4jgvEqGUE
-	 H0RxwQV+1RRFA==
-Message-ID: <5f477c4f-9874-4f51-ab84-5b044a3ea568@kernel.org>
-Date: Sun, 22 Nov 2026 19:44:35 +0100
+	s=k20260515; t=1795376045;
+	bh=7O1AJOC6TyT8w/nD4cSAhTXrc3NCeAQaDJZ0Ti+5Ssk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=nyXqH+RVGfdhDQVnG9KqyUug2DksAdU2iCghHoLaERP0PANKT6/u65auoI/qqSeN2
+	 hTvBEN7Vwc2m5O8JFCdGGkOd7tnhLw3f2Am5w+rkVxfW0y/glXeT7oaW1ZXroIHxrh
+	 WQDmJ6CB/lvg2s/N6e8gVsVpBlgljzReHDQ6qpmeC8qDftjUax3JYN+bHv0OrNLVyh
+	 NeqQLnM5yYTFYFr8K41UhmzHNGWqdGAQVkVsJXyfLlWMbbr+Rs7m9/emOX9ldL9ssM
+	 tsS/oqZr2LJReFChrQmE4XXRt++zsMn0u62KG3hcjuH6GeV29/0Gja0yJu27I394up
+	 p4jzxf7ReJTvQ==
+Message-ID: <sashiko-outbox-228259@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/smc: validate the peer's CDC cursors against
+ our own buffers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Piyus Kedia" <piyus@iiitd.ac.in>
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261121193345.2148966-2-piyus@iiitd.ac.in>
+References: <20261121193345.2148966-1-piyus@iiitd.ac.in>
+ <20261121193345.2148966-2-piyus@iiitd.ac.in>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 22 Nov 2026 19:34:05 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -50,163 +62,111 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 04/15] mm/hugetlb: account temporary folios separately
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- Naoya Horiguchi <nao.horiguchi@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>,
- Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>,
- Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>,
- Hugh Dickins <hughd@google.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Vivek Kasireddy
- <vivek.kasireddy@intel.com>, Dave Airlie <airlied@redhat.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
- Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
- Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
- <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, stable@kernel.org,
- Josef Bacik <josef@toxicpanda.com>
-References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
- <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
- <45997a78-95bd-4e50-b433-f64237f9ec1a@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <45997a78-95bd-4e50-b433-f64237f9ec1a@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 11/22/26 19:21, David Hildenbrand (Arm) wrote:
-> On 11/16/26 19:29, David Hildenbrand (Arm) wrote:
->> Hugetlb migration might have to allocate a temporary folio through
->> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
->> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
->> can mistake them as persistent huge pages, as it merely calculates the
->> difference.
->>
->> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
->> hugetlb folios into surplus folios until persistent_huge_pages() returns
->> the desired number.
->>
->> After the migration (successful or unsuccessful) either the new (temporary)
->> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
->> not "surplus_huge_pages", to undo what was done when allocating a
->> temporary folio.
->>
->> This can result in having more surplus folios than actually allocated
->> folios:
->>
->>   HugePages_Total:       0
->>   HugePages_Surp:        1
->>
->> From then on persistent_huge_pages() returns garbage.
->>
->> To fix it, add internal temporary counters and subtract them when
->> calculating persistent pool sizes. Update persistent_huge_pages() and add
->> persistent_huge_pages_node() to make the code easier to read.
->>
->> Count migration targets and rejected surplus allocations as temporary.
->> Transfer the per-node temporary count along with the temporary flag on
->> migration, such that folio freeing will always do the right thing.
->>
->> Take care of calling account_new_hugetlb_folio() only after setting the
->> folios to be temporary.
->>
->> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
->> Hugetlb continue to include them and overcommit accounting remains
->> unchanged. The new temporary counters are internal for now and are not
->> exported to userspace.
->>
->> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
->> Cc: stable@kernel.org
->> Reported-by: Josef Bacik <josef@toxicpanda.com>
->> Acked-by: Muchun Song <muchun.song@linux.dev>
->> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
->> ---
-> 
-> In combination with
-> 
-> 	mm/hugetlb: preserve persistent flags when returning folios to the pool
-> 
-> This results in an issue during boot.
-> 
-> I think the following is required:
-> 
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index bfc88d42ef0d..aa6ad8d93266 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -1804,8 +1804,8 @@ void free_huge_folio(struct folio *folio)
->                 h->resv_huge_pages++;
-> 
->         if (folio_test_hugetlb_temporary(folio)) {
-> -               folio_clear_hugetlb_temporary(folio);
->                 remove_hugetlb_folio(h, folio, false);
-> +               folio_clear_hugetlb_temporary(folio);
->                 spin_unlock_irqrestore(&hugetlb_lock, flags);
->                 update_and_free_hugetlb_folio(h, folio, true);
->         } else if (h->surplus_huge_pages_node[nid] &&
-> 
-> I'll test real quick whether that resolves CI issues ...
-> 
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [Critical] net/smc: incomplete cursor validation in
+  smcr_cdc_cursors_invalid()
+- [Medium] net/smc: off-by-one cursor bounds check in
+  smcr_cdc_cursors_invalid()
+--
 
-Yes, that makes it work. @Andrew, can you fix that up?
+commit a56e3215d9b6d4c759609c097e5d65fd47a70a6a
+Author: Piyus Kedia <piyus@iiitd.ac.in>
 
--- 
-Cheers,
+net/smc: validate the peer's CDC cursors against our own buffers
 
-David
+This commit adds smcr_cdc_cursors_invalid() in smc_cdc_rx_handler() to
+check incoming CDC producer and consumer cursor counts against the local
+RMB length and peer RMBE size before processing the message.
+
+> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+> index 32d6d03df3214..03ff10fef7da6 100644
+> --- a/net/smc/smc_cdc.c
+> +++ b/net/smc/smc_cdc.c
+> @@ -466,6 +466,26 @@ void smcd_cdc_rx_init(struct smc_connection *conn)
+> =20
+>  /***************************** init, exit, misc ************************=
+******/
+> =20
+> +/* A peer's cursors are offsets into OUR buffers: the producer cursor co=
+unts the
+> + * bytes it has written into the RMB we gave it, the consumer cursor the=
+ bytes it
+> + * has taken from the RMB it published to us.  Nothing else checks them.=
+  smcr_cdc_msg_to_host()
+> + * copies both into the connection, and from there smc_cdc_msg_recv_acti=
+on() adds the
+> + * producer difference to conn->bytes_to_rcv and the receive path uses t=
+hat as a
+> + * length - so a peer that reports more than the buffer holds makes the =
+kernel read
+> + * past it.
+> + */
+> +static bool smcr_cdc_cursors_invalid(struct smc_connection *conn,
+> +				     struct smc_cdc_msg *cdc)
+> +{
+> +	if (!conn->rmb_desc)
+> +		return true;
+> +	if (ntohl(cdc->prod.count) > (u32)conn->rmb_desc->len)
+> +		return true;
+> +	if (ntohl(cdc->cons.count) > conn->peer_rmbe_size)
+> +		return true;
+
+[Severity: Medium]
+Should these two bounds checks use >=3D instead of >?
+
+SMC cursors are 0-based offsets modulo the ring size: smc_curs_add() wraps
+curs->count to 0 and increments curs->wrap as soon as curs->count >=3D size,
+so a valid cursor never has count equal to the buffer length.
+
+If a peer sends cdc->prod with wrap =3D W and count =3D conn->rmb_desc->len,
+consuming those bytes advances conn->rx_curs_confirmed via smc_curs_add()
+to wrap =3D W + 1 and count =3D 0 while conn->local_rx_ctrl.prod stays at
+wrap =3D W and count =3D len.  In smc_tx_consumer_update(),
+smc_curs_diff_large() then sees old->wrap > new->wrap, takes the 0xffff ->
+0x0000 wrap-around branch, and returns conn->rmb_desc->len instead of 0.
+On sockets without SOCK_URGINLINE, an urgent cursor at wrap =3D W and
+count =3D len similarly causes smc_rx_recv_urg() to compute a difference of
+2 * len against the wrapped consumer cursor and erroneously set
+conn->urg_rx_skip_pend =3D true.
+
+> +	return false;
+> +}
+
+[Severity: Critical]
+Can a peer still push conn->bytes_to_rcv past conn->rmb_desc->len and
+trigger the same out-of-bounds read in smc_rx_recvmsg() by advancing
+cdc->prod.wrap?
+
+smcr_cdc_cursors_invalid() checks only cdc->prod.count and
+cdc->cons.count, ignoring the wrap counters and the bytes already queued:
+
+net/smc/smc_cdc.h:smc_curs_diff() {
+	if (old->wrap !=3D new->wrap)
+		return max_t(int, 0,
+			     ((size - old->count) + new->count));
+
+	return max_t(int, 0, (new->count - old->count));
+}
+
+If prod_old is at wrap =3D 0, count =3D 0 on a 64 KiB RMB and a single CDC
+message arrives with prod.wrap =3D 1, prod.count =3D 65535,
+smcr_cdc_cursors_invalid() accepts it, smc_curs_diff() returns 131071, and
+smc_cdc_msg_recv_action() adds that to conn->bytes_to_rcv.  A peer can
+also send multiple CDC messages that increment prod.wrap before userspace
+drains the buffer, accumulating arbitrary values in conn->bytes_to_rcv
+(and similarly inflating conn->peer_rmbe_space past conn->peer_rmbe_size
+via cdc->cons).
+
+When smc_rx_recvmsg() then runs with copylen > conn->rmb_desc->len, its
+first chunk is clamped to conn->rmb_desc->len - cons.count, but the second
+chunk copies the unclamped remainder copylen - chunk_len starting at
+rcvbuf_base + 0, reading past the end of the RMB into userspace.  In
+addition, smc_rx_update_consumer() passes copylen > conn->rmb_desc->len to
+smc_curs_add(), which subtracts size only once and leaves
+conn->local_tx_ctrl.cons.count >=3D conn->rmb_desc->len.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261121193345.2148=
+966-2-piyus@iiitd.ac.in?part=3D1
