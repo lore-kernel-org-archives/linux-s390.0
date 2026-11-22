@@ -1,103 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795316692;
-	b=LhmQU8VMEKcJc93dmMcsBchMiQTSKqT4NMZp44q+FGJhs9VCrEPQHE81dBH46IZpsi+O
-	 CZABJvI8PsS9aJaNu53bZ6VOzpIaRwHvjRULYwQYgod40Ox1/SvySCy/kgZLlLBRXGRPj
-	 f15/Ojr3clX5R94Ze/gztT58Zdc+Mf+TQbU2R5k4ZhaG0pHgrNlzHPthGzESsSoC3PdiK
-	 X6o6k8sVsGMk4vVUmYB0957tpnbwxvathB+M/gu8VN1zcxYpn5gOKt1NbE+lPrudcOMG8
-	 eDlbLc3SmjCYs6LOcVAJeOwIudfQiV3UuDNka0v0hozp9UbRMrBoiV8V7KqPGK5tuEg==
+	t=1795321282;
+	b=EBQJo+LyHqL3yV3H/fluIW1io5wigLaL7pQovieqmq8cVtU7MPotd5nNjOa/DnrYu+1N
+	 tm0TYtlZsCgqOwdmBs7aPjpwFzkFAAlWeo2AyCylND/x6zv5djuxvSX1dNCBq+Tx68Rch
+	 0txM6B0p21pAzjjjE6MjlUA7zYQF2anh/TN8sf0AMmHPAeCrkg73etNvJEiXQp1d3FBSC
+	 3W5AsXx/ykev1StmXiWnDR3MBPvwKR0gt7wzdn74zF/8/yPH5qxAbdfZKGQKLtMJSreD/
+	 NEXkVy9DeSFA/7l0iDxCmj7feyATkEtP+zBgnUq5reNP86b9vkgftAP03/YG5bWTJgg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795316692;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795321282;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References:
-	 MIME-Version:Content-Type;
-	bh=NieCLCvG+gDw8VjVQsEmj+Xb3Nuvde1xSdj6TYYBmIA=;
-	b=M+N/byLkb3GB+zurUt35tKd2rdnnbveSBgg0G80dVfYTwk6USSX0Y8cAsGB2m1to1Abe
-	 fhahCUDGOKV5Pkl5paw3tAoDKwL+bm44X/Lh7WAGxmNKSLSAbJarWr1wWwE/7bCTwxFRG
-	 BlS1zQJDll6fbN6XOFrgXaST7Wjlb3PrwFL21JaHaC5UJ/n21/qgJBdAThwxDeGwM0/iI
-	 K2p0Wv/wr6WR38dK8zliASZiuwEXjf8vhSfT84c7glQskRmYMi+4ClYpFro7e8Ja8tkAd
-	 1qnvZ3nBh5ltVTGwAdgDZFWajt6oLla7xTU8mjVLXlbbmkht7WAR02FxUuSTzURqyMQ==
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=5ZGfxFm22MqdeOsOLhYKxi18iGVL17970v+rtqXfBak=;
+	b=hWx7Di40LKGrl7COmDJ+d2YcXyaHyfupoUlppYYJ1SV6Wz537vAkfzQtAHBghDmkKPi6
+	 5J9GHjIEqSpa7Z1ipGPyeaBFCrmX+tPELCq7sLcvBl/Iwha3/IQbuM6USBBNWt+JMXvLT
+	 KYUYrGs2kFISGw+wHKO/mZmMfd9YdxxYwsoT8M2IEll6o8WmRh+aNfR1E8wBCD5c9l5Ld
+	 VVWkFdMsCFNexAKXz9zcUsBsTf8IAz8Z9L9lVZmV8emNr/8CNyTk6h8bPf8AkMK9X4V6/
+	 iUYArge6XozOhOkueBNV6YvGplHw/RQatk4mLImKmISlaW1py+96SOzYg1g95V7Y/Kw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lQMapLMR;
-	arc=none smtp.remote-ip=74.125.82.179
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	dmarc=none header.from=iiitd.ac.in;
+	spf=pass smtp.mailfrom=iiitd.ac.in;
+	dkim=pass header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=TlXDXhE1;
+	arc=none smtp.remote-ip=209.85.215.180
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDA0606A330
-	for <linux-s390@vger.kernel.org>; Sun, 22 Nov 2026 03:04:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7BDA0606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53572606A32A
+	for <linux-s390@vger.kernel.org>; Sun, 22 Nov 2026 04:21:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53572606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iiitd.ac.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lQMapLMR
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-38564b4b017so2258387eec.0
-        for <linux-s390@vger.kernel.org>; Sat, 21 Nov 2026 19:04:52 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=TlXDXhE1
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-cde1479f76fso1396817a12.0
+        for <linux-s390@vger.kernel.org>; Sat, 21 Nov 2026 20:21:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795316691; x=1795921491; darn=vger.kernel.org;
-        h=content-type:mime-version:references:message-id:date:in-reply-to
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NieCLCvG+gDw8VjVQsEmj+Xb3Nuvde1xSdj6TYYBmIA=;
-        b=lQMapLMRecxhRuMkTSymbForunIxX0OPXsGQ1CXe025r/577yULQNYi3TNrBG53/Qv
-         zYU80ixAjK16x1kduXUqa1QZW9W/3ti9d/2xwfANhvwcppx94XY1wfu52uKp1wNIi+xo
-         0BbROgPXyu0B62JpFc4+zEJIoiLBcGXeP+W6/munvXDcClY8J5U7eqCSCyRjBp3WeH4+
-         q1p1SE27fCRmjWxB4WY3p9l7b9yn5x1FejoLmUjB8Y+BhmVh9oZGKVtoBu6VvuhXecB+
-         kqHQVq97TpxJ2ylXI5iv8vW2n/kYW3PMkK+9IBmWOkrDx9AQECQxv8quTTJlItW+6/Cb
-         tThQ==
+        d=iiitd.ac.in; s=google; t=1795321280; x=1795926080; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=5ZGfxFm22MqdeOsOLhYKxi18iGVL17970v+rtqXfBak=;
+        b=TlXDXhE1vFamfVLeUXgS0rBDmWhARPSEQdZqgYb1TiKcGrKVl7fXBKPP6/JGfUDqYR
+         OdJPTJdan2Hz8or3R3YtQFDsX8zxOZjjxoFH7usjuiOak/CkNBFXsz4OCOpUfpGXpdsQ
+         TacQFdsnM9SmOIBkRkFLEBxIpkHt5UCcCb9w4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795316691; x=1795921491;
-        h=content-type:mime-version:references:message-id:date:in-reply-to
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=NieCLCvG+gDw8VjVQsEmj+Xb3Nuvde1xSdj6TYYBmIA=;
-        b=T/ptdWXgU9kTZ3sMZyL/BeS8T2OuIUyzGeqDPIJphOBVBVgvFcvE4bAVN3H2yfamgi
-         A1fdR2tbtoxsN1S5BXKLpTYQ2KjS4109WJXTPLNq3eVGV3xYJe7KMwWmkrnfnz4a3box
-         3Mlpw/ESGy5pT7Hn30xGRl1QKWbZk43BU0jqjhK7qS9eky3Z6NMnhj7fs5qy0Zr44Ffx
-         Q3GnxBHdyCiM7KlnPC7hvBKNpKy0uS6hrYH68Sh4hy7D988JObpbIVDmKOyikrvsJgI4
-         DBr1/kMn7dJMpb6L515Nn7cgW7AySJAjmdM0Zt0VRQceR0z/ywRXCQYSmNYf4e9X77Kr
-         gQIQ==
-X-Forwarded-Encrypted: i=1; AL+hErECytLXX1GzqrgfAEMyWrV3qQu+VNqNulPCgmsKARQywzVxnZzkzDRu7Bt5SFyX72HgeQJZewQ2JtMi@vger.kernel.org
-X-Gm-Message-State: APuU4Z+5I2PVYKoeEocMUDXSw98UOj2Pak5DwFgxE9uaGjY+2SrXESPt
-	EPkLF4vLgH9QRAPhDdydODrgAd1unsdkCHAE/7nhcSD8HKSZIeqC8w3F
-X-Gm-Gg: AZFdTZcfeGvoq6/y6HZQF3flFOjMP4fRG8PX1p1us4j3VE/92klUJCbJhj7VAJ7dcbx
-	N+ZrwCaBQDX6dTvlMVO5GuxXn//WoD4lDT06XRo4FG8mmdWMIVtwBE24mD/nZaeAEgxlfQokJei
-	rlEl1wMMsOuDZ4M9hha3CB4PeIb9bMpf06+yY7uMF2HZNuQyDGrv0qswg/uSx5HS/maSjs2sqws
-	GIiSbBCABtgxX/d6856UmzsteIQRM1jYMnMmgpygypdCFk2MG84QBjPOZa7CX4JBu+HxK1DdjAg
-	o3Z+4hx376RyvCe/YDVCQHQL1kYhxOi6N4Vf98PP9csU/fCe0VjSS2UR+dgFQ0uwtxbODQO2giC
-	V4bpU6Ve3MwwTSEY5nYw8rY0BRbgcKgXCXpUEiGZ3kh4R8pcBsnJUKOu5DxtgpiIkIoKWsUDplx
-	1jwGHBWv7La8+EW5ZFYPukwD2Gcg8k66zKxORRK8I9zVN+gTY6NRenGR3GC1b3YT57R/cUlXsMl
-	AZD4bnXL03Lb4K0OrACV+pHqgLBfxSmo/WxuE83+TvqjAYsI0adE+eYD0LbdqRhf5hgees4RBGL
-	1lJkAbEIIhstjN9cVBYgNNgXsbN0Sx2Ov0VAKRJWF+pAQe7v
-X-Received: by 2002:a05:7300:50fa:b0:383:9f52:e54d with SMTP id 5a478bee46e88-3856ff52e83mr8869235eec.8.1795316691531;
-        Sat, 21 Nov 2026 19:04:51 -0800 (PST)
-Received: from pve-server ([49.205.216.49])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567da4f85sm24302948eec.27.2026.11.21.19.04.37
+        d=1e100.net; s=20260707; t=1795321280; x=1795926080;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=5ZGfxFm22MqdeOsOLhYKxi18iGVL17970v+rtqXfBak=;
+        b=IvnJcbLb6FQVzJNiIQT/WNwX4ISiGDcQJb2L9PFeoOxwNagQSOtEeet0sjtUHXySpr
+         Ikg80PPi9nQRsHAPF+iqzGN1jBbQcbcbD+qxRroa6ifjim/UZ/OT9iBEdSZypwYvJv2w
+         QXnWnpuqz1aBfIQ8Sy5hVsyvpitoFHIK4kz+iKo4upvLurwgbBabqsN/6MsVwXSyVEWQ
+         MBGj9bs8OLxGUD5JBKOtvj7+E5OtYdssEWrCqsOAf6bZ+VE5VOJ8e35cabBt8bdzhmBe
+         90ao3mfRhce81MHcgnjYqBrfxUHjS3pemgNs5xFtoz7WApRvfWvNSK8TsYlxuCYOKFeP
+         4b3Q==
+X-Forwarded-Encrypted: i=1; AL+hErFDdx8OHsWltb/tb2yvphnSROpCZf8Ho7WnokfPInTS29ff9FGA7UVvleZAFPt7PB5WY0DkxmMRtWwd@vger.kernel.org
+X-Gm-Message-State: APuU4Z8nZYIP5yUzP8BWVk2NDWDXQlsj1lLqyG+C8AyM6BT8t0lRUMSO
+	yBUzW6C5pcyA+QmDmpdgmO/RWB0NKP5ciSmwLzbGI1e1HTJ+z2fnNPcizoCI8uruS+A=
+X-Gm-Gg: AZFdTZcpmomknQs4S3u0BnBbaK5Erh9JF+Lp29eMA+U99nfZqsgTHSyzZEU3VLYRHCD
+	X1YLmzJmEexSS/eyzBnYjDILtzO7MA0uKAeukieHMS8OrmcHjcKz6VvNGBceJl2E6FViQBhB4Ju
+	9xPB5a+Vu7NSl3OJsr0YJs52GrrJIENNOgmVsIJLJOEiZxKkhUKLGlcLBdWIsNmJq4mlKZcLFUw
+	3gbXZ4yFxelOUtX84I2alnPpIdQh2n5SjpagRI45DMnrki1pmYZzr5OF6mDoA9X+jFsa5/XVujF
+	jN2as5awNUbqAdkWfSSjQHB2jko9b1sUdr/4rvhRYDDKSbkwG86Q0aBXvUZ96rNrIWQiceIbtpy
+	sBHuGPztOOk8eh3zlh7zmGpnyVd8oFhAbahoYnMbR+mB7qbE7TpydF+hGaGu1sKRQwXbQ11c3DO
+	RMciHmWL68RCQzXa642AO+HazBZw4zY6YkwKQ3Pyj/ov6JhEX7RwDlkCKVPJGZnvFkJTWbKJxAE
+	JY49GDKCnWyvqTIdQjHv7IUYXivRDSzGDbxTL62AVqrwAogKO3p1WHU31KAq9/NwMc3068+ZZU+
+	13LzKp0QBqfO+i+EWsTEr2xogQmu5hVs3iKnlTOpYcZ8j39IC4If4ZUGMwLmxpX5O4+FVUIHsEo
+	uhexqrZwJEloADiM+/XKJ72adpDrYjcpG0BwiD7XX4Eji25nxc33vT2ezkMxrmBG1
+X-Received: by 2002:a17:90a:d2c7:b0:3b4:a90:7f3a with SMTP id 98e67ed59e1d1-3b41c95da5bmr6806828a91.55.1795321279640;
+        Sat, 21 Nov 2026 20:21:19 -0800 (PST)
+Received: from iiitd-S2600STB.iiitd.edu.in ([103.25.231.160])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b405d97356sm13717803a91.13.2026.11.21.20.21.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 21 Nov 2026 19:04:50 -0800 (PST)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Baoquan He <baoquan.he@linux.dev>, Borislav Petkov <bp@alien8.de>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, 
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Paul Walmsley <pjw@kernel.org>, Pratyush Yadav <pratyush@kernel.org>, Rich Felker <dalias@libc.org>, 
-	Russell King <linux@armlinux.org.uk>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, x86@kernel.org
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Christian Borntraeger <borntraeger@linux.ibm.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Cong Wang <cwang@multikernel.io>, Mark Rutland <mark.rutland@arm.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Nicholas Piggin <npiggin@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Shrikanth Hegde <sshegde@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>, kexec@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev
-Subject: Re: [PATCH 2/2] arch, kexec: declare kexec and crash capabilities in Kconfig.kexec
-In-Reply-To: <20261119-arch-kconfig-v1-2-37c276fe4d26@kernel.org>
-Date: Sun, 22 Nov 2026 08:33:10 +0530
-Message-ID: <wlq5k1ox.ritesh.list@gmail.com>
-References: <20261119-arch-kconfig-v1-0-37c276fe4d26@kernel.org> <20261119-arch-kconfig-v1-2-37c276fe4d26@kernel.org>
+        Sat, 21 Nov 2026 20:21:19 -0800 (PST)
+From: Piyus Kedia <piyus@iiitd.ac.in>
+To: alibuda@linux.alibaba.com,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	netdev@vger.kernel.org
+Cc: Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kapil Vaswani <kapil@presceralabs.ai>
+Subject: Re: [PATCH net] net/smc: validate the peer's CDC cursors against our own buffers
+Date: Sun, 22 Nov 2026 09:51:13 +0530
+Message-Id: <20261122042113.2430308-1-piyus@iiitd.ac.in>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <179528990895.3294.1614564040906254045@kernel.org>
+References: <179528990895.3294.1614564040906254045@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -107,26 +103,95 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-"Mike Rapoport (Microsoft)" <rppt@kernel.org> writes:
-
-> The options that let an architecture opt in to kexec and crash dump
-> features, like ARCH_SUPPORTS_KEXEC or ARCH_SUPPORTS_CRASH_DUMP, are
-> defined in each architecture's Kconfig as def_bool, and most of them are
-> copied over several architectures.
+> This is an automated message. This series looks like a fix, but its
+> commit messages seem to be missing some information:
 >
-> Declare these options once in kernel/Kconfig.kexec next to the options
-> that depend on them, similarly to how mm/Kconfig does it, and make the
-> architectures select them instead.
->
-> Selection conditions are preserved, so there is no functional change.
->
-> Acked-by: Baoquan He <baoquan.he@linux.dev>
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+>  - How the issue was discovered, e.g. hit in production, hit during
+>    development, syzbot report, manual code inspection, LLM or static
+>    analysis tool scan.
 
-No function change observed in this patch (as described in the commit msg).
+Sorry for the omission.
 
-LGTM, feel free to add:
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com> #powerpc
+How it was found
+================
 
+By AI-driven fuzzing built on top of syzkaller.
+
+Its analysis was checked by hand against the code before we wrote anything,
+and every claim in the report was reproduced on net.git main at d5b89d55a322
+under KASAN:
+
+  - a 131072-byte read past a 65536-byte RMB in smc_rx_recvmsg(), reaching
+    userspace through _copy_to_iter();
+  - a 1-byte read at an attacker-chosen offset in
+    smc_cdc_handle_urg_data_arrival(), from the CDC tasklet;
+  - a NULL dereference and oops in smc_rx_splice(), where vmalloc_to_page()
+    returns NULL past the end of the RMB and get_page() dereferences it.
+
+Each was run on an unpatched and a patched kernel built from the same tree in
+the same scripted run: unpatched reports on all three, patched clean on all
+three, with SMC_DIAG confirming SMC-R came up (mode=0, fb_reason=0x0) in
+every run so that a clean result cannot be a setup failure.
+
+What changed in v2
+==================
+
+Sending v2 separately, because it is a code change rather than only the
+information above: v1 validated the SMC-R path only, while the report
+acknowledged that SMC-D shares all three consumers.  smcd_cdc_rx_tsklet()
+reads the cursors straight out of the DMB the peer writes into, in host byte
+order, with no validation of any kind - not even the length and seqno tests
+the SMC-R handler applies - so v1 left the same exposure open there.  v2 adds
+the equivalent check on that path.  The SMC-R check itself is unchanged.
+
+We have no ISM device, so the SMC-D half is reasoned from the code and from
+the shared consumers rather than reproduced; what we did verify at runtime is
+that ordinary SMC-D traffic over the loopback-ISM device still works with the
+check in place, so it does not reject a correct peer.
+
+The interdiff from the posted v1:
+
+  diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+  index 03ff10fef..8d24e0c83 100644
+  --- a/net/smc/smc_cdc.c
+  +++ b/net/smc/smc_cdc.c
+  @@ -433,6 +433,18 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
+   	sock_put(&smc->sk); /* no free sk in softirq-context */
+   }
+   
+  +static bool smcd_cdc_cursors_invalid(struct smc_connection *conn,
+  +				     struct smcd_cdc_msg *cdc)
+  +{
+  +	if (!conn->rmb_desc)
+  +		return true;
+  +	if (cdc->prod.count > (u32)conn->rmb_desc->len)
+  +		return true;
+  +	if (cdc->cons.count > (u32)conn->peer_rmbe_size)
+  +		return true;
+  +	return false;
+  +}
+  +
+   /* Schedule a tasklet for this connection. Triggered from the ISM device IRQ
+    * handler to indicate update in the DMBE.
+    *
+  @@ -452,6 +464,15 @@ static void smcd_cdc_rx_tsklet(struct tasklet_struct *t)
+   	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
+   	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
+   	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
+  +	/* This CDC was written by the peer into the DMB we published to it, so
+  +	 * both cursors are peer-supplied and index buffers described on this
+  +	 * side.  Nothing else checks them, and smc_cdc_msg_recv_action() uses
+  +	 * the producer cursor as a receive length and the consumer cursor to
+  +	 * credit sndbuf_space - which under DMB-nocopy is the memory the peer
+  +	 * itself owns.  Unlike the SMC-R path these values are host order.
+  +	 */
+  +	if (smcd_cdc_cursors_invalid(conn, &cdc))
+  +		return;
+   	smc = container_of(conn, struct smc_sock, conn);
+   	smc_cdc_msg_recv(smc, (struct smc_cdc_msg *)&cdc);
+   }
+
+Thanks,
+Piyus Kedia
