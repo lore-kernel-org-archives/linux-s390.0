@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795364941;
-	b=Qx0HjlraJ90uM39NMVriuvgqhb0AZeUbuGj8BrwTGtXKGi4cAhwoh5tpfMUjUeUcwbxb
-	 Deqarm+z9jb3MSKPn8GzLjgJGPqxSM5sr45+h2WKO2c4PUw0/VKgCVYtsbfO0u7KEG260
-	 dNJgIyBcgpEec2EsEADcuSR90wVBRtM3P0y+3GSpbmtD18fbxB24Z5V0YYdbeLPi/Jf5P
-	 rBM8ulzKxcfoz5jqvqynWLeQCbchylFpl4YksbXk7J/6X+7J22Lj+9vT8X8xTLnExezmw
-	 RiHEAkul+7G6Okl0ZOELAp5bb647H/NdLUrby5/rYMTAXm7vScV/si0noU/AGPLBsug==
+	t=1795371715;
+	b=QpjYBFTaVofCP3lr/R65mMmEMK/Pm5WMn5JBqae3YdYnqW2YfJ68YK+6bnCcVWzEw+HL
+	 dmp3NMXlLKpMTxvBVrC28rLqDrCROnPzUNwTWhWLitcvfoRVkiF+YJFmY/pvFnO+CmK0b
+	 5oxkPaOJ49uZWyu8bKxjghNIQ0AzTEo9PhJkVhy0UK9qwIe00FVgaswidnSp6/FWbvu2N
+	 qfcoajHCYg628E+Cc/dirWMPjYr9hs6kh5ybPsBnaEuG2P5mRP1qGuK+sUPx51LYJsm9f
+	 G3BnbYyg9YKHt5upahSWI415nWO5AUzutJk65DG7Ip2GEpCMyroETOlEbxJX8RcO4qQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795364941;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795371715;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=XxP8OOhPlU3E52h/c7HsGP6acikMmgnMKkZh4h9TOUA=;
-	b=SHn8FQYaI+Y+fa3ISO1euW0xq0C7w0t+Ihi/c4+w9AQ6heCNS6tGtte39VkoFh+I7VbG
-	 j+zdTUSQzpt5Stcjcx1cl2GwAtKCY7qzO8dhW9R7Q5hvp+eDbJ4ZNTILygm2YIYyMZ6nK
-	 4MSPkK6I/qCxYrMYNSq0x0kePv+f33jJ55NAbVQoxzSqXfkR0mjHPLPwOtkvaV6a3LoFs
-	 fIi+QZbjHjXQWg/YErBtg7iYWXXKUXfuB1c99gV0A0lAWeFerIJ1H4/ItccM3QA+fscdF
-	 XX8Irq/Qe9yM3djjXI8vPReUq1CafLxFSE11nxFPc1I+7gbLHZX7XaUOMDK/2396WFw==
+	bh=i8vP/MF3oELz3V2/x3tvrxIeCKjNLm5UtpQqetXgg0s=;
+	b=xe1Bj7Ce9uL2gFsGToRzbfDHLfV0W5cUDLetAf7T5wEeXbQ48tRx8kkDUzh3ErbgZp7c
+	 mG3kzMTSWBtGFy6dwUC4Ezyzvno+7Jq8nThO4so52nRj+jxTS0G6ZvR0NATjwYMBR2rmC
+	 cvzEvEwnI6WxP3spyUz4CKDPLXE0mbDIW4hyLZzobo7qhHI9rt6cYvXzFpHKMj6gr9NP8
+	 nX8i1vCo05sJ81Td1gF36mp95en48RU70YOZOFfj3jKyItNO3Tt+1fN7TnHgsmV4duS93
+	 EKm5UdlUH+yJ53Fw7B4+KZNj3CVhGXrpfgzvOdMd+ikaXgxcubZFxFgs2zRPS3Zrthg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jo7t7EHN;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nKgwhf5n;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26186606A330;
-	Sun, 22 Nov 2026 16:29:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33A5F606A320;
+	Sun, 22 Nov 2026 18:21:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jo7t7EHN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA351F000CA;
-	Sun, 22 Nov 2026 16:28:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nKgwhf5n
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D3071F000CA;
+	Sun, 22 Nov 2026 18:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795364940;
-	bh=XxP8OOhPlU3E52h/c7HsGP6acikMmgnMKkZh4h9TOUA=;
+	s=k20260515; t=1795371714;
+	bh=i8vP/MF3oELz3V2/x3tvrxIeCKjNLm5UtpQqetXgg0s=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Jo7t7EHNKyqF53k60Wo4LFD7+0c8CuLJn8wSP2453MHDj3L4IyCSGu11HHw6s0LBA
-	 5ovCAOXqS1mqN+Q6c8setMKLBd3X++qACWM0zstTFYDH15hEItZQ7oxkG7Obehu1Z1
-	 7CgR+OSM/JopTMPDxQjmlYN2N4IiZ5Hz3pFFXavtrxzsAnFszhRGc2pxsAJfyHidJJ
-	 3GqsAxmbOpGvDuVvkQ+P1zuwd+WhgGgWAsxNsVrx5WwcMlFW1praNbcyPYKREBQYA6
-	 cDs36ydEoBBR8omgcSy7yZt8/NO0A/frw+WSEhgCqNaTYm7vuKkwhg9jDPatIn93Z+
-	 poeF3M0ypS/mw==
-Message-ID: <aaed2661-8dfe-4b72-84f1-3fe9f4a962e9@kernel.org>
-Date: Sun, 22 Nov 2026 17:28:45 +0100
+	b=nKgwhf5ncCO7LABJzHme8c0tP9v4/5NJ26ATjF3etXPFXNITYo+RVCqcxGRj5sQkj
+	 tdiAY/B+iHorLCF19L775lSwGNSBjoBTlnzM61XoRvpC6ew+Tuxt4jTdW5kAK4o3K0
+	 8ZWZWdkxBU5mZm9b/B53Xy2XomU3v1h9bec4IT8p8Ma3t/SDe5UcNbxx1NZUts3Olp
+	 MWZOSZ2WakxTzd6UgCVGpk9MMqCJ+L8hktQcByY8YLWS5ERmSZeZhEVOWRV7LpDwL9
+	 XSVwGD1t7oIHv/BuxgLB9HtypPeG9EBXijexUeZ6rTVffwkU1uvwBVxv//SZhW/lCO
+	 kmVvUdAAmvu1g==
+Message-ID: <45997a78-95bd-4e50-b433-f64237f9ec1a@kernel.org>
+Date: Sun, 22 Nov 2026 19:21:43 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,27 +52,33 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/4] mm: make folio_walk_start()'s locking asserts
- scalable
-To: xu.xin@linux.dev
-Cc: acme@kernel.org, adrian.hunter@intel.com, agordeev@linux.ibm.com,
- akpm@linux-foundation.org, alexander.shishkin@linux.intel.com,
- apopple@nvidia.com, baohua@kernel.org, baolin.wang@linux.alibaba.com,
- borntraeger@linux.ibm.com, byungchul@sk.com, chengming.zhou@linux.dev,
- dev.jain@arm.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
- gourry@gourry.net, harry@kernel.org, hca@linux.ibm.com, irogers@google.com,
- james.clark@linaro.org, jannh@google.com, jolsa@kernel.org,
- joshua.hahnjy@gmail.com, kas@kernel.org, lance.yang@linux.dev,
- liam@infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, ljs@kernel.org, mark.rutland@arm.com,
- matthew.brost@intel.com, mhiramat@kernel.org, mhocko@suse.com,
- mingo@redhat.com, namhyung@kernel.org, nico.pache@linux.dev,
- oleg@redhat.com, peterz@infradead.org, riel@surriel.com, rppt@kernel.org,
- ryan.roberts@arm.com, surenb@google.com, svens@linux.ibm.com,
- usama.arif@linux.dev, vbabka@kernel.org, ying.huang@linux.alibaba.com,
- ziy@nvidia.com, xialonglong2025@163.com
-References: <20261102132416.300084-1-xu.xin@linux.dev>
- <20261102132927.301921-1-xu.xin@linux.dev>
+Subject: Re: [PATCH v2 04/15] mm/hugetlb: account temporary folios separately
+To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>,
+ Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>,
+ Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>,
+ Hugh Dickins <hughd@google.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Vivek Kasireddy
+ <vivek.kasireddy@intel.com>, Dave Airlie <airlied@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
+ Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
+ Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
+ <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, stable@kernel.org,
+ Josef Bacik <josef@toxicpanda.com>
+References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
+ <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -119,99 +125,81 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20261102132927.301921-1-xu.xin@linux.dev>
+In-Reply-To: <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 11/2/26 14:29, xu.xin@linux.dev wrote:
-> From: Xu Xin <xu.xin@linux.dev>
+On 11/16/26 19:29, David Hildenbrand (Arm) wrote:
+> Hugetlb migration might have to allocate a temporary folio through
+> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
+> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
+> can mistake them as persistent huge pages, as it merely calculates the
+> difference.
 > 
-> Add an additional member 'walk_lock' to folio_walk to indicate
-> locking requirements for the walk. Similar to commit 49b0638502da0
-> ("mm: enable page walking API to lock vmas during the walk").
-> But no change is made on any existing locking behavior,
-> all existing folio_walk_start() callers are currently still
-> under mmap_read_lock() protection.
+> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
+> hugetlb folios into surplus folios until persistent_huge_pages() returns
+> the desired number.
 > 
-> This change is prepared for the later patch to enable VMA locking
-> asserts. folio_walk_start now operate under write-locked mmap_lock.
-> With introduction of vma locks at the next patch, the vmas have to
-> be locked as well during such walks to prevent concurrent page
-> faults in these areas.
+> After the migration (successful or unsuccessful) either the new (temporary)
+> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
+> not "surplus_huge_pages", to undo what was done when allocating a
+> temporary folio.
 > 
-> No functional change intended.
+> This can result in having more surplus folios than actually allocated
+> folios:
 > 
-> Signed-off-by: Xu Xin <xu.xin@linux.dev>
+>   HugePages_Total:       0
+>   HugePages_Surp:        1
+> 
+> From then on persistent_huge_pages() returns garbage.
+> 
+> To fix it, add internal temporary counters and subtract them when
+> calculating persistent pool sizes. Update persistent_huge_pages() and add
+> persistent_huge_pages_node() to make the code easier to read.
+> 
+> Count migration targets and rejected surplus allocations as temporary.
+> Transfer the per-node temporary count along with the temporary flag on
+> migration, such that folio freeing will always do the right thing.
+> 
+> Take care of calling account_new_hugetlb_folio() only after setting the
+> folios to be temporary.
+> 
+> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
+> Hugetlb continue to include them and overcommit accounting remains
+> unchanged. The new temporary counters are internal for now and are not
+> exported to userspace.
+> 
+> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
+> Cc: stable@kernel.org
+> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Acked-by: Muchun Song <muchun.song@linux.dev>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 > ---
->  arch/s390/mm/fault.c     |  4 +++-
->  include/linux/pagewalk.h |  1 +
->  kernel/events/uprobes.c  |  4 +++-
->  mm/huge_memory.c         |  4 +++-
->  mm/ksm.c                 |  4 +++-
->  mm/migrate.c             |  8 ++++++--
->  mm/pagewalk.c            | 10 +++++++++-
->  mm/rmap.c                |  4 +++-
->  8 files changed, 31 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index 46d828926009..968f128a5232 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -412,7 +412,9 @@ __context_unsafe(/* folio_walk_end() not instrumented */)
->  	unsigned long addr = get_fault_address(regs);
->  	struct mm_struct *mm = current->mm;
->  	struct vm_area_struct *vma;
-> -	struct folio_walk fw;
-> +	struct folio_walk fw = {
-> +		.walk_lock  = PGWALK_RDLOCK,
-> +	};
->  	struct folio *folio;
->  	int rc;
->  
-> diff --git a/include/linux/pagewalk.h b/include/linux/pagewalk.h
-> index 1c397be0d092..455428eaf1fc 100644
-> --- a/include/linux/pagewalk.h
-> +++ b/include/linux/pagewalk.h
-> @@ -184,6 +184,7 @@ struct folio_walk {
->  	};
->  	/* private */
->  	spinlock_t *ptl;
 
-Ah, Sashiko is right here that this belongs into the public part and should get
-kerneldoc.
+In combination with
 
-But, "struct folio_walk" is currently filled out exclusively by
-folio_walk_start(), and I'd like to keep it like that.
+	mm/hugetlb: preserve persistent flags when returning folios to the pool
 
-Also, I don't enjoy that we are reusing PGWALK_* stuff here.
+This results in an issue during boot.
 
-Why not add a second function variant that targets the per-vma lock and branches
-internally to a common helper?
+I think the following is required:
 
-diff --git a/include/linux/pagewalk.h b/include/linux/pagewalk.h
-index b41d7265c01bc..13f911e1db5d2 100644
---- a/include/linux/pagewalk.h
-+++ b/include/linux/pagewalk.h
-@@ -191,6 +191,10 @@ struct folio *folio_walk_start(struct folio_walk *fw,
-                struct vm_area_struct *vma, unsigned long addr,
-                folio_walk_flags_t flags);
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index bfc88d42ef0d..aa6ad8d93266 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1804,8 +1804,8 @@ void free_huge_folio(struct folio *folio)
+                h->resv_huge_pages++;
 
-+struct folio *folio_walk_start_vma_rdlock(struct folio_walk *fw,
-+               struct vm_area_struct *vma, unsigned long addr,
-+               folio_walk_flags_t flags);
-+
+        if (folio_test_hugetlb_temporary(folio)) {
+-               folio_clear_hugetlb_temporary(folio);
+                remove_hugetlb_folio(h, folio, false);
++               folio_clear_hugetlb_temporary(folio);
+                spin_unlock_irqrestore(&hugetlb_lock, flags);
+                update_and_free_hugetlb_folio(h, folio, true);
+        } else if (h->surplus_huge_pages_node[nid] &&
 
-Or something like that.
-
-That also means that we don't have to touch any existing helpers and we won't
-even have to store that type.
-
-
-But now I wonder: do we need that *at all* ? It's effectively a parameter just
-to do safety checks.
-
-I'd just document locking requirements (mmap lock or per-vma read lock must be
-held) and call it a day.
+I'll test real quick whether that resolves CI issues ...
 
 -- 
 Cheers,
