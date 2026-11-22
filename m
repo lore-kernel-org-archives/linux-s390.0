@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795371715;
-	b=QpjYBFTaVofCP3lr/R65mMmEMK/Pm5WMn5JBqae3YdYnqW2YfJ68YK+6bnCcVWzEw+HL
-	 dmp3NMXlLKpMTxvBVrC28rLqDrCROnPzUNwTWhWLitcvfoRVkiF+YJFmY/pvFnO+CmK0b
-	 5oxkPaOJ49uZWyu8bKxjghNIQ0AzTEo9PhJkVhy0UK9qwIe00FVgaswidnSp6/FWbvu2N
-	 qfcoajHCYg628E+Cc/dirWMPjYr9hs6kh5ybPsBnaEuG2P5mRP1qGuK+sUPx51LYJsm9f
-	 G3BnbYyg9YKHt5upahSWI415nWO5AUzutJk65DG7Ip2GEpCMyroETOlEbxJX8RcO4qQ==
+	t=1795373089;
+	b=np3zTMCLC5KD+G87y7mEbgjZ+uuq9656RcB6UWx/uNtnT++Tj/o4yzLFfgRgqBFmjEG3
+	 PuSP9Igmi8mxIJ/s3jgpubaapLwwC4tzKQuPK8qkUAlyNiPh+RXHUtmrLlCnoV38iv1Rp
+	 xSZWfNVhRmvcKbxhN5s+2EdbjMy031rQD5mVIO9eWmQYdU37HhgsLQyzZ1ZPOgXiVnNJS
+	 ODTSYBwSekZilyaQi8FNJvXG85v1XN3zzjSmZwbcKrH5XF6n7iubPCVpQFv/Y+3dQWhV6
+	 7Xxz/YijQpbjhV3k8ihGctcONOTxN8zHFHU0TS0gXWALPScgjrsJ9CS7b1CZw6zs1YA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795371715;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795373089;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Subject:From:To:Cc:References:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=i8vP/MF3oELz3V2/x3tvrxIeCKjNLm5UtpQqetXgg0s=;
-	b=xe1Bj7Ce9uL2gFsGToRzbfDHLfV0W5cUDLetAf7T5wEeXbQ48tRx8kkDUzh3ErbgZp7c
-	 mG3kzMTSWBtGFy6dwUC4Ezyzvno+7Jq8nThO4so52nRj+jxTS0G6ZvR0NATjwYMBR2rmC
-	 cvzEvEwnI6WxP3spyUz4CKDPLXE0mbDIW4hyLZzobo7qhHI9rt6cYvXzFpHKMj6gr9NP8
-	 nX8i1vCo05sJ81Td1gF36mp95en48RU70YOZOFfj3jKyItNO3Tt+1fN7TnHgsmV4duS93
-	 EKm5UdlUH+yJ53Fw7B4+KZNj3CVhGXrpfgzvOdMd+ikaXgxcubZFxFgs2zRPS3Zrthg==
+	bh=+mFUnJ0G0eEYTFMAR5FV99b/Z4DvZ9aEuSHItMsFjv8=;
+	b=xtyWzHB92cJE/gL9DdbY9gAbxvxjY7FjpLUTtUzqAy7jw0sE3U+3MzvppdleG1nX4zS8
+	 9PUdZrAo/3GbuqHQSFqzTSmFhBxtT+k3+UiZyECcBAjb/BQtAnPHmFN1tCROqfZrah8fk
+	 SnbMggjVbmKu5w2QIc6ALiAHFI5UaxZItLp1GJr+FrFi6puUK+aPKve8OZ1DngKNonpPO
+	 Qbs1uekxJap9yq9v8jpvjn2jfTwl/SHGRGDBHhRDkuNkKVyWjOM2LsclHjou1akbtBcMV
+	 RMYKN3Mndqr+1fOwxQNOl85YBBlXFAAWsOYUdFEZsVahk5osjLedG01gLHA3OF82Efw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nKgwhf5n;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cpyh39c5;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33A5F606A320;
-	Sun, 22 Nov 2026 18:21:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BE8B606A320;
+	Sun, 22 Nov 2026 18:44:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nKgwhf5n
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D3071F000CA;
-	Sun, 22 Nov 2026 18:21:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cpyh39c5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 042651F000CF;
+	Sun, 22 Nov 2026 18:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795371714;
-	bh=i8vP/MF3oELz3V2/x3tvrxIeCKjNLm5UtpQqetXgg0s=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=nKgwhf5ncCO7LABJzHme8c0tP9v4/5NJ26ATjF3etXPFXNITYo+RVCqcxGRj5sQkj
-	 tdiAY/B+iHorLCF19L775lSwGNSBjoBTlnzM61XoRvpC6ew+Tuxt4jTdW5kAK4o3K0
-	 8ZWZWdkxBU5mZm9b/B53Xy2XomU3v1h9bec4IT8p8Ma3t/SDe5UcNbxx1NZUts3Olp
-	 MWZOSZ2WakxTzd6UgCVGpk9MMqCJ+L8hktQcByY8YLWS5ERmSZeZhEVOWRV7LpDwL9
-	 XSVwGD1t7oIHv/BuxgLB9HtypPeG9EBXijexUeZ6rTVffwkU1uvwBVxv//SZhW/lCO
-	 kmVvUdAAmvu1g==
-Message-ID: <45997a78-95bd-4e50-b433-f64237f9ec1a@kernel.org>
-Date: Sun, 22 Nov 2026 19:21:43 +0100
+	s=k20260515; t=1795373088;
+	bh=+mFUnJ0G0eEYTFMAR5FV99b/Z4DvZ9aEuSHItMsFjv8=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To;
+	b=cpyh39c50bNlYxatPg1dfUoMxxqhYKpWV6ZiCOkt6i6cBlt3OgZlIGIcLNGcvsxF7
+	 BUSuJKIotBJvGeTW00tOSqW6WS5ISVNtDAjKMVLG/HbMxhRcNxH8FLNETEUUeYUC+0
+	 jfpF1zA1Qysv7cT+KqxswBuxM6tPWJvupfyCJavn2tv/C6MKg+MXl4U0Aw8EG8DfzY
+	 2LN8QmWaq77+HD0OoH+BUUaBDQ23EVG2II3EdGs2MFpX9/S5WeOvhFlshr9Mmbfcsj
+	 kOXVwPj94xxH3ulkHyTn49CnEnZeZjO1pP5hXQWEwg4+dsZbQovxSnlIz4jgvEqGUE
+	 H0RxwQV+1RRFA==
+Message-ID: <5f477c4f-9874-4f51-ab84-5b044a3ea568@kernel.org>
+Date: Sun, 22 Nov 2026 19:44:35 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -53,6 +53,7 @@ Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 04/15] mm/hugetlb: account temporary folios separately
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
  Naoya Horiguchi <nao.horiguchi@gmail.com>,
  Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>,
@@ -79,7 +80,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  Josef Bacik <josef@toxicpanda.com>
 References: <20261116-fixes_hugetlb-v2-0-4dd9e94ea9ac@kernel.org>
  <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+ <45997a78-95bd-4e50-b433-f64237f9ec1a@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -125,81 +126,85 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20261116-fixes_hugetlb-v2-4-4dd9e94ea9ac@kernel.org>
+In-Reply-To: <45997a78-95bd-4e50-b433-f64237f9ec1a@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 11/16/26 19:29, David Hildenbrand (Arm) wrote:
-> Hugetlb migration might have to allocate a temporary folio through
-> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
-> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
-> can mistake them as persistent huge pages, as it merely calculates the
-> difference.
+On 11/22/26 19:21, David Hildenbrand (Arm) wrote:
+> On 11/16/26 19:29, David Hildenbrand (Arm) wrote:
+>> Hugetlb migration might have to allocate a temporary folio through
+>> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
+>> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
+>> can mistake them as persistent huge pages, as it merely calculates the
+>> difference.
+>>
+>> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
+>> hugetlb folios into surplus folios until persistent_huge_pages() returns
+>> the desired number.
+>>
+>> After the migration (successful or unsuccessful) either the new (temporary)
+>> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
+>> not "surplus_huge_pages", to undo what was done when allocating a
+>> temporary folio.
+>>
+>> This can result in having more surplus folios than actually allocated
+>> folios:
+>>
+>>   HugePages_Total:       0
+>>   HugePages_Surp:        1
+>>
+>> From then on persistent_huge_pages() returns garbage.
+>>
+>> To fix it, add internal temporary counters and subtract them when
+>> calculating persistent pool sizes. Update persistent_huge_pages() and add
+>> persistent_huge_pages_node() to make the code easier to read.
+>>
+>> Count migration targets and rejected surplus allocations as temporary.
+>> Transfer the per-node temporary count along with the temporary flag on
+>> migration, such that folio freeing will always do the right thing.
+>>
+>> Take care of calling account_new_hugetlb_folio() only after setting the
+>> folios to be temporary.
+>>
+>> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
+>> Hugetlb continue to include them and overcommit accounting remains
+>> unchanged. The new temporary counters are internal for now and are not
+>> exported to userspace.
+>>
+>> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
+>> Cc: stable@kernel.org
+>> Reported-by: Josef Bacik <josef@toxicpanda.com>
+>> Acked-by: Muchun Song <muchun.song@linux.dev>
+>> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+>> ---
 > 
-> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
-> hugetlb folios into surplus folios until persistent_huge_pages() returns
-> the desired number.
+> In combination with
 > 
-> After the migration (successful or unsuccessful) either the new (temporary)
-> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
-> not "surplus_huge_pages", to undo what was done when allocating a
-> temporary folio.
+> 	mm/hugetlb: preserve persistent flags when returning folios to the pool
 > 
-> This can result in having more surplus folios than actually allocated
-> folios:
+> This results in an issue during boot.
 > 
->   HugePages_Total:       0
->   HugePages_Surp:        1
+> I think the following is required:
 > 
-> From then on persistent_huge_pages() returns garbage.
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index bfc88d42ef0d..aa6ad8d93266 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -1804,8 +1804,8 @@ void free_huge_folio(struct folio *folio)
+>                 h->resv_huge_pages++;
 > 
-> To fix it, add internal temporary counters and subtract them when
-> calculating persistent pool sizes. Update persistent_huge_pages() and add
-> persistent_huge_pages_node() to make the code easier to read.
+>         if (folio_test_hugetlb_temporary(folio)) {
+> -               folio_clear_hugetlb_temporary(folio);
+>                 remove_hugetlb_folio(h, folio, false);
+> +               folio_clear_hugetlb_temporary(folio);
+>                 spin_unlock_irqrestore(&hugetlb_lock, flags);
+>                 update_and_free_hugetlb_folio(h, folio, true);
+>         } else if (h->surplus_huge_pages_node[nid] &&
 > 
-> Count migration targets and rejected surplus allocations as temporary.
-> Transfer the per-node temporary count along with the temporary flag on
-> migration, such that folio freeing will always do the right thing.
+> I'll test real quick whether that resolves CI issues ...
 > 
-> Take care of calling account_new_hugetlb_folio() only after setting the
-> folios to be temporary.
-> 
-> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
-> Hugetlb continue to include them and overcommit accounting remains
-> unchanged. The new temporary counters are internal for now and are not
-> exported to userspace.
-> 
-> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
-> Cc: stable@kernel.org
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
-> Acked-by: Muchun Song <muchun.song@linux.dev>
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
-> ---
 
-In combination with
-
-	mm/hugetlb: preserve persistent flags when returning folios to the pool
-
-This results in an issue during boot.
-
-I think the following is required:
-
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index bfc88d42ef0d..aa6ad8d93266 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1804,8 +1804,8 @@ void free_huge_folio(struct folio *folio)
-                h->resv_huge_pages++;
-
-        if (folio_test_hugetlb_temporary(folio)) {
--               folio_clear_hugetlb_temporary(folio);
-                remove_hugetlb_folio(h, folio, false);
-+               folio_clear_hugetlb_temporary(folio);
-                spin_unlock_irqrestore(&hugetlb_lock, flags);
-                update_and_free_hugetlb_folio(h, folio, true);
-        } else if (h->surplus_huge_pages_node[nid] &&
-
-I'll test real quick whether that resolves CI issues ...
+Yes, that makes it work. @Andrew, can you fix that up?
 
 -- 
 Cheers,
