@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795364092;
-	b=A1b/4rku6wEyRIkZiG2Bmc3YFcsUbjOVaGLEw1+XTY0IfAJ290+1EXUgzot92U2MRpwl
-	 sOYupXk237JQXTwK4HAGtXAeyB/XmP2PdlAPUpGv3OwQ5g3qt+F4088o34Fb1KEOB53rf
-	 Rm4Uz/CJNCvlro3N7r8BFsamCkOxeoKTyHLW9PncRICMywkGW4CgKvmOMxPf4qfeFTfDp
-	 yUpQ3ippI6FpjZy5EQ9xEl3pw1o9nLyVEABxlnWB5g0mk5DptzrxYFKKEZagrHGR0IjEf
-	 AMMizD+nyKHwKhNiONi4B6JQMzLC1bDsrwD7OlAsfnvg5s6wMI+sC51KOOn5N9fKKIQ==
+	t=1795364245;
+	b=syGGEm5vwldKVUlxAKLUoKwFoZQWsRMfr4Vze2WImpl06ztw+3M3wg2KvX5nNmRXzJmE
+	 s0Of23b5n4LydNzA/nXe9D6XVMV3fsPIBD9cRFfsQfK2mC7NwIpZIMn6F09NBQqXL9veq
+	 OTMwPZKzvNFSvmp+CTSjNtQEwYrMidvj9ccTO0PpkgZrhdNl2/O1irXVepZKLBn7JLdxL
+	 ru4xLFcAA9qux3CYbfutN5B7QirumGXbAWz8EGP34oIgAJtMRIstyFw1RKtK57xAuTZev
+	 JzQ+KM0+BjRSCF5hULOcxOBK63UMbNDR0kq5oAOhXxt+OUU6k0P9A+7gkG4L8SoxrNw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795364092;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795364245;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=M0XQPV+kx4upVZMbk4LNgSWgp4hVc8/l0NFR7dE4f7k=;
-	b=A6h/8ntdaHMSEOIr38gxJ3wkLXL+8lXUCsJeU2XJnZNsO4DAwLNDXeptzl96TM9jN1BG
-	 9IfXjWYJyoU0giiGWtZJ39I7IbpKf7XB2LPvWw0G2Ky3mMcFpxRmHFjwQh8/qLW65tUgC
-	 sWO2TOXElu6As/pl5zdj3OLsrqva23IyV0TkAHX0PYal+kJEckxToqe6/WOpUTabCwSI4
-	 Vop0Q9UDMCG4l+Q98zFurYySNzSD/CjLy8vrTOJC51p5mNR1iKLqkQROlNZkk12HP6n0a
-	 9VTGqd2r/r/tMK94uiVdzax553dmVUBh6yMTv9jUYMUTgVrxbs3Fqw5//BY0Sk/W6YA==
+	bh=nR/Mv8pU+awzbKHVLVTOvIJwcSoB3/LbebgRm55ntSw=;
+	b=nQUa2WTnHaPH2vDtmWOI711kVWub3n7ycT3NCtiJMjrH+pt+SeXux1SxwYLezTLGH8dG
+	 eG2kcTSn9/h1bAXs8O4Xu+S4UAJ6j/7euslzqGL/JUhpf40xXcmvaKM8RDJCfaIq51LUs
+	 XRyg5Ba8wb51vJC8ehYCSVIsCK/9/zt1Uu1nH9bF8Z8JOWzvxklLKYY4RNrqBtUpPviNt
+	 C215gNLXzIPlcf1gv69D/2StxCl8Q40RGU7at7nlAHyf+qWC6TxwwaLaE1lXkY7KiHhsS
+	 ZSGiZVs2UcOkwJdXk/xRU4C7Y6qFGeL/OKI5zJxxeKpmQ0ml+T4L/hghhiKHWkWGQOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KRsIXVOv;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EHsC4CTY;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D57C606A331;
-	Sun, 22 Nov 2026 16:14:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB91606A320;
+	Sun, 22 Nov 2026 16:17:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KRsIXVOv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D214E1F000C0;
-	Sun, 22 Nov 2026 16:14:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EHsC4CTY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E891F000C4;
+	Sun, 22 Nov 2026 16:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795364092;
-	bh=M0XQPV+kx4upVZMbk4LNgSWgp4hVc8/l0NFR7dE4f7k=;
+	s=k20260515; t=1795364244;
+	bh=nR/Mv8pU+awzbKHVLVTOvIJwcSoB3/LbebgRm55ntSw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=KRsIXVOvqYXoxEwFU782dp+LyTgf1irzunY5nI4cCpkfJH6//6Zw4QWkZtB9LQAbP
-	 f904tQ0OgN+tUDsP2EcjKHiOME1qRz3Z48Ji8AfaMwxLpYvfeW6FUnS9YVwhM3YTLY
-	 XEvD7E4i6XSXX85O66ysqgSYHbqSFq4jMawhGtnvOpwnYk4+ymjzpzBpaGYTa1yVLM
-	 8pYPgk4nj5bp/xDZeh9vv70aeSEgR6te6q4iddfvTWJI5/umz1aK4q4KXIZm/M4W1U
-	 6CYdYW7AgDt2knmuVpxcA+0tHAu38O6PB19J93HAeOb5jaWyQyLiuh6DHFWbdwmI7r
-	 2JKeAsghKlt5Q==
-Message-ID: <b9569459-cb8b-48f9-a2fa-233cffe01a28@kernel.org>
-Date: Sun, 22 Nov 2026 17:14:35 +0100
+	b=EHsC4CTYewr8mI8OaADDEq5jIWtfCtl6qJKSpZCWS+G638u1IEt6FEddjKRZ/1mjW
+	 iZ9bkOoAYfW6hNFTyBpzFs1sCJq1P32mkZ2JUK2v4GgWBNdBM7oXuciS59RGfSvxsD
+	 d9X2GMgmRijAwtma/G0cv3+I/xsjjC7rYIGbaKPsCBNvIZF7jiFCdws8Zz2fX4JvV8
+	 lyoGGSvbI2wnVbcexJaQe5Gxdc12IF+re7h6Bc9Kp9H7RQILVWIsHXXOx1Fm91JKWm
+	 +cPqYYVeteRw5jTtrIl6EBP/JGBumLtlm5lLmwekdRW06eS1f5+758PSLk//NQcQXg
+	 LLs/BqBJBrtOQ==
+Message-ID: <a8aa2827-520f-4e64-92d3-776e891b3927@kernel.org>
+Date: Sun, 22 Nov 2026 17:17:07 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,28 +52,26 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/4] mm: make folio_walk_start()'s locking asserts
- scalable
-To: sashiko-reviews@lists.linux.dev, xu.xin@linux.dev
-Cc: acme@kernel.org, adrian.hunter@intel.com,
- Alexander Gordeev <agordeev@linux.ibm.com>, akpm@linux-foundation.org,
- alexander.shishkin@linux.intel.com, apopple@nvidia.com, baohua@kernel.org,
- baolin.wang@linux.alibaba.com,
- Christian Borntraeger <borntraeger@linux.ibm.com>, byungchul@sk.com,
- chengming.zhou@linux.dev, dev.jain@arm.com, gerald.schaefer@linux.ibm.com,
- Vasily Gorbik <gor@linux.ibm.com>, gourry@gourry.net, harry@kernel.org,
- Heiko Carstens <hca@linux.ibm.com>, irogers@google.com,
+Subject: Re: [PATCH v2 1/4] mm/pagewalk: delete the unused member
+To: xu.xin@linux.dev
+Cc: acme@kernel.org, adrian.hunter@intel.com, agordeev@linux.ibm.com,
+ akpm@linux-foundation.org, alexander.shishkin@linux.intel.com,
+ apopple@nvidia.com, baohua@kernel.org, baolin.wang@linux.alibaba.com,
+ borntraeger@linux.ibm.com, byungchul@sk.com, chengming.zhou@linux.dev,
+ dev.jain@arm.com, gerald.schaefer@linux.ibm.com, gor@linux.ibm.com,
+ gourry@gourry.net, harry@kernel.org, hca@linux.ibm.com, irogers@google.com,
  james.clark@linaro.org, jannh@google.com, jolsa@kernel.org,
  joshua.hahnjy@gmail.com, kas@kernel.org, lance.yang@linux.dev,
- liam@infradead.org, linux-mm@kvack.org, linux-s390@vger.kernel.org,
- ljs@kernel.org, mark.rutland@arm.com, matthew.brost@intel.com,
- mhiramat@kernel.org, mhocko@suse.com, mingo@redhat.com, namhyung@kernel.org,
- nico.pache@linux.dev, oleg@redhat.com, peterz@infradead.org,
- riel@surriel.com, rppt@kernel.org, ryan.roberts@arm.com, surenb@google.com,
- svens@linux.ibm.com, usama.arif@linux.dev, vbabka@kernel.org,
- ying.huang@linux.alibaba.com, ziy@nvidia.com, xialonglong2025@163.com
+ liam@infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, ljs@kernel.org, mark.rutland@arm.com,
+ matthew.brost@intel.com, mhiramat@kernel.org, mhocko@suse.com,
+ mingo@redhat.com, namhyung@kernel.org, nico.pache@linux.dev,
+ oleg@redhat.com, peterz@infradead.org, riel@surriel.com, rppt@kernel.org,
+ ryan.roberts@arm.com, surenb@google.com, svens@linux.ibm.com,
+ usama.arif@linux.dev, vbabka@kernel.org, ying.huang@linux.alibaba.com,
+ ziy@nvidia.com, xialonglong2025@163.com
 References: <20261102132416.300084-1-xu.xin@linux.dev>
- <20261102132927.301921-1-xu.xin@linux.dev> <sashiko-outbox-195353@kernel.org>
+ <20261102132844.301730-1-xu.xin@linux.dev>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -120,17 +118,20 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <sashiko-outbox-195353@kernel.org>
+In-Reply-To: <20261102132844.301730-1-xu.xin@linux.dev>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 11/3/26 14:31, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
-> - [Medium] mm: inaccurate commit message on write-locking in folio_walk_start()
-> - [Low] mm: folio_walk_start() duplicates vma_assert_stabilised() via walk_lock
-> - [Low] mm: missing kernel-doc and private placement for folio_walk::walk_lock
+On 11/2/26 14:28, xu.xin@linux.dev wrote:
+> From: Xu Xin <xu.xin@linux.dev>
+> 
+> The 'vma' member of struct folio_walk has never been used since it was
+> introduced by commit aa39ca6940f1a ("mm/pagewalk: introduce
+> folio_walk_start() + folio_walk_end()").
+Right, I went back and forth whether to pass it to folio_walk_end() or not and
+ended up leaving this stale member in.
 
-Can all be ignored.
+Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
