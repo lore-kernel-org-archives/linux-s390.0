@@ -1,81 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.151
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795426898;
-	b=bf/wQH94ksBqfGf0vU6f7ubng7dcPO6vO3R99WNU3Y+7a1j7xftuOzjU4NvonoAill+W
-	 9iTh3WPkImoO/SHd34MgHJUX9F8Fc3eAmGphjIKnNKuN4eJ8MGTpox8O+aAEStL2x4sNg
-	 W+9TnLT0gCWG1tkKplUUrKVWI21dGNSsOCZ9KPs+3l0AvMJh+1vcK0Nx6pQ6i+M3HggML
-	 lJFp2Auvg3bV5Cz7sizMtW0hTyazvgN8lYqGZWzoFJFDJlYNuYjWTNG+z57QZ4aUFq+K0
-	 QBjF/hB196lGwAMO9hTvc3aWtswkiaKEU5wpMqNr6Plo/pVsqihzLC+2qX5njnzyD9Q==
+	t=1795427116;
+	b=ve8kFBBVEI14IgoKePBGX8kKae6hE4PCCfGEzDRWIaWJOyhzLc3/6LhaDUEfSZud3bsX
+	 O/dqlJPADiFxGF2KY600QPOJaBU+Nl5EKFoCOUiUPSrzneMd8lG3wBHHRot+CBe9JuquE
+	 jw1toBceA3/lJSjlfBHBfqMFpIq0njuyBs6Dr26q2SviuTpIImGHDuK68IPzQtL9xX/QK
+	 kOL7VGrMYy31tFSC+tNgk+a6olyIOcdkfui9x4ONPdyr6Qkf8GwK3hsv7KEJHekkKf1w5
+	 mB3dQiB0y0v+n3k0hSr5Px8+S6BGcep9mtE/iqDGBUZbbB1OISOG6YPG9KhrdWPj/tA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795426898;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=pRExidkVkZnEqiYK5Gjfqu4IDZXTVVeb+I6QW5ZL6uQ=;
-	b=XPUSU2DndkfN/ueLk9Ue3zca7dTgr64ACexXiCu7+xdLclm6NjgwzZvPAlFYobmtITYU
-	 Z+RzT0O+JR+pv9u74xwrEDCLzRmbl1NQFjjCGB0VC8zcffhFmujh/mMKHNmrZmvJWkMIb
-	 +2p/qtDaxmKakamTUuZziEbtGMczUS/8ve6my8SKJqrMqK1fuxsS5E0jK+/bD2PZhqAqN
-	 q6GzdPba4kAthD6LQRPiXLd3yxZz6FYY6Ne04wtuwUI3zZfoPAJWjZxQeOkibGm23wI97
-	 zlq3L/bGQcbKXtlQaK/ql3zk0VH3rG3zbE5MK7sTiMxWsxF5tu9Xm7zodZKpNgGcYZw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795427116;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=Jf6Sqoi3Qn0aJKe116rFzx97I+WLp3H4fMEI81ndjOw=;
+	b=4swvbdjrtFAadqYUVJP+LxuLhMmocN/QMl5QpTrEvnzRA7lpi3UB6JLCgqaiQA2fAEoK
+	 v5y/e8Dzq6bal8m45+FOXEFcLl3Xz1lWkAd7b3kLokfvY1o3mdO4HUbC8pQKJns38yHvr
+	 gbU9D8LI+oETpphcNGdwRPzamAw1vF04PHunYUwcHlffMUsdzn5fBSRV/nuT9CG2z8Apk
+	 JGU/mjfQb9fpFw0HlMaQxM0ezPKZO2XzDMxHo7vl0LMJjnp7agn4uuIyid3Cqdu69gc3w
+	 VsW8BqRolCQMJZQae4cgEW8S9xMz+kL7Nc6OkIJUO2BmthxMtyTao0yeBf+TgiD8RHQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=BEyIQART;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=O7AgBIDQ;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b="b/xkS61/";
+	arc=none smtp.remote-ip=103.168.172.151
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D22B9606A31A;
-	Mon, 23 Nov 2026 09:41:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D22B9606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B78DB606A336
+	for <linux-s390@vger.kernel.org>; Mon, 23 Nov 2026 09:45:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B78DB606A336
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=BEyIQART
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AN9YTw51601550;
-	Mon, 23 Nov 2026 09:41:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pRExid
-	kVkZnEqiYK5Gjfqu4IDZXTVVeb+I6QW5ZL6uQ=; b=BEyIQART8dkCV+0FOmy/mw
-	9BGrYKeTbYmTBeiovyzYzRAmWM10NVYGGyEmakVzrUjmuzzgxAPd3JDD4CwxU5io
-	1UkcTo829UXW5Dopm1s6r1kD1DFXlEUKLUwz3JAusC2sC46PzAy5M/Cmn2NAv2X3
-	xBpy56eJw824KyE4GmcU6j/9W58rS84N5pST3fLCSAumvu7TVLsNLISGtqGuwA2g
-	UxZosxbb5uItrQhSPBzhm0m7nKHrlOOWTif0xi8lLawrUPKG8ghXKQ+tAD0dYogb
-	PlsAbAYHId82KmtNRcASoJqoFUDt7kNXLkp+4T7A6V2IRBfd0Keapym+wotx7R3g
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34g32f3g-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 23 Nov 2026 09:41:19 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AN9JNLf956277;
-	Mon, 23 Nov 2026 09:41:18 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j3p0ve9fv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Nov 2026 09:41:18 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AN9fElV48693632
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 23 Nov 2026 09:41:14 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 228302004E;
-	Mon, 23 Nov 2026 09:41:14 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DB82120040;
-	Mon, 23 Nov 2026 09:41:13 +0000 (GMT)
-Received: from [9.68.16.159] (unknown [9.68.16.159])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 23 Nov 2026 09:41:13 +0000 (GMT)
-Message-ID: <d2e2ffaa-70ad-460f-bd85-0834a354f232@linux.ibm.com>
-Date: Mon, 23 Nov 2026 10:41:13 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=O7AgBIDQ;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=b/xkS61/
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfout.phl.internal (Postfix) with ESMTP id CC0EFEC0AF1
+	for <linux-s390@vger.kernel.org>; Mon, 23 Nov 2026 04:45:14 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Mon, 23 Nov 2026 04:45:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1795427107;
+	 x=1795513507; bh=Jf6Sqoi3Qn0aJKe116rFzx97I+WLp3H4fMEI81ndjOw=; b=
+	O7AgBIDQYiGEwcU13yBP7pD9SSA2LG3Y/2zfedNLAskwZiMNiVx/3YiRQCiif00L
+	KR7wbkQkixoe73zVJ1Er/fxNvlv6oup5Qs7tIFLBQvXHlNf2Lls/CBhsRQAvANrx
+	vUnwgy8YyeKjiP9KtWB5j4f+P5wk+IKDzKMPufgsh1nSdormzySXKWxUMBRzZLP4
+	HbZufdcYy1Pd6Ly1p43LoHR+3Vb0Qwnx8PqLg6abpEKgj7bS8ALsGmKzkbvNFBXa
+	MiwlM30/oy4VCzbP2D0Cn/RvckE2/6m1FYYRZEehucfMzUofj1hrRnSQadQl3L8k
+	K8KcORqTkWAcvTDrUnGBuA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1795427107; x=
+	1795513507; bh=Jf6Sqoi3Qn0aJKe116rFzx97I+WLp3H4fMEI81ndjOw=; b=b
+	/xkS61/kMaSQuNIi8DG0o5vUJAH7d6Q1xIk97skI5kwzb7tPoAEfcUn2XJqOMww4
+	uf8Sh9s1OXPn6LqvXUYfgtWz+icscUJeCIALVZo6TozAZu0w7OG8m6ae/YqfUECg
+	k4juAs2ogTO8ctEgqAPm3vFT0ppNeEeqIgPHEcEBLM7hm3pLpXsXo5QUVdFEP1/S
+	UkZh2vllQKqkeLfF4kPo9CKZj3Qe9PIXsR15BgQHdGjzXIRTIQBO6ZjEDE6EU8MP
+	X6IKLwE7y81JcCGVdMF0ste0Er3Nm+tWTxhbFCV4yRSDgl3CK22qv3rqFc404Pic
+	SmeAIHQMNgJ5z33uvvV5w==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1795427107; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnPg==;
+	s=fm2:rsa-sha256:WRL2/rwxB3/ihQl7h169mEIQz6JH+LidIoF6lzkULFHUKRU
+	wtnCDYuCUksj3/yZjPmAnWgz1fWG5Qp6spDQukwr/OpVBGNYhq9goxsqqyIbqjwK
+	b1DTRWEJ8r5gkp4XHKkktFGT4Q03s6RPZ4QGjKEGWYvE/uy5VY4oB5V+gr4GQ5ww
+	SAkTIYY8b4PVpDYdbqKIJFF7Q8bmmBC/S2JqEzAOxw8GaohfHMhg2356tgM4/TCd
+	oJCke2ae/zrYPf2b4uxXtOF69c364XRnsG4bQv3puQ6KOSKjG0a/YwI3dRzh/UTp
+	VPW+djW8H3VNlOsoYrOgMiG0+C5KkwMuFSTJZ1A==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:n6aZHqmDv56bF8XRSZatVJoaf2cIxLxzDgGBelOCUhY=:k9xBw4n1GQ1b94YYLMbzPhZvmLufZirlyqxW+aNOye4=;
+X-ME-Sender: <xms:HgsEaxOhIy6VSqHjWAAc5S8_-r6-9swBvBxAZEerTD2O5jLd3ZgG0Q>
+    <xme:HgsEa-x69Xr14wICuR1V3aldkqPMHk8AQ7qJe2NS-7QWty46aKqak2PekFIgToWpz
+    PoRPYsUtqMhT7VkM1ce2MJx0QvsB3KlJ6zaH6kNqLo-5eQx8qKiXe0H>
+X-ME-Proxy-Cause: dmFkZTFpjowEKf6THSkdHWlNfLsqi/vZ5GVMYQLFUxpmwMKx15Gn0GblHHreGqWlNSZRJ3
+    6Stix52GCratCpj/7n/ateu49JFA5AjKZNwJ4R9VBgrMnT1kWC9uZL/57j7guCkzp/axZj
+    7i8/C5KOfhgQ77XKEjot0lXHcH9w8HKqAMH3Sqehj7oZCfsAqKXpP+uFG+6U2gp4T7mAIb
+    lPd5PSTOjznfw247G71MJjn0c6a6ZsMiXUIGFEjVlndXWZ8kMdo/fyAm2Icr8OU41WdOww
+    82BaQor6puPLTTo8KDZD6rQ36OvbXVnyqY5z9bIpYMFPhmT2b04eSG2J/h9UtsImG7IdeO
+    b9w35fi2So7GFHUgGGCEXxt5oRewJYy8gfT6oAfvi4NLlTPiFtaBawQqb9/9DoasICM2/w
+    ffH5NjKuoyrFGXpYfuE+zqEYHhuPIItq0tr7E+LmfnS8/tixEooc1ShXYR6S8j14tfzbXp
+    vzLQaphfQaLAl5/NnHlEV6SaEXsvOlJQWNvupyJHK6sIYHYYMIwHwgDnRF/ICBQvKO5/JH
+    dPz6PlKvqNhJMc/zq9fkS/kxOD5L+5/9q7vlw+ymavddfSFaFBHsZ+E8RK4GE5ANtYShX5
+    t2Q81Q/mVgdYPz2HP2pupFNyQEvOwqpN0/DPYeMPIyxKE8Px19JhQ9r8FMaw
+X-ME-Proxy: <xmx:IAsEawGGTpdHb13lBvPvA-EMxmxgd-z86XmyBfAQKnW2yo2D4hi7hg>
+    <xmx:IAsEa-PLkdycf7S3rOl8FXT72ZX879GL4GOYQl-HDahX_Sv_GlAI5Q>
+    <xmx:IAsEaysK0ulq58o5gOXQVpwfq5yCaWkpgPWJ1er_z6kFjW2uDX6ikg>
+    <xmx:IAsEazVFOMlr6GbbnLAYYQyoBUp3w7jHyHBXanRly9aDQskU-2q8Zg>
+    <xmx:IwsEayan8b1DSh4GdNFijLjU6RL3T1AZo6Ww15949JvjYP7Bm8s6GjOk>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 32C9A32A0099; Mon, 23 Nov 2026 04:45:02 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,178 +115,44 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] KVM: s390: Don't use %pK through debug printing
+X-ThreadId: AMjdjL9dYp0J
+Date: Mon, 23 Nov 2026 10:44:40 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
 To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20250217-restricted-pointers-s390-v1-0-0e4ace75d8aa@linutronix.de>
- <20250217-restricted-pointers-s390-v1-2-0e4ace75d8aa@linutronix.de>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20250217-restricted-pointers-s390-v1-2-0e4ace75d8aa@linutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=SoQFe/O0 c=1 sm=1 tr=0 ts=6b040a3f cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=kX4y4rNH7BZqjoY-yxsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTIzMDAzOCBTYWx0ZWRfX6bGa+ZVkh0Ei
- 470XWYDJhPtzwFN5NmrBol8BJ6OeZVMRPWCwGo5O0zG7tszY54eZTVNqR16AAHLj4JDvws5ZiMq
- IM+OVYCBdmYJZ/jboEOvO6hOtCiRg2g=
-X-Proofpoint-ORIG-GUID: PB7IEGtik7gGSTVF3yaJ0dpPAaRAuUc1
-X-Proofpoint-GUID: PB7IEGtik7gGSTVF3yaJ0dpPAaRAuUc1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTIzMDAzOCBTYWx0ZWRfX4vDogcpnTR1V
- 26hAj/jzWj1MGZuUl/717QEwkYwJIZlzVH6QXxvL1/+hZaJnLAPvp1ztyY6HQHIdgPcwowxdxNO
- 8lIpFwERmE0Xj5VXfYL38UdFn1FrLmfmckkxnUDJioGkvRE9V+gOF2MB0osIl4gWiXC4XiyLByc
- BqUMZWppyxF6MiIHG2lN5Nj18rwf+NBZCSJv9a46Y4v7aKzjPUAjeRohQqsZFrZm7SB83iOAalM
- zMWi8YNIZ8RiQ0QbdyiF+0q11g/R4k0U7Q0Fe+mcQ2ts9/oiUd51zHqPc5rFrT6mUgLVrkPq9Rq
- xq5iVCicNkkk8xY6QxR3OsyGvLQERhyA23UGgJ1HJYYE6V96N9R19smg/QyIFpDhsC4oUofd1L9
- B+0hU4vP5ZvbdOBhzDp4TpeAfQsUnivi9LkNeRqPkL9ESkrQbQrftlvKXgtahc/3hJ3mQse1DDf
- s8Ts4waL7qUNgRypAXg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-23_02,2026-11-22_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0 adultscore=0
- lowpriorityscore=0 clxscore=1011 malwarescore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611230038
+ "Kees Cook" <kees@kernel.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Linux-Arch <linux-arch@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-alpha@vger.kernel.org, "Paul Walmsley" <pjw@kernel.org>,
+ "Andy Chiu" <andybnac@gmail.com>, "Magnus Lindholm" <linmag7@gmail.com>
+Message-Id: <ec5359c1-c16e-4177-8dfa-2ae5ab8a874f@app.fastmail.com>
+In-Reply-To: <20261123-at-vector-size-arch-v3-0-d342dae9e843@linutronix.de>
+References: <20261123-at-vector-size-arch-v3-0-d342dae9e843@linutronix.de>
+Subject: Re: [PATCH v3 00/15] exec: Remove AT_VECTOR_SIZE_ARCH from UAPI
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Am 17.02.25 um 14:13 schrieb Thomas Weißschuh:
-> Restricted pointers ("%pK") are only meant to be used when directly
-> printing to a file from task context.
-> Otherwise it can unintentionally expose security sensitive,
-> raw pointer values.
-> 
-> Use regular pointer formatting instead.
-> 
-> Link: https://lore.kernel.org/lkml/20250113171731-dc10e3c1-da64-4af0-b767-7c7070468023@linutronix.de/
-> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+On Mon, Nov 23, 2026, at 10:37, Thomas Wei=C3=9Fschuh wrote:
+> There is nothing userspace can do with this value. In the kernel is
+> always combined with AT_VECTOR_SIZE_BASE, which is not exposed to
+> userspace and also changes from time to time.
+>
+> Move the symbol to kernel-internal headers.
+>
+> Meant to be applied through the asm-generic or execve tree.
+> The default recipient list was huge. I trimmed it to only the
+> architecture lists.
+>
+> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
 
-Just realized that will debugging something, but this change was wrong.
-The VM_EVENT, KVM_EVENT are not printks, it will rather populate output
-in debugfs files and this output is populated at read time as the debug
-feature stores the format string and the value. So %pK was actually the
-right thing - I think.
+Hi Thomas,
 
+I'm happy to take this through the asm-generic tree. I've already
+made sure it all applies and the patches look good to me. I'd
+wait a few more days for additional Ack or any other replies,
+let me know once you think I should apply this version.
 
-> ---
->   arch/s390/kvm/intercept.c |  2 +-
->   arch/s390/kvm/interrupt.c |  8 ++++----
->   arch/s390/kvm/kvm-s390.c  | 10 +++++-----
->   3 files changed, 10 insertions(+), 10 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 610dd44a948b22945b0a35b760ded64bd44ef7cb..a06a000f196ce0066bfd21b0d914492a1796819a 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -95,7 +95,7 @@ static int handle_validity(struct kvm_vcpu *vcpu)
->   
->   	vcpu->stat.exit_validity++;
->   	trace_kvm_s390_intercept_validity(vcpu, viwhy);
-> -	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
-> +	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%p)", viwhy,
->   		  current->pid, vcpu->kvm);
->   
->   	/* do not warn on invalid runtime instrumentation mode */
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 07ff0e10cb7f5c0294bf85f1d65d1eb124698705..c0558f05400732b2fe6911c1ef58f86b62364770 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -3161,7 +3161,7 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
->   	if (!gi->origin)
->   		return;
->   	gisa_clear_ipm(gi->origin);
-> -	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", gi->origin);
-> +	VM_EVENT(kvm, 3, "gisa 0x%p cleared", gi->origin);
->   }
->   
->   void kvm_s390_gisa_init(struct kvm *kvm)
-> @@ -3178,7 +3178,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
->   	gi->timer.function = gisa_vcpu_kicker;
->   	memset(gi->origin, 0, sizeof(struct kvm_s390_gisa));
->   	gi->origin->next_alert = (u32)virt_to_phys(gi->origin);
-> -	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
-> +	VM_EVENT(kvm, 3, "gisa 0x%p initialized", gi->origin);
->   }
->   
->   void kvm_s390_gisa_enable(struct kvm *kvm)
-> @@ -3219,7 +3219,7 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
->   		process_gib_alert_list();
->   	hrtimer_cancel(&gi->timer);
->   	gi->origin = NULL;
-> -	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-> +	VM_EVENT(kvm, 3, "gisa 0x%p destroyed", gisa);
->   }
->   
->   void kvm_s390_gisa_disable(struct kvm *kvm)
-> @@ -3468,7 +3468,7 @@ int __init kvm_s390_gib_init(u8 nisc)
->   		}
->   	}
->   
-> -	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
-> +	KVM_EVENT(3, "gib 0x%p (nisc=%d) initialized", gib, gib->nisc);
->   	goto out;
->   
->   out_unreg_gal:
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index ebecb96bacce7d75563bd3a130a7cc31869dc254..9e427ba3aed42edf617d6625b5bcaba8f43dc464 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1020,7 +1020,7 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
->   		}
->   		mutex_unlock(&kvm->lock);
->   		VM_EVENT(kvm, 3, "SET: max guest address: %lu", new_limit);
-> -		VM_EVENT(kvm, 3, "New guest asce: 0x%pK",
-> +		VM_EVENT(kvm, 3, "New guest asce: 0x%p",
->   			 (void *) kvm->arch.gmap->asce);
->   		break;
->   	}
-> @@ -3464,7 +3464,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->   		kvm_s390_gisa_init(kvm);
->   	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
->   	kvm->arch.pv.set_aside = NULL;
-> -	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
-> +	KVM_EVENT(3, "vm 0x%p created by pid %u", kvm, current->pid);
->   
->   	return 0;
->   out_err:
-> @@ -3527,7 +3527,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
->   	kvm_s390_destroy_adapters(kvm);
->   	kvm_s390_clear_float_irqs(kvm);
->   	kvm_s390_vsie_destroy(kvm);
-> -	KVM_EVENT(3, "vm 0x%pK destroyed", kvm);
-> +	KVM_EVENT(3, "vm 0x%p destroyed", kvm);
->   }
->   
->   /* Section: vcpu related */
-> @@ -3648,7 +3648,7 @@ static int sca_switch_to_extended(struct kvm *kvm)
->   
->   	free_page((unsigned long)old_sca);
->   
-> -	VM_EVENT(kvm, 2, "Switched to ESCA (0x%pK -> 0x%pK)",
-> +	VM_EVENT(kvm, 2, "Switched to ESCA (0x%p -> 0x%p)",
->   		 old_sca, kvm->arch.sca);
->   	return 0;
->   }
-> @@ -4025,7 +4025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
->   			goto out_free_sie_block;
->   	}
->   
-> -	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%pK, sie block at 0x%pK",
-> +	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%p, sie block at 0x%p",
->   		 vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
->   	trace_kvm_s390_create_vcpu(vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
->   
-> 
-
+       Arnd
