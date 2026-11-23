@@ -1,64 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795441901;
-	b=zgV7u+XxfqQ3f/8q9J2lPMTBjmlzfDLlknwFtx02ADfXGWoe0oLNRk9/1EpBEdH+o13q
-	 3cVq+PmSAb2KepYUzCvxjBJIPjkpITd2Lz0a70oF36/PWbN0TyfOLQRwKIUWfH/Gna/r8
-	 zYJbrHpA+puiL54Bf2uDDnAUEpHLFGU0J5V5H104lBRFYasaTII/OVKirk9OxDUorg4Dk
-	 fjNIEcfKTrzY/OJCrX50CXGMWCOUrpAlJJibReBG+CL+umuQArZe2wBJ/ihX+663ZBfp/
-	 9f2bvwVNmVJz0uMhuWpobxirteLgxzQOkuEQrEewFuDLRx6Q/R+rDrmzBfA4BNoDfjg==
+	t=1795442021;
+	b=nq34//GFr/2OUHFXMP0AuDBMjI1uDoC4i+zZc2ouXWp7OAOgvyODcFtygvPgfX0a1fu4
+	 Vmg4VkVr7WMNWnHiCjD4NsZeD4w5Hd8X7OROpKQS+Z4nRRV0pcOpLjt27oFzjGe49FVrZ
+	 YnBBNImzDCs+GvGnwcx8tFwgAQa34sKuFGWoir8v6Z38k6WbxNcpG8F9aXcuUBeh9exZm
+	 LiGakInE3DKBANJrsANZ4kiDbkyHP+XfYkiCS/YIgFwQ6p6z8YIb6dW9N6VPy5dnPedNw
+	 tQQLo8fHcflAE4FeG8z2N4urwusDjSEt884BK+LwGAj7nGpsK0XonKA1hghPkwvHJpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795441901;
-	h=DMARC-Filter:From:DKIM-Signature:DKIM-Signature:Date:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
-	 References:In-Reply-To:To:Cc:X-Developer-Signature:X-Developer-Key;
-	bh=JPmhvZcQZsMI6w6eJvQYmGXP4b/7L7ItLiKaLRPpFiQ=;
-	b=N8kE23H7VDN8zh7XmWAeScgqM/NboF89Q4dsEeNx4hJ8v3wwczLoF0YKUmOBIidWsdPh
-	 Sj6PxtzcNYZxjqmjWtSYTUs36MevFoOadm08USUKNC+aD5Nqdd8AjfU0kxVElt+PZvdQS
-	 Xnsb3x/JMmSEVw8rcoKgWDxbCDB10+y0kN95xC2/88jUv13ymjqdG7Uaqb1T+bM/aV1pZ
-	 2eLQ9pU7mkr/pF0B/dbfMf6r0ccbYK8W4np2wRrwmz5dAhWhzAUBbxKHFQlVjl4qDiH62
-	 Sv2v5WbXz/hHjCMW+Ixg5QMCcxY8964HLsnlwsveg8DNM24Ma6psG50PvioHImZtUMg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795442021;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=Wm3Sj40aRyFsmu65pREyfH1l8+4v7dZwchrk4/0U/TI=;
+	b=oGNS6y3PidOqQXNTEGW46wKx0235CDOJLoRWUBLT9NgGUcJ9jYj2XUq/jGGmsLYEQnKR
+	 8HnUNz77qG+PSw0b7AFh7YcoxFQuD+hZ+Gx5L4C4OjIBlG+1TzLaVoT+owgTpcubHnEC9
+	 Ihfr/qq7L9kbC6lnZEX192ED/VZudkoF/yeQZmia5nUobCkVMQGwkqHd+hGzPjDLeKVN/
+	 xk6lIPtSUuIUguJgYHvXKA964lzOoaILbgKWSnS0L94D2FDhq3YgN7BRY2Upp4j2O+tuY
+	 wgqbqOjYVMsuL18Cxc3eeSkF6bSDIaC2SYbGa3/Aj6Ej3V9voNp7HDdWWVblhFjMynw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linutronix.de;
-	spf=pass smtp.mailfrom=linutronix.de;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=rCXDMhbM;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=Vihz+OSm;
-	arc=none smtp.remote-ip=193.142.43.55
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=none header.from=iiitd.ac.in;
+	spf=pass smtp.mailfrom=iiitd.ac.in;
+	dkim=pass header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=YF6GU2Mf;
+	arc=none smtp.remote-ip=209.85.210.175
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37103606A32A;
-	Mon, 23 Nov 2026 13:51:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 37103606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C52A4606A32C
+	for <linux-s390@vger.kernel.org>; Mon, 23 Nov 2026 13:53:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C52A4606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iiitd.ac.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=rCXDMhbM;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=Vihz+OSm
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1795441899;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JPmhvZcQZsMI6w6eJvQYmGXP4b/7L7ItLiKaLRPpFiQ=;
-	b=rCXDMhbMNovmfoO6qyadNrRk7f6HVHBen34hmO8c2sCJxmWlrI+kuN6Fu1RHeKKsk6EY24
-	E0SacrConMBbHsRxfbnnA1QmrkSNG5ig6+9Hj82q0+fcZzQog4JMvSX6BdBkvLPKAZY09a
-	cmajQWcX84aMnEYYUqKcjQOYaLNnWLHV9hW4r1F+KoYJyRFvRAAJZbR87Cv1533ZENWlNL
-	1IH3b3cUootBgp4GSIrRdqXPpBA39+LY1KQmZGiOE+gUNUvfwW3zvseTDo78nzug9YZv0c
-	Nf0/IEvGQ27iEzT9+d3kiH4e7e72aytWDiOonz7mndTpsY7S1mpQeK4PjYtpeQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1795441899;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JPmhvZcQZsMI6w6eJvQYmGXP4b/7L7ItLiKaLRPpFiQ=;
-	b=Vihz+OSme/gaZLLhdpsDZx8NOwH494utLHXdBxi1jGqiwVH9qbyOTU05x0YmhKAKY4MP4H
-	F0xPTtLbZf0pAzDg==
-Date: Mon, 23 Nov 2026 14:51:02 +0100
-Subject: [PATCH v6 11/11] vDSO: Automatically enable VDSO_CHECK
+	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=YF6GU2Mf
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-8c70c2ab5a2so1231169b3a.3
+        for <linux-s390@vger.kernel.org>; Mon, 23 Nov 2026 05:53:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=iiitd.ac.in; s=google; t=1795442020; x=1796046820; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Wm3Sj40aRyFsmu65pREyfH1l8+4v7dZwchrk4/0U/TI=;
+        b=YF6GU2MfzFL+xw6V4/1FgEhvCJ+SGtt7ZwKiCq76seKeW2U+Gmqpj4vH03OMUyVDDn
+         bbKQCoH9Sz4bpDHyQY8LdxiQudYEt4WlhgauW4/H9O1bFOZxObOgqoLBVjW1cnxmAi/j
+         UBvrOYUztODKaN999/b5ZgmkvhcpiB4UKNcEM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795442020; x=1796046820;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Wm3Sj40aRyFsmu65pREyfH1l8+4v7dZwchrk4/0U/TI=;
+        b=kyb5einoOIP/QkYXypViBYScroqyGOex1K1CrUFaeGbfSrkbaugZOp60GfXiygwUVX
+         OVfRZMSoLv5oJq02ORn3GDtsrmRjBDFC/+4/M6UPJLqwdXWJTZbJKGSfFh3ZOmqFKrwQ
+         dn8aQc6jX6/wVVN0/+xpLyJvhaOsev9S1g5f592BIMSOplBOVXjG8ofXdwjit/qpcZO/
+         vGgXBJ9cM2UosBpZ885TiP9pQIbXGlcA+c55yxI+cM16GujP0IOHVA8U5dk4LQN7d8ex
+         7zGRR8V4Ss/gGY2JdlT+D8hCOb6g1kF1QY/uXMpUxM/fVKFOGFzcYHCD3rZ4r18ofUdA
+         /sRA==
+X-Forwarded-Encrypted: i=1; AL+hErHyagZ6Rg7E933SWwJNUwSC3uHnvAiP6dGatVGVGeGLCaahwArQD5TR9bwqCaiTvzk8dXjRYUeobn3C@vger.kernel.org
+X-Gm-Message-State: APuU4Z+rkodmaQPgPLafMo75eTJiz8SkhuCFIlQUjHnzJ3wF2x/v7M7g
+	WtCN24aORQ3XmV4gyyhQh0pfZ9pnqHpgjqxCkW2XPGGprxY95zkgQ+EsG+wVmEA0m/k=
+X-Gm-Gg: AZFdTZe8JQfBQ77DDpSPFcb6oH3JaYybRruhPFHplDgvSbC+ESUC5k2RQ0FQGwOymKm
+	zNiKs5Q9GjySHb1QqUBqhDgQO3nBsuPdSZjuJvs62Mhh5KW9Zfj6YCyWfuqE8BQdLs9t5q+vz5j
+	J/sYDFJahEr0c1CKw4ehd9teAfi4w/FlipGm+yWr8yhhv7iajNcsQ9Aya3xlRSAMTbgQv72nkX4
+	GJfHyZ7YgYfPonUmUm6tqyDZhFj9ToZgIABd97cNXxIVGgE2GRZr3FI8nsew+p2wwuF18x6xWxp
+	IgKzQDIWiQg5JjdKTf9cYTFwoxZaVYFRK0dxNsyUEvXXLSc9BPQZjUnLcDaGEeD++Qs0qBo7ykJ
+	fSltPSMaYoZ898I3kxUHoHa/hVlHwSg4/S4zPaVZ3cbDOBRQn6Ntunq6vyHD//MhNbSulIHiffQ
+	LIfUB98qAGwHibo7E6l5AGHyFvFFfMqtAUf3VQim+E+FS6ENytQkj7KVjlpBQty8GgLxEZ9vMFd
+	cdjE9WOnqawj9r5osA3aJ2KkZ0o0ctkCMO4yGxGgHl/hKa+3Vvxd6lXLQ1b62DaS8pCixpo+PLY
+	7+CGH0tJjtU2XCronjf8AaRIW8bvrgPQWkIKaUhOs3WLxP/iAmESbaajbC2z98Nud7r2q3HWWpr
+	qvigBQrexnYKhOr/9WQB8M4DQAlWwIuAfif/REdnkyeRVeapYMVcfeCtJEYuTrRxdYA8SfOlh2D
+	VeFLb00I+Cmg==
+X-Received: by 2002:a05:6a20:d10f:b0:3eb:9c9f:8b8e with SMTP id adf61e73a8af0-4014e74d04cmr10179615637.92.1795442020015;
+        Mon, 23 Nov 2026 05:53:40 -0800 (PST)
+Received: from iiitd-S2600STB.iiitd.edu.in ([103.25.231.160])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8c873c1cfafsm5713466b3a.50.2026.11.23.05.53.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 05:53:39 -0800 (PST)
+From: Piyus Kedia <piyus@iiitd.ac.in>
+To: alibuda@linux.alibaba.com,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	netdev@vger.kernel.org
+Cc: Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Kapil Vaswani <kapil@presceralabs.ai>,
+	Piyus Kedia <piyus@iiitd.ac.in>
+Subject: [PATCH net v2 2/2] net/smc: bound the DMB-nocopy send-buffer credit as well
+Date: Mon, 23 Nov 2026 19:23:27 +0530
+Message-Id: <20261123135327.3953509-2-piyus@iiitd.ac.in>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261123135327.3953509-1-piyus@iiitd.ac.in>
+References: <20261123135327.3953509-1-piyus@iiitd.ac.in>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -68,204 +105,109 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261123-vdso-absolute-reloc-v6-11-161e218dd217@linutronix.de>
-References: <20261123-vdso-absolute-reloc-v6-0-161e218dd217@linutronix.de>
-In-Reply-To: <20261123-vdso-absolute-reloc-v6-0-161e218dd217@linutronix.de>
-To: Paul Walmsley <paul.walmsley@sifive.com>, 
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
- Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>, 
- Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
- Andy Lutomirski <luto@kernel.org>, 
- Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook <kees@kernel.org>, 
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
- "H. Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Russell King <linux@armlinux.org.uk>, 
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
- Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>, 
- Gary Guo <gary@garyguo.net>, 
- =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
- Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
- Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
- Danilo Krummrich <dakr@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
- Christophe Leroy <chleroy@kernel.org>, Boqun Feng <boqun@kernel.org>, 
- Nicolas Schier <nsc@kernel.org>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
- llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org, 
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
- loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
- linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, 
- linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>, 
- Arnaldo Carvalho de Melo <acme@redhat.com>, 
- Peter Zijlstra <peterz@infradead.org>, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795441872; l=4650;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=tCXUwkZUh4Hl18kwgGqhcWJoeos+T/6rMQq0M5SHQdY=;
- b=gvQ6fSLlDUp8t1Kpx0/BBIhQ7AihqhesygBcKjwQL0dpVUoOyS5DoqWuOa59xHy5yVuHPzbgt
- Z/t2kJ3fm0ZAJfn4xh2H2o29XKP0jwDQOX8shG9Arg4eFHtoqbgV9U/
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-All architectures using the generic vDSO library should enable
-VDSO_CHECK. Now that this is the case, enable VDSO_CHECK automatically.
+smc_cdc_msg_recv_action() credits sndbuf_space from the peer's consumer
+cursor on the SMC-D DMB-nocopy path and then assigns that cursor to this
+side's tx_curs_fin:
 
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+	diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
+				&conn->tx_curs_fin,
+				&conn->local_rx_ctrl.cons);
+	/* increase local sndbuf space and fin_curs */
+	smp_mb__before_atomic();
+	atomic_add(diff_tx, &conn->sndbuf_space);
+	/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
+	smp_mb__after_atomic();
+	smc_curs_copy(&conn->tx_curs_fin,
+		      &conn->local_rx_ctrl.cons, conn);
+
+sndbuf_space can already be non-zero when this runs, so the sum can
+exceed sndbuf_desc->len and the comment asserting otherwise does not
+hold; smcd_cdc_msg_to_host() takes the cursor in host order with no
+validation, so tx_curs_fin can also be assigned a count outside the send
+buffer.
+
+Unlike the failover path in the previous patch this is not reachable from
+a hostile peer today.  The branch runs only when
+smc_ism_support_dmb_nocopy() is true, which needs a dibs device providing
+support_mmapped_rdmb(), and the only provider is
+drivers/dibs/dibs_loopback.c - where both ends of the connection are the
+same kernel and the cursor is written by SMC itself.  So this is
+hardening rather than a fix for an observed attack: it keeps the
+invariant in the comment true by construction, keeps the cursor inside
+the buffer, and stops a future device that implements the op from
+inheriting the problem.
+
+Bound the credit by what this side has outstanding and advance
+tx_curs_fin by the bounded amount instead of assigning the reported
+cursor.  For a cursor that reflects real consumption both are the value
+that is used today.
+
+How this was found: by AI-driven fuzzing built on top of syzkaller, on a
+loopback-ism connection with the peer's consumer cursor forged by a debug
+patch so that it reports consuming data this side never sent.  KASAN
+reported an 869056-byte write past the send buffer in smc_tx_sendmsg()
+(use-after-free in _copy_from_iter).  With this patch the same forged
+cursor credits nothing beyond the outstanding bytes.
+
+Fixes: cc0ab806fc52 ("net/smc: adapt cursor update when sndbuf and peer DMB are merged")
+Signed-off-by: Kapil Vaswani <kapil@presceralabs.ai>
+Signed-off-by: Piyus Kedia <piyus@iiitd.ac.in>
 ---
- arch/arm/mm/Kconfig    | 1 -
- arch/arm64/Kconfig     | 1 -
- arch/loongarch/Kconfig | 1 -
- arch/mips/Kconfig      | 1 -
- arch/powerpc/Kconfig   | 1 -
- arch/riscv/Kconfig     | 1 -
- arch/s390/Kconfig      | 1 -
- arch/sparc/Kconfig     | 1 -
- arch/x86/Kconfig       | 1 -
- lib/vdso/Kconfig       | 2 ++
- 10 files changed, 2 insertions(+), 9 deletions(-)
+Link: https://lore.kernel.org/all/20261122053223.2497832-2-piyus@iiitd.ac.in/
 
-diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
-index 7f55ed37f464..41d7b495ec45 100644
---- a/arch/arm/mm/Kconfig
-+++ b/arch/arm/mm/Kconfig
-@@ -943,7 +943,6 @@ config VDSO
- 	depends on AEABI && MMU && CPU_V7
- 	default y if ARM_ARCH_TIMER
- 	select GENERIC_GETTIMEOFDAY
--	select VDSO_CHECK
- 	help
- 	  Place in the process address space an ELF shared object
- 	  providing fast implementations of gettimeofday and
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index df22b4ed5e29..1075bc661833 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -258,7 +258,6 @@ config ARM64
- 	select TRACE_IRQFLAGS_NMI_SUPPORT
- 	select HAVE_SOFTIRQ_ON_OWN_STACK
- 	select USER_STACKTRACE_SUPPORT
--	select VDSO_CHECK
- 	select VDSO_GETRANDOM
- 	select VMAP_STACK
- 	help
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index ad4cafeddbb8..b5ed4881d3c0 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -211,7 +211,6 @@ config LOONGARCH
- 	select TRACE_IRQFLAGS_SUPPORT
- 	select USE_PERCPU_NUMA_NODE_ID
- 	select USER_STACKTRACE_SUPPORT
--	select VDSO_CHECK
- 	select VDSO_DATASTORE
- 	select VDSO_GETRANDOM
- 	select ZONE_DMA32 if 64BIT
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 31c247c2faeb..ed17c9b1624c 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -106,7 +106,6 @@ config MIPS
- 	select TRACE_IRQFLAGS_SUPPORT
- 	select ARCH_HAS_ELFCORE_COMPAT
- 	select HAVE_ARCH_KCSAN if 64BIT
--	select VDSO_CHECK
- 
- config MIPS_FIXUP_BIGPHYS_ADDR
- 	bool
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 1c4a75c3a830..c3b6cd655606 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -327,7 +327,6 @@ config PPC
- 	select SYSCTL_EXCEPTION_TRACE
- 	select THREAD_INFO_IN_TASK
- 	select TRACE_IRQFLAGS_SUPPORT
--	select VDSO_CHECK
- 	select VDSO_DATASTORE
- 	select VDSO_GETRANDOM
- 	#
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 2a0f5fbcd7e3..e7891a2a89da 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -226,7 +226,6 @@ config RISCV
- 	select THREAD_INFO_IN_TASK
- 	select TRACE_IRQFLAGS_SUPPORT
- 	select UACCESS_MEMCPY if !MMU
--	select VDSO_CHECK if MMU
- 	select VDSO_DATASTORE if MMU
- 	select VDSO_GETRANDOM if MMU && 64BIT
- 	select USER_STACKTRACE_SUPPORT
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 71a614832886..7138d923d86f 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -289,7 +289,6 @@ config S390
- 	select TRACE_IRQFLAGS_SUPPORT
- 	select TTY
- 	select USER_STACKTRACE_SUPPORT
--	select VDSO_CHECK
- 	select VDSO_GETRANDOM
- 	select VIRT_CPU_ACCOUNTING
- 	select VMAP_STACK
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 90df77235184..742ffff8c37f 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -114,7 +114,6 @@ config SPARC64
- 	select ARCH_SUPPORTS_SCHED_SMT if SMP
- 	select ARCH_SUPPORTS_SCHED_MC  if SMP
- 	select ARCH_HAS_LAZY_MMU_MODE
--	select VDSO_CHECK
- 	select GENERIC_GETTIMEOFDAY
- 
- config ARCH_PROC_KCORE_TEXT
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 09d3aa04ee82..58dce0b66179 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -302,7 +302,6 @@ config X86
- 	select HAVE_UNSTABLE_SCHED_CLOCK
- 	select HAVE_UNWIND_USER_FP		if X86_64
- 	select HAVE_USER_RETURN_NOTIFIER
--	select VDSO_CHECK
- 	select VDSO_GETRANDOM			if X86_64
- 	select HOTPLUG_PARALLEL			if SMP && X86_64
- 	select HOTPLUG_SMT			if SMP
-diff --git a/lib/vdso/Kconfig b/lib/vdso/Kconfig
-index 559f5534831e..741de1abe923 100644
---- a/lib/vdso/Kconfig
-+++ b/lib/vdso/Kconfig
-@@ -6,6 +6,7 @@ config VDSO_DATASTORE
- config GENERIC_GETTIMEOFDAY
- 	bool
- 	select VDSO_DATASTORE
-+	select VDSO_CHECK
- 	help
- 	  This is a generic implementation of gettimeofday vdso.
- 	  Each architecture that enables this feature has to
-@@ -21,6 +22,7 @@ config GENERIC_VDSO_OVERFLOW_PROTECT
- config VDSO_GETRANDOM
- 	bool
- 	select VDSO_DATASTORE
-+	select VDSO_CHECK
- 	help
- 	  Selected by architectures that support vDSO getrandom().
- 
+This is 2/2 of a two-patch series; there is no cover letter.  The v2
+changelog is under the --- line of patch 1/2, and in short: v1 was a single
+patch that clamped the copy length in smc_tx_sendmsg() and named this
+DMB-nocopy path as a remote attack.  Both were wrong - the clamp left
+sndbuf_space inflated, and this path is reachable only on loopback-ism, where
+both ends are the same kernel.  v2 bounds the credit at both sites where it is
+added; this patch is the hardening half.
+ net/smc/smc_cdc.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 32d6d03df321..9ffa3e422aa1 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -333,6 +333,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 	union smc_host_cursor cons_old, prod_old;
+ 	struct smc_connection *conn = &smc->conn;
+ 	int diff_cons, diff_prod, diff_tx;
++	int sent;
+ 
+ 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
+ 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
+@@ -361,13 +362,26 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
+ 						&conn->tx_curs_fin,
+ 						&conn->local_rx_ctrl.cons);
++			/* This difference comes from the cursor the peer
++			 * reported, which is taken as it arrives.  A peer
++			 * cannot have consumed more than this side has
++			 * outstanding, so bound it by that and advance
++			 * tx_curs_fin by the bounded amount rather than
++			 * assigning the reported cursor: the invariant below
++			 * then holds by construction, and tx_curs_fin stays
++			 * inside the send buffer.
++			 */
++			sent = conn->sndbuf_desc->len -
++			       atomic_read(&conn->sndbuf_space);
++			diff_tx = min_t(int, diff_tx, max_t(int, sent, 0));
++
+ 			/* increase local sndbuf space and fin_curs */
+ 			smp_mb__before_atomic();
+ 			atomic_add(diff_tx, &conn->sndbuf_space);
+ 			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
+ 			smp_mb__after_atomic();
+-			smc_curs_copy(&conn->tx_curs_fin,
+-				      &conn->local_rx_ctrl.cons, conn);
++			smc_curs_add(conn->sndbuf_desc->len,
++				     &conn->tx_curs_fin, diff_tx);
+ 
+ 			smc_tx_sndbuf_nonfull(smc);
+ 		}
 -- 
-2.56.1
+2.34.1
 
