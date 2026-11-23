@@ -1,45 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795384942;
-	b=pBEACgA36xFSDDxXG+1RQfD522q8s3R/vqcG1WpafCscgR4wsKojkM91+EearyjAlLpN
-	 udKJMpbydgO+5NkAPmhk+pQEYepZvWd0NMdFuRBAdiHmttCwxYF1JO0NRNgQBng4BznUC
-	 SO+oFFLm98opsX+QMraPG7YcuZOfK3Vle/+Pduacu1gzoSGz5hIp3h/vyPhyD3iGcGv3o
-	 RbLOeAZinykQ+Dlf/BcHUICvuC52CXFlaOoO2xI6Ev3ElIaRmZ6waBGRnZM4SQGmHWHDe
-	 DMOuO5kvASvd5ZHFy+Z1hpP34IJFyOD7xOfv/vP2gO4/syNVJdYwnVas5cXsRK78C0g==
+	t=1795407698;
+	b=bfnw4j4tcd+HYKeqMOXalA+2Wkr4XW9ycJHuBmUJpEqUvqME6XpGCPRpS6FZ2kQcIsXZ
+	 2hmVmL+aBgSK+sjbJLwI3HmCMqrFXP+oEd4Lif1M0bRsQJIVKDN/+y+cCvOru5Wq+WS6d
+	 3kYivUNl/zdBaoXYCesA1vQua+25jOtuqk7EznzaqYlFZwEEKr3lfx2BGwt9Lzr7ypZud
+	 Vr92sIR0XP4mUtl6emTIWahOG8FztUB5nb/HK4uAHFYjt5ZR4R+nm6AZYDQCptLt+wE5+
+	 588lsfXbhsTFLCeWX22i08ZGFlLmWCAFVDRm7/4Rz1ksjH2gYjH2mGlMPJNecChf1VA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795384942;
-	h=Received:DKIM-Signature:Mime-Version:Content-Transfer-Encoding:
-	 Content-Type:Date:Message-Id:Subject:Cc:To:From:References:
-	 In-Reply-To;
-	bh=sTtlSSaGTpDBtcMHiOircAIvmiTH+Ctop/XsFzGC1x4=;
-	b=YrgCw7fc82efjOJR6aqKPcSwalSW3k8vQUHIYDJVI37d9CBiToehWm/1ktwwymQWL6Au
-	 svoB7yp+0z1su71Hd0PFrG5Nz0ensrulMD/zKBsuvTb4eZkW4szYQKpqve8SdVqOhaNC9
-	 rpXHgTRZ0G5Hg9lObkmlBU8Tx36zXCsAu90qa2oSdJ1RpKVfZn2VTpdKMJellxju98pBd
-	 lQ7x4g3dBPSLJkeB4pX7VQTWEnhJIBU8fqJl3690tWQtBED2+6yS5r5cH/ivr2aZa7umF
-	 oaG5QKUfA4/qFx5fhDpAyRJVmhYyRytxOTiVWaI8Cmn0IGGlcCD4X9b3p1tq8Kfh2TA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795407698;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=GudrQLkt3cIq/ydiM9APOriiD19KGFM+GAKuKvZTnVI=;
+	b=Amm6gbHTwGEzEwJAIh0adv+x+z3UQJBcs4lNdYzNMp/+7CPbQL7ABc5kg1Ub6aE/pf1y
+	 T5nvP7EfZZaZTjyPcIPWuD2SssUO49J4599GH1dP1oBYcP2AlUZfx7mZyGhPNjN1zBox6
+	 ki+qRw/bQHY5Fuz5ABwkBBtXmgstTS3gxsvHzRz7Eiow1c18EIa1NCyQRRr6EdWJ0jjBD
+	 mb7c5cMxyK0ggUAdnTirUOJha3BJmJ+MqDv4DYt9akqfLYFRkYoFRxaEZLLAey0NYmIj4
+	 RFX61VgVfqQPO+ZS/AfAZwjMTO+wBxeIq57k3iioTnEY9ZZuugKAjG1bBZxHUhkdDVQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k2Hc6xFR;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AVqNXlP4;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92C7D606A31A;
-	Sun, 22 Nov 2026 22:02:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A57CA606A31E;
+	Mon, 23 Nov 2026 04:21:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k2Hc6xFR
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DB11F000C6;
-	Sun, 22 Nov 2026 22:02:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AVqNXlP4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E43851F000C4;
+	Mon, 23 Nov 2026 04:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795384942;
-	bh=sTtlSSaGTpDBtcMHiOircAIvmiTH+Ctop/XsFzGC1x4=;
-	h=Date:Subject:Cc:To:From:References:In-Reply-To;
-	b=k2Hc6xFRtkicPKFvuKT7zGdEMFSb//oYzAC6yGi4WET4vMctzGLV95ptNtrt42XPr
-	 WQXnncoUOn8vCWB5V+5BOCSO1YRgvEGvWFlC6kSpFwx64JgBjdDeDjN8t0GAWjAHIl
-	 OTUhOZXnH51x9+wu6dE5+5xRqac3uNPyE7pzVVKvZEWUvPhn37jeV+RfXXnvGy2n+o
-	 5fpjybhz8GWsaKNEldr/b1vfp4LchA2oilYAZk48pyxh0hZg4h3t2J1QwAu6uVH9h7
-	 a22sYJ2GBWGWAOsKWbURM4twq7Z2FvgS7RP2m5XNLf/srWoFugU+HT+1vi7WOYs8uY
-	 PaUfPtPCWI/6w==
+	s=k20260515; t=1795407698;
+	bh=GudrQLkt3cIq/ydiM9APOriiD19KGFM+GAKuKvZTnVI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=AVqNXlP4tnkp4eUy7vtRl5DK5pb8H8M2v6ccrfvCJ0OucWwFL+6ur9X7jrQpMNsXv
+	 Jt+V0tYBo7TGM0UYs9/B01n2+rbfouFFXZy7+R4UNbwiW830Fv0jyTpbbVU28I8w4y
+	 scIuiuAinOass3LL6NZ5muFGPVgH8O4WE/MZ4LGJ/glUlf7JwKwsX7uENTs0tpXECT
+	 /jUimLGy/aRO27lrJ5kAzbh7zOgZZC1BWk4XxHBmALAiG+yUqvjM20/d06BvlbRNlv
+	 dvpwNq0UgqAboOWJ7S2C4m/973DHOc2gMONsQqXkRyQBXxYfpCvXFAUsIDtXJ9oDZu
+	 QHIllnk3MeZnA==
+Message-ID: <sashiko-outbox-228652@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v2] net/smc: validate the peer's CDC cursors against
+ our own buffers
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Piyus Kedia" <piyus@iiitd.ac.in>
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261122042120.2430434-1-piyus@iiitd.ac.in>
+References: <20261122042120.2430434-1-piyus@iiitd.ac.in>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 23 Nov 2026 04:21:37 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -48,104 +61,264 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 22 Nov 2026 23:02:06 +0100
-Message-Id: <DN22U90WCTGB.1REAOP1PQUMIQ@kernel.org>
-Subject: Re: [PATCH v4 0/9] Add __must_init and require explicit
- kobj_type::release
-Cc: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, "Kees Cook"
- <kees@kernel.org>, "Miguel Ojeda" <ojeda@kernel.org>, "Rafael J . Wysocki"
- <rafael@kernel.org>, "Madhavan Srinivasan" <maddy@linux.ibm.com>, "Srish
- Srinivasan" <ssrish@linux.ibm.com>, "Michael Ellerman"
- <mpe@ellerman.id.au>, "Nicholas Piggin" <npiggin@gmail.com>, "Christophe
- Leroy" <chleroy@kernel.org>, "Nayna Jain" <nayna@linux.ibm.com>, "Mimi
- Zohar" <zohar@linux.ibm.com>, "Yoshinori Sato"
- <ysato@users.sourceforge.jp>, "Rich Felker" <dalias@libc.org>, "John Paul
- Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, "Juergen Gross"
- <jgross@suse.com>, "Stefano Stabellini" <sstabellini@kernel.org>,
- "Oleksandr Tyshchenko" <oleksandr_tyshchenko@epam.com>, "Nathan Chancellor"
- <nathan@kernel.org>, "Nick Desaulniers" <ndesaulniers@google.com>, "Viresh
- Kumar" <viresh.kumar@linaro.org>, "Zhongqiu Han"
- <zhongqiu.han@oss.qualcomm.com>, "Alexander Aring" <aahringo@redhat.com>,
- "Felix Kuehling" <felix.kuehling@amd.com>, =?utf-8?q?Christian_K=C3=B6nig?=
- <christian.koenig@amd.com>, "Zhihao Cheng" <chengzhihao1@huawei.com>,
- "Sumanth Korikkar" <sumanthk@linux.ibm.com>, "Bill Wendling"
- <morbo@google.com>, "Justin Stitt" <justinstitt@google.com>,
- <driver-core@lists.linux.dev>, <llvm@lists.linux.dev>,
- <linux-hardening@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
- <linux-doc@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
- <linux-pm@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
- <linux-sh@vger.kernel.org>, <linux-s390@vger.kernel.org>,
- <gfs2@lists.linux.dev>, <xen-devel@lists.xenproject.org>,
- <linux-mtd@lists.infradead.org>, <amd-gfx@lists.freedesktop.org>,
- <dri-devel@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>,
- <agordeev@linux.ibm.com>, <airlied@gmail.com>, <alexander.deucher@amd.com>,
- <catalin.marinas@arm.com>, <chao@kernel.org>, <deller@gmx.de>,
- <dennis.dalessandro@cornelisnetworks.com>, <dmaengine@vger.kernel.org>,
- <gor@linux.ibm.com>, <hca@linux.ibm.com>, <jaegeuk@kernel.org>,
- <James.Bottomley@HansenPartnership.com>, <jgg@ziepe.ca>,
- <jlbec@evilplan.org>, <johan@kernel.org>, <joseph.qi@linux.alibaba.com>,
- <leon@kernel.org>, <lihuisong@huawei.com>, <linusw@kernel.org>,
- <linux-arm-kernel@lists.infradead.org>, <linux-erofs@lists.ozlabs.org>,
- <linux-f2fs-devel@lists.sourceforge.net>, <linux-fbdev@vger.kernel.org>,
- <linux-omap@vger.kernel.org>, <linux-parisc@vger.kernel.org>,
- <linux-rdma@vger.kernel.org>, <mark@fasheh.com>, <neescoba@cisco.com>,
- <ocfs2-devel@lists.linux.dev>, <satishkh@cisco.com>, <simona@ffwll.ch>,
- <sre@kernel.org>, <vkoul@kernel.org>, <will@kernel.org>, <xiang@kernel.org>
-To: "Ian Rogers" <irogers@google.com>
-From: "Danilo Krummrich" <dakr@kernel.org>
-References: <20261119192520.1983406-1-irogers@google.com>
- <20261122215639.1178566-1-dakr@kernel.org>
-In-Reply-To: <20261122215639.1178566-1-dakr@kernel.org>
 
-(Cc: more people previously Cc'd on v2)
+Thank you for your contribution! Sashiko AI review found 4 potential
+issues to consider:
+- [Critical] net/smc: incomplete cursor window validation in
+  smcr/smcd_cdc_cursors_invalid()
+- [High] net/smc: missing sndbuf_desc check in
+  smcd_cdc_cursors_invalid()
+- [Medium] net/smc: off-by-one cursor bounds check in
+  smcr/smcd_cdc_cursors_invalid()
+- [Low] net/smc: missing Fixes trailers in commit message
+--
 
-On Sun Nov 22, 2026 at 10:56 PM CET, Danilo Krummrich wrote:
-> On Thu, 19 Nov 2026 11:25:11 -0800, Ian Rogers wrote:
->> [PATCH v4 0/9] Add __must_init and require explicit kobj_type::release
->
-> Applied, thanks!
->
->   Branch: driver-core-testing
->   Tree:   git://git.kernel.org/pub/scm/linux/kernel/git/driver-core/drive=
-r-core.git
->
-> [1/9] Compiler Attributes: Add __must_init macro
->       commit: b8a53320a885
-> [2/9] powerpc/secvar: Add missing kobject release callback to secvar_ktyp=
-e
->       commit: 4d5d4dd2a2e2
-> [3/9] sh: sq: Add missing kobject release callback to ktype_percpu_entry
->       commit: d19384f2f3c7
-> [4/9] cpufreq: governor: Initialize kobj_type release callback statically
->       commit: 009365942c15
-> [5/9] dlm: Wait for kobject release before freeing dlm_ls
->       commit: 48ae948f4285
-> [6/9] xen/sys-hypervisor: Add release callback to hyp_sysfs_kobj_type
->       commit: ecaf88d385c1
-> [7/9] ubifs: sysfs: Use kset_create_and_add() for ubifs_kset
->       commit: 25d952902dee
-> [8/9] drm/amdkfd: Free queue in procfs_queue_type kobject release callbac=
-k
->       commit: 6d4ff4a020cf
-> [9/9] kobject: Require explicit initialization of struct kobj_type::relea=
-se
->       commit: 45eeed1f8094
->
-> The patches will appear in the next linux-next integration (typically wit=
-hin 24
-> hours on weekdays).
->
-> The patches are in the driver-core-testing branch and will be promoted to
-> driver-core-next after validation.
+commit 36bb44cca90308f9abd225ce16ee4c2f15a0b111
+Author: Piyus Kedia <piyus@iiitd.ac.in>
 
-I've now picked this up; I will keep this series in driver-core-testing for=
- a
-few more days before moving it to driver-core-next. Please let me know if t=
-here
-are any concerns with the series, particularly the comments in patch 9.
+> net/smc: validate the peer's CDC cursors against our own buffers
+>
+> A peer's CDC message carries two cursors that are offsets into buffers
+> described on this side: the producer cursor counts the bytes the peer has
+> written into the RMB we published to it, and the consumer cursor the bytes
+> it has taken from the RMB it published to us.  Neither is checked, on eit=
+her
+> transport.
+>
+> smcr_cdc_msg_to_host() and smcd_cdc_msg_to_host() copy both into the
+> connection as they arrive, and every later user treats them as trustworth=
+y:
+>
+>  - smc_cdc_msg_recv_action() adds the producer difference to
+>    conn->bytes_to_rcv under a comment asserting
+>    "guarantee 0 <=3D bytes_to_rcv <=3D rmb_desc->len", which nothing enfo=
+rces;
+>  - smc_cdc_handle_urg_data_arrival() reads
+>    *(base + conn->urg_curs.count - 1), an unbounded index into the RMB;
+>  - smc_rx_recvmsg() clamps only the first of its two ring chunks
+>    (rmb_desc->len - cons.count) and uses the remainder unclamped for the
+>    second, so bytes_to_rcv becomes a copy length;
+>  - smc_rx_splice() walks PAGE_ALIGN(len + offset) / PAGE_SIZE pages calli=
+ng
+>    vmalloc_to_page() without checking the result, and get_page() then
+>    dereferences NULL once the walk passes the end of the RMB.
+>
+> A peer that reports a cursor larger than the buffer therefore makes the
+> kernel read past it.  With a 64 KiB RMB and a forged cursor, KASAN on
+> 7.4.0-rc3 reports a 1-byte read in the urgent-data path and a 131072-byte
+> read in the receive path, the latter via _copy_to_iter() - i.e. the
+> out-of-bounds bytes are delivered to userspace by recvmsg() - and splice()
+> oopses on the NULL page.
+>
+> Validate both cursors where each transport accepts the message, so that o=
+ne
+> test per transport covers every consumer.  Each cursor is bounded by the
+> buffer its own arithmetic uses: the producer cursor by conn->rmb_desc->len
+> as in smc_cdc_msg_recv_action(), the consumer cursor by
+> conn->peer_rmbe_size as in the diff_cons calculation beside it.  A cursor
+> equal to the buffer length is legitimate (a full ring), so only a larger =
+one
+> is rejected.  An out-of-range cursor cannot occur in a correct peer, and =
+the
+> malformed message is dropped like any other.
+>
+> The SMC-R check sits next to the existing length and sequence-number tests
+> in smc_cdc_rx_handler().  SMC-D needs its own, because smcd_cdc_rx_tsklet=
+()
+> reads the cursors straight out of the DMB the peer writes into, in host
+> byte order and with no validation of any kind on that path today.
+>
+> How this was found: by AI-driven fuzzing built on top of syzkaller.  Its
+> analysis was then checked by hand against the code, and all three faults
+> were reproduced on net.git main under KASAN, with the patched kernel clean
+> on the same three reproducers and ordinary SMC-R and SMC-D traffic
+> unaffected.
+>
+> Signed-off-by: Kapil Vaswani <kapil@presceralabs.ai>
+> Signed-off-by: Piyus Kedia <piyus@iiitd.ac.in>
 
-Thanks,
-Danilo
+[Severity: Low]
+Should this include Fixes: tags for the commits that introduced unvalidated
+CDC cursor reception on SMC-R and SMC-D:
+
+  Fixes: 5f08318f617b ("smc: connection data control (CDC)")
+  Fixes: be244f28d22f ("net/smc: add SMC-D support in data transfer")
+
+> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+> index 32d6d03df3214..8d24e0c839260 100644
+> --- a/net/smc/smc_cdc.c
+> +++ b/net/smc/smc_cdc.c
+> @@ -433,6 +433,18 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, s=
+truct smc_cdc_msg *cdc)
+>  	sock_put(&smc->sk); /* no free sk in softirq-context */
+>  }
+> =20
+> +static bool smcd_cdc_cursors_invalid(struct smc_connection *conn,
+> +				     struct smcd_cdc_msg *cdc)
+> +{
+> +	if (!conn->rmb_desc)
+> +		return true;
+> +	if (cdc->prod.count > (u32)conn->rmb_desc->len)
+> +		return true;
+> +	if (cdc->cons.count > (u32)conn->peer_rmbe_size)
+> +		return true;
+> +	return false;
+> +}
+
+[Severity: High]
+Does smcd_cdc_cursors_invalid() also need to validate conn->sndbuf_desc and
+check cdc->cons.count against conn->sndbuf_desc->len?
+
+On SMC-D DMB-nocopy devices, smc_cdc_msg_recv_action() uses
+conn->sndbuf_desc->len when diff_cons is non-zero:
+
+net/smc/smc_cdc.c:smc_cdc_msg_recv_action() {
+    ...
+		if (conn->lgr->is_smcd &&
+		    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
+			/* Calculate consumed data and
+			 * increment free send buffer space.
+			 */
+			diff_tx =3D smc_curs_diff(conn->sndbuf_desc->len,
+						&conn->tx_curs_fin,
+						&conn->local_rx_ctrl.cons);
+    ...
+}
+
+During handshake setup in smc_listen_work() and smc_connect_ism(),
+__smc_buf_create() registers conn in smcd->conn[] with conn->sndbuf_desc
+still NULL, and smc_conn_save_peer_info() sets conn->peer_rmbe_size before
+smcd_buf_attach() attaches conn->sndbuf_desc:
+
+kworker                           <softirq>
+smc_listen_work()
+  smc_buf_create()
+    smc_ism_set_conn(conn)
+  smc_conn_save_peer_info()
+    conn->peer_rmbe_size =3D ...
+                                  smcd_cdc_rx_tsklet()
+                                    smc_cdc_msg_recv_action()
+                                      conn->sndbuf_desc->len
+                                        <-- NULL pointer dereference
+  smcd_buf_attach()
+
+Even after smcd_buf_attach() succeeds, conn->peer_rmbe_size comes from the
+peer's CLC message while conn->sndbuf_desc->len is the attached DMB length.
+If the peer advertises peer_rmbe_size > sndbuf_desc->len and sends
+cdc.cons.count between the two, smc_cdc_msg_recv_action() credits
+conn->sndbuf_space beyond conn->sndbuf_desc->len, allowing smc_tx_sendmsg()
+to write past the end of conn->sndbuf_desc->cpu_addr.
+
+> @@ -452,6 +464,15 @@ static void smcd_cdc_rx_tsklet(struct tasklet_struct=
+ *t)
+>  	data_cdc =3D (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
+>  	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
+>  	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
+> +	/* This CDC was written by the peer into the DMB we published to it, so
+> +	 * both cursors are peer-supplied and index buffers described on this
+> +	 * side.  Nothing else checks them, and smc_cdc_msg_recv_action() uses
+> +	 * the producer cursor as a receive length and the consumer cursor to
+> +	 * credit sndbuf_space - which under DMB-nocopy is the memory the peer
+> +	 * itself owns.  Unlike the SMC-R path these values are host order.
+> +	 */
+> +	if (smcd_cdc_cursors_invalid(conn, &cdc))
+> +		return;
+>  	smc =3D container_of(conn, struct smc_sock, conn);
+>  	smc_cdc_msg_recv(smc, (struct smc_cdc_msg *)&cdc);
+>  }
+> @@ -466,6 +487,26 @@ void smcd_cdc_rx_init(struct smc_connection *conn)
+> =20
+>  /***************************** init, exit, misc ************************=
+******/
+> =20
+> +/* A peer's cursors are offsets into OUR buffers: the producer cursor co=
+unts the
+> + * bytes it has written into the RMB we gave it, the consumer cursor the=
+ bytes it
+> + * has taken from the RMB it published to us.  Nothing else checks them.=
+  smcr_cdc_msg_to_host()
+> + * copies both into the connection, and from there smc_cdc_msg_recv_acti=
+on() adds the
+> + * producer difference to conn->bytes_to_rcv and the receive path uses t=
+hat as a
+> + * length - so a peer that reports more than the buffer holds makes the =
+kernel read
+> + * past it.
+> + */
+> +static bool smcr_cdc_cursors_invalid(struct smc_connection *conn,
+> +				     struct smc_cdc_msg *cdc)
+> +{
+> +	if (!conn->rmb_desc)
+> +		return true;
+> +	if (ntohl(cdc->prod.count) > (u32)conn->rmb_desc->len)
+> +		return true;
+> +	if (ntohl(cdc->cons.count) > conn->peer_rmbe_size)
+> +		return true;
+> +	return false;
+> +}
+
+[Severity: Critical]
+Can a peer still inflate conn->bytes_to_rcv past conn->rmb_desc->len (and
+conn->peer_rmbe_space or conn->sndbuf_space past the send buffer size) by
+advancing the cursor's wrap counter while keeping count within the buffer
+length?
+
+smcd_cdc_cursors_invalid() and smcr_cdc_cursors_invalid() only bound the raw
+count fields in isolation.  In smc_cdc_msg_recv_action(), diff_prod is
+computed with smc_curs_diff():
+
+net/smc/smc_cdc.h:smc_curs_diff() {
+	if (old->wrap !=3D new->wrap)
+		return max_t(int, 0,
+			     ((size - old->count) + new->count));
+
+	return max_t(int, 0, (new->count - old->count));
+}
+
+If a peer sends a single CDC message with prod.wrap !=3D prod_old.wrap and
+prod_old.count < prod.count <=3D conn->rmb_desc->len (for example, from
+initial {wrap =3D 0, count =3D 0} to {wrap =3D 1, count =3D len - 1}), both=
+ helpers
+accept the cursor, and smc_curs_diff() returns (len - 0) + (len - 1) =3D
+2 * len - 1.  The peer can also advance prod across multiple CDC messages
+faster than userspace drains conn->bytes_to_rcv.  In either case,
+atomic_add(diff_prod, &conn->bytes_to_rcv) pushes conn->bytes_to_rcv past
+conn->rmb_desc->len, triggering the same out-of-bounds read in
+smc_rx_recvmsg() and NULL page dereference in smc_rx_splice() described in
+the commit message.  The same applies to cdc->cons, where advancing
+cons.wrap or moving cons ahead of transmitted data inflates
+conn->peer_rmbe_space and (on SMC-D DMB-nocopy or SMC-R failover)
+conn->sndbuf_space past conn->sndbuf_desc->len, causing smc_tx_sendmsg() to
+write past the end of the send buffer.
+
+[Severity: Medium]
+Should the cursor count checks in smcd_cdc_cursors_invalid() and
+smcr_cdc_cursors_invalid() use >=3D instead of >?
+
+Every SMC ring cursor is advanced by smc_curs_add(), which wraps count back
+to 0 as soon as it reaches size:
+
+net/smc/smc_cdc.h:smc_curs_add() {
+	curs->count +=3D value;
+	if (curs->count >=3D size) {
+		curs->wrap++;
+		curs->count -=3D size;
+	}
+}
+
+A full ring starting at {wrap =3D W, count =3D 0} is represented as
+{wrap =3D W + 1, count =3D 0}, so count =3D=3D size is never produced by a =
+compliant
+peer.  If {wrap =3D W, count =3D len} is accepted for cdc->prod, consuming =
+those
+len bytes in smc_rx_update_consumer() advances conn->rx_curs_confirmed via
+smc_curs_add() to {wrap =3D W + 1, count =3D 0} while conn->local_rx_ctrl.p=
+rod
+remains {wrap =3D W, count =3D len}.  In smc_tx_consumer_update(),
+smc_curs_diff_large(len, &cfed, &prod) then sees old->wrap > new->wrap,
+takes the 0xffff wrap-around branch, and treats an empty receive buffer as
+full.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261122042120.2430=
+434-1-piyus@iiitd.ac.in?part=3D1
