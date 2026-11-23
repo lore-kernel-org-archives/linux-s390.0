@@ -1,64 +1,64 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=193.142.43.55
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795426654;
-	b=knAIprg7/XHb4dJDCYlf9+UiSr8GWRfpgJGn1YUx6RWXLRTU8rEj442zrUkPSw1+M3po
-	 RL73H7tZZ+044KCb5S02jIvojCgVXNKL7ym5wl1PFEotijIsLb9wWk1tg538f5IBxxThW
-	 ynFlwYE7uTXLmw9HlLh07aA8GUYJxwnKhXi2vJz8EltrkI7EP1Fro3JJauNWWuEMovLtp
-	 7zXMxjqcvn1dKKKiIaukn/T+5rR/sY7rD4L3RKo5rMsTIE3q764/4cmY2ZyeR8LJ/ET+G
-	 mXNNdMTR+eeiDmueUWngtIMHnySFL4wCeTv/5bMKQr2P2beb/8R5RzQwOAjA2SeRaxw==
+	t=1795426658;
+	b=oBFnMs0b9TEaSqb7dalEvacfgahPHdJXsGTGu4VR0eEPa04nTvUtLPrj9y2Pr1etVYZg
+	 XGTQ5LXSI9qfFYbZaPrlmWU/1xDwg9d7OYzXcyPBiH8qUPO5sNhjaYZEybSelLJQPMQTT
+	 l1V84sgEuDHQQ7eV82RoL2iOvn4Kby06syxEBZ9zgPKU106Zq9H4Mnvoc4SM4MsgYHJCf
+	 RwWlQ0JBypdJerxyjEOQ0+hT8RvAKf9n5YNXPI8cbfrJVb9+IaNJGZpZofS8PBPSUIIcH
+	 dehcIF5kWQbiArT3yjtfy4mXGg6BCyMIy6JRTRS50Ak1t2YD5K7X3EyE0F5cnoYwFyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795426654;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795426658;
 	h=DMARC-Filter:From:DKIM-Signature:DKIM-Signature:Date:Subject:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
 	 References:In-Reply-To:To:Cc:X-Developer-Signature:X-Developer-Key;
-	bh=wyQVJDn0J0MtFHgb5Qr9bVYS1xHAFGjzONhCtcrDq0g=;
-	b=tw8OVrkb+Jj9DmhnDAcicCYwGRXPTBtXJ1nuK2V4EYMjLO9/rssjmbjDM5/GugNyVQ1e
-	 6/d4cufYk3MNu0odl+FhN06rpl5kep/WuPhyB+yLjTULWQIVg2NdLj1K8S7jHpOtSaix/
-	 Ka4DEIzv6zMAAevnQKFi1/1B1azAe+ICx916gLrsTyBnVQDv0w1I8Afu3WTIbgsUQ9hnV
-	 zU7h+7K7QOWNH9F0hQPfMvYuyAnIVBz765QtWiON/gr3c63PUnKKO9ulZ570jdEI83R9Y
-	 wCZcElO2UHapw8naQVdwEIj3RUtuNtb7z4diygOJR0xFwnM64fJ2Yzp4Ag7OuZqk2Dg==
+	bh=l/BiTKNpCaOxND2c83McUOfReF7CsUOwl4ywWdEVIsc=;
+	b=aHkchmqpDVhu98jZ4GDd7HkJJcvwG8OcpFnk5lZHpXWjjt9yLVlbDLmK2XSInd6r8XOL
+	 Gyj/h2wU80CT9plrS/rRTUKkazMuAXvCaRER3HEo48+3RXyWlQTtm5nOpWba3rGkJACJr
+	 XMG2q2o0bHsyZrmnyUNtftjixg1N7i8IPJJOxkt5sj4dEPAtLITF6Jk9pGADiE/rIfU5m
+	 nsFUxgfVs12t1mnC548Dg9nu1A98CZwspEIG9HRiT4FEDe9F2ru6SVEr3IwCQrFrXqTUR
+	 XxsBvUcTK2BuFuXcTsOgZ8ir3ox0GhKlT70275UFd9Nl9zZpakqciMdPwDgqjrBoV9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linutronix.de;
 	spf=pass smtp.mailfrom=linutronix.de;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=sy6wKMMi;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=EIfbqxqQ;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=jkhqAnQN;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=KGBqyz3G;
 	arc=none smtp.remote-ip=193.142.43.55
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 172CD606A6A8;
-	Mon, 23 Nov 2026 09:37:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 172CD606A6A8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE9C260A5BC5;
+	Mon, 23 Nov 2026 09:37:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DE9C260A5BC5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=sy6wKMMi;
-	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=EIfbqxqQ
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=jkhqAnQN;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=KGBqyz3G
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1795426652;
+	s=2020; t=1795426656;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wyQVJDn0J0MtFHgb5Qr9bVYS1xHAFGjzONhCtcrDq0g=;
-	b=sy6wKMMiSIYJJrLVs8OtFCFEbAMDezBV33VL71jtQheALKkWfogtOtkMSo7f3iDpx1hnmH
-	DCow9DPdvS16RqXtCng1RNmV+NhFA2xClLPkTLPOYfmJGRa8ojIpmcuQsaxu56R6M4Fm+F
-	kWBEw+7wIe+yzmSezbHp2T0eZORxNQJkDKd/9DCeDLuJAd/R7aeaufQ9FSQHhA2EizTWnq
-	xfUG5037egX7h41/8CHjMiihW5FLjTaXA3mTegbNGNV896H0etpBsr0RNnEtHhkJFChwPx
-	ujWRQS8fQWadjGCep69ydOg4Axb/KfFESJIPml36wiPo21QQXQ8D1RJkrL8ZZg==
+	bh=l/BiTKNpCaOxND2c83McUOfReF7CsUOwl4ywWdEVIsc=;
+	b=jkhqAnQNELqjAUyPC+ah0b+ywki2lualhhUkxkV7P3TMrXvXwGyiycaGYRoCbZBpM0RcTn
+	X2q9PPlCsravdT3r794YuvNNdQagbYQKFtf9bNwRN1Iu/5EZlLemXEjySqRl802oCFXXBN
+	xFQ7t0rPYG02dO0BgPjMOt67Zar5eE6hJqTwbrFc8Ac6PQY+OebLC3xD9Ckcd97nVxtC2Q
+	p8pcYvW94R0pQNY9SPNX3yq/qhkzYWAU70LE6jHJ8gf1Bkj3Spqu9mEzfFYbTQtQa2KpjV
+	Y9THEgzS7mxC3lm/z8O4Wde4DU0UBYUi74rZ2qlM2nIFIOUzQujqAWDNxKjtsQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1795426652;
+	s=2020e; t=1795426656;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wyQVJDn0J0MtFHgb5Qr9bVYS1xHAFGjzONhCtcrDq0g=;
-	b=EIfbqxqQDY5EeJRfGC/cqaJZmr3BsSxE/bXQsnuaukyukzxhYJf5e7OI+OIDmQ4Kkwp59O
-	ifnISwgD66ulBTCQ==
-Date: Mon, 23 Nov 2026 10:37:15 +0100
-Subject: [PATCH v3 10/15] powerpc: Remove AT_VECTOR_SIZE_ARCH from UAPI
+	bh=l/BiTKNpCaOxND2c83McUOfReF7CsUOwl4ywWdEVIsc=;
+	b=KGBqyz3GdaK1oBFiUeoizJlsqPljXvKlT3ga2tV8p7wV+lhoSN1YNMjumnKIpgLiGs3g+I
+	tWCAeCC0Wv8iJ9BA==
+Date: Mon, 23 Nov 2026 10:37:19 +0100
+Subject: [PATCH v3 14/15] alpha: remove AT_VECTOR_SIZE_ARCH from UAPI
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,7 +70,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261123-at-vector-size-arch-v3-10-d342dae9e843@linutronix.de>
+Message-Id: <20261123-at-vector-size-arch-v3-14-d342dae9e843@linutronix.de>
 References: <20261123-at-vector-size-arch-v3-0-d342dae9e843@linutronix.de>
 In-Reply-To: <20261123-at-vector-size-arch-v3-0-d342dae9e843@linutronix.de>
 To: Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>
@@ -80,12 +80,13 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
  linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, 
  linux-sh@vger.kernel.org, linux-alpha@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795426640; l=1614;
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
+ Magnus Lindholm <linmag7@gmail.com>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795426640; l=1710;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=lq2CTgfwZG73WGl5OVl7p6mIHPWbhjx1Tz1RNRtR7N8=;
- b=bJ5A5zd3pfSWIa+VMd5QiOGWtRTF6UJscvwGWocaeSTuxYx7he2xiLti1KebdjyptmSFP9R36
- LWL13Cj7QasDcyXmn53dOiu+z7BAW25TVHWTaylnvQbJlD/oDtlC0ip
+ bh=vXjkxYJIlc0NCEosFzkpX8TeQp7Um4IKFK3k2WrdPLI=;
+ b=EL3RVXJCnvkuQSc9r9Cl1BTDgl6XF0yfwf03AwNKQGGyAiPL6VTd53BWrWQo89v0CFbbKICYh
+ V+VEt6hrynCCWJXvzqn4zeLgAiNjUEfCVNRVTmgGZhdW4+BddfJZUHx
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
@@ -96,45 +97,47 @@ userspace and also changes from time to time.
 Move the symbol to a kernel-internal header.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+Acked-by: Magnus Lindholm <linmag7@gmail.com>
 Reviewed-by: Kees Cook <kees@kernel.org>
 ---
- arch/powerpc/include/asm/auxvec.h      | 7 +++++++
- arch/powerpc/include/uapi/asm/auxvec.h | 6 ++----
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ arch/alpha/include/asm/auxvec.h      | 7 +++++++
+ arch/alpha/include/uapi/asm/auxvec.h | 8 +++-----
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/auxvec.h b/arch/powerpc/include/asm/auxvec.h
+diff --git a/arch/alpha/include/asm/auxvec.h b/arch/alpha/include/asm/auxvec.h
 new file mode 100644
-index 000000000000..d6c180e9ac2c
+index 000000000000..fa90ee4f899c
 --- /dev/null
-+++ b/arch/powerpc/include/asm/auxvec.h
++++ b/arch/alpha/include/asm/auxvec.h
 @@ -0,0 +1,7 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_POWERPC_AUXVEC_H
-+#define _ASM_POWERPC_AUXVEC_H
++#ifndef __ASM_ALPHA_AUXVEC_H
++#define __ASM_ALPHA_AUXVEC_H
 +
-+#define AT_VECTOR_SIZE_ARCH	15 /* entries in ARCH_DLINFO */
++#define AT_VECTOR_SIZE_ARCH 4 /* entries in ARCH_DLINFO */
 +
-+#endif
-diff --git a/arch/powerpc/include/uapi/asm/auxvec.h b/arch/powerpc/include/uapi/asm/auxvec.h
-index aa7c16215453..9ab5b6d17929 100644
---- a/arch/powerpc/include/uapi/asm/auxvec.h
-+++ b/arch/powerpc/include/uapi/asm/auxvec.h
++#endif /* __ASM_ALPHA_AUXVEC_H */
+diff --git a/arch/alpha/include/uapi/asm/auxvec.h b/arch/alpha/include/uapi/asm/auxvec.h
+index 57cae8780d81..d21b87b6730a 100644
+--- a/arch/alpha/include/uapi/asm/auxvec.h
++++ b/arch/alpha/include/uapi/asm/auxvec.h
 @@ -1,6 +1,6 @@
  /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--#ifndef _ASM_POWERPC_AUXVEC_H
--#define _ASM_POWERPC_AUXVEC_H
-+#ifndef _UAPI_ASM_POWERPC_AUXVEC_H
-+#define _UAPI_ASM_POWERPC_AUXVEC_H
+-#ifndef __ASM_ALPHA_AUXVEC_H
+-#define __ASM_ALPHA_AUXVEC_H
++#ifndef __UAPI_ASM_ALPHA_AUXVEC_H
++#define __UAPI_ASM_ALPHA_AUXVEC_H
  
- /*
-  * We need to put in some extra aux table entries to tell glibc what
-@@ -50,6 +50,4 @@
+ /* Reserve these numbers for any future use of a VDSO.  */
+ #if 0
+@@ -22,6 +22,4 @@
+ #define AT_L2_CACHESHAPE	36
+ #define AT_L3_CACHESHAPE	37
  
- #define AT_MINSIGSTKSZ		51      /* stack needed for signal delivery */
- 
--#define AT_VECTOR_SIZE_ARCH	15 /* entries in ARCH_DLINFO */
+-#define AT_VECTOR_SIZE_ARCH 4 /* entries in ARCH_DLINFO */
 -
- #endif
+-#endif /* __ASM_ALPHA_AUXVEC_H */
++#endif /* __UAPI_ASM_ALPHA_AUXVEC_H */
 
 -- 
 2.56.1
