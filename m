@@ -1,92 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795505359;
-	b=npNrg6iDoj7O1tolTniws6/m6vxnKInN4+gQE/bMwYhlmEHiATQ8uOXUZlv4+1QP1aXq
-	 Ypcsp3xoHFoD4MTwNk56xD1ILNtI5m5vHOWTt3yciyEp596PZD4jfllEcqBvcgEt6XeN4
-	 yA7KdhPB51E06TUhvOWx9y/IvY2SLoPKU+OdbwS3MBh5rVXr+0ipNM/8V5IOMrKYevU5H
-	 QZeAgLY/QYqBI/bL2XCZW06oKiXkTK4AnIz4guWmrMJLTcHRfaZ+VY9zgivBOt6H3focV
-	 Kq68JmfLXQdVBsFPPix1/Xbpd4D3mYf84can9tFVr4I++MyY39m97IUR0AO9NjUeFBw==
+	t=1795505804;
+	b=ZJGA3W5+dn2QUeQKdtKHeCzT/Ll2dv3AIe/gll9VNdPFXGbtMbC6D6GiuPISqcP39XsC
+	 IqH7nhPWs6PCS4owV0khJPDhz96A4FbGodD2V8lOniqBOhqUj17PlDlAISTmtOE0gB+hE
+	 k1dVvIghMxfD7PMVhQz538t3FW258dhrE3t1m2eznmKSe5OJDFvHQnuPpdXdtmilP8327
+	 Za+MpfBJSwspAATTriT3g2zX2Jau+Cfqu+Eu+tPC0eqMJolDbC0mrDOGLjpmL5+2di5gw
+	 JCNIElEQyZkTxEJKeoiLFrb0rH6kOmLTNzdgYR94i+4sLjtPV3r8UC9yZpQo1pmmlHA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795505359;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=Ff/cIHvuBVZnx7utLGrJmn640e8Haj+dm0NKl1pXUuU=;
-	b=Xd35Hn5HOJjM7HAqZ/gYN2+wjEX7sfrJxSDP8zgXTjthW5rRmjELbGPj+ncDEF162vA4
-	 /tkJz2JdPkC6Z1MIwsZVIV30avUG+fF7jtzGxy80tMkf5Vc9jcSQTRJUvJIWoOwzX8Oxv
-	 1d6CqWfAqpgm2BaP+m0kSGKvCql0bBvMjYDMtlwwGo2IXOXkhgdGytvgGFviJ5j5efhXj
-	 cH7WWMjc82ZXVdd3CMpEpBdjHoN6+3K6k4JIOFPwD8NuQRwJSEN/kXGIm+JWiKk99fJOq
-	 O7VSp8Q5sSo5TRAY+0cZj9WljbSjjmAQcZodZEW2UCjrvX6ynNcpGJCUap31032e2BQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795505804;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Proofpoint-Reinject:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=nvp0TIIM72pQmGrxbalU/C+A9j6skVIejL51JW7JWHY=;
+	b=2AbDv5d75I3vwve1nzsO/bBjkCsPbZFHU6mcCPg9gqyIT5Kd1WQ9U8Hf+JOjWgSw1dZt
+	 5NGvlt5v3HQ770RCwptZELD+ljit/NN4/GH79NoyRjhw+jFQ/b20JM6gDXrl+0llxMzS0
+	 +aYK6tEhkLnHpEThEVM7PTPpUQRs0CYvlMao8kOdv7ns3CED436eva3tTReiDPsHoRw7G
+	 wl4PnNSJEnxzsk2wE4NXSGkqSHcl+07Cguj4MzrB5mLY2uySBLIVHWX2PUPvKR9SZfbey
+	 nPXarDbARqXbjxn01yjts9t6K2JbY8iuoq2/z8SAwv+/J3nr8J7TfBS1KFUrFONJ/xA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ucmqpqnc;
-	arc=none smtp.remote-ip=209.85.215.175
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=VxAcHiWw;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACFBB606A322
-	for <linux-s390@vger.kernel.org>; Tue, 24 Nov 2026 07:29:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ACFBB606A322
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1969D606A686;
+	Tue, 24 Nov 2026 07:36:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1969D606A686
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ucmqpqnc
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-cde1479f76fso2483438a12.0
-        for <linux-s390@vger.kernel.org>; Mon, 23 Nov 2026 23:29:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795505358; x=1796110158; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:content-type:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Ff/cIHvuBVZnx7utLGrJmn640e8Haj+dm0NKl1pXUuU=;
-        b=Ucmqpqnccjbj9PdQI0KJdYkmVPKb+A5q5QJjFGTEwbdad1o7vHAeliODepnaNiZQYw
-         NJWztHrCr7wSYoNJTuSbQaFeF+vXmScRy5evJUEYUlZitg1QD75jY/bEN8NzqewwEfyp
-         4/EkxePwiIse+km5wckl8e4xHoOaTyKL2PakL+UIyU1hTDRJkwmup9w/SwyCA+k0JKuT
-         S7b/EtLoVLdTn5IgnxBxP/ARnxYNQlSsr+YhvMDc95IIphEtfxbE/CMKA6Xu9+/r7iLd
-         jAQRASOlUP24itkMrQMxQ2sIzsMKi+FCMHfXqTnNrA2AJalwpf7DKQQgNF/Eso7sL6M1
-         X+VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795505358; x=1796110158;
-        h=mime-version:content-transfer-encoding:content-type:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Ff/cIHvuBVZnx7utLGrJmn640e8Haj+dm0NKl1pXUuU=;
-        b=LHjtdi0UubTDBP4pElnLaceLQM+ZpDqRU7BUwK+mipC4c+0MgDEIpeYNOURqLzt0v4
-         4wvPz/bNNn1Okw31qBqnpljRgynskAn/PDYPEr6DtZ2cIuexUTDQ0MQXpb0R9cLEdSIe
-         IQZ81gsc2Kank0bfXpJUr9zU8zM7ZpZN3UzbeFmkiwadqG0XNTfy0s8tqM3ZJ2Tmlw2b
-         CQOXl4emQYnXCSf3oZ3V6EnlTNZ8OMgGUvmiY4LRQro1sIOEBsWdB1uAUdzoK5UnHmSN
-         mx3wKgvcAyuie2q0uXz+yN70/RfnbAMcylBiNW7q53A1KFgEdj8NKdClLkrObTBO75ud
-         Q+tw==
-X-Forwarded-Encrypted: i=1; AL+hErHGULN6+LuVqKuzwvciWVsqJWFYgyJNSCR65m5yzhIlH6f0rM3FkVzRbWfGj35hJQU1mnVRrAANcRWv@vger.kernel.org
-X-Gm-Message-State: APuU4Z/ktb1OX/4vfUZ4adMTLfY3djFjjBU2ld3p9mMi3Zxykz1vqEcv
-	p3Fjz30UcyJO8ncl7Q53p56bFfpRf9mH/n4k4YIAedEh/RYShqAy+03r
-X-Gm-Gg: AZFdTZckEp0u0Y65x9VabsnmVp3rdnBRH1InQ+Npvdjv1NH2aU6h+JTsMzF6G/eSGw2
-	WCm1SyUYFzyX9Qag9l1E5W4RfKYxVP479euxsoJifxj5y7Z7oSUSC47t/jjm/+ydXMnpR4ozzAe
-	/h696CF+bu6Gi8ZO/XqhJ80iRXzEkaY2UVSpgyrm4RjnMsvUAmrfBsViHeFQXONYtrPEG/ysm5o
-	OFJJXZ7BJELFHkulOS2vDXAtEh68j8P5ZfH8CTdyJi116CZmWMvgb7Ww3IDRfipBf4PCDfSyQcj
-	xmJHEeYiDeykhJaRJ7MzBwldmZCWcGuOP557+lteaShvIvbhVSQuaGEfFDygIg8BUId4zrngd43
-	L1iWWP9CnshijyTVSvYx7OiOXlw7MMe7VDasQ8H+kMVEjg1uqB0/hwH6utXycYIzcmNbUdLJZBh
-	ICwva/qiuiCM9vua9ItMxgQUxK6iDa6SqZa11mV92A07skGuNxktl6dWpkSIU70+SbZTf8yLX6A
-	H7i7C77GBwEFlE7dR4VN9IMAknVCJoNK3IRmqURaqIOICvkoFZaQ1ioVeWk+1kIY4+dAAXKvh6u
-	NYoylT0Lycl9yHERywrQNrsd5UAD2VxNT3yAoNZ6wFREZw6+TdN41NZwR4ibEOBLUU0vtcIIXkC
-	2Epwet+CDViwlfxErKxKQ8+OLKT0ZpXcCVxoG
-X-Received: by 2002:a17:90b:2c87:b0:3b0:9e42:b67c with SMTP id 98e67ed59e1d1-3b41c96ed40mr12458674a91.61.1795505357803;
-        Mon, 23 Nov 2026 23:29:17 -0800 (PST)
-Received: from 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa ([43.224.245.233])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b4b0f482bdsm5930398a91.14.2026.11.23.23.29.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 23:29:17 -0800 (PST)
-From: Qican Ma <goonsomeway@gmail.com>
-To: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com
-Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH net v2] net/smc: serialize clcsock release against CDC receive path
-Date: Tue, 24 Nov 2026 15:29:11 +0800
-Message-ID: <179550535135.21127.16258389542236461283@gmail.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=VxAcHiWw
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AO34mE71217045;
+	Tue, 24 Nov 2026 07:36:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=nvp0TIIM72pQmGrxbalU/C+A9j6skVIejL51JW7JW
+	HY=; b=VxAcHiWwk69sF9EtLyHIctjMz1lTtyFHi1/U9ISy2G70jOLFokvYtjMUJ
+	lA/lWtoAzDbervgzHFFF2k3WynVkk7s0ohgkyFvsjbO6sFVtiXMNxoS8rylLv0Zs
+	ydv135PX18W1HmDskNEdtgo7yqbRLPFZLiHkCZe8vURcKmWuhdtbnxegA9LZPbAy
+	8lnXWR8njN4wwpPfd2e3X+GjjOvWdO5rbRorDXUENnYBrclgHhpU9N4nVT309Ne6
+	1Ywsn6OQp76+cyP5HaBTiQq8ATCSrBag0De8x4hiL4FnSiaJ6SeCdjv5yqD2RySp
+	lCZHZhN21lPibvBoNk1XNgHsqNZUw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34gv68xf-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 24 Nov 2026 07:36:12 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AO2nNVq2838319;
+	Tue, 24 Nov 2026 07:36:11 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j3rayheex-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Nov 2026 07:36:11 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AO7a7qF48890254
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 24 Nov 2026 07:36:07 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7CF372004E;
+	Tue, 24 Nov 2026 07:36:07 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 48D4020040;
+	Tue, 24 Nov 2026 07:36:07 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 24 Nov 2026 07:36:07 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
+	id 333911616BE; Tue, 24 Nov 2026 08:36:07 +0100 (CET)
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com
+Cc: hidayath@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, stable@vger.kernel.org,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>
+Subject: [PATCH net] net/smc: fix sock reference leak on abort_work cancel
+Date: Tue, 24 Nov 2026 08:36:02 +0100
+Message-ID: <20261124073602.2341904-1-mjambigi@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -96,75 +97,78 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=CYCdd7rl c=1 sm=1 tr=0 ts=6b053e6d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=p5Vn_19Q5Cr7Mw5R8fQA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDAzMCBTYWx0ZWRfXyuGmSa5q12BO
+ FmWfqJbTJf54IeP+SmgmjoAY9ddDwwbyQPujVdRTKaUXfjM7Mdh2fVsLsiUcg58/B1sTWOjXJ3S
+ W8P2IPr/BkOz9MNxnuIuDeBmt2E1N3E=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDAzMCBTYWx0ZWRfX8nTGfTxaWDGe
+ NuOXvuPIvErsV0EW+hV3dDylHKBMhGfYhXLbpNbRk93SnkmWFcyFZIfagQYqGLCTd5A3O9/9aNL
+ +SpW7/9UuS7ZP9OlUhJ/GQIQsIgklrUyg1ke6albUe+OJaRfWRNeHwiYNjdTU4k15Fx16iCXH7G
+ +UCxxUUwb/ovZLTYYn6oxJqjzGB6j3Ql5oQHxB0BpZkbMOXsIOt4MNg1Yv+13tThC2gvp1SQOwW
+ BDm9utHNAaQSxk8ev76lBoeHpobSWC4qEXeRQd+1L3xHxAy7NCNR6HnaZ03PXzYNDBzn3G94dkX
+ fjlUxfqCLswrPT1xWPJtmWgJmjkNaprrAzWTQIH/CBRp/xxV/g6i66DZDIh2O7NckGu4gOO+R7G
+ ngSkIbg/dDU5SDDzMmp8IQCzUMFJtj/F87cy1JIP+IhnmsK/36p6E9lDmjHl05n3yuf9m2JIT3x
+ qgmrFvSIDmPuIGRJB0g==
+X-Proofpoint-ORIG-GUID: YRMsN2wLhAvF4Oi_EfEOdJb40SgBjyJI
+X-Proofpoint-GUID: hfB79F6dPKtxnaXY3PqD0L2mZGfNrCtN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-24_01,2026-11-23_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 adultscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611240030
 
-In smc_cdc_msg_recv_action(), receiving a close or senddone flag writes
-RCV_SHUTDOWN to smc->clcsock->sk->sk_shutdown while holding only
-bh_lock_sock(&smc->sk). Meanwhile __smc_release() drops the socket lock
-and calls smc_clcsock_release() (which clears smc->clcsock and calls
-sock_release() under clcsock_release_lock) before calling
-smc_conn_free(&smc->conn). Even on paths that call smc_conn_free() first,
-an in-flight SMC-R softirq that already looked up the connection in
-smc_cdc_rx_handler() can still enter smc_cdc_msg_recv() concurrently with
-smc_clcsock_release() and dereference or write through a freed clcsock.
+smc_cdc_msg_validate() takes a reference on the socket before queueing
+conn->abort_work, and smc_conn_abort_work() drops it when it runs. When
+smc_conn_free() cancels the work while it is still pending, for example
+because a close races with a failed CDC validation, the handler never
+runs and the reference is leaked, so the SMC socket is never freed.
 
-Free the SMC connection before releasing clcsock in __smc_release(),
-matching smc_close_active_abort() and smc_close_passive_work(). Because
-smc_conn_free() sets conn->freed = 1 while lock_sock(sk) is held and
-release_sock(sk) synchronizes on sk->sk_lock.slock before
-smc_clcsock_release() runs, checking !smc->conn.freed under
-bh_lock_sock(&smc->sk) in smc_cdc_msg_recv() guarantees that no CDC
-handler accesses smc->clcsock once smc_clcsock_release() can start.
+Drop the reference when cancel_work_sync() reports that it cancelled a
+pending work.
 
-Found with an LLM-assisted code review tool and verified by inspection on
-v7.4-rc4 (b6a9fa34ce4). Build-tested only; not runtime-tested due to lack
-of an SMC-R/SMC-D setup.
-
-Fixes: b38d732477e4 ("smc: socket closing and linkgroup cleanup")
+Fixes: b286a0651e44 ("net/smc: handle incoming CDC validation message")
 Cc: stable@vger.kernel.org
-Signed-off-by: Qican Ma <goonsomeway@gmail.com>
+Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 ---
-v2: resend via direct SMTP to fix line-wrapping corruption in v1;
-    verified clean git am on net/main both standalone and on top of
-    Bryam Vargas's v9 CDC cursor bounds series.
+ net/smc/smc_core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
- net/smc/af_smc.c  | 4 ++--
- net/smc/smc_cdc.c | 3 ++-
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bfc0c7e71a1..1d8a602729c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -313,13 +313,13 @@ static int __smc_release(struct smc_sock *smc)
- 	sk->sk_prot->unhash(sk);
- 
- 	if (sk->sk_state == SMC_CLOSED) {
-+		if (!smc->use_fallback)
-+			smc_conn_free(&smc->conn);
- 		if (smc->clcsock) {
- 			release_sock(sk);
- 			smc_clcsock_release(smc);
- 			lock_sock(sk);
- 		}
--		if (!smc->use_fallback)
--			smc_conn_free(&smc->conn);
- 	}
- 
- 	return rc;
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 32d6d03df32..499a2473b79 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -428,7 +428,8 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, struct smc_cdc_msg *cdc)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index a3164201c142..3c08be976de2 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1276,6 +1276,7 @@ static void smc_buf_unuse(struct smc_connection *co=
+nn,
+ /* remove a finished connection from its link group */
+ void smc_conn_free(struct smc_connection *conn)
  {
- 	sock_hold(&smc->sk);
- 	bh_lock_sock(&smc->sk);
--	smc_cdc_msg_recv_action(smc, cdc);
-+	if (!smc->conn.freed)
-+		smc_cdc_msg_recv_action(smc, cdc);
- 	bh_unlock_sock(&smc->sk);
- 	sock_put(&smc->sk); /* no free sk in softirq-context */
- }
--- 
++	struct smc_sock *smc =3D container_of(conn, struct smc_sock, conn);
+ 	struct smc_link_group *lgr =3D conn->lgr;
+
+ 	if (!lgr || conn->freed)
+@@ -1298,8 +1299,9 @@ void smc_conn_free(struct smc_connection *conn)
+ 			smcd_buf_detach(conn);
+ 	} else {
+ 		smc_cdc_wait_pend_tx_wr(conn);
+-		if (current_work() !=3D &conn->abort_work)
+-			cancel_work_sync(&conn->abort_work);
++		if (current_work() !=3D &conn->abort_work &&
++		    cancel_work_sync(&conn->abort_work))
++			sock_put(&smc->sk);
+ 	}
+ 	/* The handshake can retry another device or SMC version with this
+ 	 * connection, so it must never stay registered in an lgr it left.
+--
 2.50.1 (Apple Git-155)
 
