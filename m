@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795528400;
-	b=KL7HrMHe21s/h+Qwak1tOXnSPBkXN60xXzxA7z0lE3t8Ic/r+LHjvoUHAUzT5sR27WAs
-	 NZ+fBRPnY0S61SkEGQrAOh8+M7qHTRHRiFUMgGZjnuc2lVnNbmIBJ064kIZz7y+rYJsMg
-	 td/WdFGky5R3h70sht+W7NtsFRjL6DvbXi21zkEmYGyPuC3Xk8brK1ccOhzR1EN39mGm0
-	 Mnj/Q0UE7CTSdvlbV/rua/g8VhUto8yMYhco27l0x3BJNsdxMNjVWWqaCcDGOexMvuTG5
-	 k3G+qVJVKO1V8JfqrmjIw3SiqhqLwWjMw07WSwM7Yb7fUFYAzgMvssjVJZV1n7eTHUQ==
+	t=1795528403;
+	b=0fNp2C24aHpc9EXmRIe8UK4rbKJnjCl2cg8YE3ld5FxW22MbOxbVTkN6DEuBbJYy1S2N
+	 35pvMWMoPprubLGxLztBtewNxkLRMb4chhMjPCgzkpuADuSk6Kf48Un+4y9d0doB9PiBN
+	 QbNw3OPT1trqRTog7H4BIwwjfWl3IMjdQEu9L+obZNbSABQnTCVqdb8FFIg4lNnak4aKI
+	 uDkN/i+vSDFbCA9o4l4q9NemRSjfaxGblfZQhrez/0JKGskNUGaXbCbrNknT/nVRJ2qYP
+	 zrUjdD9e1G0KP6AvF5gUql4jDhL8hTSvIsPX+7fL6CrlFjHEhiei5HlmHyJKansDNGQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795528400;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795528403;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=IDRW3UODYLDeDsSDV5ah2aP06esfAD4UXbPE12d0+4c=;
-	b=WvigJDwiNi8FzO48mNY5+J3vb0hUmxDSdZWWoCrEXm5jKBt15PjJT30jBV7Veu3MDKGx
-	 arXEKsCwcf0r/keLRvUmx6Wwkn8GbeTQ9ay+YVErct2fFiuBZAr+3VlVN8mjk78A2DELR
-	 773PJVMX2KlQorhl3Qo2E9vlKdzjSqwRro2FGhlb6ZtbjaC3VfttHraHnKh+9es5AY6n/
-	 cpUSDCRX5BbiODHhW2Mi2HH/Br3DMqA8QW9UdM3/TDNM+VLI8hiFUTGQ9jm/CnCU8oW7y
-	 K8smaqXkSuStVJL0QSZRu05vCEs5gVkte+gAZseY9LhBtF+IKuuDnLZc1aOxUx6SpUA==
+	bh=HvrlI1buZ3E0IRhzK+P1F1aEhLGiGloUS49EF6BcS/M=;
+	b=ylymvyVzrqxOz/a26tsoUrdQM6me22liyBd/Y11KZABuFVBDBbTF6FucI8AUsg2bshlN
+	 j8DNYi4qOjhzDK3VlA/13B0o7zqK9RVxMOO676B+JYVUeQckJ9ZValX8DanourPTUnm+K
+	 viZJ63uhDVELVDjgR0OiB8MqlmbE8pa2zh1AQFM37A3+/I7RdPKTaah1Dw2MHGqhsp3st
+	 c3ucaBGEFMUh8UUpM5NYqyxi8yma603lPJ1zR5VxWT60tMhziBHbExVXNOi+nlzwyY8Xf
+	 xImSnSbccwrxyoR3XfEe94WtBp7hq8CL/DwBD+yJUGN9gJSZ/7dpOjknF1ka3n1u04A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kSw53pwm;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kho9japU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C13B606A321;
-	Tue, 24 Nov 2026 13:53:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE13C606A31E;
+	Tue, 24 Nov 2026 13:53:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kSw53pwm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C2081F000E0;
-	Tue, 24 Nov 2026 13:53:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kho9japU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A001F000C6;
+	Tue, 24 Nov 2026 13:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795528399;
-	bh=IDRW3UODYLDeDsSDV5ah2aP06esfAD4UXbPE12d0+4c=;
+	s=k20260515; t=1795528402;
+	bh=HvrlI1buZ3E0IRhzK+P1F1aEhLGiGloUS49EF6BcS/M=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kSw53pwmEmiFYNYQPpy68ECmj5Bx1omrwn06yw/ZMC7D3YfAL++Pgtj4yPP4TW6P/
-	 tQxAvw/YPdI9ZWzlmRE5CpRzYDsV3NtxN/9DXisBwyazQLgN30UrBfAb+IHagdGCNb
-	 389oGJ3NK08Vhr/hJb28oH/MbIG8lp/xtPbAwdj7wpXIVNCG0cjQr29tg7e5GXtzub
-	 QjJEE44jWffKFWS1mTHpzAnorVZgbgiLktq9jgJuPAjl3QwkTUckYlC+M6S9OYMhRA
-	 0juoxRmEnabSi0OiKqRcMezUKcq9AmAavHrrI1vgcCU1dH9M47jDNHLNJMphFO2leY
-	 I05I0qdrrccKA==
-Message-ID: <sashiko-outbox-231263@kernel.org>
+	b=kho9japUfI5hDILsBuhf1RvYUh3RdAm113beEsgXkXArnLIfYvkbX3UfhbBJPpENY
+	 pbHaL7iNYOzjnKeJCqiio8iPtnSt/YPOXD11PPejVFik7/inKO6oa2vKq12B64xsDO
+	 zG6QaBDQVtF2GXzdF6RYD4Fok2hk3nMI/WXwXDFnXDOyaUUsiGk0Dp2cMDJ3MAdKTm
+	 yoyuPwYTCUCHi3j/fPpHqX23aleEwYpt+7aMVebsm+yx6gV+vCsMGyMUWUjTZXRrxw
+	 CzYx7fKU+LDKTdnlrKolrlZIoIrsxUmgqc66tWF9Q6SEMFh5biK7+mDaxtJnQUeUZq
+	 fpJqNoBiXSvZg==
+Message-ID: <sashiko-outbox-231265@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 09/11] MIPS: vdso: Enable the vdsocheck tool
+Subject: Re: [PATCH v6 11/11] vDSO: Automatically enable VDSO_CHECK
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>, "Paul
  Walmsley" <paul.walmsley@sifive.com>, "Palmer Dabbelt" <palmer@dabbelt.com>, "Albert
@@ -70,12 +70,12 @@ To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>, "Pau
 Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org, "Jan
  Stancek" <jstancek@redhat.com>, "Arnaldo Carvalho de Melo" <acme@redhat.com>, "Peter
  Zijlstra" <peterz@infradead.org>
-In-Reply-To: <20261123-vdso-absolute-reloc-v6-9-161e218dd217@linutronix.de>
+In-Reply-To: <20261123-vdso-absolute-reloc-v6-11-161e218dd217@linutronix.de>
 References: <20261123-vdso-absolute-reloc-v6-0-161e218dd217@linutronix.de>
- <20261123-vdso-absolute-reloc-v6-9-161e218dd217@linutronix.de>
+ <20261123-vdso-absolute-reloc-v6-11-161e218dd217@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 13:53:15 +0000
+Date: Tue, 24 Nov 2026 13:53:20 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -87,73 +87,87 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue to consider:
-- [Low] vdso: vdsocheck misparses 64-bit MIPS ELF64 r_info relocations
+- [Medium] vdso: VDSO_CHECK disabled on 32-bit RISC-V and some MIPS
+  configs
 --
 
-commit 2aab3cbfe50b7d8f9c6cf9cb786fc8880a6ac472
+commit 7179dbe5f048cacac134800666e4651c26c46665
 Author: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
 
-MIPS: vdso: Enable the vdsocheck tool
+vDSO: Automatically enable VDSO_CHECK
 
-This commit enables the vdsocheck tool for MIPS and defines the allowed
-object file relocations for EM_MIPS in vdsocheck.
+This commit selects VDSO_CHECK from GENERIC_GETTIMEOFDAY and VDSO_GETRANDOM
+in lib/vdso/Kconfig and removes the per-architecture VDSO_CHECK selects.
 
-> diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
-> index 1ef3f240f886f..120d8fa551e6e 100644
-> --- a/lib/vdso/check/vdsocheck.rs
-> +++ b/lib/vdso/check/vdsocheck.rs
-> @@ -157,6 +157,21 @@ fn allowed_relocations_for_machine(machine: u16) -> =
-Option<AllowedRelocations<'s
->              ..Default::default()
->          }
->          .into(),
-> +        bindings::EM_MIPS =3D> AllowedRelocations {
-> +            ignored_object_file_sections: &[".rel.pdr", ".rela.pdr"],
-> +            in_object_file: &[
-> +                10,  /* R_MIPS_PC16 */
-> +                60,  /* R_MIPS_PC21_S2 */
-> +                61,  /* R_MIPS_PC26_S2 */
-> +                62,  /* R_MIPS_PC18_S3 */
-> +                63,  /* R_MIPS_PC19_S2 */
-> +                64,  /* R_MIPS_PCHI16 */
-> +                65,  /* R_MIPS_PCLO16 */
-> +                248, /* R_MIPS_PC32 */
-> +            ],
-> +            ..Default::default()
-> +        }
-> +        .into(),
->          _ =3D> None,
->      }
->  }
+[ ... ]
 
-[Severity: Low]
-Does vdsocheck misparse 64-bit EM_MIPS relocation entries in
-RelSectionIterator::next() and RelaSectionIterator::next()?
+> diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+> index 9a3ce550c95dc..e2eb9627bd14c 100644
+> --- a/arch/mips/Kconfig
+> +++ b/arch/mips/Kconfig
+> @@ -107,7 +107,6 @@ config MIPS
+>  	select TRACE_IRQFLAGS_SUPPORT
+>  	select ARCH_HAS_ELFCORE_COMPAT
+>  	select HAVE_ARCH_KCSAN if 64BIT
+> -	select VDSO_CHECK
+> =20
+>  config MIPS_FIXUP_BIGPHYS_ADDR
+>  	bool
 
-lib/vdso/check/elf.rs:RelSectionIterator::next() {
-    ...
-            ClassAlternative::Elf64(iter) =3D> iter.next().map(|n| {
-                let type_ =3D n.r_info.to_cpu(iter.byteorder) as u32;
-                Self::Item { type_ }
-            }),
-    ...
-}
+[ ... ]
 
-Unlike standard ELF64 where r_info is ((r_sym << 32) | r_type), the 64-bit
-MIPS ELF ABI lays out the 8-byte r_info region as a 32-bit r_sym at byte
-offsets 0..3 followed by 1-byte r_ssym, r_type3, r_type2, and r_type
-fields at byte offsets 4..7 (see Elf64_Mips_R_Info in
-arch/mips/include/asm/elf.h and get_rel_type_and_sym() in
-scripts/mod/modpost.c).
+> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+> index f580d2afecf7e..f8e26c4bed2ba 100644
+> --- a/arch/riscv/Kconfig
+> +++ b/arch/riscv/Kconfig
+> @@ -229,7 +229,6 @@ config RISCV
+>  	select THREAD_INFO_IN_TASK
+>  	select TRACE_IRQFLAGS_SUPPORT
+>  	select UACCESS_MEMCPY if !MMU
+> -	select VDSO_CHECK if MMU
+>  	select VDSO_DATASTORE if MMU
+>  	select VDSO_GETRANDOM if MMU && 64BIT
+>  	select USER_STACKTRACE_SUPPORT
 
-On 64-bit little-endian MIPS (such as 64r6el_defconfig),
-n.r_info.to_cpu(iter.byteorder) as u32 reads bytes 0..3, returning r_sym
-instead of r_type and causing vdsocheck to fail the build when validating
-64-bit vDSO object files whose symbol indices do not match the allowed
-relocation numbers.  On 64-bit big-endian MIPS, it packs r_ssym, r_type3,
-r_type2, and r_type into a single u32 instead of checking the individual
-relocation slots.
+[ ... ]
+
+> diff --git a/lib/vdso/Kconfig b/lib/vdso/Kconfig
+> index 559f5534831e5..741de1abe9237 100644
+> --- a/lib/vdso/Kconfig
+> +++ b/lib/vdso/Kconfig
+> @@ -6,6 +6,7 @@ config VDSO_DATASTORE
+>  config GENERIC_GETTIMEOFDAY
+>  	bool
+>  	select VDSO_DATASTORE
+> +	select VDSO_CHECK
+>  	help
+>  	  This is a generic implementation of gettimeofday vdso.
+>  	  Each architecture that enables this feature has to
+> @@ -21,6 +22,7 @@ config GENERIC_VDSO_OVERFLOW_PROTECT
+>  config VDSO_GETRANDOM
+>  	bool
+>  	select VDSO_DATASTORE
+> +	select VDSO_CHECK
+>  	help
+>  	  Selected by architectures that support vDSO getrandom().
+
+[Severity: Medium]
+Does selecting VDSO_CHECK only from GENERIC_GETTIMEOFDAY and VDSO_GETRANDOM
+leave VDSO_CHECK disabled on 32-bit RISC-V and on MIPS configurations
+without MIPS_GENERIC_GETTIMEOFDAY?
+
+On RISC-V, both GENERIC_GETTIMEOFDAY and VDSO_GETRANDOM depend on MMU &&
+64BIT, while 32-bit MMU builds only select VDSO_DATASTORE and still build
+arch/riscv/kernel/vdso/ using cmd_vdso_check from lib/vdso/Makefile.include.
+Selecting VDSO_CHECK from VDSO_DATASTORE would cover 32-bit RISC-V as well.
+
+On MIPS, arch/mips/vdso/ is built unconditionally and runs cmd_vdso_check,
+but GENERIC_GETTIMEOFDAY is only selected when MIPS_GENERIC_GETTIMEOFDAY is
+enabled (which depends on CSRC_R4K || CLKSRC_MIPS_GIC), and MIPS does not
+select VDSO_DATASTORE or VDSO_GETRANDOM.  When MIPS_GENERIC_GETTIMEOFDAY is
+disabled, VDSO_CHECK will no longer be enabled and the build will skip
+vdsocheck.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-vdso-absol=
-ute-reloc-v6-0-161e218dd217@linutronix.de?part=3D9
+ute-reloc-v6-0-161e218dd217@linutronix.de?part=3D11
