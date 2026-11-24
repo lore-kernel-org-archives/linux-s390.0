@@ -1,61 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.152
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795529663;
-	b=gqyKr0a4TnLUghVJp39MtLvdmJWHhXfIarjjcgZIPqg5yl9zTxuAceNhS/TmVn0FYuLv
-	 JIGtAXJDFAPNpFqsZr5qncHz89UdhRnvj/uWXPLaG6ku8HK3rU+RVFDJp/I5sFt1I8zvk
-	 tKTyJEPdMtJIj5w+Y4MK5P3sl4m6QVGf6Hm67aEMWTCR2Jzi4e5j147fVaQ4LqLdYtzPD
-	 noOXqB8AxfsmsgiFZ8Ac7aMUtVMy4gaRNabY1W/44EiLmT8MZHOwoFHaibZTnsKlN+I7r
-	 QrCPQgJj72vnFkzUxJfo6A9RtUp7zwOpE7P/TaJa2+y5Hx9L911UpBHtL1BY2/Mo3Sw==
+	t=1795530052;
+	b=czvjv8LYjCQ8LBj9zOytPsRy+rD9tYQrnAfwFllAfnNK0IK9Q/jxpBYgcA7sGaiSuxKZ
+	 vuqK6twzAKdEJGtNyA2zZqGtGPiK0EKibb9AjMC4pEvLCaov0xWbVwHo6HR7aTddZqj90
+	 ROEYQPCrlc1FbU5p93Hjk+5FsYb3ek7QS0kSIjYwdw8o/Fc8WrCzLFWvYSpJxgafP0DEa
+	 cAL9l3FVsFT6gfev/VP0ovAQ+6nchccUuEc2N/+wlUkxdR77pJ58zc7XvSpqfOUD9AeQJ
+	 zRFbJRnwrfPnOJEFpA0Wu7ojV9jfW+JAMPYzpTo+Lhao0GcgwrqLSit/PGuyoSz1/Og==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795529663;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=QJkEoPSyNyr4Whek43Q0LFVoTI67yife7jFNatawwd8=;
-	b=azP3qvDhliidKM5rN6CNeDwtg1TxUrWoo2+9kk0Ji6W21rpuNXbxBbpo8GdvxQRvix5N
-	 i05GAeK9BDsvR1vMwGdP179IhzZn2BKTGbIJI3+rWgy6IKlcSfhCSq333ofqNrPg11LDy
-	 jOPLuHZ46H2d0QtSYijuC1+nBH9NhBLDTk4Bgyb3rB63p5pNtlxZGKhnEYC2+rxk1D5zD
-	 cfnbBPZIZil2GMBb0/B5Zd7nu9mD0WGuMwQ0G7LfgjwR5xlHlfJjcI5e42wqKmIzp3CGK
-	 Yn6rB9tuO4uZVbZB0z5CI5kgc097X+B0IwLys57te9e9rIbEaU7wQjsNOk6QjSsebvw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795530052;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
+	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
+	 References:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=u3j6+1vDkkUdepekjgVOAW7Wo6iXb2x00XUTpjNkTgk=;
+	b=UCpSEvQ08pt1JfxYw6cDCFp0f5N2jQ1FhLYBW5GJfUmirGDV/3ZByYtWgkFW5fqdQqWI
+	 IxSlFfnUfiZ9UTzVC1qDkMg/BnDaZCJvMC8kuxly5mmLi0y0IwKj1Kd00oH6WN4rCH+2t
+	 OIwUZy7OIX7vYlDoq9eZ/pB3xcW2f7iaendQyxyBH/QuAL0Rz2PkWiEHyxGJ5cg5rI1fl
+	 qFwU4Hqvz+kdTm2DDri3VU/mfVtCksb/lQcpkE6d0EGbrTxyeXwhkm6O2Vkj0n59CJjGp
+	 JBQnP5KtdsVK2+P1SLWO5OeH1hskuADQxTJv3cHUG0tzX6/aZXQZkn04+ODwA0/zclQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mfb6ZTHw;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=arndb.de;
+	spf=pass smtp.mailfrom=arndb.de;
+	dkim=pass header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=PVorD37Z;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=UtwWEvoZ;
+	arc=none smtp.remote-ip=103.168.172.152
+Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06658606A337;
-	Tue, 24 Nov 2026 14:14:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61D73606A327
+	for <linux-s390@vger.kernel.org>; Tue, 24 Nov 2026 14:20:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 61D73606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mfb6ZTHw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A301F000EC;
-	Tue, 24 Nov 2026 14:14:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795529662;
-	bh=QJkEoPSyNyr4Whek43Q0LFVoTI67yife7jFNatawwd8=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=mfb6ZTHwo06Ake6CsvbWC38ZlieUQ9g+uf+9HOs6pDgLJG+KxxLS3jGkQ4qwB38Oi
-	 zLhiIAcokxXGxGQUAigpXKT9gQQ1MB1JQG7xMTgnDRnG8oKfUK4YiJqoDR9VPXFmQc
-	 +zSd7+DFi1qympJdT1hX1iu47KwRec6gC45dAgDQ6bg58fqQUvmpT2KTPwibmeRQR9
-	 dFPJqTvDqr5I4BY/Qe/6Yr15cg1MbyKXa0dhQRuBXYBA7KiRlMdYxWTKVXg9DPMVID
-	 W6tX1ntGdDw2iznTuuKN+ZYTo3kS3JslSfCQyZHvHryXu3Cjbe/iaawrlY7L2qvY/4
-	 OlVxiAdbQ9+cw==
-Subject: Re: [PATCH net v2 2/2] net/smc: bound the DMB-nocopy send-buffer
- credit as well
-From: netdev-bot+sashiko@kernel.org
-To: piyus@iiitd.ac.in
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, mjambigi@linux.ibm.com, netdev@vger.kernel.org,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- kapil@presceralabs.ai, stable@vger.kernel.org, kuba@kernel.org
-Date: Tue, 24 Nov 2026 14:14:21 +0000
-Message-ID: <179552966151.3135.8162716126718648323@kernel.org>
-In-Reply-To: <20261123135327.3953509-2-piyus@iiitd.ac.in>
-References: <20261123135327.3953509-2-piyus@iiitd.ac.in>
-X-sashiko-severity: Low
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm2 header.b=PVorD37Z;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=UtwWEvoZ
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 5A9D01400302
+	for <linux-s390@vger.kernel.org>; Tue, 24 Nov 2026 09:20:51 -0500 (EST)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Tue, 24 Nov 2026 09:20:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1795530047;
+	 x=1795616447; bh=u3j6+1vDkkUdepekjgVOAW7Wo6iXb2x00XUTpjNkTgk=; b=
+	PVorD37Z9jDNNC1k6/oiHqSM9Vf6vAHLVrm073XtVk2Sqijo6xNw1XCQ74urOwyU
+	wp32RSngykH2l0sDAh2UeJQ/0NqUEJ0cSg2UiTmsikF7UxKL0FDGs54oGa/uKUR/
+	Y5HCPegh230snV9Oe6SsSD0k/vP77CspXv9Kcj0/1rKXCWu6X8QK+sdN8FDt5B9V
+	B4aVxaDPKqXsjV7HtNdaeYBjoNmaJGZw0u04abomRKWieufOV1PL7rXmCmrDB/xW
+	9Ltg7R30nDDMXYz7Ay1Ju38Egdi8kFVJFF19IGZkriACuav3qGT/9Iacb8qfOBuo
+	pGMp+1s9iCq7Klb9lHrCyw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1795530047; x=
+	1795616447; bh=u3j6+1vDkkUdepekjgVOAW7Wo6iXb2x00XUTpjNkTgk=; b=U
+	twWEvoZRg5cdcif8ONh/tL3K+fVsXGM2+q1a2BkmIZ4q2edlu5335tSuhRjETho1
+	/jgu+dstWjejJTtO1W/dn0UgmzlVnSFzBMntGGNYZ+4rJS26X/x0PnVSsf8kH9OQ
+	Br/okPX4lzQcGusHYKPJVBf54q8QkRDLPKot7zSIU0dQcy2qpHqWtAD56SFZMgXM
+	5Qr1iqNyakiw1VwjEOKycG1yxLjBGj7JnzPZkO9WB8dL8MIOeQKJoGlMv7SlbBOT
+	FHrDzvFcu6TotkHxHzxbd9TvcjVy0m8dvXI/y52rmlnul1r5g9mgIoRKZDr0tQv7
+	qaslpR8HS3W9rRhYb5e7Q==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=sign d=arndb.de a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1795530047; d=arndb.de;
+	mf=PGFybmRAYXJuZGIuZGU+;
+	rt=PGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnPg==;
+	s=fm2:rsa-sha256:L+IZXHsBNxtHOMBbMs0TyZFWzw4IiyijtuXTDvIBkeQN7jX
+	RP1/j2pMdS0nGUfCPxBnampfWtgQIq3NZn+7p9LUvEErZG9kFo0Oy/Uc/I4Eq56M
+	Uq4BiZHlYeqrwsCOTdHWM99V8I/+471eOCHiC0eAy+lOgAcBzFpWlk55pu3k997Z
+	InLvQnmufOIdpDp7pg1hwMth9K+x+HwuKGjkGr2XREH/P2UMkf1OnMJTMe0TWjmm
+	eqhPWRs6jtLSc2xc025vJpsN/+7Dfaj/wVbnnqJg1k3WhSef0mqcAHVP4dTx2pnX
+	zMP/4jEQGQghvmTH1kjgOLPUWfDHFJbOedDY9OQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
+	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:QWI2uJx9uKHNEkI5ArHbcx6fT0KmIPMlK1h+9jS7NII=:1r9tw/j/3peIDWcTRzPnQcmEJg6r6Mi5hMfjZtJnzRU=;
+X-ME-Sender: <xms:O50Fa4H5xcml6H14agoXxF_92vPFDiJwsMdeCK35Mhc8jWjY2vwySg>
+    <xme:O50Fa8L174MX3mda9fHYCSd24ThdkkBuj_YqyfUXradE-itBeqF1bAmEvjlEk5jR_
+    z8AnK8IKZ0PNsfjPgI_vSaTlCqL7x0bNwFODdxLV5CjbYk2xelLP_E>
+X-ME-Proxy-Cause: dmFkZTEzcLHzUbygVSoohLJKupEtfEaADKNynBPP+A79ygbUcaBEdyY3/dAANqKmhrkblO
+    Jrae/KV3GLY+RywD9rqxWs2jej9mhDb2TWInKeQNn+yEiA4oO7214aCWGh1pWRuSHLG4lz
+    TdoLSFYKLGnO5oj5ojEc5oqP6D1a7M2XWTfL1XsEmO58G94E7SVDAZz/i6TAwTuQMjP1/F
+    5TPW0GY754A7e2ys/CGoidT/VBp7upqptqyunqjvfPBeie53CuSfAlSGwR8bN5F1FaHKno
+    AL0ThjRjo5RR2bV/aqsZJpIOYawl2HGcD5gns0fAQQl7C8bRBC9pk5vmzfbmO4suSI0JLC
+    Lpnyz46cCf9anYpgPOg04vL5NcAu6B+CbaR2p64ylCE9OtchHxU2/sFYPcab5dF9SQic1T
+    BtTBN/n3FXbeW+YhdOtF2TiqcVWW+UCyKEwYNr0+0wID7jJERGyGaBXfVxI6mN4AgiYtE2
+    JVmX/mSt4BfYY9CVVhhTpiBQDd1fQ4eIcmYyJAqYjSizSp5IOLOxbulU+HP7chDG4+IgQx
+    tLfqzihdnyFfP/VLwltW+V7URcNCtlCG7nXuYoJ37Nl2M7LxoSQSNJMUHDFEjvJ6qhcJM4
+    aLxrpi/j53kJgPy7MYlmKNBhlU8/wRwzhf4dPLTZksm211Bypt/ItkogSTYw
+X-ME-Proxy: <xmx:PJ0Fa7oXw8zeiTB6BEkz_IJr2ffUf9voVAf6yWLsKISNXdWNaYrCYQ>
+    <xmx:PJ0Fa3NziNSlPzrCjYnUdLQrWercCpl38axITNNSqTwnWDtmvi-lDQ>
+    <xmx:PJ0Fa3cQYYQmZXBYGTHLHk9XzsuScY7a3-S3oPDnnjeV1DXc1ZsURA>
+    <xmx:PJ0Fa1W-0RzqLaNULftEzcNXQaRtqI2WYpcneTTueorUeu18kw4qMQ>
+    <xmx:P50Fa9OGGACUrFWX6Voa9pbaKsrtI08gEVmULLqFPTSsI5WRDzPWvBMs>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id E4BE132A009E; Tue, 24 Nov 2026 09:20:42 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,157 +115,41 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+X-ThreadId: A-w96cgpwkaV
+Date: Tue, 24 Nov 2026 15:20:22 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: sashiko-reviews@lists.linux.dev, "Kees Cook" <kees@kernel.org>,
+ linux-mm@kvack.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>
+Message-Id: <5de01709-19e6-4664-b91e-7cf35b843d77@app.fastmail.com>
+In-Reply-To: 
+ <20261124145907-12f830e3-70ab-4e58-a330-2fa974be1a25@linutronix.de>
+References: <20261123-at-vector-size-arch-v3-0-d342dae9e843@linutronix.de>
+ <20261123-at-vector-size-arch-v3-3-d342dae9e843@linutronix.de>
+ <sashiko-outbox-230870@kernel.org>
+ <20261124145907-12f830e3-70ab-4e58-a330-2fa974be1a25@linutronix.de>
+Subject: Re: [PATCH v3 03/15] asm-generic: add an in-kernel auxvec.h header
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found more severe
-issue(s) in other patches of this series. This mail is only an FYI, in case
-you want to address the nit picks below when you respin.
+On Tue, Nov 24, 2026, at 15:03, Thomas Wei=C3=9Fschuh wrote:
+> On Tue, Nov 24, 2026 at 09:49:24AM +0000, sashiko-bot@kernel.org wrote:
+>> Thank you for your contribution! Sashiko AI review found 1 potential
+>> issue to consider:
+>> - [High] asm-generic: auxvec.h unconditionally redefines
+>>   AT_VECTOR_SIZE_ARCH to 0
+>
+> This is indeed an issue. Not sure, how I missed this, especially as I =
+thought
+> to have sent this through 0day.
+>
+> @Arnd: Could you drop the patches?
+>
+> I'll prepare a fixed version, probably for the next cycle.
 
-Low priority / nit picks for your consideration:
+Ok, done,
 
-- [Low] In net/smc/smc_cdc.c:smc_cdc_msg_recv_action(), the new DMB-
-  nocopy clamp uses `sent = conn->sndbuf_desc->len -…
-
-Pre-existing issues:
-- [Low] This problem wasn't introduced by this patch, but in
-  net/smc/smc_cdc.c:smc_cdc_msg_recv_action() peer_rmbe_space is still…
-
---
-
-net/smc: bound the DMB-nocopy send-buffer credit as well
-
-On the SMC-D DMB-nocopy path, smc_cdc_msg_recv_action() credits
-sndbuf_space from the peer's consumer cursor. This patch limits that
-credit to the number of bytes this side has outstanding. It also moves
-tx_curs_fin forward by the limited amount instead of copying the
-peer-reported cursor into it. The commit message calls this hardening,
-because only dibs_loopback provides support_mmapped_rdmb() today.
-
-Link: https://lore.kernel.org/all/20261122053223.2497832-2-piyus@iiitd.ac.in/
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 32d6d03df3214..9ffa3e422aa1f 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-
-[ ... ]
-
-> @@ -361,13 +362,26 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
->  			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
->  						&conn->tx_curs_fin,
->  						&conn->local_rx_ctrl.cons);
-> +			/* This difference comes from the cursor the peer
-> +			 * reported, which is taken as it arrives.  A peer
-> +			 * cannot have consumed more than this side has
-> +			 * outstanding, so bound it by that and advance
-> +			 * tx_curs_fin by the bounded amount rather than
-> +			 * assigning the reported cursor: the invariant below
-> +			 * then holds by construction, and tx_curs_fin stays
-> +			 * inside the send buffer.
-> +			 */
-> +			sent = conn->sndbuf_desc->len -
-> +			       atomic_read(&conn->sndbuf_space);
-> +			diff_tx = min_t(int, diff_tx, max_t(int, sent, 0));
-> +
->  			/* increase local sndbuf space and fin_curs */
->  			smp_mb__before_atomic();
->  			atomic_add(diff_tx, &conn->sndbuf_space);
->  			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
->  			smp_mb__after_atomic();
-> -			smc_curs_copy(&conn->tx_curs_fin,
-> -				      &conn->local_rx_ctrl.cons, conn);
-> +			smc_curs_add(conn->sndbuf_desc->len,
-> +				     &conn->tx_curs_fin, diff_tx);
-
-[Severity: Low]
-Is len - sndbuf_space the right bound here?
-
-smc_tx_sendmsg() lowers sndbuf_space when data is prepared, not when it
-is sent:
-
-net/smc/smc_tx.c:smc_tx_sendmsg() {
-    ...
-		atomic_sub(copylen, &conn->sndbuf_space);
-    ...
-}
-
-On the nocopy path, smcd_cdc_msg_send() returns before it credits
-sndbuf_space, so this function is the only place that adds to it. That
-makes len - sndbuf_space the distance from tx_curs_fin to tx_curs_prep.
-This distance includes bytes that are prepared but not yet sent.
-smc_ioctl() uses the same expression for SIOCOUTQ and describes it as
-"not send + not acked".
-
-The peer can only consume up to the producer cursor it was given.
-smc_tx_rdma_writes() advances that cursor together with tx_curs_sent. A
-consumer cursor that claims more than tx_curs_sent is therefore clamped
-only to prep - fin. The smc_curs_add() above can then move tx_curs_fin
-past tx_curs_sent.
-
-Would that break the fin <= sent <= prep ordering implied by the
-tx_curs_sent ("sent data") and tx_curs_fin ("confirmed by peer") field
-comments in smc.h?
-
-If so, a later smc_tx_sendmsg() could wrap from tx_curs_prep into
-[tx_curs_sent, tx_curs_prep). It would then overwrite queued data before
-that data is advertised. On the nocopy path this buffer is the peer's
-DMB. Today this needs a forged consumer cursor, since only loopback-ism
-reaches this branch.
-
-The memory-safety goals do look met: sndbuf_space stays <= len, and
-tx_curs_fin.count stays below len. However, the new comment ("A peer
-cannot have consumed more than this side has outstanding"), the variable
-name sent, and the commit message ("credits nothing beyond the
-outstanding bytes") seem to describe a tighter bound than the code
-computes.
-
-smc_switch_cursor() in smc_core.c uses the same formula. It advances
-tx_curs_sent together with tx_curs_fin, so the ordering holds there.
-Here only tx_curs_fin moves.
-
-Would a bound like this match the comment, and leave the honest-peer
-case unchanged?
-
-	sent = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
-			     &conn->tx_curs_sent);
-
->  
->  			smc_tx_sndbuf_nonfull(smc);
->  		}
-
-[Severity: Low]
-This is a pre-existing issue, not one introduced by this patch. Earlier in
-smc_cdc_msg_recv_action(), peer_rmbe_space is still credited from the
-same peer-reported consumer cursor with no bound:
-
-net/smc/smc_cdc.c:smc_cdc_msg_recv_action() {
-    ...
-	diff_cons = smc_curs_diff(conn->peer_rmbe_size, &cons_old,
-				  &conn->local_rx_ctrl.cons);
-	if (diff_cons) {
-		...
-		atomic_add(diff_cons, &conn->peer_rmbe_space);
-		/* guarantee 0 <= peer_rmbe_space <= peer_rmbe_size */
-    ...
-}
-
-With a forged cursor, can peer_rmbe_space exceed peer_rmbe_size here?
-That would make the comment false. This path runs for all SMC-R and SMC-D
-connections, not only nocopy ones.
-
-After this patch, the nocopy path bounds sndbuf_space and tx_curs_fin,
-but peer_rmbe_space still takes the full diff_cons. The two counters
-describe the same shared buffer, so they can now disagree. The comment
-above the nocopy branch says both are updated "since peer has already
-consumed the data".
-
-smc_tx_rdma_writes() uses peer_rmbe_space to compute write_blocked and
-the transmit length. The urg_tx_pend wake-up at the end of this function
-also requires:
-
-	atomic_read(&conn->peer_rmbe_space) == conn->peer_rmbe_size
-
-Would an inflated peer_rmbe_space mean the urgent data sender is never
-woken through that path?
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261123135327.3953509-1-piyus%40iiitd.ac.in
+     Arnd
