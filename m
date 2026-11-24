@@ -1,59 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795528425;
-	b=hmJL22xIazGkkDvbrqTUtVxuLyatqkC0AL0v2v0GYjWkCdn7y9OsffSqFd7z7Tgl6dl8
-	 zFMy2/Q0SK3NKp9XmSOoJBnHm3+sjsPUKt11y1y2F4zpgumQaedYGd3XE5/Bpc+/maGNP
-	 WzcH3tcgdrk7awzUPtvOablR3m5V/VjyvNbRJ6APN0uTUh53FT7qRDL07YRpQmnJ2dZiB
-	 LfPUE15jDiNqYWo0da54mrR409HEZvqwmJIL3P26aip4gxsWJeSc8a72avI1qmEMUfZ62
-	 cUZ9MbOf7OSf3C7s9/tQyHLbDkjdkb0byURy5grYuGxNwZsjTSeYPLOwyCVlJhLLx5g==
+	t=1795528795;
+	b=sOzlvMZ8AHv65adzEUsXv/oyK9ZdUIp5o1rIzqKSO6Nrn+0QlHA+SMy5DjKslS3HZ3pJ
+	 Fv4SZCXFz3izIJWtesbx2z4n5LtL3tHLpMyXKUCHQpllKuEzcdPEwuYfYRIsj2t+8lfxJ
+	 zzHAVPGw+BFWDBm5Zy/W0C/dbGGUYblNxaHn4XF9ZV/j/moJ5+8SPrejmBQlhkkH5up6C
+	 pTsU/YtmrKJSgGKDwSsWvfzUdXGhUFyPIlV38+j1JuVDg2bqkCMAZGqmuUxpMilnGSqo2
+	 kuM8k4TWxBEnHe9DjGUtf4ARSpPKwub0CZn2/HEcSTQZ27s1yinfWQJ3ZPBdUOD3DkA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795528425;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=RYGIGzqQUM0vzsX2/bRDyouuVck8cJQdyz+UWcgDSkM=;
-	b=z4ZuhNIPgxgrSipFtPPdBMXFP46o4iGaA8OkRMdKYe5ZXpwDvpKfXieoC1PIipHiC7g1
-	 lA2xeeMw5KD6hxu/JomT1I1l4hoMOSWNxyJCIJZa9BHY35OHCaARm1aUf5Cc4F5HhpoYw
-	 OXU/R2m8B8iLtOp5f5CT/gCwQ4SoaCVh+QyHUs52odSfKefCfKzUB4g7xFddl2ElrV3L2
-	 NbwWj6+UOlo3TyjBejW5eWnhOpn8PEMy2v6ne3oVgQnKbF9o5/0CP1O6J9l3jFLuaGza8
-	 iOBt7/dFN1pgN95Tk3qnjUlCctphADTL8/1Ml+PEX5UZrxqmeCOVWGLLK8bSG25zHtQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795528795;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=HZdSQR7mo22J/jt9QB9seE18eHaylA+GLTqAqoxZ8Fk=;
+	b=qS1w7Z05O0M6sHVvfWNChLr3DJ+X6sp1w6VArPb95wWbdqDqIAE5vma41eXyti7oN/H+
+	 X2Y2/kN8OxYGtgEXSuALK+yETopo1qvi62dR3gkLjhySgId8C48is89b3iiwLd4NXCu1o
+	 qRnZa7WLgzB6kTl5D4V2LPJnwBs7Ljd7RLvo9+XKzHbY+IUvBZnLf7g+hMFLdHl14kuC6
+	 XyshHEkXTHUokhfIDPWvYsAZz4UkNId0v6/XutFm5pMuhaHZf724u4qG3C5KLnMhEW3Rz
+	 vUOX6EFeVt3QUSVm/zXFxylka1JNr27jKC2tF9GKoHp/F9VyU3BHGSe9pm+QWbTu2bw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TBrr0LwB;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bk4s5cBh;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73F93606A322;
-	Tue, 24 Nov 2026 13:53:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC0EC606A32E;
+	Tue, 24 Nov 2026 13:59:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC0EC606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TBrr0LwB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACD61F0093E;
-	Tue, 24 Nov 2026 13:53:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795528425;
-	bh=RYGIGzqQUM0vzsX2/bRDyouuVck8cJQdyz+UWcgDSkM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TBrr0LwB+4cGYxvR/BP29oC0bBwrIB9c4RBsm5GDUKMWcRWYa/Xx1XTJFdkWtviU6
-	 LEVLKTRe91yEBjP69lEjkgaVrXwLhINg0jC34QcHQaHl0Sd/BKcWrmh+c4/bsIqAJe
-	 3FVVXW6Yjjy1G/TOLXHj2XKyfTxsv2TtUJhzSHnE/ipAiF6s6ISq1Z+xDXwEBpFz1r
-	 2jozlvMNL29V6ALQAg1Q9OUnvYlXR4Ikz7sGBk4v52eyIYYeR8r/+1gTuXgqtWH7u5
-	 KX5WmuG4s6Em7WyzhOtK1I3irJP2uBRKDpp16Ct4QzOVZndRRMDn5STyZrD2JGfy/e
-	 uD9+LWTtCOKkA==
-Message-ID: <sashiko-outbox-231271@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2 2/2] net/smc: bound the DMB-nocopy send-buffer
- credit as well
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Piyus Kedia" <piyus@iiitd.ac.in>
-Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261123135327.3953509-2-piyus@iiitd.ac.in>
-References: <20261123135327.3953509-1-piyus@iiitd.ac.in>
- <20261123135327.3953509-2-piyus@iiitd.ac.in>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 13:53:44 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bk4s5cBh
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOB4aQ32236311;
+	Tue, 24 Nov 2026 13:59:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=HZdSQR7mo22J/jt9Q
+	B9seE18eHaylA+GLTqAqoxZ8Fk=; b=bk4s5cBhKsh3ksxnAgy8p7/a+PuZKs6QS
+	bAfY3FnzUaP9xv3qoyxjN59RPcEQ8a3X8iM44mGW4vp3FSbBoFD7qoRh4m4KcEPl
+	R/0WnIkb2qgVgdBhAq1/Vscmn27qFItO0Cb/7iyE0NbtYnezWuu3TwlV52ilIQj0
+	pZKAEq7ppXub2le/rQLDaN8c/9aRy62cfoCNUUSxof9hZ8JBrvIleZzaNLxO0bVX
+	grDYTXT/LyqytEy1TDhgElNJOUtJVbPn263MUzK2rZH95ip9TTg/163Q+BYZNxqG
+	fQU/wUR8noTj4KL7FOa+xn0Ly90OmxIKpQNWE2ohtM+itTV6eAf6A==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34fkfxyn-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 24 Nov 2026 13:59:53 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AOB4IxX2194685;
+	Tue, 24 Nov 2026 13:59:53 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j3quftjqw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 24 Nov 2026 13:59:52 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AODxnRH10027406
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 24 Nov 2026 13:59:49 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5335B2004F;
+	Tue, 24 Nov 2026 13:59:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2B0C22005A;
+	Tue, 24 Nov 2026 13:59:49 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 24 Nov 2026 13:59:49 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/5] s390/mm: Remove unused nodat parameter from ptep flush helpers
+Date: Tue, 24 Nov 2026 14:59:45 +0100
+Message-ID: <20261124135948.1295745-3-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261124135948.1295745-1-hca@linux.ibm.com>
+References: <20261124135948.1295745-1-hca@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,97 +95,134 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI0MDA1MyBTYWx0ZWRfX3me+E045M0S0
+ xuFDq8cYpcP6DQVElTtWe841+CJQoqT4a3s6eYM+5wS2ETHEMMshfCih7BZootBAwBP9hs5151G
+ KduKGsrxbzI0OF1ARX6IEfluTxivAQsSyxIXUJ2eKLNFIStvnVwiBDA0XdpBPAOLRDcyLV/0uah
+ //EnhdkZc5CyQ4npC3V944yXFx6KZywWzBoJ5qaR6rHE8q1Ypiy2Ovo6b4VKyXkh6IaZvRCsX74
+ pVG5DqrFDwExMKfsWRjtmiEQS1WIl+5p59NQDaBotqR1eJSIWe6fCnMi8TNA3jO+UNGMZHRp5Gc
+ 7ew2JDSnw3lnIDK4GuB9/P3fOHt1BUix/R2ZyWH56Sk6kr4buQZJRGVvgn9SG1dMz9w1btT11pG
+ PihOnKjcd6O47sdJhQA8q5MVbEWwkrSblYXvM723ts+BY1LVqjhWedE++s6TKMz3hRlIQI3JMw+
+ SgcjYmDbab2XzH9kbEw==
+X-Proofpoint-ORIG-GUID: gvq7ogR7sg5p7tnsIURY6RPq9MFl4Fuu
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI0MDA1MyBTYWx0ZWRfX0hNNxDEZgyws
+ 5dgHGlW2WfPDeK8t57HSUXWxo7KS/3yAgInptsp701phfRMsJZanc2jtPAALTGztQfpE6fyEviU
+ oUeBbKzUj7ohuUGfDpSfwJH4Q+jDGCY=
+X-Authority-Analysis: v=2.4 cv=A9z5rKWG c=1 sm=1 tr=0 ts=6b059859 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=jbhXUUL_eohGLTBuE_IA:9
+X-Proofpoint-GUID: gvq7ogR7sg5p7tnsIURY6RPq9MFl4Fuu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-24_02,2026-11-23_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 adultscore=0 phishscore=0 priorityscore=1501 impostorscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611240053
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] net/smc: smc_cdc_msg_recv_action() bounds diff_tx by prepared
-  not sent bytes
-- [Medium] net/smc: smc_cdc_msg_recv_action() leaves local_rx_ctrl.cons
-  unclamped
---
+The nodat parameter of ptep_ipte_local() and ptep_ipte_global() is not
+used anymore. Remove it and update its callers.
 
-commit 07f52f148d1ba914d6b4ce3e90b172be0a15f763
-Author: Piyus Kedia <piyus@iiitd.ac.in>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/mm/pgtable.c | 26 ++++++++++----------------
+ 1 file changed, 10 insertions(+), 16 deletions(-)
 
-net/smc: bound the DMB-nocopy send-buffer credit as well
+diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+index 561d280d485f..1aa5fe0b30d8 100644
+--- a/arch/s390/mm/pgtable.c
++++ b/arch/s390/mm/pgtable.c
+@@ -36,8 +36,7 @@ pgprot_t pgprot_writecombine(pgprot_t prot)
+ }
+ EXPORT_SYMBOL_GPL(pgprot_writecombine);
+ 
+-static inline void ptep_ipte_local(struct mm_struct *mm, unsigned long addr,
+-				   pte_t *ptep, int nodat)
++static inline void ptep_ipte_local(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ {
+ 	if (machine_has_tlb_guest())
+ 		__ptep_ipte(addr, ptep, IPTE_NODAT | IPTE_GUEST_ASCE, mm->context.asce, IPTE_LOCAL);
+@@ -45,8 +44,7 @@ static inline void ptep_ipte_local(struct mm_struct *mm, unsigned long addr,
+ 		__ptep_ipte(addr, ptep, 0, 0, IPTE_LOCAL);
+ }
+ 
+-static inline void ptep_ipte_global(struct mm_struct *mm, unsigned long addr,
+-				    pte_t *ptep, int nodat)
++static inline void ptep_ipte_global(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ {
+ 	if (machine_has_tlb_guest())
+ 		__ptep_ipte(addr, ptep, IPTE_NODAT | IPTE_GUEST_ASCE, mm->context.asce, IPTE_GLOBAL);
+@@ -54,9 +52,7 @@ static inline void ptep_ipte_global(struct mm_struct *mm, unsigned long addr,
+ 		__ptep_ipte(addr, ptep, 0, 0, IPTE_GLOBAL);
+ }
+ 
+-static inline pte_t ptep_flush_direct(struct mm_struct *mm,
+-				      unsigned long addr, pte_t *ptep,
+-				      int nodat)
++static inline pte_t ptep_flush_direct(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ {
+ 	pte_t old;
+ 
+@@ -66,16 +62,14 @@ static inline pte_t ptep_flush_direct(struct mm_struct *mm,
+ 	atomic_inc(&mm->context.flush_count);
+ 	if (cpu_has_tlb_lc() &&
+ 	    cpumask_equal(mm_cpumask(mm), cpumask_of(smp_processor_id())))
+-		ptep_ipte_local(mm, addr, ptep, nodat);
++		ptep_ipte_local(mm, addr, ptep);
+ 	else
+-		ptep_ipte_global(mm, addr, ptep, nodat);
++		ptep_ipte_global(mm, addr, ptep);
+ 	atomic_dec(&mm->context.flush_count);
+ 	return old;
+ }
+ 
+-static inline pte_t ptep_flush_lazy(struct mm_struct *mm,
+-				    unsigned long addr, pte_t *ptep,
+-				    int nodat)
++static inline pte_t ptep_flush_lazy(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+ {
+ 	pte_t old;
+ 
+@@ -88,7 +82,7 @@ static inline pte_t ptep_flush_lazy(struct mm_struct *mm,
+ 		set_pte(ptep, set_pte_bit(old, __pgprot(_PAGE_INVALID)));
+ 		mm->context.flush_mm = 1;
+ 	} else
+-		ptep_ipte_global(mm, addr, ptep, nodat);
++		ptep_ipte_global(mm, addr, ptep);
+ 	atomic_dec(&mm->context.flush_count);
+ 	return old;
+ }
+@@ -99,7 +93,7 @@ pte_t ptep_xchg_direct(struct mm_struct *mm, unsigned long addr,
+ 	pte_t old;
+ 
+ 	preempt_disable();
+-	old = ptep_flush_direct(mm, addr, ptep, 1);
++	old = ptep_flush_direct(mm, addr, ptep);
+ 	set_pte(ptep, new);
+ 	preempt_enable();
+ 	return old;
+@@ -137,7 +131,7 @@ pte_t ptep_xchg_lazy(struct mm_struct *mm, unsigned long addr,
+ 	pte_t old;
+ 
+ 	preempt_disable();
+-	old = ptep_flush_lazy(mm, addr, ptep, 1);
++	old = ptep_flush_lazy(mm, addr, ptep);
+ 	set_pte(ptep, new);
+ 	preempt_enable();
+ 	return old;
+@@ -147,7 +141,7 @@ EXPORT_SYMBOL(ptep_xchg_lazy);
+ pte_t ptep_modify_prot_start(struct vm_area_struct *vma, unsigned long addr,
+ 			     pte_t *ptep)
+ {
+-	return ptep_flush_lazy(vma->vm_mm, addr, ptep, 1);
++	return ptep_flush_lazy(vma->vm_mm, addr, ptep);
+ }
+ 
+ void ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned long addr,
+-- 
+2.53.0
 
-This commit bounds the send-buffer credit on the SMC-D DMB-nocopy path in
-smc_cdc_msg_recv_action() by the amount of data outstanding in the send
-buffer and advances tx_curs_fin by the bounded amount.
-
-Link: https://lore.kernel.org/all/20261122053223.2497832-2-piyus@iiitd.ac.i=
-n/
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 32d6d03df3214..9ffa3e422aa1f 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-> @@ -333,6 +333,7 @@ static void smc_cdc_msg_recv_action(struct smc_sock *=
-smc,
->  	union smc_host_cursor cons_old, prod_old;
->  	struct smc_connection *conn =3D &smc->conn;
->  	int diff_cons, diff_prod, diff_tx;
-> +	int sent;
-> =20
->  	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
->  	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
-> @@ -361,13 +362,26 @@ static void smc_cdc_msg_recv_action(struct smc_sock=
- *smc,
->  			diff_tx =3D smc_curs_diff(conn->sndbuf_desc->len,
->  						&conn->tx_curs_fin,
->  						&conn->local_rx_ctrl.cons);
-> +			/* This difference comes from the cursor the peer
-> +			 * reported, which is taken as it arrives.  A peer
-> +			 * cannot have consumed more than this side has
-> +			 * outstanding, so bound it by that and advance
-> +			 * tx_curs_fin by the bounded amount rather than
-> +			 * assigning the reported cursor: the invariant below
-> +			 * then holds by construction, and tx_curs_fin stays
-> +			 * inside the send buffer.
-> +			 */
-> +			sent =3D conn->sndbuf_desc->len -
-> +			       atomic_read(&conn->sndbuf_space);
-> +			diff_tx =3D min_t(int, diff_tx, max_t(int, sent, 0));
-
-[Severity: Medium]
-Can bounding diff_tx by conn->sndbuf_desc->len - sndbuf_space still advance
-conn->tx_curs_fin past conn->tx_curs_sent and credit sndbuf_space for
-prepared data that has not been sent yet?
-
-smc_tx_sendmsg() advances conn->tx_curs_prep and subtracts copylen from
-conn->sndbuf_space as soon as data is copied into the send buffer, before
-smc_tx_sndbuf_nonempty() advances conn->tx_curs_sent (which is skipped when
-corked via MSG_MORE or TCP_CORK).  When prepared-but-unsent bytes exist,
-conn->sndbuf_desc->len - sndbuf_space includes [tx_curs_sent, tx_curs_prep),
-so a peer consumer cursor ahead of tx_curs_sent pushes tx_curs_fin past
-tx_curs_sent and allows subsequent smc_tx_sendmsg() calls to overwrite the
-unsent bytes.  Should sent be computed with smc_curs_diff() between
-conn->tx_curs_fin and conn->tx_curs_sent, as smcd_cdc_msg_send() does?
-
->  			/* increase local sndbuf space and fin_curs */
->  			smp_mb__before_atomic();
->  			atomic_add(diff_tx, &conn->sndbuf_space);
->  			/* guarantee 0 <=3D sndbuf_space <=3D sndbuf_desc->len */
->  			smp_mb__after_atomic();
-> -			smc_curs_copy(&conn->tx_curs_fin,
-> -				      &conn->local_rx_ctrl.cons, conn);
-> +			smc_curs_add(conn->sndbuf_desc->len,
-> +				     &conn->tx_curs_fin, diff_tx);
-
-[Severity: Medium]
-Does advancing conn->tx_curs_fin by the clamped diff_tx while leaving
-conn->local_rx_ctrl.cons at the peer's raw cursor desynchronize the two
-cursors for subsequent CDC messages?
-
-smc_cdc_msg_to_host() has already written the unclamped cursor into
-conn->local_rx_ctrl.cons.  Once diff_tx is clamped, local_rx_ctrl.cons sits
-ahead of tx_curs_fin: if more data is sent and the peer advances its forged
-cursor by 1 byte, diff_cons is 1 and smc_cdc_msg_recv_action() recomputes
-diff_tx across the entire remaining gap between tx_curs_fin and the forged
-local_rx_ctrl.cons, crediting all newly sent bytes at once (whereas a later
-valid cursor below the forged cons_old yields diff_cons =3D=3D 0 and credits
-nothing).
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123135327.3953=
-509-1-piyus@iiitd.ac.in?part=3D2
