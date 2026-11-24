@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795528396;
-	b=JRkHCR3SJTFjjUkFzUOA1YL9BriaD+Z/R3qaxcUHSN1uuFEXffc38azlARzZXdeZQsLa
-	 UQ/E4TedibIMg+Nkdytxsy9sXLjEqpTjzPX31IEI6wouj12rxoFDhIE/zKmT4nV177zIg
-	 /TdBeOyM9sk3O6qnb8Ivps7lRH+tyFXSV9l6m7ipDMPHbXs2iA+GUPWnY+C6KYi/dUrqq
-	 pN/nBHly4nQnkToELjkH3x4nSQXZudSzh9sUKpM60jL0ihJEfzU+4EZVgPp1CbbuBifIC
-	 PnMMi2xKZIjw0nHfU0oaCdxQsoP8IhEd8xtyzwL2gurZ25niSGKOVY8oRAIZ/decjpg==
+	t=1795528400;
+	b=KL7HrMHe21s/h+Qwak1tOXnSPBkXN60xXzxA7z0lE3t8Ic/r+LHjvoUHAUzT5sR27WAs
+	 NZ+fBRPnY0S61SkEGQrAOh8+M7qHTRHRiFUMgGZjnuc2lVnNbmIBJ064kIZz7y+rYJsMg
+	 td/WdFGky5R3h70sht+W7NtsFRjL6DvbXi21zkEmYGyPuC3Xk8brK1ccOhzR1EN39mGm0
+	 Mnj/Q0UE7CTSdvlbV/rua/g8VhUto8yMYhco27l0x3BJNsdxMNjVWWqaCcDGOexMvuTG5
+	 k3G+qVJVKO1V8JfqrmjIw3SiqhqLwWjMw07WSwM7Yb7fUFYAzgMvssjVJZV1n7eTHUQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795528396;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795528400;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=j8VuKYHsB4+QDN1OuGMMGRMKrc7oMUOuGmeu/s/80zI=;
-	b=WEufORZQXN54pF19IkJy2cUzug0PYdvBloZRKo9gbkgkBxtvpjVFQ7xzFTikFpwJvRXv
-	 arFBOI9N8vKTMtVZzOITJ3McEXiK3VV51hCtHEVrwHFl/i0pXjz9NKc1h/WJTQsNjyye7
-	 CZJQFIRt5YQyZ4vPD5EQHOCW7Z0OsE02RXKuzf/ngqfBDt7js4bsm4ciV3JUVRgIlAJHp
-	 zMIsEf5arbr+DXCBjE3bwupjRmc1BlItXgMnJTKZ2Y7c8cTF0UCFaYHShY0RQpO/PDSE7
-	 ewNejL8DohGnB08RBCuF8hwMqVld95nLrr26vdoZ4smm/E+6CY84g3ztFTcP9u3tO4g==
+	bh=IDRW3UODYLDeDsSDV5ah2aP06esfAD4UXbPE12d0+4c=;
+	b=WvigJDwiNi8FzO48mNY5+J3vb0hUmxDSdZWWoCrEXm5jKBt15PjJT30jBV7Veu3MDKGx
+	 arXEKsCwcf0r/keLRvUmx6Wwkn8GbeTQ9ay+YVErct2fFiuBZAr+3VlVN8mjk78A2DELR
+	 773PJVMX2KlQorhl3Qo2E9vlKdzjSqwRro2FGhlb6ZtbjaC3VfttHraHnKh+9es5AY6n/
+	 cpUSDCRX5BbiODHhW2Mi2HH/Br3DMqA8QW9UdM3/TDNM+VLI8hiFUTGQ9jm/CnCU8oW7y
+	 K8smaqXkSuStVJL0QSZRu05vCEs5gVkte+gAZseY9LhBtF+IKuuDnLZc1aOxUx6SpUA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DFskeiZS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kSw53pwm;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F41BF606A321;
-	Tue, 24 Nov 2026 13:53:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C13B606A321;
+	Tue, 24 Nov 2026 13:53:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DFskeiZS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D72AF1F000C6;
-	Tue, 24 Nov 2026 13:53:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kSw53pwm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C2081F000E0;
+	Tue, 24 Nov 2026 13:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795528395;
-	bh=j8VuKYHsB4+QDN1OuGMMGRMKrc7oMUOuGmeu/s/80zI=;
+	s=k20260515; t=1795528399;
+	bh=IDRW3UODYLDeDsSDV5ah2aP06esfAD4UXbPE12d0+4c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DFskeiZSZSaGoVbhpd1h3zBuer2BkhTy9kP95ojqLHs3nKCQBWicJh9tF6KyPkWf+
-	 XlSd6oKg8IeYUa5xajwCcuWokix5WhDP3kooszRlH3u/5NoTgLfUGRT2qH95ZX+V78
-	 X+/4yGjj2RSeqaHDGJax6zw9DrGJzkZaCZ9V7HpXn1gRvvF/Vf+2pSFlICI81whzlO
-	 1MwDZESPKvsL/4r0G1AqEme4Cdqh+d6xr97QPXqKolLAcGbahgTbJLsqxLRXDoD1bx
-	 D6/TtT8mlZg7Q9OZ0eR+uyKSdR/NIC1iLyqKiQ/qFAg9pLjF0TzkCO8VuZfgT2F4Zw
-	 Nb5b7OJDff93g==
-Message-ID: <sashiko-outbox-231261@kernel.org>
+	b=kSw53pwmEmiFYNYQPpy68ECmj5Bx1omrwn06yw/ZMC7D3YfAL++Pgtj4yPP4TW6P/
+	 tQxAvw/YPdI9ZWzlmRE5CpRzYDsV3NtxN/9DXisBwyazQLgN30UrBfAb+IHagdGCNb
+	 389oGJ3NK08Vhr/hJb28oH/MbIG8lp/xtPbAwdj7wpXIVNCG0cjQr29tg7e5GXtzub
+	 QjJEE44jWffKFWS1mTHpzAnorVZgbgiLktq9jgJuPAjl3QwkTUckYlC+M6S9OYMhRA
+	 0juoxRmEnabSi0OiKqRcMezUKcq9AmAavHrrI1vgcCU1dH9M47jDNHLNJMphFO2leY
+	 I05I0qdrrccKA==
+Message-ID: <sashiko-outbox-231263@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 07/11] LoongArch: vDSO: Enable the vdsocheck tool
+Subject: Re: [PATCH v6 09/11] MIPS: vdso: Enable the vdsocheck tool
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>, "Paul
  Walmsley" <paul.walmsley@sifive.com>, "Palmer Dabbelt" <palmer@dabbelt.com>, "Albert
@@ -70,12 +70,12 @@ To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>, "Pau
 Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org, "Jan
  Stancek" <jstancek@redhat.com>, "Arnaldo Carvalho de Melo" <acme@redhat.com>, "Peter
  Zijlstra" <peterz@infradead.org>
-In-Reply-To: <20261123-vdso-absolute-reloc-v6-7-161e218dd217@linutronix.de>
+In-Reply-To: <20261123-vdso-absolute-reloc-v6-9-161e218dd217@linutronix.de>
 References: <20261123-vdso-absolute-reloc-v6-0-161e218dd217@linutronix.de>
- <20261123-vdso-absolute-reloc-v6-7-161e218dd217@linutronix.de>
+ <20261123-vdso-absolute-reloc-v6-9-161e218dd217@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 24 Nov 2026 13:53:12 +0000
+Date: Tue, 24 Nov 2026 13:53:15 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,74 +85,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issues to consider:
-- [Medium] LoongArch: vDSO: wrong R_LARCH_PCADD_LO12 value in vdsocheck
-- [Medium] LoongArch: vDSO: missing relax and eh_frame relocations in
-  vdsocheck
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Low] vdso: vdsocheck misparses 64-bit MIPS ELF64 r_info relocations
 --
 
-commit 2fb850dc718e09234a1d0b974829df4ce1c9ae9b
+commit 2aab3cbfe50b7d8f9c6cf9cb786fc8880a6ac472
 Author: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
 
-LoongArch: vDSO: Enable the vdsocheck tool
+MIPS: vdso: Enable the vdsocheck tool
 
-This commit selects VDSO_CHECK for LoongArch, wires vdsocheck into the
-LoongArch vDSO Makefile, and adds the allowed object file relocations for
-EM_LOONGARCH.
+This commit enables the vdsocheck tool for MIPS and defines the allowed
+object file relocations for EM_MIPS in vdsocheck.
 
 > diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
-> index 37455d3261109..7952ad6ba72b1 100644
+> index 1ef3f240f886f..120d8fa551e6e 100644
 > --- a/lib/vdso/check/vdsocheck.rs
 > +++ b/lib/vdso/check/vdsocheck.rs
-> @@ -122,6 +122,32 @@ fn allowed_relocations_for_machine(machine: u16) -> =
+> @@ -157,6 +157,21 @@ fn allowed_relocations_for_machine(machine: u16) -> =
 Option<AllowedRelocations<'s
 >              ..Default::default()
 >          }
 >          .into(),
-> +        bindings::EM_LOONGARCH =3D> AllowedRelocations {
+> +        bindings::EM_MIPS =3D> AllowedRelocations {
+> +            ignored_object_file_sections: &[".rel.pdr", ".rela.pdr"],
 > +            in_object_file: &[
-> +                47,  /* R_LARCH_ADD8 */
-> +                48,  /* R_LARCH_ADD16 */
-> +                49,  /* R_LARCH_ADD24 */
-> +                50,  /* R_LARCH_ADD32 */
-> +                51,  /* R_LARCH_ADD64 */
-> +                52,  /* R_LARCH_SUB8 */
-> +                53,  /* R_LARCH_SUB16 */
-> +                54,  /* R_LARCH_SUB24 */
-> +                55,  /* R_LARCH_SUB32 */
-> +                56,  /* R_LARCH_SUB64 */
-> +                64,  /* R_LARCH_B16 */
-> +                65,  /* R_LARCH_B21 */
-> +                66,  /* R_LARCH_B26 */
-> +                71,  /* R_LARCH_PCALA_HI20 */
-> +                72,  /* R_LARCH_PCALA_LO12 */
-> +                73,  /* R_LARCH_PCALA64_LO20 */
-> +                74,  /* R_LARCH_PCALA64_HI12 */
-> +                99,  /* R_LARCH_32_PCREL */
+> +                10,  /* R_MIPS_PC16 */
+> +                60,  /* R_MIPS_PC21_S2 */
+> +                61,  /* R_MIPS_PC26_S2 */
+> +                62,  /* R_MIPS_PC18_S3 */
+> +                63,  /* R_MIPS_PC19_S2 */
+> +                64,  /* R_MIPS_PCHI16 */
+> +                65,  /* R_MIPS_PCLO16 */
+> +                248, /* R_MIPS_PC32 */
+> +            ],
+> +            ..Default::default()
+> +        }
+> +        .into(),
+>          _ =3D> None,
+>      }
+>  }
 
-[Severity: Medium]
-Should EM_LOONGARCH also allow R_LARCH_RELAX (100), R_LARCH_ALIGN (102),
-R_LARCH_ADD6 (105), and R_LARCH_SUB6 (106)?
+[Severity: Low]
+Does vdsocheck misparse 64-bit EM_MIPS relocation entries in
+RelSectionIterator::next() and RelaSectionIterator::next()?
 
-arch/loongarch/vdso/Makefile overrides KBUILD_CFLAGS and KBUILD_AFLAGS for
-$(obj-vdso) using ccflags-vdso and cflags-vdso, which drops -mno-relax and
--mthin-add-sub from arch/loongarch/Makefile while enabling
--fasynchronous-unwind-tables.  As a result, toolchains with linker
-relaxation enabled by default emit R_LARCH_RELAX and R_LARCH_ALIGN in the
-vDSO objects, and .rela.eh_frame uses R_LARCH_ADD6 and R_LARCH_SUB6 for
-DW_CFA_advance_loc, causing vdsocheck to fail the build.
+lib/vdso/check/elf.rs:RelSectionIterator::next() {
+    ...
+            ClassAlternative::Elf64(iter) =3D> iter.next().map(|n| {
+                let type_ =3D n.r_info.to_cpu(iter.byteorder) as u32;
+                Self::Item { type_ }
+            }),
+    ...
+}
 
-> +                128, /* R_LARCH_PCADD_HI20 */
-> +                128, /* R_LARCH_PCADD_LO12 */
+Unlike standard ELF64 where r_info is ((r_sym << 32) | r_type), the 64-bit
+MIPS ELF ABI lays out the 8-byte r_info region as a 32-bit r_sym at byte
+offsets 0..3 followed by 1-byte r_ssym, r_type3, r_type2, and r_type
+fields at byte offsets 4..7 (see Elf64_Mips_R_Info in
+arch/mips/include/asm/elf.h and get_rel_type_and_sym() in
+scripts/mod/modpost.c).
 
-[Severity: Medium]
-Should R_LARCH_PCADD_LO12 be 129 instead of 128?  In
-arch/loongarch/include/asm/elf.h, R_LARCH_PCADD_HI20 is 128 and
-R_LARCH_PCADD_LO12 is 129, so any vDSO object using pcaddi-based
-PC-relative addressing (where the two relocations are emitted as a pair)
-will be rejected by vdsocheck with an InvalidRelocation error on 129.
+On 64-bit little-endian MIPS (such as 64r6el_defconfig),
+n.r_info.to_cpu(iter.byteorder) as u32 reads bytes 0..3, returning r_sym
+instead of r_type and causing vdsocheck to fail the build when validating
+64-bit vDSO object files whose symbol indices do not match the allowed
+relocation numbers.  On 64-bit big-endian MIPS, it packs r_ssym, r_type3,
+r_type2, and r_type into a single u32 instead of checking the individual
+relocation slots.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261123-vdso-absol=
-ute-reloc-v6-0-161e218dd217@linutronix.de?part=3D7
+ute-reloc-v6-0-161e218dd217@linutronix.de?part=3D9
