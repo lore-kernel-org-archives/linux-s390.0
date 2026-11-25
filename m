@@ -1,103 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795598328;
-	b=I8WXsBIQ/qY8nGXt2R7tKHo/Txs2OzC/gooIQMdSX9QYj/tThRCufPB0yaJ2o3mBocSI
-	 Uzw01P0AwcWQpi5bCaSCwKha/IQP6wxfYjwR4b3M0fZSfhBpVh1i/ONVpXgdOaZFlcNQz
-	 8mipTx5dioehBToKIWmFT+/qjoxfM+CQDrg+eWjZ14agr+OTpShnnEOTmhEytmlOuDuOY
-	 2j2UP27jPQBe5BhRS7pil+g4q6laUvCHb/Gft341cbIEateINgDgAG8lRJTpnbSbTF9h9
-	 NXBnRzIfQvet1vbTo2hEIxUBmR4QU9FoNydsxqJyGEZwPz8VcH76P777qg6BB8i2aww==
+	t=1795600984;
+	b=fio5iOE2gq12GOSIFUDQEdqwxT90kK2A02E9GZAlpjAwyXgOk1AlAos8i3NJbqCNnjLu
+	 mU/7gvrFD273vmh0fs/rrDTOBkqoTkSKJLLQbz8LEa3+ulj4uS5ibaHXWbyNyBbTOiOTn
+	 lyZ0U0iJgu67ORiNLQnmYmG0c2KcWWt5VsORKiHRJ++cw/WHY27aHp7h2+Ceu9u4rMO+X
+	 LgFHVLYtKvGtuNAxuKYjIEE2oSrgdbWhC7c3Uw5Wp3bgdcN+QChPrloXMD6cYIZhu3vEi
+	 RbaeI0he2kUyId4Yq6rqzelEkdXbqB4UaUGgbF+ze/p6x+ZJxkjCikcfhOJrCGtKvCw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795598328;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=7h2E6/RXXaN8qvTmARnXOrgPNEtAf1zGpXXBrvYlAFw=;
-	b=hSDTDm0/ITs0XxGr30IRNiZF7cD7WDD201/fyHEDY0qgMB5ybqBhXfLkgEK4df/ovmDL
-	 gwiLKmOK0KlTTt3zLs8AmJlKmNd5sWj45Q00mc0Bu6PijcEs8qAKEdFBLvMzKsNdvw3Jd
-	 naln/XK2xX/5PKLros2tlXLE3rLVIqFSecD+NsAkJk3DexYSVixTl+1b8yc7cYhDWVkJ9
-	 MENQu0XNmw1QQ2L97fPPqWBP33EDuGuMX8NDtfgmkqhW11dZuAWgg79Xq5Ce8pB0Fqo1o
-	 nhqlBm+v1c77Ry6NG1kfSK1YBlpKYRrW2y7Wrt+85IqDm09L8Uz7I6Z01EWPasPZM5A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795600984;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=qEPIxvGniF/YhXwPA5SSWIjPSSOSPgJQxE6JPjadhkc=;
+	b=15725jIJgGNw7penEM57gzGue3NMTognQuW4G/+MCqX2Af/YVJNf6pMt6YSdZvJNPiIT
+	 rc1x/Ai2BNacLsHjiYBRtbGiXyHbakIz/v56ADISm90AQcZ3P369cmp+Y/ICORThaX26b
+	 6TS8d5kD3LPe+V67/x8iy7sL+l+KHHSzx2RXHIFeruh2czK0ZvIAYjH0pVeUxYbbdoiHv
+	 pfAMR/AY2Cu3nqgn4M6gyouYrUA9s8F+xRdZznd9BmK51Y0h72/IJzepAJK26nW2etbnP
+	 sRFdRyN0nbNkohYpQATZi9Tac1lZM3Yy38gc6fGcQlAHDE5XEfy3CR8kQoC+EDEcTBQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=pereq.eu;
-	spf=pass smtp.mailfrom=cryspen.com;
-	dkim=pass header.d=pereq.eu header.i=@pereq.eu header.a=rsa-sha256 header.s=google header.b=EBAjagYT;
-	arc=none smtp.remote-ip=209.85.128.54
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ogVPeFFd;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F0B3606A32E
-	for <linux-s390@vger.kernel.org>; Wed, 25 Nov 2026 09:18:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3F0B3606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pereq.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cryspen.com
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 2F80A606A31E;
+	Wed, 25 Nov 2026 10:03:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pereq.eu header.i=@pereq.eu header.a=rsa-sha256 header.s=google header.b=EBAjagYT
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4bb64c99d2fso52316925e9.3
-        for <linux-s390@vger.kernel.org>; Wed, 25 Nov 2026 01:18:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pereq.eu; s=google; t=1795598326; x=1796203126; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=7h2E6/RXXaN8qvTmARnXOrgPNEtAf1zGpXXBrvYlAFw=;
-        b=EBAjagYTDtXb640X/LMHtmRmHPx8TPwRLOZXR+yAF4KZjGFD+8DVhHZHmT7RuUuBWo
-         mvf6Za3XyvOXl0UpaX/caa/fPJxmqzUEc5orKXrb8WRR1aCwKmvrIB5l1ckTmufObfT3
-         tgp+T8TJeMf9BweFFB9/u+woxehbFaugstbdDgKwEJNWzydE6ywZrQTJSDsJ7L6Ap93C
-         shZKGAamOPiEYNRdJkg1KediWJVEXvDQJ7XXlndkKsMqjb9WYk+P7og1odXvH47WnDEs
-         gGWI5ART/BFa51vro6SJCGwTxDZrRmXxorrbBRWgt2HTU/2K21erjmx/OewaCYCKzlog
-         PVow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795598326; x=1796203126;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=7h2E6/RXXaN8qvTmARnXOrgPNEtAf1zGpXXBrvYlAFw=;
-        b=ZuugDUiZFm3rdgjaDguCm+DidjBUi/TX0rAN6pMKdalT2xkW8olL8DOdf4KFt2WJxR
-         kT2h4Or6NRSB9byUfUbKeJjiitv+xIb3PLdOpCImYq4Jjt9gWFUnB5S9Yo2RBKHXdCh1
-         WT0bcsKxwDPwLvaxxC2ezDf+afv+Jb95ooWFbRkfH2ehQiojchZTgmlIUgbHTcb44k1f
-         /JYcGTgx6APiH5zicM/t8VWBpW+in1xstSFPDSC3rYXFAzLt0IfGkDOoGNni+kGRbOHl
-         KjtE/TjKQlSjkR+fhBy83j62L0mugxB/Lwwh0MMKviBkfVF0ngYWxHvYwD8u2pjMvSnJ
-         U5ZA==
-X-Forwarded-Encrypted: i=1; AL+hErEzTgPZxbkNi+IFwP9I1vQeFc+R7QYH6Zfnw5MT+0WYmd/EtLTZQi78F4GNVtEwvIXy9Y5myRPPLKWA@vger.kernel.org
-X-Gm-Message-State: APuU4Z/DGAFKGBQZfwlWwCDzZNLjPUffLYXUuNP18ikxC/YBqCK3pEzf
-	f6eYp0BZltyhWpQgmVQQLc6j8gGdE/Deq+cP5THTLpCPHAMGn/iIluJb2ksYAo9rrrA=
-X-Gm-Gg: AZFdTZeSHwCtUkOlow5bUk521l3y0/QGxBgUpqeN2IOluhhKF5OZSdMouW8Fyc73BrU
-	WRptdK8NYFdYQToKKc2SMI4mEg31WLJZIrxVUEbFwdiYUq/sKUlGabvvF3zmUMeRAwSVwXLwqzM
-	D6b1LVBZnaKDOmz+8CWrrA7vntcL0EwVVp65FebfuThNV2MTbFxwILccJNHUyCqCWtKtOQSDTnn
-	HoEaIX/swqA00nXK8qRk5rdpOgxqRZIGDYnBXffJiVUummLX/woErk1wBMAjgk5MIhLiPcRi0rj
-	9Eq/A7ScXBhXRxlHEEYN8QRqCwqm8sClowB1t6+nCEPgve/NLfeZV+9+/KPEuWitTHs0yyz/i+X
-	VmQDhMyFRJk7yrwsMmztc4OPdI+x43zDzd168mmr6U97UeayOy+whgMxwK4l0HVN0gW6DXcecQ1
-	CuK8qq9ut1z7n6mJ3zAUUue79EEQ3JkIa8D24wBAxoJzazOJGRsLKIjsGFsP/zqXbJr0jbd2LaE
-	SzgdvKLxCgbYsgmQ6cgGvv41AQsM1EgZP924+o+VURq4jt9mmawAZy/jl7gOZDXcTT90IlFEGd9
-	yM4A9E/RR51rW0aacf4=
-X-Received: by 2002:a05:600c:3b1a:b0:4bb:875b:3d91 with SMTP id 5b1f17b1804b1-4bb88820bfamr364901185e9.30.1795598326473;
-        Wed, 25 Nov 2026 01:18:46 -0800 (PST)
-Received: from localhost ([2c0f:3d00:6be:8900:ce5e:9212:ea4b:f30])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4b34e9c3ffesm16850149f8f.19.2026.11.25.01.18.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Nov 2026 01:18:45 -0800 (PST)
-Date: Wed, 25 Nov 2026 12:18:42 +0300
-From: Dan Carpenter <dan@pereq.eu>
-To: sashiko-reviews@lists.linux.dev
-Cc: kvmarm@lists.linux.dev, kvm@vger.kernel.org,
-	Oliver Upton <oupton@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ogVPeFFd
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 3AF5E1F000C4;
+	Wed, 25 Nov 2026 10:03:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795600983;
+	bh=qEPIxvGniF/YhXwPA5SSWIjPSSOSPgJQxE6JPjadhkc=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=ogVPeFFdbHD/v3IA3n2ctcWEn1t+zZ8PaFug04K7Y/geumcSZ3pFGJzH2uHhKBoUJ
+	 k+2h9EfsyXSVTHP1l1awa3eMEAkCzVmmW3Jb4hTRz9CSXadmFvgjQvsgjmiaSxQn0e
+	 087Htz6rk5oJXpnx689Xd8qB7zf+hoeYW8psuUV70R8n1gRiQdeN337lkmfaqYEiHf
+	 2yrzsEOLKdDban0JBOybghKhD0JiLnCgLdsBxEaMpqw3LX6els8Md6Hkd6vE6Lfdqx
+	 oA5LsOK1zTdXDL2cyaVpEacAZgdF9BcGDoTmps0wtw5LkVsV+Ykgiz3KCZSpzgpPQI
+	 PyWT3f1Yw0r0w==
+From: Nicolas Schier <nsc@kernel.org>
+To: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Sasha Levin <sashal@kernel.org>,
+	Nicolas Schier <nsc@kernel.org>
+Cc: Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-kbuild@vger.kernel.org,
 	linux-s390@vger.kernel.org,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Steffen Eiden <seiden@linux.ibm.com>,
-	Karthik Bhargavan <karthik@pereq.eu>,
-	=?iso-8859-1?Q?Cl=E9ment?= Blaudeau <clement@cryspen.com>
-Subject: Re: [PATCH v2 2/8] KVM: arm64: Reset SP_EL1, ELR_EL1 and SPSR_EL1
- when resetting a vcpu
-Message-ID: <awan8mSx5cbzXzJ7@stanley.mountain>
-References: <20261125-double_exception-v2-0-224689d8a764@pereq.eu>
- <20261125-double_exception-v2-2-224689d8a764@pereq.eu>
- <sashiko-outbox-232760@kernel.org>
- <awam4std0Zifdn9k@stanley.mountain>
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	"kernelci.org bot" <bot@kernelci.org>,
+	Nicolas Schier <n.schier@fritz.com>
+Subject: Re: [PATCH] Move struct cpu_feature to a <linux/device-id/cpu_feature.h>
+Date: Wed, 25 Nov 2026 11:02:55 +0100
+Message-ID: <179560086128.3880976.17009453982842504625.b4-ty@b4>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261120202712.3377691-1-nsc@kernel.org>
+References: <20261120202712.3377691-1-nsc@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -107,23 +75,35 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <awam4std0Zifdn9k@stanley.mountain>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 25, 2026 at 12:14:10PM +0300, Dan Carpenter wrote:
-> Let me add the s390 maintainers to the CC list.
+On Fri, 20 Nov 2026 21:27:11 +0100, Nicolas Schier wrote:
+> struct cpu_feature used to be defined in <linux/mod_devicetable.h>. Move
+> it to <linux/device-id/cpu_feature.h> to let users of mod_devicetable.h
+> that only need struct cpu_feature switch to the new include file, and
+> to reduce the number of users of mod_devicetable.h.
 > 
-> I considered doing it the way Sashiko suggests but s390 doesn't have the
-> __vcpu_assign_sys_reg() helpers so it broke the build.  The registers are
-> not the same so, either way, some of this is going to be specific to
-> arm64.  But Sashiko is correct that s390 probably keeps a stale SP_EL1
-> across a reset.  The s390 maintainers could probably take the selftest in
-> patch 8 and modify it for s390.  :)
+> While moving struct cpu_feature to <linux/cpufeature.h> instead sounds
+> reasonable, it would break defconfig on loongarch and mips [1].
 > 
+> [...]
 
-Actually, never mind.  This can be done in kvm_reset_vcpu_core() like
-Suzuki Poulose suggests.
+Applied to kbuild/linux.git (kbuild-next-unstable), thanks!
 
-regards,
-dan carpenter
+[1/1] Move struct cpu_feature to a <linux/device-id/cpu_feature.h>
+      https://git.kernel.org/kbuild/c/a48b8e3e
+
+Please look out for regression or issue reports or other follow up
+comments, as they may result in the patch/series getting dropped,
+reverted or modified (e.g. trailers).
+
+Patches applied to the kbuild-next-unstable branch are accepted pending
+wider testing in linux-next and any post-commit review; they will
+generally be moved to the kbuild-next branch in about a week if no
+issues are found.
+
+Best regards,
+-- 
+Nicolas
+
