@@ -1,19 +1,20 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.66.93
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.70.113
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795619821;
-	b=QK4bJGzcAsIbv3LEwxw72/hqOPmreHOPQOhQeGYC0ezycokbusYYfIWlJDFMfPYultU5
-	 c3gv1u1kuIwqkwcCIsydtE+z9GGctyU/Fdcw6ugL9nytUhaXUtD4NZ3ihj57ULt3RY49l
-	 nTKrPDQe6etuTzBGNvG1Tu8MS4tz1KFz+Cdn2I15GtAckLXqBcBFpsjmDXbL7TvUmpg/I
-	 Q5dQcKWKrOBsy3VEstG9QYASe66DTzuQFDs2kKO6La3c+5FFz+vY1J4wllRzpTWrsY09r
-	 /OqVlcKVEE30D0d8ZtzEbv4PdS7wziwk/6L+5GVJtU/dmVTzVtpYWW32QgO5ca40T2A==
+	t=1795619830;
+	b=WavBxm8/sFotl6zYlono7poAlq1LuyGCe5B1ebcSLRY36TMaoytp2ztILvpx4AKEdIjN
+	 ODfbkbwd92rFgDks78nFU13ZXGAJuuEzOsSmn0O1OH6/n9gbuWKwbn/k0LxL/guemhQRj
+	 OjES0zFpuQYFEfgFvMN7QkyMYCaVNmdvK9wH+LhhzB/1EWp9OugmqyqhVPlg7wm4dXQaq
+	 yLbI5RSVIzEmmZ95z74b3C4Ep3J4ffYxBy6mFGLWDH2f7zoRvpH0osyPf362PW1rlJYWj
+	 QB2SNdihu7+7hB5xCSATMN+m3a8NN5KWwPEIsWHUiHQIlkdjaN17XNynaNd3OsODxGA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795619821;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795619830;
 	h=DMARC-Filter:Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:Content-Transfer-Encoding:Content-Type:X-ClientProxiedBy:
-	 MIME-Version:X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+	 X-Mailer:In-Reply-To:References:Content-Transfer-Encoding:
+	 Content-Type:X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
 	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
 	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
 	 X-MS-Exchange-CrossTenant-Network-Message-Id:
@@ -23,32 +24,32 @@ ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
 	 X-MS-Exchange-CrossTenant-UserPrincipalName:
 	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=uZG1s0368q8UN44TW+17aousOwlOrZDCKGkefaog9iM=;
-	b=CHoLtW5cYS690k8MQx2xOZD4S3j3n7bEw+Hw5LOTrcRb/kQjcrUNi/jcqys2LxJBwsRs
-	 EQRpcORZh1EtU8l773dmJwRK7nhz8alUYLYVzb2TgZtQuWo7mgVFywuHCV2s+eg0LERaT
-	 EcDlbsm5IkrOlcQ2PI9LuYE8mVTfGeNAffnnq7wQlfeplRSlDu5RGfr/PCafHK+kKgAFu
-	 USFffpdaH3RVMIdXcFnw9l3uzpzZ5+ImkAbST6tpfIcajSAApIoAdVwxnl7Slpu771rZP
-	 dTV7kyDZG/vnow+dsM5a0A6d2kKk5Xrvq/4ml4ZVn4JduwNoeUI/jEP8jtwe/WmqF7g==
+	bh=eY6uxwlzEeigUe4vHDYqs+o21vIW1wlsbR6RjuZ0I38=;
+	b=Pxcq1mK6My2Yc6dVic3V2JtpW4PYLcrkZ0hp5TY85YyDlsriNPptnjSxQLQbKFrELlRh
+	 5EpjlkeDiXXPcDqEvxkT3fQiZSBEv8ix7wizHBcO4CNt9ys6W3EJuuWqIeHWO616BjLFW
+	 sdb18sti9enX52xpClv5Dod8UpsCVZ5sd788tIf0e9Z7F7CLyq+KUTKX8/tzICxCHolA6
+	 2RM0g1l7lFscgEXqvXGkZjLjgU+vE4++LBuG+lkWJAtIoRtBmwe8qPStysq4KVsdsuC4M
+	 goVRlYq0blH62RCLEo2/nXd+0PQ2bWv0TrOYy50y4uunu02FpgjWof4Wqbse0wBUUsQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=cyber.gent;
 	spf=pass smtp.mailfrom=cyber.gent;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.66.93
-Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11022093.outbound.protection.outlook.com [52.101.66.93])
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.70.113
+Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11021113.outbound.protection.outlook.com [52.101.70.113])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AF18606A31E;
-	Wed, 25 Nov 2026 15:17:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6AF18606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CB95606A31E;
+	Wed, 25 Nov 2026 15:17:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8CB95606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cyber.gent
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyber.gent
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=A7T7baHI+CfvwzDhNmaPhAuChpLAW+QQgqELJFWrIqXZobIBoNo4Cx2Zkg1AuHqv50hJ9h4t+FBwktMa7dstCVHdhJBF52SLsdryV3LyxRfQlPA/t5ZPyNSk3gZrytAbYFp/mtZk60PvQUO3mvthc9YDRNfMB/qm/x3ACQQkJQ1LXRj1DYwKkGYogwsQOURqCO1y0kx8Ih1ojK5fiVAR5QjYwu0pUdmlBdhdSPCKrk8PJcsppHXQEDqaE7uZaPtIJ61TQd54o/wOLBeFTu9PGeKFeTQGHDiUrvuFXw4fxcDcRb3fxyrCNpPqxm/BtgMDyRldXIWcOGEhHP5Ph8QveA==
+ b=OID86y/LgfRQPumPvWYUOorvMRzMi3cSbTFj+r+QgoHEPrdZY4sGJkWj3db13uIupSSVSHY8w7U6FbLzBlpeGKfd3N/ydSD63jI9ICiJtz/qxqIddOYYfxse8bGXCohm7PyqCjlg9s05jKsRVTPfHr/VhuKgjgZNuE2CU9Wy5mPC3VHUWDm6YbA54IBoQWr/jWr+nItsOCDlY0oJTwGGB9Wc1k1tAMFCTnTXHpkyYZ4fwPd1zy8I406gkRnzexIHIKIyWE6MKrhdX68NzJ+0WUAAYifDRvSwOdwzHQl9+m09r+IOkWnS2NcbHBjjyHncWG5BREUCqo7rPsHBjvRCwg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uZG1s0368q8UN44TW+17aousOwlOrZDCKGkefaog9iM=;
- b=u9JlHMRfCMk7ndCnSHsERDxGHNMkIVt4UsR3ThZIOwpEqNko+w0dLUTWowfMPW7Pp3YGWv1z1fZ8QqOtzzpbbJAuCqyrlQSt+p2MBLeXMwWPLO6NWGhRz2eCTSbSBHBZ6wc3RJOWlgGBCNI+cSSCET8YoNQwuaqg/cxc01zQ2RSFgOGJMoKU4ic8tXf3X7CgQlHztd/TMv22uc5pz/jUSzM7gZx+Ag3rFNCxrlRxQoBtCB2WL0cTQxmcSuaEvkaBcIfiujs9c5eGCm2zVerTX6Q0S8EhpbHDthesdYFjsXZMu4MmPJ9dy4D5HlCaAnmhDsT81b0WstNIxoaQxNfI4A==
+ bh=eY6uxwlzEeigUe4vHDYqs+o21vIW1wlsbR6RjuZ0I38=;
+ b=wpkzBD1c5jxARp0iI7vzcr54cfOOIjIj7YPTCneBJ0txteCEVWGBt9enwBBI9TQT/18mPKZPeVbD93NyD3QHdZPvl+kj83kU9al3Zd1A8n7XexyMxS6vIOYvOea1sQj3V8xw+2sHyLtgXAi+yrPU+DdjNgHq+2rxO2tDW4LNZ0MC9eZTX1nFyuT5rSlbp1SGtwsiMulq5VHCMowKCDOawVFycgHZwX2Joz34A46EDAE9tSTD873UApX94mYBtP6ea36IpK4SCIgvbTW9yNrktnRWvAq9xwzbvS6NPjH9co9bb3LxwOlZXow6GEocbzkrh2bCoHIfBuZ++rOTUYjFGw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=cyber.gent; dmarc=pass action=none header.from=cyber.gent;
  dkim=pass header.d=cyber.gent; arc=none
@@ -58,11 +59,11 @@ Received: from AM9P193MB1508.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:2fd::8)
  by AS8P193MB2127.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:448::16) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.662.6; Wed, 25 Nov
- 2026 15:16:57 +0000
+ 2026 15:17:05 +0000
 Received: from AM9P193MB1508.EURP193.PROD.OUTLOOK.COM
  ([fe80::e7cf:9c42:539d:452]) by AM9P193MB1508.EURP193.PROD.OUTLOOK.COM
  ([fe80::e7cf:9c42:539d:452%2]) with mapi id 15.21.0639.012; Wed, 25 Nov 2026
- 15:16:57 +0000
+ 15:17:05 +0000
 From: Yvan Janssens <yvanj@cyber.gent>
 To: Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Janosch Frank <frankja@linux.ibm.com>,
@@ -81,14 +82,16 @@ Cc: David Hildenbrand <david@kernel.org>,
 	linux-s390@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] KVM: s390: vsie: fix instruction retry for nested guests in ESA mode
-Date: Wed, 25 Nov 2026 16:16:05 +0100
-Message-ID: <20261125151607.3039477-1-yvanj@cyber.gent>
+Subject: [PATCH 2/2] KVM: s390: selftests: Add a test for nested guests in ESA mode
+Date: Wed, 25 Nov 2026 16:16:07 +0100
+Message-ID: <20261125151607.3039477-3-yvanj@cyber.gent>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261125151607.3039477-1-yvanj@cyber.gent>
+References: <20261125151607.3039477-1-yvanj@cyber.gent>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: AM6PR05CA0029.eurprd05.prod.outlook.com
- (2603:10a6:20b:56::30) To AM9P193MB1508.EURP193.PROD.OUTLOOK.COM
+X-ClientProxiedBy: AM0PR10CA0001.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:208:17c::11) To AM9P193MB1508.EURP193.PROD.OUTLOOK.COM
  (2603:10a6:20b:2fd::8)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -101,122 +104,281 @@ Precedence: list
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: AM9P193MB1508:EE_|AS8P193MB2127:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1416fc51-93a3-4c9e-2850-08df4b072527
+X-MS-Office365-Filtering-Correlation-Id: 76f7865a-00fb-484b-036e-08df4b072a35
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|366016|7416014|376014|10070799003|1800799024|18002099003|6133799003|261009223027099003|3023799007|10067099003|56012099006|5023799004|261102123227099003|261022075727099003|261022105027099003|261028144727099003|261026140227099003|261026121527099003|261021123027099003|261021121427099003;
+	BCL:0;ARA:13230040|23010399003|366016|7416014|376014|10070799003|1800799024|18002099003|6133799003|261009223027099003|22082099003|3023799007|10067099003|56012099006|261102123227099003|261022075727099003|261022105027099003|261028144727099003|261026130827099003|261022115727099003|261026140227099003|261022113327099003|261026121527099003|261026135527099003|261021135927099003|261021133027099003|261021123027099003|261021130227099003|261021121427099003;
 X-Microsoft-Antispam-Message-Info:
-	EnMM4g3fAzxdSH3h1T9+qW8M4suOc6WPmeD1oP3Y+LB64bVpGjsNkRhzCPBh7Apnvmk3YDhn372/TTW30MPqPfgqPft14CCFG0YLNRhkbNM7uqcVP8i8bv5a/MCwfxj11LAMGh4ZBJwcmIsmn+/36mKtUyr+yoip7My7flTGM+/ir4AJu8ZziFgExi8N2ohwtqt8H/yAjiofstuR3KKnxeCNgSTC5fBrHLPBzU+HhJ0O+84qr90x054wR1y8yiVyhmOj4FNSZgS2i3npZVqpLwBnBvnrp8q2KNqA2+MninmlDUqBtMQtWxr2lN5rEJfoXhBT8LZ+oMs+FuGRvJg8dm+VPImq4xFv2LUbZVuM2kTlgM/055o4orRIgQBr1mhH+63CdzzPqnTArByJAt6LPTSApwPGFrpOrWVrxCTTJecctlF1D+t1FhEjF1SimK0UKGFtLE2CBQsXuvY+f1q6qdjUSrDRPspbnRsOUj4cGROOkQ1xe4BhDjYgsYY5zA2KVJVNLaFGQCCMxBZWNp/3HCK733JnGcQo8gX4qDOO0vno1rwdu4SPz5RwJnEXkpQ9DIftPG763EXMeIQb/TPakLPvYrPDy+UZrY1kdwHuCsJtp4kueyIkdwcqwGOuWQIL1TAiujnucr7o9NFPhhYX5FaKLnAaT36Kfc1nfFdNzac=
+	Zh3bbKGNJyX258ZDcNuc/H5t2Tt/NiESXnYfVQzYqwg8eNtcNGMYuAUAYcRx919DjOG+QV6zblS/1dG39RfTxtny4iJCQQmU3NmaeFm3PW6rhT4KkMuIqdwWNY6AInFH7YikrQ/b2CfLpcaEnDgtilAWDvExpaw9IG9nGHqZpuMCT3yacy8jXkpVu4KnvyDEe3uslY3zi1Zjyqx6U7KcQDnjkciCjJlYwOcWPFt9bFXZdVPYzy8l45kdDGHy1tS8oKg72dmhjKLsLg2svlnUaVj8IAXZd4a0Je3fiSOZxT2PoMbDWqQPdQIamjT6xXhO4JzSESIriEzQNKvV96rj+7yU7SsoUqOs4AA5lvRs9zR2ysMFs5TEtViupkJyomkA3gh5b9jqKzZcY/segylDMCJf9gtI1DgHmyxpL90G1lm6VyEmyntK3Jpi2JTFqFtFqntxE6HQKkCh8BzhgbhhGKZCsLGGKxuNfSFEYPPr9sAGHAR76+0KVc0BuT6GkQroLachmeGSKX2l/cfLiYTv4dar/k5w6lWNsfQ8Q9dopTrWqu0/pryXfnkuTipdvErn/mFHSnFRN5KydvT0101ahwfVpx5Gi72A+4OHdEI4DThATQzEaWmR651Ioz1NkssN3I6F3QvsFFXr/w5Oz2Tv7w==
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9P193MB1508.EURP193.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(7416014)(376014)(10070799003)(1800799024)(18002099003)(6133799003)(261009223027099003)(3023799007)(10067099003)(56012099006)(5023799004)(261102123227099003)(261022075727099003)(261022105027099003)(261028144727099003)(261026140227099003)(261026121527099003)(261021123027099003)(261021121427099003);DIR:OUT;SFP:1102;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9P193MB1508.EURP193.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(7416014)(376014)(10070799003)(1800799024)(18002099003)(6133799003)(261009223027099003)(22082099003)(3023799007)(10067099003)(56012099006)(261102123227099003)(261022075727099003)(261022105027099003)(261028144727099003)(261026130827099003)(261022115727099003)(261026140227099003)(261022113327099003)(261026121527099003)(261026135527099003)(261021135927099003)(261021133027099003)(261021123027099003)(261021130227099003)(261021121427099003);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?DLwtNCoce7fA1K7CVBMUgRXJUEhBGRHV9d/AXTyWdH7TRY/rUZfHlSM/J/VQ?=
- =?us-ascii?Q?qeqD46xsQDDccGsHkNZ+5m3AcyXIl0zAUCD9ijfWT4yl9ep55C2jnLLzKPZx?=
- =?us-ascii?Q?TO0PvrJif1IVrSNNE3Tgl3BiMDsSIYuMKzxIZfFG5zgYWSRfZ4EJPROf1DWO?=
- =?us-ascii?Q?EIm3x0YaKw8LWD/2kdjyCIb0HIemSHyxr3UNVJ//Ymlbk/7IRL+RaZOZOLyN?=
- =?us-ascii?Q?dKTV07HVILXz5SuEy86Iv4It1Hq8/MaJz2dGVjX63xlHK4Yj/TalYfl9bWfP?=
- =?us-ascii?Q?KpEW1gIM/edhyJVoVxgPyEaU1xbhlBdD3QXpbBhxYV83lksLrZC3Bi6/zwdZ?=
- =?us-ascii?Q?SOf0xp1er354fCYXKgKBlDFEBuaQavHoReB7pxgLmPQBT8s0E8+xFSbkUOvw?=
- =?us-ascii?Q?Ga2dhiDihQlwSyqZP55iULvO4Leu8iSr3ByT33ceEN0t6EicgnS5TXeKJjdj?=
- =?us-ascii?Q?xXH6ro2RfZWAZPzM2ekMoa9rsCGemRZwqrPxI0KLI8PbDecyufmkzg1F6dXm?=
- =?us-ascii?Q?BoP1ou/xV5XQDPIOTDqc9GToa1jGCnYKypuy/hoi0ELmmsuIQfPcgvojyRj3?=
- =?us-ascii?Q?aYH4fcSHxPfoA0jJkA3DyF58Fb9nPcXw0BzLqZf3qbeKXl/Nt8XefLWfr4p/?=
- =?us-ascii?Q?KEgWbuv9lH+z7MpPvU3c9RfwOFPPIoYXPOe3k5um4hcbuy5dO8moL79Ps/x1?=
- =?us-ascii?Q?bWzlsqIi4hjT2zhw+W+ZFZpZEz74yT/hN6XDNRtsVI/G0NEDA9X4AL4pigOD?=
- =?us-ascii?Q?4kuUfv8kklsHPD2eQkzOm9G92ns/66inp/oLvCQLbwcAjpiEfRn/bO7SrVG/?=
- =?us-ascii?Q?WpoilGzTlIJkmZvpWNdbhk/MpphHvbC+e0pFzTbGby7YgdyyU8Vpo6joIY9E?=
- =?us-ascii?Q?+vQoGSWWZ/QDh/HB5AzBZPTZys1sX+QTY64RD4lSaPlyg45uV0yrhNYNGqcO?=
- =?us-ascii?Q?VZgqHhccucsC4ssQDwiGfbJwNTuvNBCrQo5UjjUz6m8v65If2FIlkqlVPzKU?=
- =?us-ascii?Q?CBmw0S1fqUiMfLFaGxEALcPhPKbrBAusrcABJUZq2NiKLzbHB6zhUsCZdC9w?=
- =?us-ascii?Q?OsGnkNXDuZqFJ73XYPWV8ZB/pPzR/1McLvzaAEPumj4XjEXyo7o3FuWleuug?=
- =?us-ascii?Q?2eCAYMH9WTeWDByB4DXeu4vzIvfCGPjMMTc5AhKEZvKs56bL+KeVwwUB3nPF?=
- =?us-ascii?Q?77PCmNFv3J/CYX+RcMCRiFhJw/KG3rIEK7hcc//9nWrYOxDv5lKwGSSWXiwh?=
- =?us-ascii?Q?vmjobQu9LCmA8ltKXnwjovDByMY/tetaU1xJwwZvJ1a+mi6QJ2ZPqeqODRkA?=
- =?us-ascii?Q?ASoRFJhO7Lrb7WGBt1HCTmyyPbwaqyqNgRrmRcOu2MSxdSZh+2+AdM7SHJdV?=
- =?us-ascii?Q?u0hZe+Ml9qF8yDBuDd6c1p8pgdzPyj/Des4Xeo9ordrITj7PIm9Z/1B0C38A?=
- =?us-ascii?Q?eCMrKZ5nllQ53GLUZi3KnFhc9z9B9SnvAK48rAtYcilPDKrSFIn3YK26/xZ4?=
- =?us-ascii?Q?NqgZdBgRgr0WUqcKv6Z+fBUCT4Pcrg55OCoHbKHKmBTNic4X9FFzAhQfCUKf?=
- =?us-ascii?Q?GIgHXRaHecaHLJ9zQ/XcvEV63v7XiDQOQu6wZ9vMf57QTt+hvWK9xj2HNm1t?=
- =?us-ascii?Q?NjpToi5Kkk4yR7vf4w82iLEXe2USzPfhm2FN2ML1EIny8kozRqGmkKyOT8wv?=
- =?us-ascii?Q?Hy7Ccq3/id0ihcVsIFcZlgyTTSJNxbJT626dNMu5LtGlzm9ooHuaNU5bAT4H?=
- =?us-ascii?Q?a7cU35yL/wp9VGnGSGfK5bz1WzE3RaBwzhxKhGU7CexLUdzzD7M4?=
+	=?us-ascii?Q?ocTf80X6jWpv4eUHCZNdj3ZPch1dLmZbxW1h1Nvn5XcIhM+I+YtI8DUG3sjY?=
+ =?us-ascii?Q?DjbjELSpPz9GRvYwA1uQt9AR5tnl91xUab514RivF9VoY4xZWDqXrqn0PWGt?=
+ =?us-ascii?Q?QNYokvrBCIQh/lVEQUw9ctfmzDTlfiAZfMSSYYt9+ElHMNkOk/0IJ+uq00o6?=
+ =?us-ascii?Q?suY+E9dCTGhLEJqwycLl443A0lWRZWA26ZLDjnUUQa9drX6OjdjhaD29JVl9?=
+ =?us-ascii?Q?emQbxC4xvqUnywvxk1eqgRmeorVyJdVMOBOiZyNjbw8sLBjSaFuFZN94SpzB?=
+ =?us-ascii?Q?uA6T0wbY4CAst3/C6a/AQQ8MhwuPWtFDrgZLBBatuty9xkZBikU5Ju+OayMK?=
+ =?us-ascii?Q?wTt2bf79WkFkmswKXvAFHgy+Mfaa8E+RjF3m2ZdaaOIuwP4Ncc+CFgD0KxET?=
+ =?us-ascii?Q?omScYkP75maEBDPa5nY8BVPXwxx6cmrWzStBqVZJfAMNZHPVTktzVxGhb55x?=
+ =?us-ascii?Q?5ZYK505JtTq80seLyFcPlfQzy71qQWqsDoZ6ajOodi88/dCtzuEajGvBXk1o?=
+ =?us-ascii?Q?eZsceVXR2d2h1AxQtk7HbM/vpD/r5lfzaKvkCbKqy7U9+WRBXS4MKApKJSaB?=
+ =?us-ascii?Q?RSu+pncNMs2iB/F7SC/N+h4kvjl9IPTlH9Ay8fOyAkixbslqYGRidqQuw3Lz?=
+ =?us-ascii?Q?i6pwiAJ3+8q39en3MV54He+1uqa88N/gL5ChmeAZKtxb0839eEfIUKBSmSXr?=
+ =?us-ascii?Q?hm1hp/CJ0A4Wf7AH/xjuMBcllCY/roGRnZ0w1q/IejcULlSDTJjirJyuTJru?=
+ =?us-ascii?Q?R7SNKEO7pm4TFlG8rXGQ74fEPRm7GCC03+wfy/dXBtLlGpYSOXYWwFAA5mCy?=
+ =?us-ascii?Q?ZLQLt73Jh5XO8Zi/lw+bB4mRS+8AEet+SzjcD3tpD1NQIo0v1p+6Qwh6GKt5?=
+ =?us-ascii?Q?c/FUIQh0UHxDSDkWVeOvbs8VBXaoIqVWah28neTB47SDY10lB4bE1A4ib8SS?=
+ =?us-ascii?Q?pnyZBLnGeeqNDMi0ucd43tQ2enjftHc7yi2jKRcQaA5jbb4bfUDi16JRYCVU?=
+ =?us-ascii?Q?nzpAt/ymap7PLsmzA7boSCuOBY4dO+RhnxoVrPiraKpRbtvETZSTdFfGAXoW?=
+ =?us-ascii?Q?zK91v3TFoga4UnZxja4EHSg++0D8DXix4gXCRHd8yRfFwhJUNoxCR7yhhO0r?=
+ =?us-ascii?Q?1f0EahS6dP576FCaSxSRSHR5b5gS8ZrGIiyE44FgmejM9fy3ACxhwjUAt7nS?=
+ =?us-ascii?Q?VNiaKGftvc9JmmcuBy+SbFmx+FhlmRKnzETDgXsLOGDiI4XqZWWPf3/uDfY+?=
+ =?us-ascii?Q?tm1zqC7gRYhUskDNm7wM0CaASztlHqteJTemKE72s/Wf4YnR+zvZWf66fXd+?=
+ =?us-ascii?Q?Lh2+3vNKcaX1tCSA0bvkAGxjeAqhECkSg6YXNpGUPmTMKo3X+X0TKkaZ2nQn?=
+ =?us-ascii?Q?CssZX4PwHuIDSjvXfCSEmXYkqOAJqTCCGoTYhUShfFesx4b+A+e4TTPBQ93W?=
+ =?us-ascii?Q?3xDRT8fuJpOfZtjJQQ5af1dOpE3NZcgw+OLuIxjtwbBbegrgek/m0JSCLkxw?=
+ =?us-ascii?Q?wGs8ERaMIxiv52mBFXlknmONNplSdcBViKH3cFoLuIZUJVIGtlkz7gEKJA2R?=
+ =?us-ascii?Q?l5J3ANJUl81i5YryrxO2+dlhBjFHscviRH3BkP5imwufcnU746S1yPYx3cuK?=
+ =?us-ascii?Q?r5v5jTrsRcsC0TaNh6XxJderVvf7WWjjLsV3o2eJmqdOXjUSaIEY/as9hm8e?=
+ =?us-ascii?Q?NF49jyYg3pZYA464x63C23tbsZh4UB8H/AoSHktSi4BxCMymc4z1h6PHgbZA?=
+ =?us-ascii?Q?U6SxC7oBAy4CN8ezcHqwQCVZnsS7QSLMGH3rYDYs+gFVKdpBcX20?=
 X-OriginatorOrg: cyber.gent
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1416fc51-93a3-4c9e-2850-08df4b072527
+X-MS-Exchange-CrossTenant-Network-Message-Id: 76f7865a-00fb-484b-036e-08df4b072a35
 X-MS-Exchange-CrossTenant-AuthSource: AM9P193MB1508.EURP193.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Nov 2026 15:16:57.1739
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Nov 2026 15:17:05.6184
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: d5a0a0d6-18b4-44e3-8e5e-e5dbe37f9ee2
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: M4uSkv3egf+tkH8QZIjMPE0NDpwqhtHukGGoH3WMjSSpu5xSZryrBP6l2QwxjVDq+1dplbvsLz26ELvIJBdAHg==
+X-MS-Exchange-CrossTenant-UserPrincipalName: xq4iIIASHZpAS6ud3OXoJog02Wz+u0873T6hng3R3Vu8eVTM6mu8fBqBtPObt/rlKdnyFrVoCPC9cVPc+v80aQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8P193MB2127
 
-Since v7.1 a nested hypervisor can run its guests in ESA mode (the
-ESA/390-compatibility mode of the machine) when user space enables
-KVM_CAP_S390_VSIE_ESAMODE. One piece of vsie still treats the PSW of such a
-guest as a z/Architecture PSW: the rewind that vsie uses to have an
-instruction repeated. For a state description in ESA/390 format the
-instruction is skipped instead, and a stray value is left in the half of
-the PSW field that such a state description does not use.
+Run a nested guest from a state description without the z/Architecture
+flag, with KVM_CAP_S390_VSIE_ESAMODE enabled, and let it execute STORE
+FACILITY LIST EXTENDED twice. vsie intercepts the first one of every SIE
+entry to shadow the facility list guest 2 designates and then has the
+instruction repeated.
 
-What a nested guest sees: the first STORE FACILITY LIST EXTENDED after
-every entry into SIE does nothing (operand and condition code untouched),
-because vsie intercepts it to shadow the facility list. A program that
-tests facility bits gets zeros.
+The test checks that the second doubleword of the PSW field, which is not
+part of an ESA/390 PSW, comes back unchanged, that the PSW points behind
+the last instruction, and that the first instruction stored the
+designated list. What the second instruction stored is printed for
+diagnosis.
 
-Patch 1 is the fix, patch 2 a selftest that reproduces the problem with a
-small guest 2 that issues SIE itself (modelled on the vsie selftest that is
-queued in kvm-s390 next). The series is based on v7.4-rc4-260-g4dce97c6c265.
+The test is skipped without the capability, without interpretive
+execution for the guest (SIEF2) and without facility 7 in the guest's
+model.
 
-Why it matters beyond one instruction: backward compatibility is a
-defining property of this platform, and the ESA/390-compatibility mode is
-the architecture's mechanism for running older programs on machines that
-only start in z/Architecture mode. Any hypervisor that runs as a KVM guest
-and gives its own guests that mode depends on vsie handling such state
-descriptions exactly like the machine.
-
-Testing (z14)
-- On an LPAR running v7.3.6 with patch 1 (the host owns SIE) the selftest
-  of patch 2 passes all three checks: the unused doubleword stays 0, the
-  PSW ends behind the last instruction, and the first STFLE stores the
-  designated list.
-- Without patch 1 (v7.3.6, test kernel running as a KVM guest above a level
-  that passed ESA mode state descriptions on): the unused PSW doubleword
-  comes back as 0x7ffffff8 and neither STFLE stores anything. In such a
-  nested setup above a host without the fix, checks 1 and 3 still fail
-  with patch 1 in the test kernel, because the defect acts once per level.
-- On a host whose lower level refuses ESA mode state descriptions the test
-  skips (validity 0x0001 seen by guest 2).
-- KVM selftests (12 s390 tests and 5 generic ones) and the s390x
-  kvm-unit-tests (37 pass, 4 fail, 21 skip) give the same result for every
-  test with and without the series (v7.3.6, nested setup); the 4 failures
-  (sclp-1g, sclp-3g, css, edat) are the same with the unmodified module.
-- Built with W=1 and sparse without warnings; checkpatch --strict is clean
-  apart from the MAINTAINERS note for the new file.
-- Not tested: MOVE PAGE partial execution and the addressing-exception
-  path for a guest in ESA mode. MOVE PAGE is not available in the mode
-  without the ESA/XC facilities, so the first should not occur.
-
-Assistance: the series was prepared with an AI coding assistant (see the
-Assisted-by tags); the defect was found while tracing why a facility test
-failed in a nested guest, the analysis, fix and test were written with the
-assistant and reviewed by the submitter.
-
-Yvan Janssens (2):
-  KVM: s390: vsie: Rewind the PSW of ESA mode guests in the right format
-  KVM: s390: selftests: Add a test for nested guests in ESA mode
-
- arch/s390/kvm/s390/vsie.c                     |  23 ++-
+Assisted-by: Claude:claude-fable-5-2
+Signed-off-by: Yvan Janssens <yvanj@cyber.gent>
+---
  tools/testing/selftests/kvm/Makefile.kvm      |   1 +
  .../selftests/kvm/s390/vsie_esa_test.c        | 180 ++++++++++++++++++
- 3 files changed, 202 insertions(+), 2 deletions(-)
+ 2 files changed, 181 insertions(+)
  create mode 100644 tools/testing/selftests/kvm/s390/vsie_esa_test.c
 
-
-base-commit: 4dce97c6c265544342e716e62fd24bbb232590c5
+diff --git a/tools/testing/selftests/kvm/Makefile.kvm b/tools/testing/selftests/kvm/Makefile.kvm
+index 283c59d7649c..aef64ec2719c 100644
+--- a/tools/testing/selftests/kvm/Makefile.kvm
++++ b/tools/testing/selftests/kvm/Makefile.kvm
+@@ -227,6 +227,7 @@ TEST_GEN_PROGS_s390 += s390/shared_zeropage_test
+ TEST_GEN_PROGS_s390 += s390/ucontrol_test
+ TEST_GEN_PROGS_s390 += s390/user_operexec
+ TEST_GEN_PROGS_s390 += s390/keyop
++TEST_GEN_PROGS_s390 += s390/vsie_esa_test
+ TEST_GEN_PROGS_s390 += rseq_test
+ TEST_GEN_PROGS_s390 += s390/irq_routing
+ TEST_GEN_PROGS_s390 += mmu_stress_test
+diff --git a/tools/testing/selftests/kvm/s390/vsie_esa_test.c b/tools/testing/selftests/kvm/s390/vsie_esa_test.c
+new file mode 100644
+index 000000000000..a52603e30f63
+--- /dev/null
++++ b/tools/testing/selftests/kvm/s390/vsie_esa_test.c
+@@ -0,0 +1,180 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Test nested guests that run in ESA mode (KVM_CAP_S390_VSIE_ESAMODE).
++ *
++ * Guest 2 runs a guest 3 from a state description without the
++ * z/Architecture flag. Such a state description has the eight-byte ESA/390
++ * PSW in the first doubleword of the PSW field. vsie rewinds the PSW of
++ * guest 3 when it has to repeat an instruction; the test uses STORE FACILITY
++ * LIST EXTENDED, which vsie repeats after it has shadowed the facility list
++ * guest 2 designates.
++ */
++#include <stdio.h>
++#include <string.h>
++
++#include "kvm_util.h"
++#include "test_util.h"
++#include "kselftest.h"
++#include "sie.h"
++#include "facility.h"
++#include "ucall_common.h"
++
++#define G3_MEM_LEN	0x100000UL
++/* mso/msl have 1MB granularity */
++#define G3_MSO		0x10000000UL
++#define G3_START	(2 * 0x1000UL)
++/* where guest 3 stores its facility lists, in its first page */
++#define G3_STFLE_1	0xf00
++#define G3_STFLE_2	0xf80
++
++#define FAC_STFLE	7
++
++/* bit 12 of an ESA/390 PSW is one, bit 32 selects 31-bit addressing */
++#define ESA_PSW_MASK	0x0008000080000000ULL
++#define ESA_PSW_ADDR	0x000000007fffffffULL
++
++/* facility list for guest 3: only the first doubleword is looked at */
++#define G3_FAC_0	0x4000100000000001ULL
++
++static const u8 g3_code[] = {
++	0xa7, 0x08, 0x00, 0x00,			/* lhi   %r0,0 */
++	0xb2, 0xb0, 0x0f, 0x00,			/* stfle G3_STFLE_1 */
++	0xa7, 0x08, 0x00, 0x00,			/* lhi   %r0,0 */
++	0xb2, 0xb0, 0x0f, 0x80,			/* stfle G3_STFLE_2 */
++	0x83, 0x00, 0x00, 0x44,			/* diag  %r0,%r0,0x44 */
++};
++
++static u64 scb_real;
++
++static void guest_code(void)
++{
++	while (1) {
++		asm volatile("	sie	0(%[scb])\n"
++			     :
++			     : [scb] "a" (scb_real)
++			     : "memory", "cc");
++		GUEST_SYNC(0);
++	}
++}
++
++static void get_machine_feat(struct kvm_s390_vm_cpu_feat *feat)
++{
++	struct kvm_vm *vm = vm_create_barebones();
++
++	kvm_device_attr_get(vm->fd, KVM_S390_VM_CPU_MODEL,
++			    KVM_S390_VM_CPU_MACHINE_FEAT, feat);
++	kvm_vm_free(vm);
++}
++
++static bool machine_has_sief2(void)
++{
++	struct kvm_s390_vm_cpu_feat feat = {};
++
++	get_machine_feat(&feat);
++	return feat.feat[0] & (1ULL << (63 - KVM_S390_VM_CPU_FEAT_SIEF2));
++}
++
++static bool machine_has_facility(int nr)
++{
++	struct kvm_s390_vm_cpu_processor proc = {};
++	struct kvm_vm *vm = vm_create_barebones();
++	bool ret;
++
++	kvm_device_attr_get(vm->fd, KVM_S390_VM_CPU_MODEL,
++			    KVM_S390_VM_CPU_PROCESSOR, &proc);
++	ret = test_bit_inv(nr, (unsigned long *)proc.fac_list);
++	kvm_vm_free(vm);
++	return ret;
++}
++
++int main(int argc, char *argv[])
++{
++	struct kvm_s390_vm_cpu_feat feat = {};
++	struct kvm_s390_sie_block *scb;
++	u64 *g3_page0, *fac_list;
++	struct kvm_vcpu *vcpu;
++	struct kvm_vm *vm;
++	gva_t gva, fac_gva;
++	u64 psw_end;
++	struct ucall uc;
++	void *code;
++	int i;
++
++	TEST_REQUIRE(kvm_has_cap(KVM_CAP_S390_VSIE_ESAMODE));
++	TEST_REQUIRE(machine_has_sief2());
++	TEST_REQUIRE(machine_has_facility(FAC_STFLE));
++
++	ksft_print_header();
++	ksft_set_plan(3);
++
++	/* SIEF2 must be enabled before the first vcpu is created */
++	get_machine_feat(&feat);
++	vm = vm_create(1);
++	kvm_device_attr_set(vm->fd, KVM_S390_VM_CPU_MODEL,
++			    KVM_S390_VM_CPU_PROCESSOR_FEAT, &feat);
++	vm_enable_cap(vm, KVM_CAP_S390_VSIE_ESAMODE, 0);
++	vcpu = vm_vcpu_add(vm, 0, guest_code);
++
++	gva = vm_alloc_page(vm);
++	scb = addr_gva2hva(vm, gva);
++	memset(scb, 0, getpagesize());
++	scb_real = addr_gva2gpa(vm, gva);
++	sync_global_to_guest(vm, scb_real);
++
++	fac_gva = vm_alloc_page(vm);
++	fac_list = addr_gva2hva(vm, fac_gva);
++	memset(fac_list, 0, getpagesize());
++	fac_list[0] = G3_FAC_0;
++
++	/* guest 3: two prefix pages and one page of code */
++	for (i = 0; i < 3; i++) {
++		gpa_t gpa = vm_phy_page_alloc(vm, MEM_REGION_TEST_DATA);
++
++		virt_pg_map(vm, G3_MSO + i * getpagesize(), gpa);
++		memset(addr_gpa2hva(vm, gpa), 0, getpagesize());
++		if (i == 0)
++			g3_page0 = addr_gpa2hva(vm, gpa);
++		if (i == 2)
++			code = addr_gpa2hva(vm, gpa);
++	}
++	memcpy(code, g3_code, sizeof(g3_code));
++
++	scb->cpuflags = CPUSTAT_RUNNING;
++	scb->ihcpu = 0xffff;
++	scb->mso = G3_MSO;
++	scb->msl = G3_MSO + ((G3_MEM_LEN - 1) & ~0xfffffUL);
++	scb->psw_mask = ESA_PSW_MASK | G3_START;
++	scb->psw_addr = 0;
++	scb->fac = addr_gva2gpa(vm, fac_gva);
++	TEST_ASSERT(!(scb->fac & 7) && addr_gva2gpa(vm, fac_gva) < (1UL << 31),
++		    "facility list not usable for a designation");
++
++	vcpu_run(vcpu);
++	TEST_ASSERT_EQ(get_ucall(vcpu, &uc), UCALL_SYNC);
++	/*
++	 * The capability does not tell whether the machine (or the hypervisor
++	 * this host is a guest of) runs a state description without the
++	 * z/Architecture flag. If not, it answers with validity 0x0001.
++	 */
++	if (scb->icptcode == ICPT_VALIDITY && (scb->ipb >> 16) == 0x0001)
++		ksft_exit_skip("the host cannot run nested guests in ESA mode (validity 0x0001)\n");
++	TEST_ASSERT(scb->icptcode == ICPT_INST && scb->ipa == 0x8300,
++		    "guest 3: icptcode 0x%02x ipa 0x%04x ipb 0x%08x psw 0x%016llx 0x%016llx",
++		    scb->icptcode, scb->ipa, scb->ipb, scb->psw_mask, scb->psw_addr);
++
++	psw_end = ESA_PSW_MASK | (G3_START + sizeof(g3_code));
++	ksft_test_result(scb->psw_addr == 0,
++			 "second PSW doubleword of the ESA mode guest untouched (0x%llx)\n",
++			 scb->psw_addr);
++	ksft_test_result((scb->psw_mask & ~0x0000300000000000ULL) == psw_end,
++			 "ESA/390 PSW after the last instruction (0x%llx)\n",
++			 scb->psw_mask);
++	ksft_print_msg("second STFLE stored 0x%lx\n",
++		       g3_page0[G3_STFLE_2 / sizeof(u64)]);
++	ksft_test_result(g3_page0[G3_STFLE_1 / sizeof(u64)] == G3_FAC_0,
++			 "first STFLE of the ESA mode guest executed (0x%lx)\n",
++			 g3_page0[G3_STFLE_1 / sizeof(u64)]);
++
++	kvm_vm_free(vm);
++	ksft_finished();
++}
 -- 
 2.47.3
 
