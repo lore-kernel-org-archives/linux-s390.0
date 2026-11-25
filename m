@@ -1,61 +1,50 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795636601;
-	b=E1I1t7vlLAwyyFcRdTKG+NLlCZwfBShxilhPsYXgLAsa4fqcvh3/Sq8M0EOFWw3de+No
-	 lL3i+IrSXf0ZKygKAS/Twii9PxmAZXRCxl/QW9INyLpIQxj4Zp3Ko44lSvKowjXo/hWxH
-	 pTjavhv5YLhUA6sDqaOGWpbW/69tONknFMcxoSwcOV/gm1PpEG8MlQBDkH4fApP7RWC3Y
-	 rHwIsl9TI3I/sg7RA9g40MQzbN5MxTUHfnUrw3rwVUFEJ+8dVzCrv26z08VK+ar79AoSo
-	 3swrtL3uT9cgp5suXr3N6hlcvFhoI7b3vOW27Ucqj99Kcoy8Ai+VksUS5fTIO7z9HDA==
+	t=1795642671;
+	b=nrUajiNhHlqUJwOqt03spOZhYTwigW4iDVfqEhtztvB3cMshM2YkIw2lExERdBJ8TIR4
+	 0GCQB1JZKUdkVqU+mxwyoyPXSFXBS5bE58/Oux9JjaKpsT5DI91UD4tlPyj6WvEA0svXE
+	 CNNJcn1dWMWUkPQbAF5fhWyQL/sGrE9lMUqujzUp978IOWwztHU2xt/Dj3meqpBw5Ptue
+	 OiKNp0HhyzZBlmtWieKEcNmrsClcoLUobBuSJeOXVzLZRjBrhFurJmMFtilQywu7ammbP
+	 Ood28gYudmYIHeAIVD6LXoa9c6QrM6A+LzlFUT9dwwPe3eHfRhwyUkNMeH52+zjiIZw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795636601;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=XOYGr6mGTO5dHIksaFqfCwRcnXV79g+A4iGwHsLu4gE=;
-	b=GSL30cm9LX1p9tNipoHnz8f/fBFNvYJDMGg14JeHwTaJhKSmrTpp3YPKRGoflphEdVnT
-	 cZaHvHTZ1I/BBwhDEwZSrhWVBqrPjcxZZrJxIzmfD8xZlK6Nx3luws/QxWc8emlEc6PUu
-	 MJKF1WyML5l0Y5GFPdIISm25dkeJ9pi7sg9lNrOHlW81cJ9zjM+iXULaXPf/UkVjUrpRj
-	 F7FAov5gFoDW8Pwfld/fgypDWZgUHuxC0ygkkP8bF4lV7+BjIFyx7gs04v5FZqe4ICaAb
-	 YwU3HBK+wbf4pt+0nFTUocyt/ILK1QqBzKPo6gUfirWHB/8I1w15nE56SvXX7sYWlLg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795642671;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer;
+	bh=60kyMXIH5oxacfi0kIXucfPpSjIf0lxOoUeaDl5buic=;
+	b=KhKHUBtrjTLoKqX3RsIwY0jWpqkp7qGGF3M0dMJsE0RioMfG+ko4rz4D+56sPR1hz4e7
+	 dDvk8JRU4gFXtZf+LT1NOBS5z2YCa1NWcy1KgnQM6sL5TKSxid8NiCCrNQ9HqtP0iwaSX
+	 33RUg40ltpqdRd/nk3Xkv8htr888DefnCSXUGX7a+sZaTMQLMMkYBULBR6k/EsYrp43ft
+	 ezBtW/OI5RaDezDh0bSDXGfBA/v8/84hQcHciyHbOBlHOEOptmb5C1LGm0ElK6WJ2a2tH
+	 fnslRUaJ9C+imIKuMs9WGtWFBJ7Dzj+3GzTG+FjAdn7B3AlL66eGkn2JvRaP/GTDjgg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hoDFsHJ1;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Mq49p9IU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAC76606A31E;
-	Wed, 25 Nov 2026 19:56:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DA26606A332;
+	Wed, 25 Nov 2026 21:37:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hoDFsHJ1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF6141F000C4;
-	Wed, 25 Nov 2026 19:56:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Mq49p9IU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0AD41F000C6;
+	Wed, 25 Nov 2026 21:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795636601;
-	bh=XOYGr6mGTO5dHIksaFqfCwRcnXV79g+A4iGwHsLu4gE=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=hoDFsHJ1wM9WuGVG69rLaZWdgmdUdh9OO3HkgamR+qjnJO+P6EtONzVmtAP3Kcz6T
-	 +JIyxWRXz/9zEYhhcYxEs50RUuc+Pt2Ehrpve8PmNE639Kj0hnWuXowiecKZemI2ST
-	 at+tOSK1+P5KIHO6AIgKZfbLzJwGOW0s39Y6b1rLJTUWRbshHRQEeHLSzKA0vQSSRT
-	 XbmkW8yBYmL1nXV5gkf5TCVzM6sKBNobUhiZCkVC6silHV03B2eQvxXlzYxbvvo+W1
-	 0Nwzu5rHFR4YecV+1z0RVL0czW6IW1V44V0cwuWj6Po54R7FBCQWDyN8f4MoTsodjA
-	 qcJKIgTtPgZ2w==
-Subject: Re: [PATCH net] net/smc: validate the peer's CDC cursors against our
- own buffers
-From: netdev-bot+sashiko@kernel.org
-To: piyus@iiitd.ac.in
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, mjambigi@linux.ibm.com, netdev@vger.kernel.org,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- kapil@presceralabs.ai, kuba@kernel.org
-Date: Wed, 25 Nov 2026 19:56:40 +0000
-Message-ID: <179563660031.3135.15892342003977704361@kernel.org>
-In-Reply-To: <20261121193345.2148966-2-piyus@iiitd.ac.in>
-References: <20261121193345.2148966-2-piyus@iiitd.ac.in>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	s=k20260515; t=1795642670;
+	bh=60kyMXIH5oxacfi0kIXucfPpSjIf0lxOoUeaDl5buic=;
+	h=From:Subject:Date:To:Cc;
+	b=Mq49p9IUviztHKgBHD0Jsq63jIlzruPhIWld2Xsc7qz+X6oTRPsKGX6N5KksA07Ny
+	 CATzkgBG3Mxldfdp92CY1L+XkTNdySuhRXdbYlkZOpDvfmuZCu4DiPXDtZ5+7wx0pU
+	 kwolEUhlHBDHnAEvkXaS85TJoGKYJwuUCuYzWtBHT7FJL8xQQAodvmquqJSsdZUBhy
+	 YEJeL14E6/iK/Pe0R1bWfeHMJDhf2jx15+8iyp83GGVtOcZ8TbwfZe/N9akz4DZi+M
+	 tYrTY9Jflg71R5j/zwYNnDGvJJXGFPhwzR8W47osHvNy1fCdHASo2o8+t6VUafAutz
+	 XTNiJH6MgkJow==
+From: "Harry Yoo (Meta)" <harry@kernel.org>
+Subject: [PATCH slab/for-next v2 00/14] mm/slab: mandate SLAB_MAY_ACCOUNT
+ for __GFP_ACCOUNT allocations to avoid wasting memory for slab metadata
+Date: Wed, 25 Nov 2026 21:37:01 +0000
+Message-Id: <20261125-memalloc-prof-dont-waste-slabobj-ext-metadata-v2-0-7c680f02a734@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,289 +54,394 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAP1UB2sC/5WOTQ6CMBCFr2Jm7Wh/kIgr72FcDDCFKramragx3
+ N2CJ3D5MvO9930gcrAc4bD6QODRRutdDmq9gqYn1zHaNmdQQpVSyAJvfKNh8A3egzfYepfwSTE
+ xxoFqX1+QXyk/JWopEerCVIVmU5W7PeTOe2BjX8veCWZia3xAlxk4/87xUV+4SfPmDPQ2Jh/ei
+ 98oF+ynouSfKqNEgaIq90IQaa3F8crB8bDxoYPzNE1fu7frgAwBAAA=
+X-Change-ID: 20261014-memalloc-prof-dont-waste-slabobj-ext-metadata-34f943ef9658
+To: Vlastimil Babka <vbabka@kernel.org>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Suren Baghdasaryan <surenb@google.com>, 
+ Johannes Weiner <hannes@cmpxchg.org>, Michal Hocko <mhocko@kernel.org>, 
+ Shakeel Butt <shakeel.butt@linux.dev>, 
+ Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Hao Li <hao.li@linux.dev>, Christoph Lameter <cl@gentwo.org>, 
+ David Rientjes <rientjes@google.com>, Muchun Song <muchun.song@linux.dev>, 
+ Hao Ge <hao.ge@linux.dev>, Pedro Falcato <pfalcato@suse.de>, 
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org, kernel-team@meta.com, 
+ "Harry Yoo (Meta)" <harry@kernel.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Alice Ryhl <aliceryhl@google.com>, 
+ Andrew Ballance <andrewjballance@gmail.com>, 
+ Matthew Wilcox <willy@infradead.org>, linux-fsdevel@vger.kernel.org, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+ Jiayuan Chen <jiayuan.chen@linux.dev>, netdev@vger.kernel.org, 
+ Kees Cook <kees@kernel.org>, David Hildenbrand <david@kernel.org>, 
+ Lorenzo Stoakes <ljs@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+ Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+ Robin Murphy <robin.murphy@arm.com>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
+ Amir Goldstein <amir73il@gmail.com>, 
+ Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>, 
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+ linux-security-module@vger.kernel.org, Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Eric Dumazet <edumazet@kernel.org>, maple-tree@lists.infradead.org, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+ Jason Xing <kerneljasonxing@gmail.com>, 
+ Willem de Bruijn <willemb@google.com>, 
+ Mina Almasry <almasrymina@google.com>, 
+ =?utf-8?q?Bj=C3=B6rn_T=C3=B6pel?= <bjorn@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
+ Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Juri Lelli <juri.lelli@redhat.com>, 
+ Vincent Guittot <vincent.guittot@linaro.org>, 
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, 
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, 
+ K Prateek Nayak <kprateek.nayak@amd.com>, 
+ Anshuman Khandual <anshuman.khandual@arm.com>, 
+ linux-arm-kernel@lists.infradead.org, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ linuxppc-dev@lists.ozlabs.org, Niklas Schnelle <schnelle@linux.ibm.com>, 
+ Matthew Rosato <mjrosato@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+ Samuel Holland <samuel@sholland.org>, iommu@lists.linux.dev, 
+ linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev, 
+ linux-um@lists.infradead.org, cgroups@vger.kernel.org
+X-Mailer: b4 0.16.0
+
+TL;DR
+-----
+
+The purpose of this series is to convert existing slab users that
+specify __GFP_ACCOUNT on allocations to specify SLAB_MAY_ACCOUNT on
+cache creation, to reduce memory waste for slab metadata with
+CONFIG_MEMCG=y && CONFIG_MEM_ALLOC_PROFILING=y.
+
+Longer version of the cover letter
+----------------------------------
+
+Currently, there are two ways to charge slab objects to memory
+cgroups: 1) specify SLAB_ACCOUNT during cache creation, or 2) specify
+__GFP_ACCOUNT on allocation. The latter method made it impossible to
+assume that certain slab caches are never charged to memory cgroups.
+
+Since commit d4404b0f5b8b ("mm/slab: stop allocating objcg pointers when
+unnecessary"), slabobj_ext allocates the space for the objcg pointer
+only for caches with SLAB_MAY_ACCOUNT. However, kmem_cache_create() sets
+the flag on every cache, because any cache may be used with
+__GFP_ACCOUNT.
+
+As a result, sizeof(struct obj_cgroup *) bytes are wasted for each
+unaccounted slab object when both memalloc profiling and memcg are
+enabled. This is suboptimal when memalloc profiling is used to
+profile memory allocations on production.
+
+So, let's make memcg charging opt-in and stop wasting memory!
+
+New rule for slab users: a cache must specify SLAB_MAY_ACCOUNT
+(explicitly or implied by SLAB_ACCOUNT) for its objects to be charged
+to a memcg. Otherwise __GFP_ACCOUNT is ignored and triggers a warning on
+debug kernels (CONFIG_DEBUG_VM=y).
+
+The approach is quite straightforward, but converting all caches that
+may pass __GFP_ACCOUNT without SLAB_ACCOUNT at once is not.
+As a best-effort approach, I swept the whole tree (with help of an
+LLM) for paths that pass __GFP_ACCOUNT into slab allocations either
+directly or indirectly.
+
+While I tried to make sure the sweep is exhaustive, there can be a
+missing conversion. However that is not a correctness problem:
+the objects are just no longer charged to memcgs. Patch 13 adds
+VM_WARN_ON_ONCE in __memcg_slab_post_alloc_hook() to catch such a
+missing conversion.
+
+Patch 1 allows passing SLAB_MAY_ACCOUNT to kmem_cache_create(),
+patches 2-12 specify SLAB_MAY_ACCOUNT for the caches found by
+the sweep, and patch 14 stops setting SLAB_MAY_ACCOUNT on all caches.
+
+Memory savings and testing
+--------------------------
+
+On an idle x86 VM with both memalloc profiling and memcg enabled,
+slabobj_ext memory (the alloc_slab_obj_exts entry in /proc/allocinfo)
+drops from 1,280KB to 910KB (-29%) after boot. The savings are expected
+to be larger on real workloads, which allocate far more unaccounted slab
+objects (8 bytes per unaccounted slab object).
+
+Each tested cache was verified with the warning in patch 13:
+I confirmed that 1) the warning is triggered without the conversion,
+and 2) specifying SLAB_MAY_ACCOUNT resolves it. However I could not test
+io-pgtable_armv7s_l2 and sun50i's pt_pool caches due to lack of the
+hardware and emulation support. So they are compile-tested only.
+
+  cache                  tested  environment
+  ---------------------  ------  -----------------------
+  radix_tree_node        yes     x86
+  maple_node             yes     x86
+  buffer_head            yes     x86
+  skbuff_head_cache      yes     x86
+  fanotify_*_event       yes     x86
+  smack_rule             yes     x86
+  io-pgtable_armv7s_l2   no      compile-tested only
+  thread_stack           yes     ppc64le (64K pages)
+  pgd_cache (arm64)      yes     arm64 (64K pages)
+  PGT_CACHE (powerpc)    yes     ppc64le
+  PCI_DMA_*_tables       yes     s390x (zPCI + vfio)
+  hostfs_inode_cache     yes     UML
+  sun50i pt_pool         no      compile-tested only
+
+Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
+---
+Changes in v2:
+- Rebased onto the latest slab/for-next.
+- Collected Acked-by from Jakub and Reviewed-by from Casey. Thanks!
+- Patch 1
+  - Resolve "sysfs: cannot create duplicate filename" warning by
+    encoding SLAB_MAY_ACCOUNT in create_unique_id() (kernel test robot,
+    Sashiko).
+  - Define SLAB_MAY_ACCOUNT in tools/include/linux/slab.h to fix
+    the build of tools/testing/{radix-tree,vma} (Mike, Sashiko).
+- Swept the tree again on the new base. No new cache needs
+  SLAB_MAY_ACCOUNT.
+- Re-tested all the conversions on the new base.
+- Link to v1: https://patch.msgid.link/20261021-memalloc-prof-dont-waste-slabobj-ext-metadata-v1-0-096800aa3330@kernel.org
+
+Range-diff against v1:
+
+ 1:  f749199b4fde !  1:  31425f1e4a92 mm/slab: allow passing SLAB_MAY_ACCOUNT to kmem_cache_create()
+    @@ Commit message
+         Callers will specify SLAB_MAY_ACCOUNT for caches whose objects may be
+         allocated with __GFP_ACCOUNT. Accept the flag in SLAB_CORE_FLAGS.
+     
+    +    SLAB_MAY_ACCOUNT prevents merging but is not part of the sysfs ID. This
+    +    was fine while all mergeable caches had the flag. Now that callers may
+    +    specify it, encode it in create_unique_id() to keep the ID unique.
+    +
+    +    Define the flag in tools/ as well to avoid breaking the userspace tests.
+    +
+         Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
+     
+      ## mm/slab.h ##
+    @@ mm/slab.h: void flush_rcu_sheaves_on_cache(struct kmem_cache *s);
+      			 SLAB_NO_USER_FLAGS | SLAB_KMALLOC | SLAB_NO_MERGE)
+      
+      #define SLAB_DEBUG_FLAGS (SLAB_RED_ZONE | SLAB_POISON | SLAB_STORE_USER | \
+    +
+    + ## mm/slub.c ##
+    +@@ mm/slub.c: static char *create_unique_id(struct kmem_cache *s)
+    + 		*p++ = 'a';
+    + 	if (s->flags & SLAB_ACCOUNT)
+    + 		*p++ = 'A';
+    ++	if (s->flags & SLAB_MAY_ACCOUNT)
+    ++		*p++ = 'M';
+    + 	if (s->flags & SLAB_DEBUG_NOOP)
+    + 		*p++ = 'N';
+    + 	if (p != name + 1)
+    +
+    + ## tools/include/linux/slab.h ##
+    +@@ tools/include/linux/slab.h: enum _slab_flag_bits {
+    + 	_SLAB_PANIC,
+    + 	_SLAB_TYPESAFE_BY_RCU,
+    + 	_SLAB_ACCOUNT,
+    ++	_SLAB_MAY_ACCOUNT,
+    + 	_SLAB_FLAGS_LAST_BIT
+    + };
+    + 
+    +@@ tools/include/linux/slab.h: enum _slab_flag_bits {
+    + #define SLAB_TYPESAFE_BY_RCU	__SLAB_FLAG_BIT(_SLAB_TYPESAFE_BY_RCU)
+    + #ifdef CONFIG_MEMCG
+    + # define SLAB_ACCOUNT		__SLAB_FLAG_BIT(_SLAB_ACCOUNT)
+    ++# define SLAB_MAY_ACCOUNT	__SLAB_FLAG_BIT(_SLAB_MAY_ACCOUNT)
+    + #else
+    + # define SLAB_ACCOUNT		__SLAB_FLAG_UNUSED
+    ++# define SLAB_MAY_ACCOUNT	__SLAB_FLAG_UNUSED
+    + #endif
+    + 
+    + void *kmalloc(size_t size, gfp_t gfp);
+ 2:  7bde3ab6533f !  2:  9323ceca452f lib/maple_tree: specify SLAB_MAY_ACCOUNT for maple_node cache
+    @@ Commit message
+         Path: mtree_insert_range(GFP_KERNEL_ACCOUNT) -> mas_nomem()
+           -> mas_alloc_nodes() -> kmem_cache_alloc(maple_node_cache)
+     
+    -    Assisted-by: LLM
+         Cc: "Liam R. Howlett" <liam@infradead.org>
+         Cc: Alice Ryhl <aliceryhl@google.com>
+         Cc: Andrew Ballance <andrewjballance@gmail.com>
+ 3:  1c34ea46a76e !  3:  0558bdf4936a lib/xarray: specify SLAB_MAY_ACCOUNT for radix_tree_node cache
+    @@ Commit message
+           -> xas_store() -> xas_alloc() (gfp |= __GFP_ACCOUNT)
+           -> kmem_cache_alloc_lru(radix_tree_node_cachep)
+     
+    -    Assisted-by: LLM
+         Cc: Matthew Wilcox <willy@infradead.org>
+         Cc: linux-fsdevel@vger.kernel.org
+         Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
+ 4:  d9e638c3320d !  4:  96f41e2fa6db fs/buffer: specify SLAB_MAY_ACCOUNT for buffer_head cache
+    @@ Commit message
+         Path: ext4_getblk() -> folio_alloc_buffers(GFP_NOFS | __GFP_ACCOUNT)
+           -> alloc_buffer_head() -> kmem_cache_zalloc(bh_cachep)
+     
+    -    Assisted-by: LLM
+         Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+         Cc: Christian Brauner <brauner@kernel.org>
+         Cc: Jan Kara <jack@suse.cz>
+ 5:  c986fd19aacd !  5:  4f6b86b850c7 net: skbuff: specify SLAB_MAY_ACCOUNT for skbuff_head_cache
+    @@ Commit message
+           -> alloc_skb_with_frags() -> __alloc_skb()
+           -> kmem_cache_alloc_node(skbuff_head_cache)
+     
+    -    Assisted-by: LLM
+         Cc: "David S. Miller" <davem@davemloft.net>
+         Cc: Eric Dumazet <edumazet@google.com>
+         Cc: Jakub Kicinski <kuba@kernel.org>
+    @@ Commit message
+         Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+         Cc: Jiayuan Chen <jiayuan.chen@linux.dev>
+         Cc: netdev@vger.kernel.org
+    +    Acked-by: Jakub Kicinski <kuba@kernel.org>
+         Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
+     
+      ## net/core/skbuff.c ##
+ 6:  c86eb6c221f7 !  6:  c6f61c47e801 kernel/fork: specify SLAB_MAY_ACCOUNT for thread_stack cache
+    @@ Commit message
+           -> dup_task_struct() -> alloc_thread_stack_node()
+           -> kmem_cache_alloc_node(thread_stack_cache, THREADINFO_GFP)
+     
+    -    Assisted-by: LLM
+         Cc: Kees Cook <kees@kernel.org>
+         Cc: David Hildenbrand <david@kernel.org>
+         Cc: Lorenzo Stoakes <ljs@kernel.org>
+ 7:  a37935e9f1d8 !  7:  7c448f3688f4 arm64/mm: specify SLAB_MAY_ACCOUNT for pgd_cache
+    @@ Commit message
+         Path (e.g. 64K pages): copy_process() -> mm_init() -> pgd_alloc()
+           -> kmem_cache_alloc(pgd_cache, GFP_PGTABLE_USER)
+     
+    -    Assisted-by: LLM
+         Cc: Catalin Marinas <catalin.marinas@arm.com>
+         Cc: Will Deacon <will@kernel.org>
+         Cc: Mark Rutland <mark.rutland@arm.com>
+ 8:  948c9aa21dbf !  8:  8d5c29a8d6d6 powerpc/mm: specify SLAB_MAY_ACCOUNT for pgtable caches
+    @@ Commit message
+           -> kmem_cache_alloc(PGT_CACHE(PGD_INDEX_SIZE),
+                               pgtable_gfp_flags(mm, GFP_KERNEL))
+     
+    -    Assisted-by: LLM
+         Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+         Cc: Michael Ellerman <mpe@ellerman.id.au>
+         Cc: Nicholas Piggin <npiggin@gmail.com>
+ 9:  0b2d6a632aeb !  9:  9e68e442c86b iommu: specify SLAB_MAY_ACCOUNT for slab-backed page table caches
+    @@ Commit message
+           iommu_map(GFP_KERNEL_ACCOUNT) -> sun50i_iommu_map()
+             -> sun50i_dte_get_page_table() -> kmem_cache_zalloc(iommu->pt_pool)
+     
+    -    Assisted-by: LLM
+         Cc: Will Deacon <will@kernel.org>
+         Cc: Robin Murphy <robin.murphy@arm.com>
+         Cc: "Joerg Roedel (AMD)" <joro@8bytes.org>
+10:  df629ca9f8a3 ! 10:  0fb6578f9d32 fanotify: specify SLAB_MAY_ACCOUNT for event caches
+    @@ Commit message
+           -> fanotify_alloc_event(GFP_KERNEL_ACCOUNT)
+           -> kmem_cache_alloc(fanotify_{fid,path,perm,mnt}_event_cachep)
+     
+    -    Assisted-by: LLM
+         Cc: Jan Kara <jack@suse.cz>
+         Cc: Amir Goldstein <amir73il@gmail.com>
+         Cc: linux-fsdevel@vger.kernel.org
+11:  d3fd8833b207 ! 11:  cd123bafe26d smack: specify SLAB_MAY_ACCOUNT for smack_rule cache
+    @@ Commit message
+           -> security_prepare_creds(GFP_KERNEL_ACCOUNT) -> smack_cred_prepare()
+           -> smk_copy_rules() -> kmem_cache_zalloc(smack_rule_cache)
+     
+    -    Assisted-by: LLM
+         Cc: Casey Schaufler <casey@schaufler-ca.com>
+         Cc: Paul Moore <paul@paul-moore.com>
+         Cc: James Morris <jmorris@namei.org>
+         Cc: "Serge E. Hallyn" <serge@hallyn.com>
+         Cc: linux-security-module@vger.kernel.org
+    +    Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+         Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
+     
+      ## security/smack/smack_lsm.c ##
+12:  e491d907f0da ! 12:  33a8d0abf54e hostfs: specify SLAB_MAY_ACCOUNT for inode cache
+    @@ Commit message
+         Path: lookup -> hostfs_iget() -> hostfs_alloc_inode()
+           -> alloc_inode_sb(sb, hostfs_inode_cache, GFP_KERNEL_ACCOUNT)
+     
+    -    Assisted-by: LLM
+         Cc: Richard Weinberger <richard@nod.at>
+         Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+         Cc: Johannes Berg <johannes@sipsolutions.net>
+13:  495470a3e8c2 ! 13:  3dd416de21c1 mm/memcontrol: do not allow charging objects without SLAB_MAY_ACCOUNT
+    @@ Commit message
+         is never charged does not access the objcg slot again, and the free
+         path already skips such caches via slab_needs_objcg().
+     
+    -    Assisted-by: LLM # Changelog
+         Cc: Johannes Weiner <hannes@cmpxchg.org>
+         Cc: Michal Hocko <mhocko@kernel.org>
+         Cc: Shakeel Butt <shakeel.butt@linux.dev>
+14:  84b9be2d2d42 ! 14:  533a72d59074 mm/slab: do not set SLAB_MAY_ACCOUNT for all caches
+    @@ Commit message
+         the objcg slot in slabobj_ext for caches that are never charged to a
+         memcg.
+     
+    -    Assisted-by: LLM # Changelog
+         Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
+     
+      ## include/linux/slab.h ##
+
+---
+Harry Yoo (Meta) (14):
+      mm/slab: allow passing SLAB_MAY_ACCOUNT to kmem_cache_create()
+      lib/maple_tree: specify SLAB_MAY_ACCOUNT for maple_node cache
+      lib/xarray: specify SLAB_MAY_ACCOUNT for radix_tree_node cache
+      fs/buffer: specify SLAB_MAY_ACCOUNT for buffer_head cache
+      net: skbuff: specify SLAB_MAY_ACCOUNT for skbuff_head_cache
+      kernel/fork: specify SLAB_MAY_ACCOUNT for thread_stack cache
+      arm64/mm: specify SLAB_MAY_ACCOUNT for pgd_cache
+      powerpc/mm: specify SLAB_MAY_ACCOUNT for pgtable caches
+      iommu: specify SLAB_MAY_ACCOUNT for slab-backed page table caches
+      fanotify: specify SLAB_MAY_ACCOUNT for event caches
+      smack: specify SLAB_MAY_ACCOUNT for smack_rule cache
+      hostfs: specify SLAB_MAY_ACCOUNT for inode cache
+      mm/memcontrol: do not allow charging objects without SLAB_MAY_ACCOUNT
+      mm/slab: do not set SLAB_MAY_ACCOUNT for all caches
+
+ arch/arm64/mm/pgd.c                |  2 +-
+ arch/powerpc/mm/init-common.c      |  3 ++-
+ drivers/iommu/io-pgtable-arm-v7s.c |  2 +-
+ drivers/iommu/s390-iommu.c         |  4 ++--
+ drivers/iommu/sun50i-iommu.c       |  3 ++-
+ fs/buffer.c                        |  2 +-
+ fs/hostfs/hostfs_kern.c            |  2 +-
+ fs/notify/fanotify/fanotify_user.c | 10 ++++++----
+ include/linux/slab.h               | 16 +++++++++++++---
+ kernel/fork.c                      |  3 ++-
+ lib/maple_tree.c                   |  2 +-
+ lib/radix-tree.c                   |  2 +-
+ mm/memcontrol.c                    |  6 ++++++
+ mm/slab.h                          |  2 +-
+ mm/slab_common.c                   |  8 +++-----
+ mm/slub.c                          |  2 ++
+ net/core/skbuff.c                  |  2 +-
+ security/smack/smack_lsm.c         |  2 +-
+ tools/include/linux/slab.h         |  3 +++
+ 19 files changed, 50 insertions(+), 26 deletions(-)
+---
+base-commit: 0b0985aeb9979c5fa5c3b872cecdf97ed4ed2b3e
+change-id: 20261014-memalloc-prof-dont-waste-slabobj-ext-metadata-34f943ef9658
+
+Best regards,
+--  
+Cheers,
+Harry / Hyeonggon
 
-Thank you for your contribution! Sashiko AI review found 6 potential
-issue(s) to consider.
-
-Critical: 0 · High: 2 · Medium: 1 · Low: 3
-
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [High] The fix is incomplete: it checks only the `count` half of each
-  peer cursor and never looks at `wrap`.
-- [High] The new validation runs only on the SMC-R receive path,
-  `smc_cdc_rx_handler()`.
-- [Medium] This finding is speculative.
-- [Low] `smcr_cdc_cursors_invalid()` uses `>` and so accepts `prod.count
-  == rmb_desc->len` and `cons.count == peer_rmbe_size`.
-- [Low] The commit fixes a remotely triggerable out-of-bounds read that
-  leaks kernel memory to userspace (KASAN-confirmed per the commit…
-- [Low] The trailer chain is inconsistent with submitting-patches.rst.
-
---
-
-net/smc: validate the peer's CDC cursors against our own buffers
-
-This patch adds smcr_cdc_cursors_invalid(). It drops an SMC-R CDC message
-in smc_cdc_rx_handler() when the peer's producer cursor count is larger
-than rmb_desc->len, or when the consumer cursor count is larger than
-peer_rmbe_size. The goal is to stop the out-of-bounds reads that a forged
-cursor causes in the urgent-data and recvmsg() paths.
-
-> Signed-off-by: Kapil Vaswani <kapil@presceralabs.ai>
-> Signed-off-by: Piyus Kedia <piyus@iiitd.ac.in>
-
-[Severity: Low]
-The From: line is Piyus Kedia, but the first Signed-off-by is Kapil
-Vaswani, and there is no Co-developed-by tag.
-
-Should a Co-developed-by: Kapil Vaswani tag go with that sign-off, as
-submitting-patches.rst describes? Or should Kapil Vaswani be the author?
-
-[Severity: Low]
-This fixes an out-of-bounds read that a remote peer can trigger and that
-reaches userspace. Would a Fixes: tag and Cc: stable be appropriate?
-
-According to git blame, the diff_prod to bytes_to_rcv accounting in
-smc_cdc_msg_recv_action() came from:
-
-5f08318f617b ("smc: connection data control (CDC)")
-
-It was later switched to rmb_desc->len by:
-
-69cb7dc0218b ("net/smc: add common buffer size in send and receive buffer descriptors")
-
-The urgent byte index in smc_cdc_handle_urg_data_arrival() came from:
-
-de8474eb9d50 ("net/smc: urgent data support")
-
-> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-> index 32d6d03df3214..03ff10fef7da6 100644
-> --- a/net/smc/smc_cdc.c
-> +++ b/net/smc/smc_cdc.c
-> @@ -466,6 +466,26 @@ void smcd_cdc_rx_init(struct smc_connection *conn)
-
-[ ... ]
-
-> +static bool smcr_cdc_cursors_invalid(struct smc_connection *conn,
-> +				     struct smc_cdc_msg *cdc)
-> +{
-> +	if (!conn->rmb_desc)
-> +		return true;
-
-[Severity: Medium]
-This one may be speculative. Can conn->rmb_desc change between this check
-and the places that use it?
-
-The check runs in smc_cdc_rx_handler() after conns_lock has been dropped
-and before smc_cdc_msg_recv() takes bh_lock_sock().
-smc_cdc_msg_recv_action(), smc_cdc_handle_urg_data_arrival() and
-smc_rx_recvmsg() each read conn->rmb_desc again, so the check and the use
-do not work on the same snapshot:
-
-	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
-				  &conn->local_rx_ctrl.prod);
-
-The handshake can retry with another device or SMC version on the same
-connection. smc_listen_find_device() falls through from ISM to
-smc_find_rdma_v2_device_serv() and then to
-smc_find_rdma_v1_device_serv(). Each one calls smc_conn_create() and
-smc_buf_create(), and calls smc_conn_abort() on failure.
-
-On that path, smc_conn_free() unregisters the connection but never clears
-conn->rmb_desc:
-
-	if (!list_empty(&lgr->list))
-		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
-	smc_lgr_unregister_conn(conn);
-
-smc_conn_create() then registers the connection again, and
-__smc_buf_create() installs the new buffer with a plain store:
-
-	conn->rmb_desc = buf_desc;
-
-Suppose an RX handler on the old SMC-R link has already found the
-connection. Could it pass this check against the old, larger
-rmb_desc->len, and then run smc_cdc_msg_recv_action() against the new,
-smaller buffer?
-
-Between smc_conn_create() and smc_buf_create(), the connection can be
-found while rmb_desc still holds the old pointer, which is not NULL. That
-buffer may already have been freed by the is_reg_err branch of
-smcr_buf_unuse(). The !conn->rmb_desc test would not catch this. Would the
-check itself then read freed memory?
-
-bh_lock_sock() does not exclude the process-context writer, which holds
-lock_sock(). The stale rmb_desc lifetime predates this patch; only the
-split between check and use is new.
-
-Would it be safer to do the check inside smc_cdc_msg_recv_action(), using
-the same READ_ONCE() snapshot of rmb_desc as the arithmetic?
-
-> +	if (ntohl(cdc->prod.count) > (u32)conn->rmb_desc->len)
-> +		return true;
-
-[Severity: High]
-This only checks the count field. Can a peer still push
-conn->bytes_to_rcv past rmb_desc->len by using the wrap field?
-
-smc_cdc_cursor_to_host() only rejects a cursor that moves backwards, so it
-accepts any increase in wrap:
-
-net/smc/smc_cdc.h:smc_cdc_cursor_to_host() {
-    ...
-	if ((old.wrap > temp.wrap) && temp.wrap)
-		return;
-	if ((old.wrap == temp.wrap) &&
-	    (old.count > temp.count))
-		return;
-	smc_curs_copy(local, &temp, conn);
-}
-
-smc_curs_diff() does not clamp the result when the wraps differ:
-
-net/smc/smc_cdc.h:smc_curs_diff() {
-	if (old->wrap != new->wrap)
-		return max_t(int, 0,
-			     ((size - old->count) + new->count));
-    ...
-}
-
-Its header comment says the "difference cannot exceed size". Nothing on
-this path makes sure of that.
-
-For example, start from prod {wrap=0, count=0}. Three CDC messages with
-increasing seqno carry prod {1,0}, {2,0} and {3,0}. All three pass
-smcr_cdc_cursors_invalid(), and each one adds rmb_desc->len in
-smc_cdc_msg_recv_action():
-
-	atomic_add(diff_prod, &conn->bytes_to_rcv);
-	/* guarantee 0 <= bytes_to_rcv <= rmb_desc->len */
-
-bytes_to_rcv then reaches 3 * len. A single message carrying
-{old.wrap + 1, count = len} adds 2 * len - old.count.
-
-In smc_rx_recvmsg(), only the first chunk is clamped, to
-rmb_desc->len - cons.count. The second chunk is read from offset 0 with no
-bound:
-
-	chunk_len = copylen - chunk_len; /* remainder */
-	chunk_len_sum += chunk_len;
-	chunk_off = 0; /* modulo offset in recv ring buffer */
-
-So memcpy_to_msg() can still copy bytes from past the end of the RMB to
-userspace. If cons.count > 0, a bytes_to_rcv of 2 * len is already enough.
-
-The same trick on the consumer cursor would push peer_rmbe_space above
-peer_rmbe_size through the diff_cons addition.
-
-Given this, is this part of the commit message accurate?
-
-  "Validate both cursors where the message is accepted, next to the
-  existing length and sequence-number checks, so that one test covers
-  every consumer."
-
-Would it work better to bound the computed difference instead of the raw
-count? One option is to require the new prod cursor to be no more than
-rmb_desc->len ahead of the local consumer cursor. Another is to limit the
-resulting bytes_to_rcv and peer_rmbe_space. smc_curs_diff_large() already
-clamps in a similar way.
-
-> +	if (ntohl(cdc->cons.count) > conn->peer_rmbe_size)
-> +		return true;
-
-[Severity: Low]
-The commit message says:
-
-  "A cursor equal to the buffer length is legitimate (a full ring), so
-  only a larger one is rejected."
-
-Is that true for Linux peers? smc_curs_add() always normalises the
-cursor:
-
-net/smc/smc_cdc.h:smc_curs_add() {
-	curs->count += value;
-	if (curs->count >= size) {
-		curs->wrap++;
-		curs->count -= size;
-	}
-}
-
-So a correct Linux peer never sends count == size. A full ring appears as
-the same count with a wrap one higher. Should both comparisons here use >=
-instead of >?
-
-Accepting count == len does not cause a separate out-of-bounds access,
-because {w, len} behaves like {w + 1, 0} in smc_curs_diff(). Combined with
-a wrap increase, though, it lets one message add the maximum of
-2 * len - old.count.
-
-It isn't clear whether any non-Linux SMC implementation sends
-count == size.
-
-> +	return false;
-> +}
-> +
->  static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
->  {
->  	struct smc_link *link = (struct smc_link *)wc->qp->qp_context;
-> @@ -499,6 +519,9 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
->  			   conn->local_rx_ctrl.seqno))
->  		/* received seqno is old */
->  		goto out;
-> +	if (smcr_cdc_cursors_invalid(conn, cdc))
-> +		/* peer cursor outside the buffer it describes */
-> +		goto out;
-
-[Severity: High]
-This check is only added on the SMC-R receive path. Is the SMC-D path
-still open to the same out-of-bounds reads?
-
-smcd_cdc_rx_tsklet() takes a snapshot of the cursors the peer wrote into
-the DMB and goes straight into the shared receive code:
-
-net/smc/smc_cdc.c:smcd_cdc_rx_tsklet() {
-    ...
-	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
-	smcd_curs_copy(&cdc.prod, &data_cdc->prod, conn);
-	smcd_curs_copy(&cdc.cons, &data_cdc->cons, conn);
-	smc = container_of(conn, struct smc_sock, conn);
-	smc_cdc_msg_recv(smc, (struct smc_cdc_msg *)&cdc);
-}
-
-The call chain is then
-smc_cdc_msg_recv()->smc_cdc_msg_recv_action()->smc_cdc_msg_to_host(),
-which ends up in smcd_cdc_msg_to_host(). That function copies the raw wrap
-and count. It has no range check, and it lacks even the backwards check
-that smc_cdc_cursor_to_host() does:
-
-	temp.wrap = peer->prod.wrap;
-	temp.count = peer->prod.count;
-	smc_curs_copy(&local->prod, &temp, conn);
-
->From there, the consumers listed in the commit message are shared with
-SMC-R:
-
-- the urgent byte read in smc_cdc_handle_urg_data_arrival():
-
-	conn->urg_rx_byte = *(base + conn->urg_curs.count - 1);
-
-- the bytes_to_rcv accounting that feeds the second chunk in
-  smc_rx_recvmsg();
-
-- with dmb_nocopy, the diff_tx addition to sndbuf_space.
-
-On s390, the ISM peer is another LPAR or guest. On loopback-ism it is the
-local kernel.
-
-Could the check move into smc_cdc_msg_recv_action(), after the host
-conversion, so that both paths are covered? For SMC-D it would need to
-work on the tasklet's local snapshot, since the peer can rewrite the DMB
-at any time.
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261121193345.2148966-2-piyus%40iiitd.ac.in
