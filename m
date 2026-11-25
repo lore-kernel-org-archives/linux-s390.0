@@ -1,81 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.140.110.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795608909;
-	b=06naJi/O6KN8aJVq63Q0dfBzdvDHva6v0IM07+zjZ97I7LUJ8WZYjLJv+88Ga20xERuh
-	 uJ7tCKSInZK6vG0F6n9ipmNTFS2s1TUp3l3yIaCnbLofGcpRmCHqbhnlZxmpMdJQLBtMO
-	 JCKD2XA0TkQWlREvkSwoMd6jiETLBCiC2GXbcgCbcuf8rW5UCkGLSVNZQWlGY5YTI5lzi
-	 GoH+71vktEosAFyqEVAqpBkO+cK0IAhedJJJRqm16NV0t/3UOMHSBXsSkBVRKEEV0yAzn
-	 5YJ7X3CCtPrWgVdrnmdCaeGlcDUpL0EA6mG36dBxZjxmf1DsPzHlZ9cd8WMNv5+oBYw==
+	t=1795616366;
+	b=bg6OJNTVIj6j+kYe25ZdGq6te4SBHaGUaVH4c2g0YYTHozGTHFsx+uY42ybuTMGdT5Vt
+	 kQClezzux2FJvp3pSYgvFkBDYxe3OULA1aWmdgwDoCNAZRRRcPmeBYW80FmhXvuT/P+by
+	 +aueuMZaxN10rJqI5B5QtWCnDL95jluVthp2WdsRceaHObfLnjTNyfkqNhTRrnzHaZuAM
+	 +b550o1wk80AW6PBWprEbYC/KtXK5scPB9ZL0kmIBL6D3iCsoLZQRgaFeXUksdvTSfyM6
+	 UxD96yAtutRVJG8rag4R/EIAsZ6ZJ8SuwWwFqQh9M6oXy5hRjNLR8Wg9nMnUWjNVcTg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795608909;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=TYp2bDJ8pP9dKAkvlU2tO/OGYv5ZQ//lb3iN0JKuFWs=;
-	b=0+ObmEMfgFJh3GXAoaVxVDkVaYIvWUeReX71+XEE1KHF2Vs0AswSPCD0CZdmSBncQEm7
-	 kMCijDieiL4Z931qNlQcom/TeuJSjahSTXbvpcsmjk8B2I24oXOnyRCG9zNMtKSO2td+J
-	 imbtsyrw4zHXgli0gEY6IoVuz/7R5UPpT5SbkUqq+bPrubWskZx16XaJI199bPQnsO2wf
-	 jz+AgyaEvlX9cGSgGkrA8v5Ke8tH4leOGRJHudA+1cV8L1axomMW+cn8JpK12gpU18pnC
-	 P2CBq/3s8wz25znNsyPFaPA0VoLvSEX6oF+mAIenSs8x2kJ9jxQIq6VAQVTjgbYIO5A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795616366;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=Uw51BNnNSMZkfcts9aiEFizxk6Nl2DC+AS1z+RPufIo=;
+	b=xuySv8o0kS3fJbEO1v7IT5ax9Itajx4N6+KXqTuj0e735eTlipAGyrw39x3uSYwb+EjU
+	 nZNrdZCwLRBp6X1Js//n59zuaYsD5tc5aR0ag9IVeVw4uYtRSKvc4vj5ObvRxv7seIFYQ
+	 nv6CZ6JqbcB1X0Lnv2EjBhS1d4JTK8tBuowAA+AjxLtQS/+D4ElAM7bkNo5b9otyeO+xX
+	 kTXI2sYeB9s4Tyn1B36uoAdJW/cAWd9ow/YLu+3l6oljQmRGix8qcm+dMoB7eZH/Aonk+
+	 8gOXDiXzcTJsYobh0n+SVcgGFJ9/jvCw2Rc15hwBPuoV+i4YSTfxisWKYc028Ix2ROA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=S4a9BYyF;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA020606A330;
-	Wed, 25 Nov 2026 12:15:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA020606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	dmarc=pass header.from=arm.com;
+	spf=pass smtp.mailfrom=arm.com;
+	dkim=pass header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=CWOkp8F7;
+	arc=none smtp.remote-ip=217.140.110.172
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C1662606A31E;
+	Wed, 25 Nov 2026 14:19:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C1662606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=S4a9BYyF
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6APA4ftq3596886;
-	Wed, 25 Nov 2026 12:15:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TYp2bD
-	J8pP9dKAkvlU2tO/OGYv5ZQ//lb3iN0JKuFWs=; b=S4a9BYyFk0/f9g9DJmWgJx
-	GIoT5nj7Z34pSON8AaMuAH3xHr+CAa2jDW2VD6lMQe5eZsnVk6tnO6bkVxAdLEHh
-	mqvblr6yHh7LIy6lip2QA6d7wdBl9+YucPRQ5RwHc/98S2ZPtCGqLW1ZUda2Evgx
-	qFQvwt04yJKdtXC9Khx6IMQT7LC2gMWLfG4YdxF3QzjV71KVU51A7U/2BHeVVjPf
-	YWVHPv5MtakSQ4w4BCJqxJepY5zJ+s7KtY+WwG0q8LiPSdTur4TPjMk5uLWFLRgt
-	pXHehPyC7BDN07DdBBpPqj6bpho4VtEPMtWL9FQlGg5PbQQuy/yR9o1oAuoTKpbw
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34g3ccu6-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 25 Nov 2026 12:15:07 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AP9nWRn3650118;
-	Wed, 25 Nov 2026 12:15:07 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j5kfa21jb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Nov 2026 12:15:06 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6APCF33w47841660
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Nov 2026 12:15:03 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 30C992004D;
-	Wed, 25 Nov 2026 12:15:03 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 94FF220043;
-	Wed, 25 Nov 2026 12:15:02 +0000 (GMT)
-Received: from [9.68.16.159] (unknown [9.68.16.159])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 25 Nov 2026 12:15:02 +0000 (GMT)
-Message-ID: <f243aa68-5b4c-4dd8-acdf-4a57a090b2a2@linux.ibm.com>
-Date: Wed, 25 Nov 2026 13:15:02 +0100
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.a=rsa-sha256 header.s=foss header.b=CWOkp8F7
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 46AD32F;
+	Wed, 25 Nov 2026 06:19:22 -0800 (PST)
+Received: from e143914.arm.com (e143914.arm.com [10.2.213.21])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0D1D03F763;
+	Wed, 25 Nov 2026 06:19:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1795616365; bh=zOuTUXAl5Me8B3Bviry0NGcs0zsjWzErFF7qo9A3aGc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=CWOkp8F7fQmWiAUNbgy+iHiUf8mWp+DIO06axxeCI11H+sQ6pnGd+zxvlgwqzB9hj
+	 1dmzmWI6vwm1F1TraqVf1cvJPFRIjM7bW54/QNRJWGi2SEwtorVa+EspH4/ZJdZY7V
+	 58m2h8ivwmNm/x1k+jTPsSn1HB7ERn1w+30/1qdw=
+Date: Wed, 25 Nov 2026 14:19:15 +0000
+From: Joey Gouly <joey.gouly@arm.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
+	Fuad Tabba <fuad.tabba@linux.dev>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Zenghui Yu <yuzenghui@huawei.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>, Paolo Bonzini <pbonzini@redhat.com>,
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 03/23] arm64: sysreg: Convert OSLSR to automatic
+ register generation
+Message-ID: <awbuY0mETtZ_mQh3@e143914.arm.com>
+References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-3-75e95980fb10@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,136 +84,100 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/5] s390/mm: Add ptep_ipte() helper
-To: Heiko Carstens <hca@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261124135948.1295745-1-hca@linux.ibm.com>
- <20261124135948.1295745-4-hca@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20261124135948.1295745-4-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=SoQFe/O0 c=1 sm=1 tr=0 ts=6b06d14b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=c9EG_qTls1SWuyDDofsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI1MDA0OCBTYWx0ZWRfXzwtQq3MQYGLn
- B3iJPKszswUPj6cCn7VxpuQfPtigjuiiTBaJA9NnU2MIDNUvVtjsVKy/Vy2E8CD6hYDKid8fbZJ
- xiy17OlZwqOuQEI+BuCxLakglHbaLrk=
-X-Proofpoint-ORIG-GUID: gKrdrGhC7IfAb-ipe0AvoLYvvZWPCe2L
-X-Proofpoint-GUID: gKrdrGhC7IfAb-ipe0AvoLYvvZWPCe2L
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI1MDA0OCBTYWx0ZWRfX0LUPepZtqDxY
- nZtFF8qR4E9Dkc8VRQs/1mG0eTnu269AKqEQQimJ2giHgLWhGH4txNss8UGtMQ/A4njRhDFg68M
- Jb4dBZceT5AmuJFiuc2E+C/foY4PI0Mh7wfbL/91KGfo9eb9TvM5KA3A4MW0EKZ57rcem5ULTey
- eOjBUxpKz2JN9IM7OY0e8hEXtxauwV9vX2UWKaIUBUhcGYXv2zIspAslnjzU2RuA5UrU9IblNQI
- 6SsFQfW2VMyVEx16VPGWyzdxa6iJqvfeaIwa6PcMdRp762D0EeSsCDdyVwt/3scLgO4ZaWyQmMM
- CBRQB1w+QBIP8WLevzhE5Uudr2HaJgjyHoOVpnDyUvpcit+NAbXF+VJrLdCyOs74M4VtwFnbmfZ
- LRZm6R9sQ7kqILUN0rZpUhOGohRpMi1WQre3L4CiASA4mMpQZVggWwGKtLk7uqUTCRFxG8L1St1
- vpXepnB7csh1UTd/Wgg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-25_03,2026-11-23_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0 adultscore=0
- lowpriorityscore=0 clxscore=1015 malwarescore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611250048
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261106-sysreg-v3-3-75e95980fb10@linux.ibm.com>
 
+Hi,
 
-
-Am 24.11.26 um 14:59 schrieb Heiko Carstens:
-> Add a common ptep_ipte() helper in order to avoid the
-> repeated machine_has_tlb_guest() checks.
+On Fri, Nov 06, 2026 at 05:07:36PM +0100, Steffen Eiden wrote:
+> Convert OSLSR to automatic register generation as per DDI0601. As
+> OSLSR_OLSM is a composite field using bit 0 and bit 3 the combined
+> values are still defined manually. While at it rename
+> OSLSR_EL1_OSLM_IMPLEMENTED to OSLSR_EL1_OSLM_IMP to be consistent with
+> the rest of the system register values.
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> No functional changes.
+> 
+> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
+> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Need to do the Sashiko suggestion, it does fail to build.
 
+Reviewed-by: Joey Gouly <joey.gouly@arm.com>
 
+Thanks,
+Joey
 
 > ---
->   arch/s390/include/asm/pgtable.h | 11 +++++++++++
->   arch/s390/kvm/gmap/dat.c        |  5 +----
->   arch/s390/mm/pgtable.c          | 10 ++--------
->   3 files changed, 14 insertions(+), 12 deletions(-)
+>  arch/arm64/include/asm/sysreg.h | 12 +++++++-----
+>  arch/arm64/kvm/sys_regs.c       |  2 +-
+>  arch/arm64/tools/sysreg         | 14 ++++++++++++++
+>  3 files changed, 22 insertions(+), 6 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 2d5c2ab06de9..378d2db6e6be 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -21,6 +21,7 @@
->   #include <linux/atomic.h>
->   #include <linux/mmap_lock.h>
->   #include <asm/ctlreg.h>
-> +#include <asm/machine.h>
->   #include <asm/bug.h>
->   #include <asm/page.h>
->   #include <asm/uv.h>
-> @@ -1156,6 +1157,16 @@ static __always_inline void __ptep_ipte(unsigned long address, pte_t *ptep,
->   		: [r1] "a" (pto), [m4] "i" (local) : "memory");
->   }
->   
-> +static __always_inline void ptep_ipte(unsigned long address, pte_t *ptep,
-> +				      unsigned long opt, unsigned long asce,
-> +				      int local)
-> +{
-> +	if (machine_has_tlb_guest())
-> +		__ptep_ipte(address, ptep, opt, asce, local);
-> +	else
-> +		__ptep_ipte(address, ptep, 0, 0, local);
-> +}
+> diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+> index e3b60ee03023..2ec9ba9cd896 100644
+> --- a/arch/arm64/include/asm/sysreg.h
+> +++ b/arch/arm64/include/asm/sysreg.h
+> @@ -186,11 +186,13 @@
+>  #define SYS_DBGWCRn_EL1(n)		sys_reg(2, 0, 0, n, 7)
+>  #define SYS_MDRAR_EL1			sys_reg(2, 0, 1, 0, 0)
+>  
+> -#define SYS_OSLSR_EL1			sys_reg(2, 0, 1, 1, 4)
+> -#define OSLSR_EL1_OSLM_MASK		(BIT(3) | BIT(0))
+> -#define OSLSR_EL1_OSLM_NI		0
+> -#define OSLSR_EL1_OSLM_IMPLEMENTED	BIT(3)
+> -#define OSLSR_EL1_OSLK			BIT(1)
+> +#define OSLSR_EL1_OSLM_MASK (OSLSR_EL1_OSLM0_MASK | OSLSR_EL1_OSLM1_MASK)
+> +#define OSLSR_EL1_OSLM_NI						\
+> +	((OSLSR_EL1_OSLM1_NI << OSLSR_EL1_OSLM1_SHIFT) |		\
+> +	(OSLSR_EL1_OSLM0_VAL_0 << OSLSR_EL1_OSLM0_SHIFT))
+> +#define OSLSR_EL1_OSLM_IMP						\
+> +	((OSLSR_EL1_OSLM1_IMP << OSLSR_EL1_OSLM1_SHIFT) |		\
+> +	(OSLSR_EL1_OSLM0_VAL_0 << OSLSR_EL1_OSLM0_SHIFT))
+>  
+>  #define SYS_OSDLR_EL1			sys_reg(2, 0, 1, 3, 4)
+>  #define SYS_DBGPRCR_EL1			sys_reg(2, 0, 1, 4, 4)
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index 2b28b929f9f3..8c91de6a4097 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+> @@ -3309,7 +3309,7 @@ static const struct sys_reg_desc sys_reg_descs[] = {
+>  	{ SYS_DESC(SYS_MDRAR_EL1), trap_raz_wi },
+>  	{ SYS_DESC(SYS_OSLAR_EL1), trap_oslar_el1 },
+>  	{ SYS_DESC(SYS_OSLSR_EL1), trap_oslsr_el1, reset_val, OSLSR_EL1,
+> -		OSLSR_EL1_OSLM_IMPLEMENTED, .set_user = set_oslsr_el1, },
+> +		OSLSR_EL1_OSLM_IMP, .set_user = set_oslsr_el1, },
+>  	{ SYS_DESC(SYS_OSDLR_EL1), trap_raz_wi },
+>  	{ SYS_DESC(SYS_DBGPRCR_EL1), trap_raz_wi },
+>  	{ SYS_DESC(SYS_DBGCLAIMSET_EL1), trap_raz_wi },
+> diff --git a/arch/arm64/tools/sysreg b/arch/arm64/tools/sysreg
+> index 997c62ab72e6..5d38f115bac1 100644
+> --- a/arch/arm64/tools/sysreg
+> +++ b/arch/arm64/tools/sysreg
+> @@ -122,6 +122,20 @@ Res0	63:1
+>  Field	0	OSLK
+>  EndSysreg
+>  
+> +Sysreg	OSLSR_EL1	2	0	1	1	4
+> +Res0	63:4
+> +UnsignedEnum	3	OSLM1
+> +	 0b0	NI
+> +	 0b1	IMP
+> +EndEnum
+> +UnsignedEnum	2	nTT
+> +EndEnum
+> +Field	1	OSLK
+> +UnsignedEnum	0	OSLM0
+> +	 0b0	VAL_0
+> +EndEnum
+> +EndSysreg
 > +
->   static __always_inline void __ptep_ipte_range(unsigned long address, int nr,
->   					      pte_t *ptep, int local)
->   {
-> diff --git a/arch/s390/kvm/gmap/dat.c b/arch/s390/kvm/gmap/dat.c
-> index 7a25e41a1423..909d665a67a9 100644
-> --- a/arch/s390/kvm/gmap/dat.c
-> +++ b/arch/s390/kvm/gmap/dat.c
-> @@ -173,10 +173,7 @@ union pgste __dat_ptep_xchg(union pte *ptep, union pgste pgste, union pte new, g
->   	if (!old.h.i) {
->   		unsigned long opts = IPTE_GUEST_ASCE | (pgste.nodat ? IPTE_NODAT : 0);
->   
-> -		if (machine_has_tlb_guest())
-> -			__ptep_ipte(gfn_to_gpa(gfn), (void *)ptep, opts, asce.val, IPTE_GLOBAL);
-> -		else
-> -			__ptep_ipte(gfn_to_gpa(gfn), (void *)ptep, 0, 0, IPTE_GLOBAL);
-> +		ptep_ipte(gfn_to_gpa(gfn), (void *)ptep, opts, asce.val, IPTE_GLOBAL);
->   	}
->   
->   	if (uses_skeys) {
-> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> index 1aa5fe0b30d8..f6a960f39abf 100644
-> --- a/arch/s390/mm/pgtable.c
-> +++ b/arch/s390/mm/pgtable.c
-> @@ -38,18 +38,12 @@ EXPORT_SYMBOL_GPL(pgprot_writecombine);
->   
->   static inline void ptep_ipte_local(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
->   {
-> -	if (machine_has_tlb_guest())
-> -		__ptep_ipte(addr, ptep, IPTE_NODAT | IPTE_GUEST_ASCE, mm->context.asce, IPTE_LOCAL);
-> -	else
-> -		__ptep_ipte(addr, ptep, 0, 0, IPTE_LOCAL);
-> +	ptep_ipte(addr, ptep, IPTE_NODAT | IPTE_GUEST_ASCE, mm->context.asce, IPTE_LOCAL);
->   }
->   
->   static inline void ptep_ipte_global(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
->   {
-> -	if (machine_has_tlb_guest())
-> -		__ptep_ipte(addr, ptep, IPTE_NODAT | IPTE_GUEST_ASCE, mm->context.asce, IPTE_GLOBAL);
-> -	else
-> -		__ptep_ipte(addr, ptep, 0, 0, IPTE_GLOBAL);
-> +	ptep_ipte(addr, ptep, IPTE_NODAT | IPTE_GUEST_ASCE, mm->context.asce, IPTE_GLOBAL);
->   }
->   
->   static inline pte_t ptep_flush_direct(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-
+>  Sysreg	SPMACCESSR_EL1	2	0	9	13	3
+>  UnsignedEnum	63:62	P31
+>  	0b00	TRAP_RW
+> 
+> -- 
+> 2.56.0
+> 
