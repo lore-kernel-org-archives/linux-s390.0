@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795691893;
-	b=5VlZkWCvvbO2drWDRaGumlmzl4hOwIKqou5r1OPjFJeRb9SzVh9S7+xWTnwpcUzzEe0x
-	 X9J4akcFef1D9r5R8QTn+mEk8oE2Xx2Xo5+OBbGDhP5Xzn0ppzsAvnEpoFyhO9qetF3aJ
-	 axBv0PvWHMxtd4QvgDHc1/p5qLa8OyFYuAGhD/HWceufW9s6rHeqHOxBX9hoAJBFEuezk
-	 GJ2lHUkXCSy7VNl5UuvSGh8kEv99yKtTn+cM8x2CdF6Ubzje1nc0NQcKAFUywywuVOKK3
-	 j32+VAwJDHeJqw0Jhmd3EmOLpsFfZXoXIyP5Kh2rU97IJ5CzZfQ7OFBjOW6gpQXNL5w==
+	t=1795691902;
+	b=WeL7GjDOZk4hHbaiY7ioc7ot31XOL3ePmFLar8aiv0ZT15Fq+VkCyGuy3/a2fzPwx1pk
+	 K0Xim92KsnKsf6LubqOIfqoHbVAKdsz2HDaZqPebC9097zCBTIwEcK9Yto5QAC1Q5Bpwc
+	 kbuX4bZALv7juyvFxfkgf79GBnF3TAvDUiQ7t7GtxGxEmh+yZ27MX/aJMj89QwL25zsZl
+	 iQ3XIDjgLq+reSxEc7T9YZOUDb78kqhy7JYSgIvsyjxgaBeQgFIzW5kEoN2wWZWAFmpDW
+	 P0H+2YcRqz6h3QFRH8xfqkgU+PqqRsesTE8nJm6MnSUmlqTAqRO5wzytLqaSjb7Wbbw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795691893;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795691902;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=nfYyn85pUjMYKHSpG7Nmwds+Fo4pM3ejdYfJznX5ccQ=;
-	b=Laijra5QCgG3J4XDp6+hcBpDhxq2dAPTiedsJ6i7Nor7v6x4ngzEadg4pVoCM3kfaAQz
-	 tI2Eu5ozJ1BNXL5zEKco+gd7w1llR31XiFfyGitssP1YoS+rKa2VPg1yLmPxxEjGPJFdb
-	 +PglOolJRMnAIeKPcGu/Q5XZjRa2yLjvYnmeP82J5AMtbH8NNwLWYjLsvy2+Woo6sgVMo
-	 46NRqCbhfSKaxvShB6ynrRFKgq8ZOTtM+6F+JVqMAiX2e1JedC7ljEIBI0hOBdspcVnvq
-	 bwts6rsNa9TqR3K+Y9B9gcNrA+Ba3Oltfa9yEMOm2rmRD1sX47jFsVDWza8tVg+nsaA==
+	bh=ZILZfKisda6VydMd2eX+gp7jxSdYsZR8fHOcYz6Cqew=;
+	b=CtFjbY6vYJagFovDTPxcBrZCNxwWNDThtYIMRuAGcfyXJOfg/oQ3UAaQi7+org1HvoqB
+	 LiRPjMi7C0IjM8VlBNhlmagdTq0aExghHMopIFTtqonhdzjgNStCwD5Pmw8qkcWFS93e0
+	 Prr62PypP/n4zcOvHvoSoUaY9SviykmLTkZag5b6pE6UC+FW9Kmks5ge+RTVwadEp6ZK/
+	 wpCdzLuwE2Jf7PzJNoQ172SvXGTV0cpbTH4j/l1kG9gSTdCCMBor+8fhmnWuBCrpUSyPg
+	 oVnk8K54z5emPHUIfCoDD3MMuuH89MyBUImHBN7tUuqugC2zjZ6lnBfANQH1L41fIVA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QJo5w1j0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="dcA/LQZJ";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36BE1606A31C;
-	Thu, 26 Nov 2026 11:18:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E806606A331;
+	Thu, 26 Nov 2026 11:18:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QJo5w1j0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42AE21F000EB;
-	Thu, 26 Nov 2026 11:18:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dcA/LQZJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612A11F000EB;
+	Thu, 26 Nov 2026 11:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795691892;
-	bh=nfYyn85pUjMYKHSpG7Nmwds+Fo4pM3ejdYfJznX5ccQ=;
+	s=k20260515; t=1795691901;
+	bh=ZILZfKisda6VydMd2eX+gp7jxSdYsZR8fHOcYz6Cqew=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=QJo5w1j0YNGG/MVA+7N155ZqRi61HNhq+idbAR7dzgepcTaSSSN+xAPQr/B4U+LMp
-	 BLLyXQGrlkuNmkAqtR7dz8Vof5IMsXtBsjhDvz09x6vkSHb44KisyiT2zc91b6fKiF
-	 epVtUi6raw9GLDuK3tUSzLuNl8A3gKsBJnlMXAnCd5iSLbGjpGFwIfl2Mdc53Fho3V
-	 0IC1AcfgPDA4Pw6cojyD+hOhrBG/fRcdxuqntusHbWpnhLYrajjU5tuNGDAfZv1Wgl
-	 TYwLJc1rd7vxclPEfcAiKd46fTu/XAJzcoKbGilWnJ5MpVt4qvcl71XSrrSDsRt/Rs
-	 5JDZxjrcdb/1g==
+	b=dcA/LQZJNTRxAXYiSO3ecetRk8UeUJ6G6eowyblPb3SceghWJPlB47dy81dO3ekpo
+	 8zDVpbCPPwxS+gP2aWUtngwOLnVGrkWp3lbRZc00nMGGvENyrC+LUZsSkDTGn2a/Df
+	 Ykat0AJi7F5ysyrmoP735e9b3JtJOJkyBZb/r31kMWVXdrscOhgdsETzfdXnYLy3Oa
+	 9MLDBL0FuPwbh5GLhPshgP2x2ZO3LV6BIDUNOwy6XdbqpNWoRFGlguk+SsxHNgl76s
+	 ing/lUECgznOONlhV/K97ITTVUhM1RAQes1Mo/It0ScWnHTtRza5jJ7IGIDCXcwDNm
+	 NDSCBoaFdVjlw==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:14:36 +0200
-Subject: [PATCH RFC v2 23/54] x86/mm/pat: allocate the page tables for a
- split by level
+Date: Thu, 26 Nov 2026 13:14:37 +0200
+Subject: [PATCH RFC v2 24/54] x86/mm/pat: detect unchanged mappings by
+ comparing protections
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-23-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-24-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -83,98 +83,64 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-split_large_page() allocates the page table for a split with
-pte_alloc_one_kernel() regardless of the level it splits. A PMD table that
-replaces a PUD is allocated and announced to paravirt as a PTE table.
+CPA decides whether a mapping changes by encoding the new page table entry
+and comparing it with the existing one.
 
-While in practice this only matters for the accounting of page table pages,
-having proper allocation helpers not only makes that accounting right but
-will allow architectures to override page table allocation methods when
-core CPA logic moves to the generic code.
+It would be suboptimal to encode actual entries in the generic code for
+every comparison of the existing, requested and new protections, as every
+architecture would need one more out-of-line hook for it.
 
-Add helpers to allocate and free page tables with the appropriate function:
-pte_alloc_one_kernel() for a table that replaces PMD and pmd_alloc_one()
-for a table that replaces PUD.
+cpa_leaf by definition has the decoded protection which can be used in
+comparisons.
 
-Use paravirt_alloc_pmd() to notify PV guests about the new page table that
-replaces a PUD.
+Compare the new protection with the decoded one and encode only the page
+table entries that are written, as the last step.
+
+Encoding masks out the bits the CPU does not support and _PAGE_GLOBAL bit
+of a non-present entry, comparing protections does not. set_memory_global()
+on a CPU without PGE or on a non-present page now rewrites the PTEs with
+the same value and flushes the TLB. Its only caller changes the kernel
+text, which is always present, once at boot.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/x86/mm/pat/set_memory.c | 31 +++++++++++++++++++++++++------
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ arch/x86/mm/pat/set_memory.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
 diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index cb503e41340b..0a2d19064f23 100644
+index 0a2d19064f23..f4d3e2d9c3c9 100644
 --- a/arch/x86/mm/pat/set_memory.c
 +++ b/arch/x86/mm/pat/set_memory.c
-@@ -1215,7 +1215,10 @@ __split_large_page(struct cpa_data *cpa, struct cpa_leaf *leaf, pte_t *pbase)
- 	if (level != PGTABLE_LEVEL_PMD && level != PGTABLE_LEVEL_PUD)
- 		return -EINVAL;
+@@ -1917,26 +1917,18 @@ static int __change_page_attr(struct cpa_data *cpa)
+ 		return __cpa_process_fault(cpa, address);
  
--	paravirt_alloc_pte(&init_mm, page_to_pfn(base));
-+	if (level == PGTABLE_LEVEL_PMD)
-+		paravirt_alloc_pte(&init_mm, page_to_pfn(base));
-+	else
-+		paravirt_alloc_pmd(&init_mm, page_to_pfn(base));
+ 	if (leaf.level == PGTABLE_LEVEL_PTE) {
+-		pte_t old_pte = *leaf.kpte;
+ 		pgprot_t new_prot;
+ 		unsigned long pfn = leaf.pfn;
+-		pte_t new_pte;
  
- 	pfninc = pgtable_level_size(level - 1) >> PAGE_SHIFT;
- 	for (i = 0; i < PTRS_PER_PTE; i++, pfn += pfninc)
-@@ -1257,18 +1260,34 @@ __split_large_page(struct cpa_data *cpa, struct cpa_leaf *leaf, pte_t *pbase)
- 	return 0;
- }
- 
-+static void *cpa_alloc_pgtable(struct cpa_leaf *leaf)
-+{
-+	if (leaf->level == PGTABLE_LEVEL_PMD)
-+		return pte_alloc_one_kernel(&init_mm);
-+
-+	return pmd_alloc_one(&init_mm, leaf->addr);
-+}
-+
-+static void cpa_free_pgtable(struct cpa_leaf *leaf, void *table)
-+{
-+	if (leaf->level == PGTABLE_LEVEL_PMD)
-+		pte_free_kernel(&init_mm, table);
-+	else
-+		pmd_free(&init_mm, table);
-+}
-+
- static int split_large_page(struct cpa_data *cpa, struct cpa_leaf *leaf)
- {
- 	unsigned long address = __cpa_addr(cpa, cpa->curpage);
- 	pte_t *kpte = leaf->kpte;
- 	struct cpa_leaf tmp;
--	pte_t *pte;
-+	void *table;
- 	int ret = 0;
- 
- 	spin_unlock(&cpa_lock);
--	pte = pte_alloc_one_kernel(&init_mm);
-+	table = cpa_alloc_pgtable(leaf);
- 	spin_lock(&cpa_lock);
--	if (!pte)
-+	if (!table)
- 		return -ENOMEM;
- 
- 	/*
-@@ -1279,14 +1298,14 @@ static int split_large_page(struct cpa_data *cpa, struct cpa_leaf *leaf)
- 		goto out;
- 	*leaf = tmp;
- 
--	ret = __split_large_page(cpa, leaf, pte);
-+	ret = __split_large_page(cpa, leaf, table);
- 	if (ret)
- 		goto out;
- 
- 	return 0;
- 
- out:
--	pte_free_kernel(&init_mm, pte);
-+	cpa_free_pgtable(leaf, table);
- 	return ret;
- }
- 
+ 		cpa_inc_pte_install();
+ 		new_prot = cpa_new_prot(cpa, &leaf);
+-
+-		/*
+-		 * We need to keep the pfn from the existing PTE,
+-		 * after all we're only going to change its attributes
+-		 * not the memory it points to
+-		 */
+-		new_pte = cpa_pte(leaf.level, pfn, new_prot);
+ 		cpa->pfn = pfn;
+ 		/*
+ 		 * Do we really change anything ?
+ 		 */
+-		if (pte_val(old_pte) != pte_val(new_pte)) {
+-			set_pte_atomic(leaf.kpte, new_pte);
++		if (pgprot_val(new_prot) != pgprot_val(leaf.prot)) {
++			set_pte_atomic(leaf.kpte,
++				       cpa_pte(leaf.level, pfn, new_prot));
+ 			cpa->state |= CPA_ST_FLUSHTLB;
+ 		}
+ 		cpa->numpages = 1;
 
 -- 
 2.53.0
