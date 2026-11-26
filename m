@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795691798;
-	b=Fqu2HS5W0MKvDKDwcpc619lpJ15inCvgJ5sCnSP2eK4Og52DSaBiOvq0JnlAW0j35aZx
-	 1jMs3+Jsifmr2X9TrAJ+gYIXr/Nm7ExD5NLHP4tScDprWOx8hNJgpmNuUt7JoKs/htPcj
-	 oee/hQ+FDcoZj9HVwK4vTfDMq8J9YklA9CJO70NpCsT3Kc//QdsR8YVeo/J6dI7VMTGaX
-	 2Q86Vg2gYikDX3/sMvkCprcbRKtI591uuwLTOpcPLVmxDnjfmrxLiTaUSTSxNxbbS8p0K
-	 /1UKF7u6/FG8Nq90nbyrpwS/J2QEMKezneSaMOblOLAHYMuremHLWGwuTS8S+gqaxmQ==
+	t=1795691807;
+	b=LbtwuMSuxfnZ8vUNoC+HPJwRwHIcxWkUbP0f7/6lx6sMhm8aBRPzyyBhgCLgCwlzp+tA
+	 E8sK6MVV87d4Sf+QMHeTg2vJALB1R15DPIpDnGfm6mjkvkGAq8RKieoai07FoT6T9hqq0
+	 QTdTg/6iyeOp10qoB4skmsF6zoLEo/EQWpgUkTSVmVZTtxclzpSF4+4CZZRx7uchRoxDT
+	 oOXdcyS8IEQPqB0KnczVUu7ahy90aFFR188Tawo0qKc9CWfhiPj2AFkJNv4N5g4ntQ7N9
+	 hqFRQ5wiEmBfcS7t15fs6WgiHx6D1jYvX5v+4QH7YggBI4LPFWbKDCY/8yfqxWz7PdQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795691798;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795691807;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=JWC/vBALKCjgB3Vp7e+Dp/3jppLyPAzKiZgZB+giSqk=;
-	b=VZ/OxtG8Tj3gsHGj4j6BwQINM54rgi2UVu1JwqdwY7dcBrMHT3oc0auDuVgAge2XbUdB
-	 9P9oLEzQXGS9KCdKN9F6BUDC2wZpHCz4gE6QmsaGkdVZZaeZ2BKmwGi2bnm2yVm8KUfUc
-	 DOffORHK3jgPA2AqUZ/tHsGB/AziAzfPA/vAmsbXjqm1PG7+uulzIzanS/CbuGkYRODhw
-	 JNwSl8oa/GgT0jMcpVVV8USvRtsP1+MscdzOEqYSxBKBRPSpHf+sApUvYWIjTGbHdrBHj
-	 c/nThbr+fsAUnLlkrAHI7J6LmdiZGTs3gyBZws8MkMVyCUojZT5Tq+EEkMr8kVWCm2A==
+	bh=ia0IpFMuZ2KgIGlhSeCcR6ahLTVFLFvimBCAHBa8K7A=;
+	b=jRmBicVDNaBy7AU/jNciSnNUXRPzAKEKZCWzCXRuEScWmhRahaWi2t50bf+52rFPxz+t
+	 jbPBaPq7SWhCh2qm2v1L/peVB9PYnwULeW3CgaLFaoD2/dMZYjw+97QPbSp7uV3aT2AJF
+	 Nsy6dtXzGp4nQ8PGIKnJ6L7gmG88I9eETSbTWyB+B5m6cmfpStKhKifNAwGnHsYT8ao8d
+	 dsyZcOrI7TqP489FLcK4zph3KMdRmfc1oyyG4B4RPPyuzj/vNH6pkaIpLsM1vH3RUQdxP
+	 qiZZrnxmobzxyY01JIUfq7/6HHZpaQwoK9xK404x4mBt6Ndovn6o34I06PIlzxXSPQA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aYpj+ngS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C6JaML8N;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64AA606A323;
-	Thu, 26 Nov 2026 11:16:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD53B606A323;
+	Thu, 26 Nov 2026 11:16:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aYpj+ngS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 733D71F000C4;
-	Thu, 26 Nov 2026 11:16:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C6JaML8N
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB7F1F000C0;
+	Thu, 26 Nov 2026 11:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795691797;
-	bh=JWC/vBALKCjgB3Vp7e+Dp/3jppLyPAzKiZgZB+giSqk=;
+	s=k20260515; t=1795691807;
+	bh=ia0IpFMuZ2KgIGlhSeCcR6ahLTVFLFvimBCAHBa8K7A=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=aYpj+ngSiVFqOgPwkjKWlL43cMwZ+c5qm9pyvtLBv6pRVxFQz/EnGMvT3cqG60CKV
-	 gp17gvtMKi2AUU8TijAS5yNkCTOTjH2Hcpzo5zl5CqJX4AX6FkoKmRtDnCuSFqV1Me
-	 F5l2AWld4jnr12BgoJ/0hRgE9SX3p1+lkLsNAfVFhqEKgJ6rZL/qR7qp6M7cgLZYkA
-	 cajyHtUCZrnpDkX20HptjbPShYFK0PskDHvCpXjIeQQYNmZuANQV5dGi67AmHknFT9
-	 b0dh9ehw25xnd7VAFSRbYHeAn3Icdmn02VTQRbc8OoQpSYOJECww1+H2cR7XMAw8q2
-	 JUPAaB2anngGA==
+	b=C6JaML8N2aNTeIzENf2nvr8+aQgkt9RA0b/lUdY93mcchmhUi11+e2a0tScZ3CniC
+	 QcRTPjB5Vvm2IKDrI4w2dr9YP7aKd6XiEFEQSWgHsN3oqfBPSbyJh4msiz7bJhFJnY
+	 iHdEmk5VqDZ48vtOq9/cNB+6cQtOxm6d8cwlsfOe1vf3GC7TxG6ITRc00G6AjGH+kS
+	 B1xDuZEPBtfEFIxDXf4DYfMJfU9pqQnNKwdDbA+opSwvI0DnVrHPn5m+cXAEC5semk
+	 KHjBJ98o8aoZmxj2R6CX3JQmkDMDMQuLboY0NzWq2S7adY5QVhdyX0S7Rlpx6YLmpG
+	 3SAUQuPMNGeGg==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:14:26 +0200
-Subject: [PATCH RFC v2 13/54] x86/mm/pat: make the direct map counters
- atomic
+Date: Thu, 26 Nov 2026 13:14:27 +0200
+Subject: [PATCH RFC v2 14/54] x86/mm/pat: take pgd_lock only around the
+ pgd_list walks
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-13-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-14-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -83,98 +83,138 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-In update_page_count() pgd_lock protects only the direct map counters. The
-splits and collapses in CPA update the counters under pgd_lock that they
-hold for other reasons.
+CPA takes pgd_lock around the split decision, the update of a large page,
+the split and the collapse of large pages.
 
-Make the counters atomic_long_t, like s390 and powerpc do, so that updating
-them does not need pgd_lock.
+Everywhere else pgd_lock protects pgd_list. CPA needs it only on 32-bit, to
+update the per-pgd copies of the kernel PMD entries when it changes them.
 
-A split checks that the counter of the large pages is not zero before it
-decrements it. Use atomic_long_dec_if_positive() so that a concurrent
-update cannot drive the counter below zero between the two.
+Updates of large pages are serialized by cpa_lock anyway, and the direct
+map counters are atomic.
+
+Take pgd_lock only around the pgd_list walks.
+
+Without pgd_lock, should_split_large_page() only checks CPA_REQ_SPLIT
+before it calls __should_split_large_page(). Fold it into
+__should_split_large_page() and keep the shorter name.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/x86/mm/pat/set_memory.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ arch/x86/mm/pat/set_memory.c | 56 +++++++++++++++++++++-----------------------
+ 1 file changed, 27 insertions(+), 29 deletions(-)
 
 diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index 5e3c1152d202..8076d29a2931 100644
+index 8076d29a2931..9dfe69d608b8 100644
 --- a/arch/x86/mm/pat/set_memory.c
 +++ b/arch/x86/mm/pat/set_memory.c
-@@ -84,56 +84,58 @@ static inline pgprot_t cachemode2pgprot(enum page_cache_mode pcm)
- }
- 
- #ifdef CONFIG_PROC_FS
--static unsigned long direct_pages_count[PG_LEVEL_NUM];
-+static atomic_long_t direct_pages_count[PG_LEVEL_NUM];
- 
- void update_page_count(int level, unsigned long pages)
+@@ -916,24 +916,29 @@ EXPORT_SYMBOL_GPL(slow_virt_to_phys);
+  */
+ static void __set_pmd_pte(pte_t *kpte, unsigned long address, pte_t pte)
  {
--	/* Protect against CPA */
--	guard(spinlock)(&pgd_lock);
--	direct_pages_count[level] += pages;
-+	atomic_long_add(pages, &direct_pages_count[level]);
- }
- 
- static void split_page_count(int level)
- {
--	if (direct_pages_count[level] == 0)
-+	if (atomic_long_dec_if_positive(&direct_pages_count[level]) < 0)
- 		return;
- 
--	direct_pages_count[level]--;
- 	if (system_state == SYSTEM_RUNNING) {
- 		if (level == PG_LEVEL_2M)
- 			count_vm_event(DIRECT_MAP_LEVEL2_SPLIT);
- 		else if (level == PG_LEVEL_1G)
- 			count_vm_event(DIRECT_MAP_LEVEL3_SPLIT);
- 	}
--	direct_pages_count[level - 1] += PTRS_PER_PTE;
-+	atomic_long_add(PTRS_PER_PTE, &direct_pages_count[level - 1]);
- }
- 
- static void collapse_page_count(int level)
- {
--	direct_pages_count[level]++;
-+	atomic_long_inc(&direct_pages_count[level]);
- 	if (system_state == SYSTEM_RUNNING) {
- 		if (level == PG_LEVEL_2M)
- 			count_vm_event(DIRECT_MAP_LEVEL2_COLLAPSE);
- 		else if (level == PG_LEVEL_1G)
- 			count_vm_event(DIRECT_MAP_LEVEL3_COLLAPSE);
- 	}
--	direct_pages_count[level - 1] -= PTRS_PER_PTE;
-+	atomic_long_sub(PTRS_PER_PTE, &direct_pages_count[level - 1]);
-+}
++	struct ptdesc *ptdesc;
 +
-+static unsigned long direct_pages(int level)
-+{
-+	return atomic_long_read(&direct_pages_count[level]);
++	if (!IS_ENABLED(CONFIG_X86_32)) {
++		set_pte_atomic(kpte, pte);
++		return;
++	}
++
++	guard(spinlock)(&pgd_lock);
++
+ 	/* change init_mm */
+ 	set_pte_atomic(kpte, pte);
+ 
+-	if (IS_ENABLED(CONFIG_X86_32)) {
+-		struct ptdesc *ptdesc;
+-
+-		list_for_each_entry(ptdesc, &pgd_list, pt_list) {
+-			pgd_t *pgd;
+-			p4d_t *p4d;
+-			pud_t *pud;
+-			pmd_t *pmd;
+-
+-			pgd = (pgd_t *)ptdesc_address(ptdesc) + pgd_index(address);
+-			p4d = p4d_offset(pgd, address);
+-			pud = pud_offset(p4d, address);
+-			pmd = pmd_offset(pud, address);
+-			set_pte_atomic((pte_t *)pmd, pte);
+-		}
++	list_for_each_entry(ptdesc, &pgd_list, pt_list) {
++		pgd_t *pgd;
++		p4d_t *p4d;
++		pud_t *pud;
++		pmd_t *pmd;
++
++		pgd = (pgd_t *)ptdesc_address(ptdesc) + pgd_index(address);
++		p4d = p4d_offset(pgd, address);
++		pud = pud_offset(p4d, address);
++		pmd = pmd_offset(pud, address);
++		set_pte_atomic((pte_t *)pmd, pte);
+ 	}
  }
  
- void arch_report_meminfo(struct seq_file *m)
- {
- 	seq_printf(m, "DirectMap4k:    %8lu kB\n",
--			direct_pages_count[PG_LEVEL_4K] << 2);
-+		   direct_pages(PG_LEVEL_4K) << 2);
- #if defined(CONFIG_X86_64) || defined(CONFIG_X86_PAE)
- 	seq_printf(m, "DirectMap2M:    %8lu kB\n",
--			direct_pages_count[PG_LEVEL_2M] << 11);
-+		   direct_pages(PG_LEVEL_2M) << 11);
- #else
- 	seq_printf(m, "DirectMap4M:    %8lu kB\n",
--			direct_pages_count[PG_LEVEL_2M] << 12);
-+		   direct_pages(PG_LEVEL_2M) << 12);
- #endif
- 	if (direct_gbpages)
- 		seq_printf(m, "DirectMap1G:    %8lu kB\n",
--			direct_pages_count[PG_LEVEL_1G] << 20);
-+			   direct_pages(PG_LEVEL_1G) << 20);
+@@ -954,8 +959,8 @@ static pgprot_t pgprot_clear_protnone_bits(pgprot_t prot)
+ 	return prot;
  }
- #else
- static inline void split_page_count(int level) { }
+ 
+-static int __should_split_large_page(pte_t *kpte, unsigned long address,
+-				     struct cpa_data *cpa)
++static int should_split_large_page(pte_t *kpte, unsigned long address,
++				   struct cpa_data *cpa)
+ {
+ 	unsigned long numpages, pmask, psize, lpaddr, pfn, old_pfn;
+ 	pgprot_t old_prot, new_prot, req_prot, chk_prot;
+@@ -963,6 +968,9 @@ static int __should_split_large_page(pte_t *kpte, unsigned long address,
+ 	enum pg_level level;
+ 	bool nx, rw;
+ 
++	if (cpa->flags & CPA_REQ_SPLIT)
++		return 1;
++
+ 	/*
+ 	 * Check for races, another CPU might have split this page
+ 	 * up already:
+@@ -1101,16 +1109,6 @@ static int __should_split_large_page(pte_t *kpte, unsigned long address,
+ 	return 0;
+ }
+ 
+-static int should_split_large_page(pte_t *kpte, unsigned long address,
+-				   struct cpa_data *cpa)
+-{
+-	if (cpa->flags & CPA_REQ_SPLIT)
+-		return 1;
+-
+-	guard(spinlock)(&pgd_lock);
+-	return __should_split_large_page(kpte, address, cpa);
+-}
+-
+ static void split_set_pte(struct cpa_data *cpa, pte_t *pte, unsigned long pfn,
+ 			  pgprot_t ref_prot, unsigned long address,
+ 			  unsigned long size)
+@@ -1158,7 +1156,6 @@ __split_large_page(struct cpa_data *cpa, pte_t *kpte, unsigned long address,
+ 	bool nx, rw;
+ 	pte_t *tmp;
+ 
+-	guard(spinlock)(&pgd_lock);
+ 	/*
+ 	 * Check for races, another CPU might have split this page
+ 	 * up for us already:
+@@ -1304,6 +1301,8 @@ static int collapse_pmd_page(pmd_t *pmd, unsigned long addr,
+ 			return 0;
+ 	}
+ 
++	guard(spinlock)(&pgd_lock);
++
+ 	old_pmd = *pmd;
+ 
+ 	/* Success: set up a large page */
+@@ -1404,7 +1403,6 @@ static int collapse_large_pages(unsigned long addr, struct list_head *pgtables)
+ 
+ 	addr &= PMD_MASK;
+ 
+-	guard(spinlock)(&pgd_lock);
+ 	pgd = pgd_offset_k(addr);
+ 	if (pgd_none(*pgd))
+ 		return 0;
 
 -- 
 2.53.0
