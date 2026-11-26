@@ -1,80 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795705586;
-	b=hcDeYBJICt39hOlzmUhKk4/moQP9Y9EDylpdVqcaTDpPzU0MG/+jGnyj9jk5tQkZIAdA
-	 nH1J0CRPQaH6RMq1HmkyqHrj8u5M03ll4UoZzxxoLikBeyr6PaB1/dlT5TZvYu5vMeTsM
-	 MoHWQ+hAc5ze29pdBy+eVuqv3USIRIYVhGffNEEbM+b1Hn4qg4MQcZ8Urmi9GfnB8+KwU
-	 aCB8fZkI7v7ErG5rMmIDEiic2TmRykVILXN1Ppnlc5QJu1BygH+HUuWOJ5rZkqJFgJmxj
-	 Jxi9IQ/ecYmo0KGIFg45aluI+eNMQvJNPTHvITSszufPyKPigk8kEr30zrKRSYHxUFg==
+	t=1795705594;
+	b=Rbb/7gvUJ2oOnypDwtGpFPrjpri+4qe+su0PhAuSD8xbcqE5ZwMXGzhIU/+FCAjJudbq
+	 hYKdYpkKvw/XBnbEOivmGD/6D45q1BX8VrdhRkjClAcNCM0syT2Uo03uptMpeCzI53qz0
+	 6ZN20hgWj7GFu8Y8tFGtTi6L6NNTxWlZVqwtxahAI1yGVOM/JcDYyiDF/TuRd8Y0pBcnR
+	 VJopGj9CKFmgao5j2894toTrQmo/Ss8nAn0dW97/4AOlKb+AINJo7avMoUNvDoOYsKf1r
+	 Q9lcbSgnVDn5W/vJ2ijxIQBkdCWHsUnyXbjArN73/orQ0+xv0W63w+3j1fGaIlrgUdA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795705586;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795705594;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=+aRn42NYa4Pq+u5LUKua26cG0QzSBuOuVe0hITLGUNs=;
-	b=d9+s6HR2+4RSLvW67T/NX3RsqgIE0LHpEe8FbJqldDOFwWfPvI7XCy/jHROqAEeI7stJ
-	 I1klGQAxfKp3oIaRYwN75sjeFNx0CJIKRs7Jr9LfJD8Me34A4RAEPOHMKwYDTtN5Tk4/s
-	 Jer/6V+1zXfBIZCfd+m0hGJHPx0rr/KuskxBWsAP5D4soZAqD/nL25CjrMuszqklN7k26
-	 nNweW2jsEtdW3uoW5to+FeIMYx/IIzflzZIVozh4eYBc4cue3knVEU3acjv1yLN+06DJH
-	 iOUuUfDBhd1E34D+EyWl/MDlTuKH3bxRzSRHYA7FIder9Zg5ZN8D6Y2xQlp1nfbzS9Q==
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=vFxzL6N7fV5dEdD6E6EPpo4S+xvEUTNbT1G/ro5XjSQ=;
+	b=PEh6rkgP1yYP4ammHgHv22k6rxHVEUqAbWS7e4+XWBgsXulB6DSRP+Ry7lhm70CNadjY
+	 7lrYqmVLjlstf9AmcgPah6JHINRPuO3dhrSWBbe3w0unnn8dO0QUFPfqkCBQ+YPlH7YKY
+	 QKiQGUIgSS1qhroyYwHdijfMzPszjDQWMGV+Kj2+ju+tE6/gJjX5oYf4IIyPlDnf2f0aB
+	 jsHBdIlKoZipghKcqxlzr/owgWIYCL27wS/duc+fFk4K8a1P02DBc0dBalGU6DNPcMhBp
+	 rS8WFj0fZiPkjUXPG/Xup3UVr/4bBys3dEZ4KViAorMdI9A70oDgP4+WwfEgdm8Xrhg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=iiitd.ac.in;
 	spf=pass smtp.mailfrom=iiitd.ac.in;
-	dkim=pass header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=aFdrxz7J;
-	arc=none smtp.remote-ip=209.85.214.178
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	dkim=pass header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=cyj1fHpi;
+	arc=none smtp.remote-ip=209.85.215.181
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 215C2606A330
-	for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 15:06:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 215C2606A330
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F3ED606A684
+	for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 15:06:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7F3ED606A684
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iiitd.ac.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=aFdrxz7J
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2e9ae391a05so49540615ad.1
-        for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 07:06:24 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=cyj1fHpi
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-cde5a7d79b0so3648426a12.2
+        for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 07:06:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=iiitd.ac.in; s=google; t=1795705584; x=1796310384; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+aRn42NYa4Pq+u5LUKua26cG0QzSBuOuVe0hITLGUNs=;
-        b=aFdrxz7JOo7v6U/alV2jtQL5L4JWnjR0wrbrHI3pYeN3J1UxcyJBrS0RjHbPbyJZhJ
-         bY8ASzvbHcpjg/vK3IljclqBCnKmGbkFppJ/BqbqQft31FE9qwfh7BKDPER1WmMHkAff
-         dmZfKOwbwmrbrF1EaZRIqDG8VEOR+DndCNK1g=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795705584; x=1796310384;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=iiitd.ac.in; s=google; t=1795705593; x=1796310393; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+aRn42NYa4Pq+u5LUKua26cG0QzSBuOuVe0hITLGUNs=;
-        b=G6Eo62vbZx1BZ1nrzPQn1dLXD3d5vYfwZRkf9c9RODDY81qTdHDIgomaXnxaorauiL
-         zL3GRBhZuBxnUb/okmmHuuvZWSa8oXY7h0qXfcS5iKSD8isuJrVzENtIsMahnCsx5Req
-         BHyFozOtl7to5KIVwg+a9e7XOX1UaYPjlNATXD6tP1d8XOg64wSSFOFk9fiHZKJ2pmMD
-         JuqEkvO2hTUqJqivOmSLtMZcM9gZHdHmVE9cXj/DjTydnRE+io1OQdunsARz+h8G9vpw
-         Wo4KHN7VNWayNjmI0W7phrt1fidDux0omGXoUXC7ftao22mo1+wKww+Gi0c5XvhS7CkF
-         +Pow==
-X-Forwarded-Encrypted: i=1; AL+hErHy6xr5A5hkVAVmiBbPWY7jbg3XGnGBE1XSfwiUXoCa+TcQEI8wpH8GHuEVEBgYlsx7SM5mcTRyZTof@vger.kernel.org
-X-Gm-Message-State: APuU4Z//RdAnKLsM8JOTvNE643grylme5lO1I4IzqSVXFy44jUNwqnxU
-	8sQc2bR47apCilpMsx/7Uf4gmU8EanDpnlILlHb+grQSQXiReOMbi+hsUPXfwgbRb/E=
-X-Gm-Gg: AZFdTZd1uf7zb5+4on3gi9iWgvFzGN7d39sEgBVVMJx751/Dk9TBKlj8l/KzxByQHqw
-	prFLfmkAIZejWy29tZbJ9s7GbxQVx9eGdqq1RKPiCE/PNFcEDcHxMGlV8uHLUDlwFCfBqklbQ6h
-	MpkginwMW/kbkKdAMjbiblOFVhVSCGvsB7q5NNesqu7mJ+U8bKPIdEvjHqIdO6HNmRW1+6sU+Xz
-	vmsvB0U5MX46NdHteS7r17kd2IN2V7555LX8fZo5TqzmRvT8zMbtRH/E8YYvyeklcMV2RitI0/k
-	ZR8ewkd1IUGAlavCfLANEFhOaERxVPQAICZSh6t4yZrGoy1Lab+qUgxKXpzHpbRagqZXFmifE8Q
-	RKq/e5PuDPEmXTYVN8nkcLovgIao6c7Z4jfuR63y6NTaM+r3EN1573dcBJWDY8+Z7LF45PP3Urx
-	I77Ut1gpI1Prz7TNHR7V63Jwl8cPEfWVKSFDgEKjq/NNZQ10mrvpItaJSrUCzxfoZVtNmMSVxpE
-	qCGwrGxI+EurAM0IKQNaicTiyZV6T9XM5owPmidZsavqDKfwcHUfuSs9R543hfqTKgiiTiMAP9l
-	aPAsuSJlKSPfkUwLLi33iKd2ES6rOg8aSQtr+BLLiFfaAiTFCLKU/VL0qG3eJlxPKPd1uuiNx/4
-	rnCONs1xwApZBAqEU70zxNK4ZjXShpaYzV4/GFRt7gZcURkZnfpeJa4FGFcatYNjF
-X-Received: by 2002:a17:903:298d:b0:2f0:3dc0:9bbb with SMTP id d9443c01a7336-2f03f2115e7mr153388725ad.34.1795705584340;
-        Thu, 26 Nov 2026 07:06:24 -0800 (PST)
+        bh=vFxzL6N7fV5dEdD6E6EPpo4S+xvEUTNbT1G/ro5XjSQ=;
+        b=cyj1fHpignlDujJCnViGY8sX6x8wogPXBpBDbUr/XIdmWpWrKtxMFMMCszkNH5KK9U
+         C41GxztehbjKMlbgmqYxIdLHn2VzjSTutkCUPcqXt+TEJt64BDjWklhaWCq3SZDfnOX6
+         KmhhKc5hkKYtcCSsx4GDGusu3eAXwjUr5s5bc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795705593; x=1796310393;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vFxzL6N7fV5dEdD6E6EPpo4S+xvEUTNbT1G/ro5XjSQ=;
+        b=kSq9qNrLvtMsLczOjYl8k3kZcyhzh5yJnpzS+wDTBT7rIq3FL4CBpQD3qbVkPXvVbM
+         LUgJrPflruEXMoQbOGOylgppgUPoLJI58mpccutvOq2Kz07jNamt0Z5hi+KBNzh8Jim0
+         c7IMMLglxTBocmuVwckZdy7o1hJvH9MDhBFGAkEcVbEJu/yCiiKNHtzXUtD2DzLfYbWV
+         g3RFthMv3Vmz8zAXrXwrELVpIJU/oTwIyK+CQsR/aBXdk8eHIwfeAsMFUHTS7RrR1LDY
+         z71hSKX21vcbJ/1m/wypwYvXg6mZZj6BHTbFi4r77kkCNIivLdjoK5P28bWj3XKlipuT
+         69lA==
+X-Forwarded-Encrypted: i=1; AL+hErGP+GuI5OOCR0QPTddgIvRKvsuXUqs8wVMJyF8Q/2dV3OU2FEaGYSvNILAIPAdSHXDsc1VQcgVKb6CK@vger.kernel.org
+X-Gm-Message-State: APuU4Z9a5ZpaWZL0DXlbup0/vy3HvywtGWg500mPltO0I+aSnk2Fkxn0
+	WagW4B/JTOcigk1Z+NWo38qIMAWvV6rdv3cKfBPjEyFFIOJNRHXKY8qpnvE2t6ZYZ04=
+X-Gm-Gg: AZFdTZf1ANY3KUkCIYQhE7gUG2sf33jJSkHkYMssHZN9tVP2OXEuMFSu7qDHCcSNHIz
+	BcWAaCPoreiPMYdnw+0N7oOXuypcdTvrABXXW4j88eIKCPJyxrDBVTAao3g62imkZ476yXOT0Po
+	z5dUqoMS4AqJ/E2RKOC46jrPkA96+5PQUNMVMcUpxd3f2iLXKS7ikEvaTxKJDTHiNFw16YTP4dM
+	9Tk/mgvGvEfBcPoW0cVrixC8SOOEAypKkcRNex8mO6O2TF4qRV6gCsy0dFmS1gkiGWztcAcNFqm
+	hMO4D50pfC5uSrwpb5JPgYy2jSRTgatHjDr/tHVjjmHax3fKngTV9vcBh/TaZk3UoDtPjtAjVUl
+	RTAYdOo3+cHXqcxz/DfI6koSFDrApPswe+xnA7OEkfbzurld3HhDJMGJvtBISKuPlpGP0+onKq7
+	eR/PEVTNA9pBv9FQGZRIAuXskIctgTR60TZ/6SJg282Zb9CK7VbTe5jQdx7oFjoSHAFJzVIsDE3
+	T3tojjAO5yEdIpDkIbw92tGrLUlaFFuO4qMrxJeTShK1tEydjnG1XC0NxQ+iH4pVdxDRv2c6fiV
+	IWOAVIZ5M6+gLn4F9ZKZh6x6I79isrtJKJMrEhwvJf4QhQUeJtJZKG8sQjZZ+kJs9AvCpa8sz+V
+	IREWwowuqGtoY1nWMHFVyaHRWG8PHXTIHSJaYokRWRlFaZofeqYZJonXDi1YkTx97qg==
+X-Received: by 2002:a17:90b:48d0:b0:3b3:b5b8:1f43 with SMTP id 98e67ed59e1d1-3b41c97115amr22991604a91.62.1795705592804;
+        Thu, 26 Nov 2026 07:06:32 -0800 (PST)
 Received: from iiitd-S2600STB.iiitd.edu.in ([103.25.231.160])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2f03f146b84sm104231065ad.71.2026.11.26.07.06.19
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cde84cd5ed8sm8039585a12.10.2026.11.26.07.06.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 07:06:23 -0800 (PST)
+        Thu, 26 Nov 2026 07:06:32 -0800 (PST)
 From: Piyus Kedia <piyus@iiitd.ac.in>
 To: wenjia@linux.ibm.com,
 	jaka@linux.ibm.com,
@@ -90,11 +91,14 @@ Cc: netdev@vger.kernel.org,
 	pabeni@redhat.com,
 	horms@kernel.org,
 	kapil@presceralabs.ai,
-	stable@vger.kernel.org
-Subject: [PATCH net v4] net/smc: bound the DMB-nocopy send-buffer credit by what was sent
-Date: Thu, 26 Nov 2026 20:36:17 +0530
-Message-Id: <20261126150617.2113159-1-piyus@iiitd.ac.in>
+	stable@vger.kernel.org,
+	sashiko-reviews@lists.linux.dev
+Subject: Re: [PATCH net v3] net/smc: bound the DMB-nocopy send-buffer credit by what was sent
+Date: Thu, 26 Nov 2026 20:36:25 +0530
+Message-Id: <20261126150625.2113302-1-piyus@iiitd.ac.in>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <sashiko-outbox-233892@kernel.org>
+References: <sashiko-outbox-233892@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -106,152 +110,49 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On the SMC-D DMB-nocopy receive path, smc_cdc_msg_recv_action() credits
-sndbuf_space from the consumer cursor the peer reported and then assigns
-that cursor to tx_curs_fin:
+Thank you - the finding is right on both halves, and the remedy is the one
+you name.  v4 is posted separately.
 
-	diff_tx = smc_curs_diff(conn->sndbuf_desc->len, &conn->tx_curs_fin,
-				&conn->local_rx_ctrl.cons);
-	atomic_add(diff_tx, &conn->sndbuf_space);
-	/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-	smc_curs_copy(&conn->tx_curs_fin, &conn->local_rx_ctrl.cons, conn);
+[Medium] torn cursor read and non-atomic update in
+         smc_cdc_msg_recv_action()
 
-The peer writes that cursor into the DMB itself, so under DMB-nocopy the
-value is remote input and nothing bounds it.  A cursor reporting more
-consumed than this side ever sent raises sndbuf_space past
-sndbuf_desc->len, and the assignment moves tx_curs_fin past tx_curs_sent,
-breaking the fin <= sent <= prep order the three cursors are documented
-with.
+Confirmed.  smc_curs_diff() reads wrap and count with plain loads:
 
-The peer can only have consumed what was sent, so bound the difference by
-the unconfirmed bytes between tx_curs_fin and tx_curs_sent, and advance
-tx_curs_fin by the bounded amount instead of assigning the reported
-cursor.  Bounding by sndbuf_desc->len - sndbuf_space would also admit
-bytes that are only PREPARED, which would move tx_curs_fin past
-tx_curs_sent.
+	if (old->wrap != new->wrap)
+		return max_t(int, 0, ((size - old->count) + new->count));
 
-Take the two cursors as snapshots and write tx_curs_fin back as one
-cursor.  smc_curs_diff() reads wrap and count with plain loads, and this
-runs in a tasklet under bh_lock_sock() while smc_tx_rdma_writes() advances
-tx_curs_sent under conn->send_lock, so reading it in place can pair a
-pre-wrap wrap with a post-wrap count: the difference then either collapses
-to zero, losing the credit after local_rx_ctrl.cons has already moved, or
-exceeds the buffer and the bound does nothing.  smc_curs_add() sets count
-and then wrap with plain stores and transiently leaves
-count >= sndbuf_desc->len, so advancing tx_curs_fin in place would replace
-an atomic 64-bit update with a torn one.  smc_tx_prepared_sends() takes
-the same snapshots for the same reason.
+and this path runs in a tasklet under bh_lock_sock(), which does not
+exclude smc_tx_rdma_writes() advancing conn->tx_curs_sent under
+conn->send_lock.  So passing &conn->tx_curs_sent in place can pair a
+pre-wrap wrap with a post-wrap count, exactly as your interleaving shows.
+Both outcomes you describe follow: the difference collapses to zero and
+the credit is lost after local_rx_ctrl.cons has already moved, or it
+exceeds sndbuf_desc->len and the bound does nothing.
 
-Fixes: cc0ab806fc52 ("net/smc: adapt cursor update when sndbuf and peer DMB are merged")
-Co-developed-by: Kapil Vaswani <kapil@presceralabs.ai>
-Signed-off-by: Kapil Vaswani <kapil@presceralabs.ai>
-Signed-off-by: Piyus Kedia <piyus@iiitd.ac.in>
----
-v4: addresses the review of v3
-    (https://lore.kernel.org/r/sashiko-outbox-233892@kernel.org)
+The second half is right as well.  smc_curs_add() is
 
-    The finding is right on both halves, and the remedy is the one it
-    names.  v3 passed &conn->tx_curs_sent and &conn->tx_curs_fin straight
-    to smc_curs_diff() and advanced tx_curs_fin in place with
-    smc_curs_add().  v4 snapshots both with smc_curs_copy(), computes both
-    differences from the snapshots, advances the local copy and writes it
-    back with smc_curs_copy(), so the cursor update stays a single atomic
-    64-bit write and neither read can tear.  The torn read in the diff_tx
-    computation predates this series - it read &conn->tx_curs_fin in place
-    - and the snapshot closes that too.
+	curs->count += value;
+	if (curs->count >= size) {
+		curs->wrap++;
+		curs->count -= size;
+	}
 
-    No change to what is bounded or to the bound itself.
+so in place it sets count and then wrap with plain stores and transiently
+leaves count >= sndbuf_desc->len, where the code it replaced wrote the
+cursor with a single atomic64 store through smc_curs_copy().
 
-v3: bounded the credit by the unconfirmed sent bytes and advanced
-    tx_curs_fin by the bounded difference rather than assigning the
-    reported cursor.
+v4 does what you suggest, and what smc_tx_prepared_sends() already does
+here: it snapshots both cursors with smc_curs_copy(), computes both
+differences from the snapshots, advances the local copy of tx_curs_fin and
+writes it back with smc_curs_copy().  The cursor update is one atomic
+64-bit write again and neither read can tear.
 
-    How this was found: an AI-driven fuzzing harness built on syzkaller,
-    developed jointly by Kapil Vaswani and myself, driving a forged CDC
-    stream at an SMC-D link under KASAN on x86_64.  The analysis and this
-    changelog were written with the assistance of a large language model
-    and checked by hand against the tree; the reproducers in the earlier
-    postings were produced by us.  The v4 change comes from addressing an
-    AI-generated review of v3 on the list, and the locking and the two
-    cursor helpers it described were each read in the tree first.
+One note for the record: the torn read is not only in the line v3 added.
+The diff_tx computation read &conn->tx_curs_fin in place before this
+series, and the snapshot closes that too.
 
-Link: https://lore.kernel.org/all/179552966151.3135.8162716126718648323@kernel.org/
+What is bounded, and the bound itself, are unchanged from v3.
 
- net/smc/smc_cdc.c | 47 ++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 44 insertions(+), 3 deletions(-)
+Tested on 7.3.1 with KASAN; net/smc/smc_cdc.o builds clean at W=1.
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 32d6d03df321..8f4351e1d4ad 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -333,6 +333,8 @@
- 	union smc_host_cursor cons_old, prod_old;
- 	struct smc_connection *conn = &smc->conn;
- 	int diff_cons, diff_prod, diff_tx;
-+	union smc_host_cursor fin, sent;
-+	int unconfirmed;
- 
- 	smc_curs_copy(&prod_old, &conn->local_rx_ctrl.prod, conn);
- 	smc_curs_copy(&cons_old, &conn->local_rx_ctrl.cons, conn);
-@@ -358,16 +360,55 @@
- 			/* Calculate consumed data and
- 			 * increment free send buffer space.
- 			 */
-+			/* Snapshots, not the live cursors.  smc_curs_diff()
-+			 * reads wrap and count with plain loads, and this runs
-+			 * in a tasklet under bh_lock_sock() while
-+			 * smc_tx_rdma_writes() advances tx_curs_sent under
-+			 * conn->send_lock, so reading it in place can pair a
-+			 * pre-wrap wrap with a post-wrap count.  Either the
-+			 * difference collapses to zero and the credit is lost,
-+			 * or it exceeds the buffer and the bound below does
-+			 * nothing.  smc_tx_prepared_sends() takes the same
-+			 * snapshots for the same reason.
-+			 */
-+			smc_curs_copy(&fin, &conn->tx_curs_fin, conn);
-+			smc_curs_copy(&sent, &conn->tx_curs_sent, conn);
- 			diff_tx = smc_curs_diff(conn->sndbuf_desc->len,
--						&conn->tx_curs_fin,
-+						&fin,
- 						&conn->local_rx_ctrl.cons);
-+			/* This difference comes from the cursor the peer
-+			 * reported, which is taken as it arrives.  The peer
-+			 * can only have consumed what this side actually
-+			 * sent - smc_tx_rdma_writes() advances tx_curs_sent
-+			 * together with the producer cursor the peer sees -
-+			 * so bound it by that and advance tx_curs_fin by the
-+			 * bounded amount rather than assigning the reported
-+			 * cursor.  The invariant below then holds by
-+			 * construction, tx_curs_fin stays inside the send
-+			 * buffer, and it stays at or behind tx_curs_sent:
-+			 * bounding by sndbuf_desc->len - sndbuf_space would
-+			 * also admit bytes that are only PREPARED, which
-+			 * would move tx_curs_fin past tx_curs_sent and break
-+			 * the fin <= sent <= prep order the three cursors are
-+			 * documented with.
-+			 */
-+			unconfirmed = smc_curs_diff(conn->sndbuf_desc->len,
-+						    &fin, &sent);
-+			diff_tx = min_t(int, diff_tx, unconfirmed);
-+
- 			/* increase local sndbuf space and fin_curs */
- 			smp_mb__before_atomic();
- 			atomic_add(diff_tx, &conn->sndbuf_space);
- 			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
- 			smp_mb__after_atomic();
--			smc_curs_copy(&conn->tx_curs_fin,
--				      &conn->local_rx_ctrl.cons, conn);
-+			/* Advance the snapshot and write it back as one
-+			 * cursor.  smc_curs_add() sets count and then wrap
-+			 * with plain stores, and transiently leaves
-+			 * count >= sndbuf_desc->len, so in place it would
-+			 * replace an atomic 64-bit update with a torn one.
-+			 */
-+			smc_curs_add(conn->sndbuf_desc->len, &fin, diff_tx);
-+			smc_curs_copy(&conn->tx_curs_fin, &fin, conn);
- 
- 			smc_tx_sndbuf_nonfull(smc);
- 		}
--- 
-2.43.0
-
+pw-bot: cr
