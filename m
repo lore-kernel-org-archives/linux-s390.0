@@ -1,89 +1,82 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795693897;
-	b=zP9tivwr+6OlNQAFysXR0SEzOo9+r/k3cdIRSytDfIGLqpoc9W2Ci98F+1WKdSrA3wI6
-	 Wm3kWZykF5oxE7pejCX7FrqJ0TRUbOAcXCJ2q4h7cvpBaseV+3OGTPai+slYz4MBOQoqN
-	 m0TAijZTXdx0ZziydvD46tYECxzZyi16KmsYOb3roowHDWuEQ/1itUk2irsOwdiyWBdVx
-	 +WePfNJ707aTrYVMh8UwzqdvqdmZYsNX9KZhV7XHiufcoKA0YPSQmc+d+YsZ/cpkZzIpA
-	 bnNnL6Lsd3FCb2pHiyEwtUdjSVLomxe5l1sDEdCuEqTcIJYgY+bbWxlSEvWzYeFW9lA==
+	t=1795696559;
+	b=0v5yjzepj1WsMixlm5YS45QB4h68vIVieSZ0VPgtoazclP9MTpNOKavnyU8rIvNj0UBK
+	 uXywd2JmTKRVviZrQZHm/fBciZLn1B4FXNPAGOYjlps0M/ffxT1rXSZ14HgEz6VM4/QZm
+	 V4DPMal1/IVo+1LVxlkn+du20GlsHxJ4+9o+WdEvJEQuIrHoKYzvOH/Xjic/3uv54uvUd
+	 6yeJ+q47TDR93cigZlm/oc1W6XLQuXmCJqJnNlS3/VXAInKkIWjOUm8e8bbjVvOxWcL0N
+	 xH+jHQPXjMXO52AddR2ja71OmWStHkgbMiwhJiQ9FfCbNbU8XL0uUE4KBcXYcAxRpoQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795693897;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795696559;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=UyA1q9HRdIYEzEBRlibk7URQlhQr6cKxZVJ59dL9cSc=;
-	b=awESILKqF7mgc0CuopS10R/kbhyahcclLQQ1+UlKoNA2jMftdB250xECYRqO3JQVO+D8
-	 jEaH2QbGfe9VGwboCQtu/7byYZT4/mCP5bSftnROHenmgQmXYzV7fHym2BEo3snNHaSWz
-	 06LKsOKTWljgK1lZkFhRN70dFrg22DAQNxzEsnFDikS7J0l7PCT4i2z93PwU/D749ovoL
-	 Xu59qTGNgKlRYHFty+wA/2LRgP5gG9Ao0IfUR59XVniRR8vqSy6uKaX+sI7zysWgbMQ6I
-	 stFbpGY5ZA3J31UGzvFyt1neleFqm3B9WT4RYlsKW8agqcSCrXaofEMpsZSRxmT4FEw==
+	bh=GKT9oowf0TD/M9Bia3/lD8JP3I0qK2S18DL6sTON+k0=;
+	b=R8BzWEZEW1IGlU0Pvlx1uv4C63UkgRtNogaO9sD52Sy0iAfQm/7CRXjM3hj8MgJBXlAe
+	 uc4XMUjzBQMDPSkjq5TEcZVD4PeU9pnxRV9u0pgKtINWiWbf0MbehxAhz0siVTtEZk0Jh
+	 aiF7zArCnY3gMGrH95G5JjizWzuaYtkXptzc1BEnykaQeeZLemCvHEH0CFcEer3KoXICJ
+	 fM2Mylxm+VxydyKxENDz051qK6NmMlciYTBpssSChBbuA+OpOIkkTH42gIL/cy5zHO0NY
+	 JdmH9F+oQyl+YW/c0nglG5TZ7kQJv6zsGEsKJvQTwaJD/sL/ucsfnugjKczv3QWEtrQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="rPKc/Prn";
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=DyuuPeiK;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D97606A31C;
-	Thu, 26 Nov 2026 11:51:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A1D97606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6193A606A323;
+	Thu, 26 Nov 2026 12:35:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6193A606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=rPKc/Prn
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AQBYq51165311;
-	Thu, 26 Nov 2026 11:51:24 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=DyuuPeiK
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AQBYqPj009898;
+	Thu, 26 Nov 2026 12:35:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=UyA1q9HRdIYEzEBRlibk7URQlhQr6c
-	KxZVJ59dL9cSc=; b=rPKc/PrnltCkqnr+M+NlMWYatQgAO2NpITE0vHJLmqVCxO
-	V9o6KChnGkWIpT7aIVfOJJvt2wzS4sAE7TOpZThjUOAaIxUq4a64xtEDZbyV3hZI
-	ByCUGQJMTdBZVH5MhYUDoqd2tK2E39dc+EquUpxE+876XCsWN+lkqRmvPtTN3Iol
-	ddGk86gFQ4ipmd18XSNCp6512nNMYiIy/DiHeueKfgQVQTOL5jzpV2wP+zoY7FAd
-	AW4plJoaniM0wrZFRMD/1UWd0j4ZMN8eLIU1CgnTWxQLdWzdJTAE18kFMngIpSqR
-	UdIhIYTw8Acn2rYTUWiMHrvNdAipbmpezO+xCiiw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34fah60a-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=GKT9oo
+	wf0TD/M9Bia3/lD8JP3I0qK2S18DL6sTON+k0=; b=DyuuPeiKNB1rFvXi1YQIVe
+	79CvB7Nkue9NtbXfOlWbKp5buY/Rx0ut5Qss8JvM9AQ/3iP95z45jL8M8iZoz+uV
+	eMNZvfFJu9KdEEyi9fuFSYyvqDAHlgF9rdtPXW8jMWGO1DxgCU7d/vN5msrnfqkf
+	y8g/ej9cA7UnJByvdKbtKmFNmDoy6BTuPU6462zSBtR373SSynfKQE1TyFBAiMTv
+	j8xP5Vvfh6XjryT9AVkrM5mN/8FdI+YXaIOPqHhURl8vku8THfQi4br8MszDw6Sr
+	n+RrDGbwpaacPSEM+SM2IF13rULBaovfGGS/V2CLSp17Hu1hacHgIkrLyki09+Sw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34fks9a4-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 26 Nov 2026 11:51:24 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AQBYOSY3663893;
-	Thu, 26 Nov 2026 11:51:23 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j5a417ytq-1
+	Thu, 26 Nov 2026 12:35:47 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AQBYMRQ2180327;
+	Thu, 26 Nov 2026 12:35:47 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j5axkyybq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Nov 2026 11:51:23 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AQBpJoq43254064
+	Thu, 26 Nov 2026 12:35:47 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AQCZhAP42795436
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 26 Nov 2026 11:51:19 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3EBDD2005A;
-	Thu, 26 Nov 2026 11:51:19 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E6DC02004B;
-	Thu, 26 Nov 2026 11:51:18 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.14.158])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 26 Nov 2026 11:51:18 +0000 (GMT)
-Date: Thu, 26 Nov 2026 12:51:17 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/kdump: write protect the crash kernel memory by its
- virtual address
-Message-ID: <a666d0dd-905c-4099-8a00-3c656370f986-agordeev@linux.ibm.com>
-References: <20261117-fixes-s390-v1-1-2d9d04ca0072@kernel.org>
+	Thu, 26 Nov 2026 12:35:43 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D93C20040;
+	Thu, 26 Nov 2026 12:35:43 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 20CFE2004D;
+	Thu, 26 Nov 2026 12:35:43 +0000 (GMT)
+Received: from [9.68.23.45] (unknown [9.68.23.45])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 26 Nov 2026 12:35:43 +0000 (GMT)
+Message-ID: <5d2e50f3-ca65-4090-87e5-03819441da48@linux.ibm.com>
+Date: Thu, 26 Nov 2026 13:35:42 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -93,86 +86,114 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261117-fixes-s390-v1-1-2d9d04ca0072@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/2] KVM: s390: vsie: Rewind the PSW of ESA mode guests
+ in the right format
+To: Yvan Janssens <yvanj@cyber.gent>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: David Hildenbrand <david@kernel.org>, Eric Farman <farman@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>, Shuah Khan <shuah@kernel.org>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20261125165604.3074595-1-yvanj@cyber.gent>
+ <20261125165604.3074595-2-yvanj@cyber.gent>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20261125165604.3074595-2-yvanj@cyber.gent>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI2MDA0NSBTYWx0ZWRfX6lVYd8twLpYU
- IuCMzwxcOm91ylFqney16xzkEQnr/C4fmCcolcOHoROM+xiuJpD5kIvAVoCwXEL0jjLXs5BNbr1
- kXON/IGB3AyOeyw1R1Z3pHu7ScKpwE8Ok9f836i3UOLEkaU/H2FOUmX5WZmPZcvh330i8dOBVSJ
- Rtn/eBSuxuIqlmBxLxsQrad5JUW6j63rfch5RN0MGpsO+Yl6/MaeHcbGZghWOHqel9FY3NH4ZU0
- pWYCRrizJhp8aB1Gics7uZEHotDVzBvxuPkI74VNNaU9hUgHZdP6I7yMB3YRA12zkmmzEw48E4V
- /Y6np9z92A9lgWqR30/gZJkTozrJ+TWCw7DrMa/vIy4RyrqkqV6JbbvHHB9ltw8vCbw54Q8nVAI
- ZmD1xxTGR9L3AIk07Q/LApPyFuZDzIrg0RC6V9vOXOEM5s2IBEcFHOrFIFIWuZgUb1LpG1XZmXA
- U2x8RYwAjRMwq7aJe0g==
-X-Proofpoint-ORIG-GUID: 5-68tLI2aTpf8KqRawJiD83emc3a_Ov-
-X-Authority-Analysis: v=2.4 cv=U6QHnuru c=1 sm=1 tr=0 ts=6b081d3c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=bMDRMTjxwqQvzsmnqE4A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: 5-68tLI2aTpf8KqRawJiD83emc3a_Ov-
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI2MDA0NSBTYWx0ZWRfXwxT5N6IgY7Ka
- FYqNFOLfsvO1/ITA2NXi01C/fFJRIgr5LkaArsBZZCBONNA0XYLoAnUJ/eJNTjIa1eszRmsnze8
- NhhIzI3pGZzIBDgdrmmZBsUxj88SUIk=
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI2MDA0OSBTYWx0ZWRfX5U9LdZFmOGQz
+ xna26zpgNnaAxhKMnEVmxN4jF1pZ4ZmStsDo+aEEiayOrNl+TVaH3zsIscVY1wh81SRBvN622S3
+ 1+WbUU/i/WXsSrZcifrWlCkHSKbT4PoTIqYRMk+KvLdMO9/7/ZdDmcu50v4/rC7QRpVVk9luZvO
+ dWquXOLd3oTH/WIqW9LQHcfdNtiYw8NgKD+PnHC1xKPhr8Vg4+/3GI6fF5+v5Lob64myOnCNwnz
+ FdjjTaDqc6alO7smoGDiADy+AoX5oUFPWEvTQNgObZkcZFuykiPOtzHSsRwQZl7D/PvSuz2Cr6z
+ SRotzQVI1f/8LX1XJhx8JKmXEfG7Syc4TxZp5f2oRLGU9XOINeriZvFaEb0EBb/X2FpyErOISMt
+ /T79TmTe+sP4+pQYigg9nwuUoXisnTzLaFlP1rCTMUM4POKtNeWM4vpKI/8pMM4UNjbXUDLHlxo
+ TFRsAg3+Ip1RiJijXsA==
+X-Proofpoint-ORIG-GUID: JU94GMs746ql91RjW2H9gv_ElVJ7tPLd
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI2MDA0OSBTYWx0ZWRfXx2GzR2r4IjMg
+ fe0EkhVrGUF/KALty2vYH4UF/0fgkxG3ifDCFMckCCAIo2wok8kbCMQbbTJJwSVyxI73j46yUV6
+ TkX3d3RExgNJZjanp151+zO0bX0xvA8=
+X-Authority-Analysis: v=2.4 cv=A9z5rKWG c=1 sm=1 tr=0 ts=6b0827a4 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=l9r1cnm4-fEY1RtK:21 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=cyxkdFWmLbpH1sDcVnIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: cGh7yxMDTOI-Y9kVGVp1WIDyfqnURdp8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-26_03,2026-11-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 impostorscore=0
- clxscore=1015 bulkscore=0 suspectscore=0 adultscore=0 phishscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611260045
+ clxscore=1015 adultscore=0 phishscore=0 priorityscore=1501 impostorscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611260049
 
-On Tue, Nov 17, 2026 at 04:01:04PM +0200, Mike Rapoport (Microsoft) wrote:
-> crash_protect_pages() passes crashk_res.start to set_memory_ro() and
-> set_memory_rw(). That is a physical address. Since the identity mapping
-> may start above zero, it is not the address of the crash kernel memory
-> in the kernel page tables.
+On 11/25/26 5:56 PM, Yvan Janssens wrote:
+> ESA-mode guests in vsie have existed since commit b0ad874d9852 ("KVM:
+> s390: vsie: Allow non-zarch guests"); they use the 8-byte short PSW -
+> the mask and instruction address share one doubleword.
 > 
-> With CONFIG_RANDOMIZE_IDENTITY_BASE the page table walk finds no mapping
-> at that address and fails. The error is ignored, and the crash kernel
-> memory stays writable after "kexec -p" loads it.
+> vsie's PSW rewind originally still changed the second doubleword, which
+> is unused in ESA mode, so the instruction is skipped instead of
+> repeated. The visible effect is that the first STFLE after entering SIE
+> does nothing in a nested guest.
 > 
-> Use the identity mapping address of the crash kernel memory.
+> This patch adds a vsie-specific rewind function that handles both
+> formats; no short-PSW type is introduced - for ESA guests mask and
+> address are written into the mask field.
 > 
-> Fixes: c98d2ecae08f ("s390/mm: Uncouple physical vs virtual address spaces")
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
-> I found this while working on a generic implementation of the set_memory
-> APIs. Only build tested.
-> ---
->  arch/s390/kernel/machine_kexec.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-> index baeb3dcfc1c8..20ea3018462f 100644
-> --- a/arch/s390/kernel/machine_kexec.c
-> +++ b/arch/s390/kernel/machine_kexec.c
-> @@ -151,15 +151,16 @@ void crash_free_reserved_phys_range(unsigned long begin, unsigned long end)
->  
->  static void crash_protect_pages(int protect)
->  {
-> -	unsigned long size;
-> +	unsigned long addr, size;
->  
->  	if (!crashk_res.end)
->  		return;
-> +	addr = (unsigned long)__va(crashk_res.start);
->  	size = resource_size(&crashk_res);
->  	if (protect)
-> -		set_memory_ro(crashk_res.start, size >> PAGE_SHIFT);
-> +		set_memory_ro(addr, size >> PAGE_SHIFT);
->  	else
-> -		set_memory_rw(crashk_res.start, size >> PAGE_SHIFT);
-> +		set_memory_rw(addr, size >> PAGE_SHIFT);
->  }
->  
->  void arch_kexec_protect_crashkres(void)
-> 
-...
-> Sincerely yours,
-> Mike.
-
-Applied, thanks!
+> Fixes: b0ad874d9852 ("KVM: s390: vsie: Allow non-zarch guests")
+> Cc: stable@vger.kernel.org # 7.1+
+> Signed-off-by: Yvan Janssens <yvanj@cyber.gent>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
