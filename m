@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795702256;
-	b=VaZmFevHw13jpqQhFwNQSpFyIbV6XgIsTG/biicEUtDngMbdearsx5MGMTn8ZE59KfFm
-	 1hcr/BIN3vRIoVXRfwOqxdArDRIxM/7xc6+32adN+LYeGj0Bimoem/b1VLoOmwPaFL/aM
-	 9MrmrJVp6a8ElrV0ac610qA2QwNGEeIKv72ABaBcVUkZpHpzZyZ2YtuJNywlt06CZh1Mj
-	 irCR60HrdoFex+Hy2Evut3Ttmh+ShE54RQDARgfWrE9TC+Y3sQ4xxhDCMUEzm/7ZjWlhj
-	 +as5O4uKxxwllpx2Ffo6FYUvAxfoaoeTEwLmqAya75lM4xW9qwfEE8SaJnCielppMng==
+	t=1795702350;
+	b=CqRTc5+67UUQpc2WRLGuReKw3ZDLJxl+b1g8zDOhUyKHdWmJoBbeLieGMUje6ZS/W+my
+	 7N86oGZGR8HmV909ZBAtf5ITpAmHdkiDRiwtfhSxrN8z/Jw6ULE06Oeh+6Nw4ePqv1lEr
+	 FOCL44dswHkc4uJ8MBHm7hJYXMrB4UIpfqWYHM9qBLQOQDdKBSKhzoFh5DosKfEfDzyaB
+	 OdJbmcw1uV7SabcvLifK6wO6ePFSfzA6Rz9W1nAaOALKRMLznlpT9qYdHS0olSKBEwkCU
+	 eoarOQgSGhccdJtE596u9cQojnhnkT3xes5zcpxUV178Adqcjas3dajphFY72LMiYLA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795702256;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795702350;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=6O9fFPnsC2fRnN/QRfMcf6hwkntt/ekyLWGe+pOVc4U=;
-	b=d7x6xZAYri8Cv+7qPfQm5muiR4ZyAtaiJvJuFGgaSdshu+jeH6nS2M77hNrh9QdFtexx
-	 cFv+8V1tHJR7Xf5kKw3GTOSYrxR8uAS/JktpYZ1ke/Wjz6bWSUPow1bP+ULfllsog92t/
-	 8cASLwY+qkd+XJUaHHtx1lv019kwQ/8acsi7Plc9JJ86leNR6vlit0fHRiiS3c18bCoSg
-	 npm4ZzzXNEynDo0L63wOawjFAj9154+nJRy3hP4QB+fSIgL+Y6Q08LdiuRMkdL8rHfNYT
-	 qzkpWhy23dazALz36B3Hrq2FFAfH+9i3mXEjAaY7gvu1fyNGAxOKf3ajTF6OrQLd41g==
+	bh=i2cNc8HSARC2wOejD22JDbD0mwhfJQiUlrWNB6pO/o4=;
+	b=ulEbBod4OZ2k92KJnXNYiCegLD3hhPorpfRP7XNrPkIPR8nUbmJmB9FjFjYohObhV7WG
+	 iKpO5hYmaW/8p5/XNIUCCMtx5Sey2DT7ouGbNR4RMM38iGHSVm5EF/X1uz7B3FYinO5Kq
+	 Yny3X2Ls+J7Q43zrOX1QFRwxnX0tu/8EKD70UcmJskZmtpqMYerfTfr3Zjg+lVL4Y+K0M
+	 i/wqUXNGRMmYU63hFfrPakTaqV16w0YmthgOvANCcDXSCcYgYK7Atena5uWK2KYTueBNx
+	 3i8/sO65jEX3OthvhJzTyXJpfPnCRe1Tq4sJwgRWNOko1aW3PX37JlMB0u0k2leIlJw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N2pz3ZCU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="XM/v0L+X";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04BBD606A31C;
-	Thu, 26 Nov 2026 14:10:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB2DF606A335;
+	Thu, 26 Nov 2026 14:12:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N2pz3ZCU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D773A1F01564;
-	Thu, 26 Nov 2026 14:10:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XM/v0L+X
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F20F1F000C4;
+	Thu, 26 Nov 2026 14:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795702255;
-	bh=6O9fFPnsC2fRnN/QRfMcf6hwkntt/ekyLWGe+pOVc4U=;
+	s=k20260515; t=1795702350;
+	bh=i2cNc8HSARC2wOejD22JDbD0mwhfJQiUlrWNB6pO/o4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=N2pz3ZCU176TcfVQhG2iuo5458/3FyeO0kX903oXUUqvpGySu15X6A3HfU+AA6eEX
-	 Iyuu5ZeD+XYBv18n6tsOIpEp93zp+oW+TZJ5dWBH0buqUinIxKYdy8l3CUWtUi4XFX
-	 pvBTZZKDkZzVDnGB5RiefR2c+6IyGyAI2gTVRmQRvax7uxgNKTLf+anD7RIAVJAlG+
-	 b/al4pBnu6+4vPkZ33ZiV45scsPGvwc5+zgRH+84qQrDGn0aoD0Epzt46iXl1Lr3cf
-	 wZHHg+PhqTYEg39ZnAp9rK/bbQl58DGdd+2EzysXttKD5OgpysLYjSVuEoM8A1bMFv
-	 69QeNtO35FVEA==
-Message-ID: <59ac6564-519e-43f0-9a4a-11600e1d794e@kernel.org>
-Date: Thu, 26 Nov 2026 15:10:44 +0100
+	b=XM/v0L+X45woIBgANOwNtHPPIUmqXvHJxQ6mG9ukfV9OpVWj+xy+U5/lLU6twpiv8
+	 I9moaYBWThXPieB8iVDdrgZRck2TaptOWDWaINkRf87Eq23OBBP4BTZHZiTLQF+6Dl
+	 3VoSl6+svsMEeJ2t/4eq+g6pv6fIyAc88iW1KHSuMke+N+vXD7PgYDbZOpIKcCeCBD
+	 LeBKC5ixNrN57C6ukG4KDBtar3YC/74xgGg7ZUoS6201lCrDlW5P4oZaRkM5OvGFkt
+	 8tKz+wqmdZnUid+GmJ08v/IpaXMQLzrmptGj3dz97OX8yyKN8C9vQpgSwH1Cha7eo+
+	 bzApLFZU5wIZA==
+Message-ID: <4b60cf7b-bf8f-42dc-979e-71fe6d00c5d1@kernel.org>
+Date: Thu, 26 Nov 2026 15:12:21 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,25 +52,21 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/9] mm: keep writable entries writable on protection
- changes
+Subject: Re: [PATCH v3 5/9] mm/mprotect: add MM_CP_PERM_UPGRADE
 To: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>, kvm@vger.kernel.org,
  linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  linux-riscv@lists.infradead.org, seanjc@google.com, pbonzini@redhat.com,
  akpm@linux-foundation.org, peterx@redhat.com, ljs@kernel.org,
  imbrenda@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
- Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
- Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
  Pedro Falcato <pfalcato@suse.de>
 References: <20261112142039.907090-2-clopez@suse.de>
- <20261112142039.907090-6-clopez@suse.de>
- <603cd8e0-c2c5-4c1e-85c4-d0a5ceda8d4c@kernel.org>
- <743f60f7-d611-4d73-a2d1-d5873bcdda36@suse.de>
+ <20261112142039.907090-7-clopez@suse.de>
+ <3314e44d-dbfe-45da-a1b0-8337784a5e86@kernel.org>
+ <5412ba3a-ff32-48e8-b5a1-d46b97cf5f8f@suse.de>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -117,47 +113,47 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <743f60f7-d611-4d73-a2d1-d5873bcdda36@suse.de>
+In-Reply-To: <5412ba3a-ff32-48e8-b5a1-d46b97cf5f8f@suse.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 11/15/26 22:59, Carlos López wrote:
-> On 11/13/26 7:56 PM, David Hildenbrand (Arm) wrote:
->> On 11/12/26 15:20, Carlos López wrote:
->>> change_protection() applies vma->vm_page_prot, which lacks the write bit
->>> for CoW and write-notified mappings. MM_CP_TRY_CHANGE_WRITABLE makes
->>> entries writable again if a write fault would only set the write bit.
->>> In shared mappings, it relies on the dirty bit for this, as a clean
->>> entry might still need a write fault to notify the FS.
->>>
->>> However, this misses clean entries that were already writable. For
->>> example, a uffd-wp unprotect makes shmem PTEs read-only if they were
->>> mapped by a read fault before uffd-wp was registered, so the next write
->>> to each of them faults.
+On 11/15/26 23:03, Carlos López wrote:
+> On 11/13/26 7:51 PM, David Hildenbrand (Arm) wrote:
+>>> diff --git a/mm/mprotect.c b/mm/mprotect.c
+>>> index 84bcfe0281d3..8c0fcd10f5a3 100644
+>>> --- a/mm/mprotect.c
+>>> +++ b/mm/mprotect.c
+>>> @@ -767,6 +767,17 @@ static const struct mm_walk_ops prot_none_walk_ops = {
+>>>  	.walk_lock		= PGWALK_WRLOCK,
+>>>  };
+>>>  
+>>> +static bool vma_flags_is_perm_upgrade(vma_flags_t old_vma_flags,
+>>> +				      vma_flags_t new_vma_flags)
 >>
->> See my other reply, adding such optimizations without any motivation why we
->> should even care is not really what we want.
->>
->> Drop it from your series and keep the MM changes to a bare minimum please.
->>
->> Or is there a real dependency for your work?
->>
+>> Two tab indent.
 > 
-> Yes there is, but I clearly did not explain it properly.
+> Will fix
 > 
-> The whole point of the series is to avoid zaps when no permission bits
-> are removed by a protection change, e.g. mprotect(PROT_READ |
-> PROT_WRITE) on a read-only VMA. My proposal is for change_protection()
-> to signal this is the case to MMU notifiers with a new flag. However,
-> change_protection() sometimes write-protects entries that were writable,
-> which makes the flag wrong, so this patch fixes that.
+>>> +{
+>>> +	vm_flags_t old = vma_flags_to_legacy(old_vma_flags);
+>>> +	vm_flags_t new = vma_flags_to_legacy(new_vma_flags);
+>>> +	/* VM_ACCOUNT does not affect page tables */
+>>> +	vm_flags_t mask = VM_READ | VM_WRITE | VM_EXEC | VM_ACCOUNT;
+>>
+>> Why is VM_ACCOUNT a permission upgrade? At best it's "no change".
+>>
+>> What am I missing?
 > 
-> I'll be sure to explain this properly.
+> It isn't, this just means to cover the case where mprotect(PROT_READ |
+> PROT_WRITE) on a private read-only VMA sets VM_ACCOUNT as well. Without
+> this, the change is not detected as an upgrade.
 
-I think there are some weird interactions between things.
+Why is setting VM_ACCOUNT and upgrade for permissions?!
 
-I'm swamped with other stuff right now, but once you resend and explain it
-better, maybe I can figure out how to do this cleanly.
+I'm sorry but this is all way to shaky and confusing.
+
+Take a step back and think how to do all of this cleanly without making this
+code here unmaintainable :)
 
 -- 
 Cheers,
