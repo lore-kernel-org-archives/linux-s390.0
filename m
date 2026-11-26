@@ -1,48 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795692169;
-	b=dw3arcI1tqccXHDEjCe9pPjc9wKrKKqSob3xx2vTKWUZCqlo143QZ7Bzp2dI0THGYJqW
-	 eJJH24UWKFki6zz1sS5JEjr+m5YosHTw19600ObyZ52I518wl3Ww0Z762Mt5FmxAOy8GL
-	 tXCr6O+VhQUlcbOGruryJve5T8EZSXKixgOsSF2J5ZY4rnT8q0NnTClYYgRA9SNEJ6fcB
-	 4pNV1qlO3j0ACpL9adJ45ZyyzV1DcPPD0y95W+5CpQh+4zU8fhCToy/sB7V493vPJwaRO
-	 BHtgmBalcmOUBuGf18cslY+6986LU1CZKQhDC0lkfv6PjtpdoGMke464oRA987Mfn5g==
+	t=1795692178;
+	b=IFupF0mmc+6IXuRovWfaJZ8Oob/+JkhlAzxYqVJprwGtVQVe/RGJc78r/sQU1t4nekOK
+	 79lNkLCe6CFde1HlFy9w7HTMKL1FfVS+gWbs2PBcQS8l9ytTE4UBgUZKh8Eem4xCdF0zY
+	 kj7CHJ6qxFCv/qe6daMU/5Dj6r7gFiJNK+SR7iF6mcAAclkE0OYiwLAcoz295BrJSd8IP
+	 NRJWvW3iFRVx6di8QI4XumsBLQC9Zhfw09Uwv3quy4lzP+JOX2TyXnKBTWDJoksHm5R3g
+	 go9Ah9lyP6XAFxtmf4iWEjaPSvOOO0T3iJ7VYzuJoFJVKZHgBaRuZMq7EU4hvZVq2/g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795692169;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795692178;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=6WYcKE+tNEbcV6PVwG1N7LpHdq4HcIVT1zq0dfG4sec=;
-	b=xXMWBGm+Va22+7DzL5B6Hiw0lW2VmD0BZNVASwO/BUMs009CqU+y6BAZPSyOJkzdQUyc
-	 TWGw0qsv60DZgUgMo/cFUe9WchXPJg2JUX27t3fyHmF4lgcUwUPBXaLldZElMV+828fdG
-	 T5lXZN/PXkbsAzXaJqSWtg8wtvj2OTXX9zQwPOQW+OZoZ1uthF34QFzFmMyuer8ZG8GOL
-	 pFWgkavFmHtDsHWNT3C5jArM98ebkdHUmORVGv/KjB6KLCOZREWJXJMWN8Xxxm8hJ0DJy
-	 uk4GCm1xXlZZudg3ratWdSbQxQkR5bh6GkCC2noj8iV1BIATVyKhXBtdiYrNu+NHaGQ==
+	bh=eKUr+0/Ji0+0NqFinQ2LX98LxUecEFKvXWWLdTPhIvY=;
+	b=Nyj3w1CQsmMa3A01dPiT8mkohzD3WIbukHI1t8f/d9tBTf88fXdewqbaUUcNhJ2V46sC
+	 NBq3T6HxJ7mzHrJiuHvIKfXyy5SmUsf2kj7gn60EpXNujpi7fNkKf5ubiv7KRRl+j+Ohj
+	 YfMUR9ZtM9l0S5hopxo+gKj91JKJ1rVpiUTqdlu83NuqKLcEXkGrekkR0JiQ1eeG78V92
+	 yJWplW3ZfEHhNm5r6I6elP1s/rOmeLrvSzpDp4XeT+9FVRwVtkKAqCd4YBH+6jWcgBNlf
+	 jNz6ySFwPW1vEM2Bbo6bvwRrz2j8LHiTXmP5uxrS3Op763ALrct+fS7+UeCcHDGzpYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Zl+CRlyx;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Dm2c3+DY;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68C7D606A321;
-	Thu, 26 Nov 2026 11:22:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CF73606A321;
+	Thu, 26 Nov 2026 11:22:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Zl+CRlyx
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB421F000CF;
-	Thu, 26 Nov 2026 11:22:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Dm2c3+DY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F0C1F000F2;
+	Thu, 26 Nov 2026 11:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795692168;
-	bh=6WYcKE+tNEbcV6PVwG1N7LpHdq4HcIVT1zq0dfG4sec=;
+	s=k20260515; t=1795692178;
+	bh=eKUr+0/Ji0+0NqFinQ2LX98LxUecEFKvXWWLdTPhIvY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Zl+CRlyx2I87IdbB1JjDCBPiNmKv4bM3IAC45ktE5s3I91L2jmCmRUoptnipGkKgl
-	 BUE5kN97wXFLUC85uzwNpJJy7KixHU2IXlqkidLGKe+3woRJZHzcPXmlb+AxWDuKBB
-	 UPGryb2k5YbIZxUqTu22JWldXgFR2GhweHJsnywyofX6FCMS+197XcSD+PpDSV91di
-	 0Robh4VbtGiy65suWKd5uGtTAUBp0SYHIy2Y2NU+abhtWG5slvBzvF2XW7wLKh3XBs
-	 MK+nfJOsSsKaW0gMv9BnXjO4gNsLD+feKOCcYwglUygk2LWwCivUbj7eMLAOX1Qa1b
-	 ua3YBSB8LM7wg==
+	b=Dm2c3+DYVRKxMA0zs3xasLS8OkivKgv5DPVGeim/BVShbcjacDNtx+3LechYlp/Op
+	 ThMaD/L6hZeU0tf9h1p4vdNlg9eJwD/HQ5DKkLYtUlVMXa5jZB51zTO4XDajG8ySii
+	 wDdVkCpfdlAyFHFHhcQRVOJBDOr3P0UU7Ca08L4iRAAPp2+L0HKCxoLX0Z1W5yumBt
+	 TqkF242aFp2Kl7rJJyODroSQL1/f8Y7xLMjmBfv3PTeuMzMJae+NcbcLGJU9+jBwEE
+	 LadWoZogFWj9c6qH76TOcKMgugfhPlYgvvKxPVlm8M1UiTmkRzwSE7aSWCiTf0+7g5
+	 qb0Htg51a2W+g==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:15:05 +0200
-Subject: [PATCH RFC v2 52/54] arm64: count the mappings of the linear map
+Date: Thu, 26 Nov 2026 13:15:06 +0200
+Subject: [PATCH RFC v2 53/54] arch, mm: enable the generic CPA core with
+ ARCH_HAS_SET_MEMORY
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-52-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-53-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -82,159 +83,121 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-The core keeps a counter of the direct map entries at every page table
-level. A split moves an entry to the level below and counts a
-direct_map_level2_splits or direct_map_level3_splits event in /proc/vmstat.
-The counters start from what the architecture mapped.
+Every architecture that selects ARCH_HAS_SET_MEMORY now uses the generic
+CPA core, and a new one should not need to select two symbols to get it.
 
-arm64 never counts its linear map, so the core finds no large pages to take
-a split from, and the split events stay at zero.
-
-Count the linear map when it is created at boot and on memory hotplug, and
-when memory is removed. map_mem() maps the kernel alias and the KFENCE pool
-before it maps all of memory over them, so only the entries that were empty
-count. The split of the linear map at boot, when not all CPUs support
-BBML3, bypasses the core, so count its splits as well.
-
-Report the counters in /proc/meminfo.
+Enable GENERIC_PAGEATTR for ARCH_HAS_SET_MEMORY on MMU kernels and drop the
+selects from the architectures.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/arm64/mm/mmu.c      | 28 ++++++++++++++++++++++++++++
- arch/arm64/mm/pageattr.c | 13 +++++++++++++
- 2 files changed, 41 insertions(+)
+ arch/arm/Kconfig       | 1 -
+ arch/arm64/Kconfig     | 1 -
+ arch/loongarch/Kconfig | 1 -
+ arch/powerpc/Kconfig   | 1 -
+ arch/riscv/Kconfig     | 1 -
+ arch/s390/Kconfig      | 1 -
+ arch/x86/Kconfig       | 1 -
+ mm/Kconfig             | 2 +-
+ 8 files changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 40c5ac95f574..c415b81fb6f3 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -160,9 +160,19 @@ static void init_clear_pgtable(void *table)
- 	dsb(ishst);
- }
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 7a7ccc113126..0cc289a7184a 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -77,7 +77,6 @@ config ARM
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IRQ_SHOW_LEVEL
+ 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
+-	select GENERIC_PAGEATTR if MMU
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 846fae788b3c..9b08b2457a55 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -138,7 +138,6 @@ config ARM64
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IRQ_SHOW_LEVEL
+ 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
+-	select GENERIC_PAGEATTR
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
+diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+index 455a72b8669d..bad699e2847f 100644
+--- a/arch/loongarch/Kconfig
++++ b/arch/loongarch/Kconfig
+@@ -107,7 +107,6 @@ config LOONGARCH
+ 	select GENERIC_LIB_LSHRDI3
+ 	select GENERIC_LIB_UCMPDI2
+ 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
+-	select GENERIC_PAGEATTR
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index fbe3a3abeea8..c3b6cd655606 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -211,7 +211,6 @@ config PPC
+ 	select GENERIC_IOREMAP
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IRQ_SHOW_LEVEL
+-	select GENERIC_PAGEATTR
+ 	select GENERIC_PCI_IOMAP		if PCI
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select HAS_IOPORT			if PCI
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 0453c665fc64..e7891a2a89da 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -122,7 +122,6 @@ config RISCV
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IRQ_SHOW_LEVEL
+ 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
+-	select GENERIC_PAGEATTR if MMU
+ 	select GENERIC_PENDING_IRQ if SMP
+ 	select GENERIC_PCI_IOMAP
+ 	select GENERIC_SCHED_CLOCK
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 413b886a9e9a..7138d923d86f 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -180,7 +180,6 @@ config S390
+ 	select GENERIC_CPU_VULNERABILITIES
+ 	select GENERIC_ENTRY
+ 	select GENERIC_GETTIMEOFDAY
+-	select GENERIC_PAGEATTR
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_IOREMAP
+ 	select GLOB
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index f4aceaceaf65..6cf8f121879a 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -178,7 +178,6 @@ config X86
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_IRQ_RESERVATION_MODE
+ 	select GENERIC_IRQ_SHOW
+-	select GENERIC_PAGEATTR
+ 	select GENERIC_PENDING_IRQ		if SMP
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_GETTIMEOFDAY
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 3948e64dc590..97e152442e1a 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -1139,7 +1139,7 @@ config GENERIC_EARLY_IOREMAP
+ 	bool
  
-+static void linear_map_count(unsigned long addr, enum pgtable_level level,
-+			     long nr)
-+{
-+	if (__is_lm_address(addr))
-+		direct_map_count_update(level, nr);
-+}
-+
- static void init_pte(pte_t *ptep, unsigned long addr, unsigned long end,
- 		     phys_addr_t phys, pgprot_t prot)
- {
-+	unsigned long start = addr;
-+	long nr = 0;
-+
- 	do {
- 		pte_t old_pte = __ptep_get(ptep);
+ config GENERIC_PAGEATTR
+-	bool
++	def_bool ARCH_HAS_SET_MEMORY && MMU
  
-@@ -179,8 +189,12 @@ static void init_pte(pte_t *ptep, unsigned long addr, unsigned long end,
- 		BUG_ON(!pgattr_change_is_safe(pte_val(old_pte),
- 					      pte_val(__ptep_get(ptep))));
- 
-+		if (pte_none(old_pte))
-+			nr++;
- 		phys += PAGE_SIZE;
- 	} while (ptep++, addr += PAGE_SIZE, addr != end);
-+
-+	linear_map_count(start, PGTABLE_LEVEL_PTE, nr);
- }
- 
- static bool pte_range_has_valid_noncont(pte_t *ptep)
-@@ -274,6 +288,9 @@ static int init_pmd(pmd_t *pmdp, unsigned long addr, unsigned long end,
- 			 */
- 			BUG_ON(!pgattr_change_is_safe(pmd_val(old_pmd),
- 						      READ_ONCE(pmd_val(*pmdp))));
-+
-+			if (pmd_none(old_pmd))
-+				linear_map_count(addr, PGTABLE_LEVEL_PMD, 1);
- 		} else {
- 			int ret;
- 
-@@ -410,6 +427,9 @@ static int alloc_init_pud(p4d_t *p4dp, unsigned long addr, unsigned long end,
- 			 */
- 			BUG_ON(!pgattr_change_is_safe(pud_val(old_pud),
- 						      READ_ONCE(pud_val(*pudp))));
-+
-+			if (pud_none(old_pud))
-+				linear_map_count(addr, PGTABLE_LEVEL_PUD, 1);
- 		} else {
- 			ret = alloc_init_cont_pmd(pudp, addr, next, phys, prot,
- 						  pgtable_alloc, flags);
-@@ -750,6 +770,7 @@ static int split_to_ptes_pud_entry(pud_t *pudp, unsigned long addr,
- 		return -ENOMEM;
- 
- 	split_pud(pudp, pud, pmdp, false);
-+	direct_map_count_split(PGTABLE_LEVEL_PUD);
- 
- 	return 0;
- }
-@@ -771,6 +792,7 @@ static int split_to_ptes_pmd_entry(pmd_t *pmdp, unsigned long addr,
- 	if (pmd_cont(pmd))
- 		split_contpmd(pmdp);
- 	split_pmd(pmdp, pmd, ptep, false);
-+	direct_map_count_split(PGTABLE_LEVEL_PMD);
- 
- 	/*
- 	 * We have split the pmd directly to ptes so there is no need to
-@@ -1424,6 +1446,8 @@ static void unmap_hotplug_pte_range(pmd_t *pmdp, unsigned long addr,
- 			flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 			free_hotplug_page_range(pte_page(pte),
- 						PAGE_SIZE, altmap);
-+		} else {
-+			direct_map_count_update(PGTABLE_LEVEL_PTE, -1);
- 		}
- 		/* unmap_hotplug_range() flushes TLB for !free_mapped */
- 	} while (addr += PAGE_SIZE, addr < end);
-@@ -1458,6 +1482,8 @@ static void unmap_hotplug_pmd_range(pud_t *pudp, unsigned long addr,
- 				flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 				free_hotplug_page_range(pmd_page(pmd),
- 							PMD_SIZE, altmap);
-+			} else {
-+				direct_map_count_update(PGTABLE_LEVEL_PMD, -1);
- 			}
- 			/* unmap_hotplug_range() flushes TLB for !free_mapped */
- 			continue;
-@@ -1489,6 +1515,8 @@ static void unmap_hotplug_pud_range(p4d_t *p4dp, unsigned long addr,
- 				flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 				free_hotplug_page_range(pud_page(pud),
- 							PUD_SIZE, altmap);
-+			} else {
-+				direct_map_count_update(PGTABLE_LEVEL_PUD, -1);
- 			}
- 			/* unmap_hotplug_range() flushes TLB for !free_mapped */
- 			continue;
-diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
-index a2f5266b77b2..5e6782ef4b6c 100644
---- a/arch/arm64/mm/pageattr.c
-+++ b/arch/arm64/mm/pageattr.c
-@@ -9,6 +9,7 @@
- #include <linux/sched.h>
- #include <linux/vmalloc.h>
- #include <linux/pageattr.h>
-+#include <linux/proc_fs.h>
- 
- #include <asm/cacheflush.h>
- #include <asm/pgtable-prot.h>
-@@ -16,6 +17,18 @@
- #include <asm/tlbflush.h>
- #include <asm/kfence.h>
- 
-+#ifdef CONFIG_PROC_FS
-+void arch_report_meminfo(struct seq_file *m)
-+{
-+	unsigned long levels = BIT(PGTABLE_LEVEL_PTE) | BIT(PGTABLE_LEVEL_PMD);
-+
-+	if (pud_sect_supported())
-+		levels |= BIT(PGTABLE_LEVEL_PUD);
-+
-+	cpa_report_meminfo(m, levels);
-+}
-+#endif
-+
- void arch_cpa_decode_leaf(struct cpa_leaf *leaf)
- {
- 	enum pgtable_level level = leaf->level;
+ config STACK_MAX_DEFAULT_SIZE_MB
+ 	int "Default maximum user stack size for 32-bit processes (MB)"
 
 -- 
 2.53.0
