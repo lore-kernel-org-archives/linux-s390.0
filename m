@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795692016;
-	b=tuwgiraMe7LpLIplvU7x0iI+cBsWhQuRwLBU8Jc5eoycKakqlK08pzHmm/5q2rsUbWgq
-	 mhNFDdey9Om9VeEQAE8zgeJNs9KRVMrebUzm8bHt3RmHnuh1WrOwZ24X8rsXU6QNi4rHV
-	 I5MMKe0/cyqywPKFEjBE2a4Bhm/zJ8EwJyCc3umNoiklSq+fAKoovzpfT+e7/zl+n4tqR
-	 ryBKCkcBXVwTQn2X2pGv7eYHq4Uumpbkpjc2b2TMRLXRrCTXqgf6ToZZ9EhpPunpLqPMF
-	 ghid+amWgTi/GkjiseWJz1w6ctTm+osVMAzu0v1RSvFhX7uZB/j8eC7nL58zc6HRM8A==
+	t=1795692026;
+	b=QLd4xLL0AKAp1j6OuyNdpbsJ3H0eV02blw79xJzQ4GJE4uh/iMxCPhR63QNghDcboOTd
+	 EwOIIpJoigV8QQxRghPJu6bXeeXV6F7N3c1a4Z/lDaHNY+PoexJqV9AFZ8NJpUKkQ7428
+	 jL4m6W5gMAJxrbt28J2zpa3Us6AjH05dSvoo5EG54erPAttPuwDsw/Lg09FGbR9CAglgF
+	 BdcF16Z+EPHOsSeiDDiq848DywJeqnCuI3tV9ReL8JpvsHhr9v3XK6cYcnu4nhuDNRuO+
+	 UgRAEQrMJ/nK7tugvmffqmwDmhgIEvNssSgpzhMt+8HEcT/3OQzL3n1lRDOyLhyhClQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795692016;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795692026;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=ITguBAtaeU1JouI5XylgxXLQvJx8CTSOCOcbVUzTjd8=;
-	b=LxRYd5FXSPPfkMmdRT4my83BZQVW5yhlYcm/MIPbmy0j3rtFILxOzEeBylQ+o3Q5b88L
-	 +Bkp1HImI2Ur+oJWWZvC3YznwtLe2YGGwZ8MThlLKCFY0bOUsMzoPvsQBWMyErHcP8t/0
-	 iZRC7ih672YiJzMFWrceu0MuKy7nkyfbHBkn1bfFtN6dHiKZCZeM2GIJhcAX9mUEDfxwt
-	 BCke/bPaZ88nZhGkA8xSB427fdDAdOV+5yjJJx43SQIzQueOgWozx5ItRnLUkjNQ/c11d
-	 3maMhQKg/ugcr244U8xC4fq6g6pmW15OuEa7+rw9YmobUPBdoUq/ihF+FVJK7GrTuJg==
+	bh=HGpkwMSSBdHw0hjJcvg7ScFLxw/cXXPctNM1u/isMBg=;
+	b=RutXMERNVIQCmATpBa4kc+lghJ4iiwPKMtbubYnRypMA6l3aogK3yzhsjr0sOoGaMIEr
+	 Kj7nTw1RGnrisnGBs6qMlJIdJmX4rxRPJvEBKdPdhUWTgCHT+s8yA4/7vuUooxy7ny68M
+	 7dwDVIBe//ghy/+S5YKR4sIVR3A/8wFIUW/LubXofJWSVxH/5Xft3lh7l98BgAm4vf3sV
+	 L9FsqbST6cAQ3X5RxZj8jmncMKaV2Ixvlv686hVpNVNT8/41VVEmcNt2nq1fjgXdGODwM
+	 cMNaP9FiHuc19MTIPDM++IyCCOXs1FIKoh3pRPXg5j49vRh264LLdWyr6KHx97QJ0cg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fvGXWZv+;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E1TJoT8r;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A4C4606A323;
-	Thu, 26 Nov 2026 11:20:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 446E0606A332;
+	Thu, 26 Nov 2026 11:20:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fvGXWZv+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 962C01F00A3D;
-	Thu, 26 Nov 2026 11:20:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E1TJoT8r
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D3FB1F000C4;
+	Thu, 26 Nov 2026 11:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795692016;
-	bh=ITguBAtaeU1JouI5XylgxXLQvJx8CTSOCOcbVUzTjd8=;
+	s=k20260515; t=1795692025;
+	bh=HGpkwMSSBdHw0hjJcvg7ScFLxw/cXXPctNM1u/isMBg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=fvGXWZv+8pi99qzU7b5EhDoIXdzzJsiCfHc+1Zlntkr3m3pkhun1WINtqz4rdzsie
-	 jziiCB0LdrTQeKoKP+cu5R80r2pIsX/Y0JsIKlz5jTCWUHlJ5PjjGI7kbGWq6SQUBC
-	 OH/NSmXziwPx8bzuosEs4237MSu29h0F0RtcX8jYgwEoV/Vjg9phJULHmw3gJouIze
-	 9hIqTpIOLEN8A567d+YKTz+F7fcaL7zu2Hm9VGG6vowtOIjNt2ZwOa9fzC16hdBprX
-	 fyURUQ8TtPloWpWF1yAFJ3g1MUNAfNtlp8BhC8QfIDp8DVvIbbD1Do5rDdAqZmpJqT
-	 FPBg70e6baOtw==
+	b=E1TJoT8rfxY4RKfkKoTv4gchUZwLK2Dx0k15Ppol9x6DQ+Czm3zQkgQ+GemeSZ9Sf
+	 qCz67rIZWDRaOcrjmNSJG+RSk/fYjuNUnRi1qRMYYDGYCFR5B926udrFbyW+JQPZ9y
+	 BFzSv23zzVZ3JsfXlIVzWUcrJPHAX3+RCiV/zFmcdE21b0JYQ9G1UTCb4S6D6C7e7J
+	 3lQkoarGeF+zT6Yuh2JOCRVnuYIB5omdAF69m8p5HljFjcGGBSU5k77wsCbSC5merl
+	 VtcPwSwA4Ox7w+wRkTejliEVb+aBZW61I2onfp405VoHoeUY2ztMHHn6YbmyzKkGQA
+	 X+aD2454IOH1g==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:14:49 +0200
-Subject: [PATCH RFC v2 36/54] LoongArch: use the generic CPA core
+Date: Thu, 26 Nov 2026 13:14:50 +0200
+Subject: [PATCH RFC v2 37/54] ARM: mm: use the generic CPA core
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-36-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-37-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -82,196 +82,210 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-The availability of the generic CPA core makes LoongArch's implementation
-of set_memory_*() APIs unnecessary.
-
-The page table walk in arch/loongarch/mm/pageattr.c can be replaced with
-several simple hooks required by CPA core.
+The availability of the generic CPA core makes ARM's implementation of
+set_memory_*() APIs unnecessary and it can be replaced with several hooks
+required by CPA core.
 
 This way the core can manage the policy decisions and the architecture only
 has to take care of the page table manipulation.
 
 Switch to the generic CPA core and its set_memory() entry points.
-For LoongArch this means that:
+For ARM this means that:
 
-* an empty entry in the range is reported with a warning and -EFAULT
+* a hole in the range fails the request with a warning instead of getting a
+  page table
 * nothing is written or flushed when nothing changes
+* a request on a section, which ioremap() may create in the vmalloc area on
+  !SMP, still fails with a warning and -EINVAL
+* a request on a static I/O mapping, which may use sections in the vmalloc
+  area, fails with a warning and -EINVAL as well
 * a request that fails flushes the entire TLB
 * set_memory_rox() is a single request instead of set_memory_ro() followed
   by set_memory_x()
-* requests are serialized by the core, rather than by the init_mm write
-  lock
-* lazily unmapped vmap areas are purged before a request, so that they do
-  not keep stale TLB entries with the old protection
+* lazily unmapped vmap areas and unused kmaps are purged before a request,
+  so that they do not keep stale mappings or TLB entries with the old
+  protection
+
+ARM only changes ranges mapped with base pages: modules and vmalloc, as
+checked before, and the KFENCE pool, which arch_kfence_init_pool() splits.
+
+KFENCE keeps set_memory_valid(), which runs with interrupts disabled. It
+now walks with apply_to_existing_page_range(), which never allocates,
+rather than apply_to_page_range(), which allocates a page table for a hole
+with GFP_KERNEL.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/loongarch/Kconfig                  |   1 +
- arch/loongarch/include/asm/set_memory.h |   8 +--
- arch/loongarch/mm/pageattr.c            | 102 ++++++++------------------------
- 3 files changed, 28 insertions(+), 83 deletions(-)
+ arch/arm/Kconfig                  |  1 +
+ arch/arm/include/asm/set_memory.h |  6 +--
+ arch/arm/mm/pageattr.c            | 96 +++++++++++++++++++++++++--------------
+ 3 files changed, 65 insertions(+), 38 deletions(-)
 
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index bad699e2847f..455a72b8669d 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -107,6 +107,7 @@ config LOONGARCH
- 	select GENERIC_LIB_LSHRDI3
- 	select GENERIC_LIB_UCMPDI2
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 0cc289a7184a..7a7ccc113126 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -77,6 +77,7 @@ config ARM
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IRQ_SHOW_LEVEL
  	select GENERIC_LIB_DEVMEM_IS_ALLOWED
-+	select GENERIC_PAGEATTR
++	select GENERIC_PAGEATTR if MMU
  	select GENERIC_PCI_IOMAP
  	select GENERIC_SCHED_CLOCK
  	select GENERIC_SMP_IDLE_THREAD
-diff --git a/arch/loongarch/include/asm/set_memory.h b/arch/loongarch/include/asm/set_memory.h
-index 64c7f942e8ec..5496a3ee27da 100644
---- a/arch/loongarch/include/asm/set_memory.h
-+++ b/arch/loongarch/include/asm/set_memory.h
-@@ -6,12 +6,6 @@
- #ifndef _ASM_LOONGARCH_SET_MEMORY_H
- #define _ASM_LOONGARCH_SET_MEMORY_H
+diff --git a/arch/arm/include/asm/set_memory.h b/arch/arm/include/asm/set_memory.h
+index 0211b9c5b14d..4f1988dad160 100644
+--- a/arch/arm/include/asm/set_memory.h
++++ b/arch/arm/include/asm/set_memory.h
+@@ -7,10 +7,8 @@
+ #define _ASMARM_SET_MEMORY_H
  
--/*
-- * Functions to change memory attributes.
-- */
--int set_memory_x(unsigned long addr, int numpages);
--int set_memory_nx(unsigned long addr, int numpages);
+ #ifdef CONFIG_MMU
 -int set_memory_ro(unsigned long addr, int numpages);
 -int set_memory_rw(unsigned long addr, int numpages);
+-int set_memory_x(unsigned long addr, int numpages);
+-int set_memory_nx(unsigned long addr, int numpages);
 +#include <asm-generic/set_memory.h>
- 
- #endif /* _ASM_LOONGARCH_SET_MEMORY_H */
-diff --git a/arch/loongarch/mm/pageattr.c b/arch/loongarch/mm/pageattr.c
-index 11cea93c7415..a90380b387d3 100644
---- a/arch/loongarch/mm/pageattr.c
-+++ b/arch/loongarch/mm/pageattr.c
-@@ -3,100 +3,50 @@
-  * Copyright (C) 2024 Loongson Technology Corporation Limited
++
+ int set_memory_valid(unsigned long addr, int numpages, int enable);
+ #else
+ static inline int set_memory_ro(unsigned long addr, int numpages) { return 0; }
+diff --git a/arch/arm/mm/pageattr.c b/arch/arm/mm/pageattr.c
+index 064ad508c149..2147b58b19cb 100644
+--- a/arch/arm/mm/pageattr.c
++++ b/arch/arm/mm/pageattr.c
+@@ -4,10 +4,14 @@
   */
- 
--#include <linux/pagewalk.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
 +#include <linux/pageattr.h>
- #include <linux/pgtable.h>
- #include <asm/set_memory.h>
- #include <asm/tlbflush.h>
++#include <linux/vmalloc.h>
  
--struct pageattr_masks {
--	pgprot_t set_mask;
--	pgprot_t clear_mask;
--};
--
--static unsigned long set_pageattr_masks(unsigned long val, struct mm_walk *walk)
--{
--	unsigned long new_val = val;
--	struct pageattr_masks *masks = walk->private;
--
--	new_val &= ~(pgprot_val(masks->clear_mask));
--	new_val |= (pgprot_val(masks->set_mask));
--
--	return new_val;
--}
--
--static int pageattr_pte_entry(pte_t *pte, unsigned long addr,
--			      unsigned long next, struct mm_walk *walk)
+ #include <asm/tlbflush.h>
+ #include <asm/set_memory.h>
+ 
++#include "mm.h"
++
+ struct page_change_data {
+ 	pgprot_t set_mask;
+ 	pgprot_t clear_mask;
+@@ -44,58 +48,82 @@ static int __change_memory_common(unsigned long start, unsigned long size,
+ 	data.set_mask = set_mask;
+ 	data.clear_mask = clear_mask;
+ 
+-	ret = apply_to_page_range(&init_mm, start, size, change_page_range,
+-				  &data);
++	ret = apply_to_existing_page_range(&init_mm, start, size,
++					   change_page_range, &data);
+ 
+ 	flush_tlb_kernel_range(start, start + size);
+ 	return ret;
+ }
+ 
+-static int change_memory_common(unsigned long addr, int numpages,
+-				pgprot_t set_mask, pgprot_t clear_mask)
++/* Only page mappings are changed: a section has a different format. */
 +void arch_cpa_decode_leaf(struct cpa_leaf *leaf)
  {
--	pte_t val = ptep_get(pte);
+-	unsigned long start = addr & PAGE_MASK;
+-	unsigned long end = PAGE_ALIGN(addr) + numpages * PAGE_SIZE;
+-	unsigned long size = end - start;
 -
--	val = __pte(set_pageattr_masks(pte_val(val), walk));
--	set_pte(pte, val);
+-	WARN_ON_ONCE(start != addr);
+-
+-	if (!size)
+-		return 0;
 +	pte_t pte = ptep_get(leaf->kpte);
  
--	return 0;
+-	if (!range_in_range(start, size, MODULES_VADDR, MODULES_END) &&
+-	    !range_in_range(start, size, VMALLOC_START, VMALLOC_END))
+-		return -EINVAL;
++	if (leaf->level != PGTABLE_LEVEL_PTE) {
++		leaf->pfn = 0;
++		leaf->prot = __pgprot(0);
++		return;
++	}
+ 
+-	return __change_memory_common(start, size, set_mask, clear_mask);
 +	leaf->pfn = pte_pfn(pte);
-+	leaf->prot = pte_pgprot(pte);
++	leaf->prot = __pgprot(pte_val(pte) & ~(PHYS_MASK & (s32)PAGE_MASK));
  }
  
--static int pageattr_pte_hole(unsigned long addr, unsigned long next,
--			     int depth, struct mm_walk *walk)
+-int set_memory_ro(unsigned long addr, int numpages)
 +void arch_cpa_modify_leaf(struct cpa_leaf *leaf, pgprot_t prot)
  {
--	return 0;
-+	set_pte(leaf->kpte, pfn_pte(leaf->pfn, prot));
+-	return change_memory_common(addr, numpages,
+-					__pgprot(L_PTE_RDONLY),
+-					__pgprot(0));
++	if (leaf->level == PGTABLE_LEVEL_PTE)
++		set_pte_ext(leaf->kpte, pfn_pte(leaf->pfn, prot), 0);
  }
  
--static const struct mm_walk_ops pageattr_ops = {
--	.pte_entry = pageattr_pte_entry,
--	.pte_hole = pageattr_pte_hole,
--	.walk_lock = PGWALK_RDLOCK,
--};
--
--static int __set_memory(unsigned long addr, int numpages, pgprot_t set_mask, pgprot_t clear_mask)
+-int set_memory_rw(unsigned long addr, int numpages)
 +void arch_cpa_flush(struct cpa_data *cpa)
  {
--	int ret;
--	unsigned long start = addr;
--	unsigned long end = start + PAGE_SIZE * numpages;
--	struct pageattr_masks masks = {
--		.set_mask = set_mask,
--		.clear_mask = clear_mask
--	};
--
--	if (!numpages)
--		return 0;
--
--	mmap_write_lock(&init_mm);
--	ret = walk_kernel_page_table_range(start, end, &pageattr_ops, NULL, &masks);
--	mmap_write_unlock(&init_mm);
--
--	flush_tlb_kernel_range(start, end);
+-	return change_memory_common(addr, numpages,
+-					__pgprot(0),
+-					__pgprot(L_PTE_RDONLY));
+-}
 +	if (cpa->state & CPA_ST_FLUSH_ALL) {
 +		flush_tlb_all();
 +		return;
 +	}
  
--	return ret;
+-int set_memory_nx(unsigned long addr, int numpages)
+-{
+-	return change_memory_common(addr, numpages,
+-					__pgprot(L_PTE_XN),
+-					__pgprot(0));
 +	cpa_flush_tlb_kernel_range(cpa);
  }
  
 -int set_memory_x(unsigned long addr, int numpages)
--{
--	if (addr < vm_map_base)
--		return 0;
--
--	return __set_memory(addr, numpages, __pgprot(0), __pgprot(_PAGE_NO_EXEC));
--}
--
--int set_memory_nx(unsigned long addr, int numpages)
--{
--	if (addr < vm_map_base)
--		return 0;
--
--	return __set_memory(addr, numpages, __pgprot(_PAGE_NO_EXEC), __pgprot(0));
--}
 +static const struct cpa_op_prot cpa_ops[CPA_OP_NR] = {
-+	[CPA_OP_RO]	= { .clr = __pgprot(_PAGE_WRITE | _PAGE_DIRTY) },
-+	[CPA_OP_RW]	= { .set = __pgprot(_PAGE_WRITE | _PAGE_DIRTY) },
-+	[CPA_OP_X]	= { .clr = __pgprot(_PAGE_NO_EXEC) },
-+	[CPA_OP_NX]	= { .set = __pgprot(_PAGE_NO_EXEC) },
-+	[CPA_OP_ROX]	= { .clr = __pgprot(_PAGE_WRITE | _PAGE_DIRTY |
-+					   _PAGE_NO_EXEC) },
++	[CPA_OP_RO]	= { .set = __pgprot(L_PTE_RDONLY) },
++	[CPA_OP_RW]	= { .clr = __pgprot(L_PTE_RDONLY) },
++	[CPA_OP_X]	= { .clr = __pgprot(L_PTE_XN) },
++	[CPA_OP_NX]	= { .set = __pgprot(L_PTE_XN) },
++	[CPA_OP_ROX]	= { .set = __pgprot(L_PTE_RDONLY),
++			    .clr = __pgprot(L_PTE_XN) },
 +};
- 
--int set_memory_ro(unsigned long addr, int numpages)
++
 +int arch_cpa_prepare(struct cpa_data *cpa, enum cpa_op op)
  {
--	if (addr < vm_map_base)
-+	/* The direct mapping windows below vm_map_base have no page tables */
-+	if (cpa->addr < vm_map_base)
- 		return 0;
- 
--	return __set_memory(addr, numpages, __pgprot(0), __pgprot(_PAGE_WRITE | _PAGE_DIRTY));
--}
+-	return change_memory_common(addr, numpages,
+-					__pgprot(0),
+-					__pgprot(L_PTE_XN));
++	unsigned long end = PAGE_ALIGN(cpa->addr) + cpa->numpages * PAGE_SIZE;
++	unsigned long start = cpa->addr & PAGE_MASK;
++	unsigned long size = end - start;
++	bool in_modules, in_vmalloc;
++	struct vm_struct *area;
++
++	if (!size)
++		return 0;
++
++	/*
++	 * The sections of the linear map are copied to every page table, so
++	 * only the page mappings of the modules and vmalloc areas can change.
++	 * ioremap() and the static I/O mappings may use sections there.
++	 */
++	in_modules = range_in_range(start, size, MODULES_VADDR, MODULES_END);
++	in_vmalloc = range_in_range(start, size, VMALLOC_START, VMALLOC_END);
++	if (!in_modules && !in_vmalloc)
++		return -EINVAL;
++
++	area = find_vm_area((void *)start);
++	if (WARN_ON_ONCE(area && (area->flags & (VM_ARM_SECTION_MAPPING |
++						 VM_ARM_STATIC_MAPPING))))
++		return -EINVAL;
++
 +	cpa_init_op(cpa, &cpa_ops[op]);
- 
--int set_memory_rw(unsigned long addr, int numpages)
--{
--	if (addr < vm_map_base)
--		return 0;
--
--	return __set_memory(addr, numpages, __pgprot(_PAGE_WRITE | _PAGE_DIRTY), __pgprot(0));
++
 +	return 0;
  }
+ 
+ int set_memory_valid(unsigned long addr, int numpages, int enable)
 
 -- 
 2.53.0
