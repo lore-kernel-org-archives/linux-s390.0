@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795691769;
-	b=KoU3mpFPPofDqYP15OOz54cTxUPYUyASeq8rSceHBVIVV36M8WOAaBKtXdho8p4IJiDK
-	 TECLaS10rMhUbZT7levg/wWPNINZ/QRoAGKzcxBxutrI9WRcnSvQcyfJQTuhCCcHY3TYb
-	 OIGx9+AGnxnO50Gr325b0zGsQVSwBvlheEWJYhxPLppsa9ZrREPssbA0aStglEHYrXTfv
-	 7/XnoW55d/qmzYRlMJOftd8Ls45NnVLpnIRRDZ1vrhMG08YWM91F64SgVU+yyyvp8Dacr
-	 4dLpv59YO/HonzzF8ckq0g6n2zcxVxFw8+94C3ahyqa0zJg5bJFZkfocO1Ng2KHrt5A==
+	t=1795691779;
+	b=wax6q5yK01mxJL2zZP7xBVP7UyAl8ea45E23CWA3LMmdJlTJaH9yfsDL1Pe6AeKrUviA
+	 C639pFvVxDm+Az73j/sY6ndnKKjzhZw2v+heayQ1hpMlx/T2Q5DaB8rfh5ieaSJvUb2SU
+	 zmFGKo/pxD4iYHlqs8W0BO1HUL8J3x96yiAcLtagh/EjMY+d7r9jDJc3sQF5vKA55oQy3
+	 Ql8M/If0rXUcxcfZTayFp8Wwu62tiNOMLFWB91ygfhXvuyOLbZ6596drKCQUb02xG5uTw
+	 V4b85ToRyihghXAi+5CNAL/bMFzrRbiopn9w2cFBSt9Srd+7mI1VH4bpKeaLMegL+uQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795691769;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795691779;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=es5ACbySNcsOn5mifmn0sw17oD0NBxslOJGoEpu9y4U=;
-	b=rZCeDpRV/2OAFiKlC2dEPhDI8g5SFCmeCtZ+tTyTv0POdf51pZUjwiSqfuY+trM3bTjB
-	 oJfIpQkJ6gPnQqsVFsNxr2GGearmK8vCngXRWeBR1lQhF+JneHGcdS1vVzpUq2AFT6Iem
-	 T2vWVxAItwv0A3XfrgRlAA18X1IjAJz1somPKOAmBWnrtRYDqcDm8j/534PnKKcW5onzi
-	 07Kr93GLW691dsK+wJXy6+Jj6kaYWHcFkMaRyjWqrMS7e8qhMfJeiUc29vcJyVuXD7yPh
-	 xH+4yY6behwXLztcadF/b+tPxliKyVuB6hKXsP81XjKtfME2FEkECAiu+Rs6ng08mbg==
+	bh=BCQBCDXpqdYanypT2YtxcGDNibGU62xDqSTU0b0C9A0=;
+	b=ZYh4HKRX1UA9uQHaxW3sveH4mAWdVfzcsVyCJ/5dlYRAklBpiaHN3AE/quiO2sFFViC4
+	 3qmoYeamNnH0UkkJ4nyft7j3Yszc/2RoZsyR4hZVJgkNRzgkIRlBvcNyvalstfSojK3Fp
+	 aDdl5i9FuY7CQ9LeQmCxU2p2rFqtnzroqMMUK9wakxGcAwe72r7mAOPGZp7uK0PHTvpMG
+	 8zG+rDBzZz+cVKHdryvnCvBXlEWOVrgs4tXdaOrkzIyl+Y8Or1taOJGyzIPiSEH+U9Z2U
+	 F+D5cCqEgsnve74bmZLycS3ZCXAIK1Tpb/oMQ8swtUT1NEExHm91se8MXAcGbtDSLSg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cSDndUUz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jsixuUjz;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D49E606A321;
-	Thu, 26 Nov 2026 11:16:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A153606A31C;
+	Thu, 26 Nov 2026 11:16:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cSDndUUz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE6301F000CA;
-	Thu, 26 Nov 2026 11:16:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jsixuUjz
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E67C1F000CA;
+	Thu, 26 Nov 2026 11:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795691769;
-	bh=es5ACbySNcsOn5mifmn0sw17oD0NBxslOJGoEpu9y4U=;
+	s=k20260515; t=1795691778;
+	bh=BCQBCDXpqdYanypT2YtxcGDNibGU62xDqSTU0b0C9A0=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=cSDndUUz9ltRjMWCc1xwCEbOkpe05ultR/LXhUlE6AUSFKfFr+U81WBg1NHJJziN4
-	 5BpdWRlhz+dlZkpO0lsm0H8cShz7Xnd+ejDNsr78OZzzhH2VF1SACE9rPuhGkVY1Nm
-	 X+JoHHWwKD3W4o+1CnThn7LJ/6BYObVfQsC7W53zeqwXLDZQ8PylSlK0mBA3ZnEg9/
-	 YvA8qnUsuE0+ARzPIvKeaVKp31kZDSgUCVZIba9Igp7V+pk6uLJiT2ShBKarTJ0eIg
-	 OKdfCkFnY6Z6Ap3nQZc387ovnsZL8wGv72Ts13Qf0gU8AtHbY3uD18PHegoZJ6ivBN
-	 6kbaQuYg5fydA==
+	b=jsixuUjzPcdBYEMxRDCOOb4MWFDZOSZu3LunR9YGzkmsdmtoC4JNE2Nzl7MiPl479
+	 h/Ssi0m6nbfaQkZG7ARE/Sg/GV155f3Gr/QpUYyWC+SKFd215tncf/YeaPE2rO/CFB
+	 E8aT8bUhn3tNrPe1JQadaznrSOTvvA8X7vbZ+RnHQs1l22+QRRO+V9C+/Erc+YCwRD
+	 Kris64innIDAw3YgXAgPQZV8KQhnkPeuyeVXpTjrDC1d9ZFrOXf61LHh3EoEg5m7da
+	 +OWThIPiWSYLii/UzW4ZLpV2NlAHrQ4Nu7GY9DZOLGb7FgK1vdTPT45o81+fISEFoq
+	 M3X9Md68fnF1w==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:14:23 +0200
-Subject: [PATCH RFC v2 10/54] x86/mm/pat: stop using CPA for
- debug_pagealloc
+Date: Thu, 26 Nov 2026 13:14:24 +0200
+Subject: [PATCH RFC v2 11/54] x86/mm/pat: drop the init_mm read lock from
+ change_page_attr_set_clr()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-10-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-11-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -83,197 +83,101 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-With debug_pagealloc, the page allocator unmaps pages from the direct map
-when it frees them and maps them back when it allocates them, in whatever
-context it runs. It does that with CPA, in a mode of its own.
+change_page_attr_set_clr() holds the init_mm read lock so that a collapse
+of large pages, which holds the write lock, cannot free a page table under
+a CPA lookup.
 
-That mode is the one exception in the locking of CPA: it skips cpa_lock,
-and every request checks for it. The exception is easy to get wrong:
-commit 5fce67641a3e ("x86/mm/pat: Don't gate cpa_lock on
-debug_pagealloc_enabled()") dropped it, and commit 7da514d819a0 ("x86/mm:
-Fix and document DEBUG_PAGEALLOC") had to bring it back.
+Since commit 1aac65f3e651 ("x86/mm/pat: Take cpa_lock around large-page
+collapse") the collapse holds cpa_lock as well, and with debug_pagealloc no
+longer using CPA, cpa_lock is enough to synchronize all CPA operations.
 
-With debug_pagealloc enabled the direct map is mapped with 4K pages, so
-mapping or unmapping a page always updates a single existing PTE.
+The only thing mmap_read_lock() adds is keeping out a concurrent ptdump.
 
-Update the PTEs with apply_to_existing_page_range(), like powerpc and riscv
-do, and drop the lockless mode from CPA.
+A ptdump racing with any CPA operation except collapse is safe: only a
+collapse frees page tables, and a split replaces a leaf with a complete
+page table. The only difference without mmap_read_lock() in CPA is that
+ptdump may show some entries before and some after the change.
 
-Every request now takes cpa_lock, so cpa_inc_4k_install() does not need
-data_race() any more.
+Collapse, though, must keep the mmap_write_lock() to ensure ptdump and text
+poking are not accessing page tables the collapse frees.
+
+Remove mmap_read_lock() and CPA_ST_INIT_MM_LOCKED from CPA operations to
+simplify its locking model.
+
+Update the comments of cpa_lock and of the mmap_write_lock() around the
+collapse to clearly state what they serialize.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/x86/mm/pat/set_memory.c | 77 +++++++++++++++++++-------------------------
- 1 file changed, 33 insertions(+), 44 deletions(-)
+ arch/x86/mm/pat/set_memory.c | 26 +++++++++-----------------
+ 1 file changed, 9 insertions(+), 17 deletions(-)
 
 diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index 87c7c7934b42..c3af82788879 100644
+index c3af82788879..e1abc0d1d143 100644
 --- a/arch/x86/mm/pat/set_memory.c
 +++ b/arch/x86/mm/pat/set_memory.c
-@@ -72,7 +72,6 @@ static DEFINE_SPINLOCK(cpa_lock);
- #define CPA_REQ_COLLAPSE	0x02 /* try to collapse large pages */
- #define CPA_REQ_SPLIT		0x04 /* split large pages */
- #define CPA_REQ_PAGES_ARRAY	0x08
--#define CPA_REQ_DEBUG_PAGEALLOC	0x10
+@@ -61,9 +61,10 @@ enum cpa_warn {
+ static const int cpa_warn_level = CPA_PROTECT;
  
- /* cpa_data::state */
- #define CPA_ST_FLUSHTLB		0x01 /* the TLB needs a flush */
-@@ -165,7 +164,7 @@ static inline void cpa_inc_2m_checked(void)
+ /*
+- * Serialize cpa() using cpa_lock so that we don't allow any other cpu, with
+- * stale large tlb entries, to change the page attribute in parallel to some
+- * other cpu splitting a large page entry along with changing the attribute.
++ * Serialize CPA using cpa_lock so that:
++ * - concurrent requests don't split or change the same large mapping at the
++ *   same time
++ * - collapses of large mappings don't free page tables under a CPA lookup
+  */
+ static DEFINE_SPINLOCK(cpa_lock);
  
- static inline void cpa_inc_4k_install(void)
+@@ -78,7 +79,6 @@ static DEFINE_SPINLOCK(cpa_lock);
+ #define CPA_ST_FLUSH_ALL	0x02 /* flush the entire TLB */
+ #define CPA_ST_ALIAS		0x04 /* the request is for an alias */
+ #define CPA_ST_STATIC_PROT	0x08 /* enforce static protections in a split */
+-#define CPA_ST_INIT_MM_LOCKED	0x10 /* init_mm's mmap lock is held */
+ 
+ static inline pgprot_t cachemode2pgprot(enum page_cache_mode pcm)
  {
--	data_race(cpa_4k_install++);
-+	cpa_4k_install++;
- }
+@@ -1238,11 +1238,7 @@ static int split_large_page(struct cpa_data *cpa, pte_t *kpte,
+ 	int ret;
  
- static inline void cpa_inc_lp_sameprot(int level)
-@@ -2014,7 +2013,6 @@ static int __change_page_attr_set_clr(struct cpa_data *cpa)
- {
- 	unsigned long numpages = cpa->numpages;
- 	unsigned long rempages = numpages;
--	bool lock = true;
- 	int ret = 0;
+ 	spin_unlock(&cpa_lock);
+-	if (cpa->state & CPA_ST_INIT_MM_LOCKED)
+-		mmap_read_unlock(&init_mm);
+ 	pte = pte_alloc_one_kernel(&init_mm);
+-	if (cpa->state & CPA_ST_INIT_MM_LOCKED)
+-		mmap_read_lock(&init_mm);
+ 	spin_lock(&cpa_lock);
+ 	if (!pte)
+ 		return -ENOMEM;
+@@ -2110,11 +2106,7 @@ static int change_page_attr_set_clr(unsigned long addr, int numpages,
+ 	cpa.flags = in_flag;
+ 	cpa.curpage = 0;
+ 
+-	/* Avoid race with concurrent CPA collapse. */
+-	cpa.state = CPA_ST_INIT_MM_LOCKED;
+-	scoped_guard(mmap_read_lock, &init_mm)
+-		ret = __change_page_attr_set_clr(&cpa);
+-	cpa.state &= ~CPA_ST_INIT_MM_LOCKED;
++	ret = __change_page_attr_set_clr(&cpa);
  
  	/*
-@@ -2024,29 +2022,6 @@ static int __change_page_attr_set_clr(struct cpa_data *cpa)
- 	    !(cpa->flags & CPA_REQ_SPLIT))
- 		return ret;
- 
--	/*
--	 * DEBUG_PAGEALLOC is special; it is called from any context the
--	 * page-allocator is, which violates the normal cpa_lock locking
--	 * rules.
--	 *
--	 * However, since it is part of the page-allocator, things are still
--	 * properly serialized by the page-allocator locking and the fact that
--	 * when a page is owned by the page-allocator, it isn't owned by
--	 * anybody else. That is, you *SHOULD NOT* be calling cpa() on memory
--	 * that isn't allocated.
--	 *
--	 * Additionally, DEBUG_PAGEALLOC ensures (per probe_page_size_mask())
--	 * that the kernel mapping is 4k pages, therefore there are no large
--	 * pages to split/collapse.
--	 *
--	 * Furthermore, the page-allocator strictly manages pages that
--	 * *exist*, avoiding pgd_lock.
--	 *
--	 * Therefore, it is safe to not take cpa_lock.
--	 */
--	if (debug_pagealloc_enabled() && (cpa->flags & CPA_REQ_DEBUG_PAGEALLOC))
--		lock = false;
--
- 	while (rempages) {
- 		/*
- 		 * Store the remaining nr of pages for the large page
-@@ -2057,12 +2032,8 @@ static int __change_page_attr_set_clr(struct cpa_data *cpa)
- 		if (cpa->flags & CPA_REQ_PAGES_ARRAY)
- 			cpa->numpages = 1;
- 
--		if (lock) {
--			guard(spinlock)(&cpa_lock);
--			ret = __change_page_attr(cpa);
--		} else {
-+		scoped_guard(spinlock, &cpa_lock)
- 			ret = __change_page_attr(cpa);
--		}
- 		if (ret)
- 			goto out;
- 
-@@ -2651,14 +2622,14 @@ int set_pages_rw(struct page *page, int numpages)
- 	return set_memory_rw(addr, numpages);
- }
- 
--static int __set_pages_p(struct page *page, int numpages, unsigned int cpa_flags)
-+static int __set_pages_p(struct page *page, int numpages)
- {
- 	struct cpa_data cpa = { .addr = (unsigned long)page_address(page),
- 				.pgd = NULL,
- 				.numpages = numpages,
- 				.mask_set = __pgprot(_PAGE_PRESENT | _PAGE_RW),
- 				.mask_clr = __pgprot(0),
--				.flags = CPA_REQ_NO_CHECK_ALIAS | cpa_flags };
-+				.flags = CPA_REQ_NO_CHECK_ALIAS };
+ 	 * Check whether we really changed something:
+@@ -2143,10 +2135,10 @@ static int change_page_attr_set_clr(unsigned long addr, int numpages,
+ 		goto out;
  
  	/*
- 	 * No alias checking needed for setting present flag. otherwise,
-@@ -2669,14 +2640,14 @@ static int __set_pages_p(struct page *page, int numpages, unsigned int cpa_flags
- 	return __change_page_attr_set_clr(&cpa);
- }
- 
--static int __set_pages_np(struct page *page, int numpages, unsigned int cpa_flags)
-+static int __set_pages_np(struct page *page, int numpages)
- {
- 	struct cpa_data cpa = { .addr = (unsigned long)page_address(page),
- 				.pgd = NULL,
- 				.numpages = numpages,
- 				.mask_set = __pgprot(0),
- 				.mask_clr = __pgprot(_PAGE_PRESENT | _PAGE_RW | _PAGE_DIRTY),
--				.flags = CPA_REQ_NO_CHECK_ALIAS | cpa_flags };
-+				.flags = CPA_REQ_NO_CHECK_ALIAS };
- 
- 	/*
- 	 * No alias checking needed for setting not present flag. otherwise,
-@@ -2689,17 +2660,35 @@ static int __set_pages_np(struct page *page, int numpages, unsigned int cpa_flag
- 
- int set_direct_map_invalid_noflush(struct page *page, unsigned int nr)
- {
--	return __set_pages_np(page, nr, 0);
-+	return __set_pages_np(page, nr);
- }
- 
- int set_direct_map_default_noflush(struct page *page, unsigned int nr)
- {
--	return __set_pages_p(page, nr, 0);
-+	return __set_pages_p(page, nr);
- }
- 
- #ifdef CONFIG_DEBUG_PAGEALLOC
-+static int kernel_map_pte(pte_t *ptep, unsigned long addr, void *data)
-+{
-+	int *enable = data;
-+	pte_t pte = ptep_get(ptep);
-+	pgprot_t prot = pte_pgprot(pte);
-+
-+	if (*enable)
-+		pgprot_val(prot) |= _PAGE_PRESENT | _PAGE_RW;
-+	else
-+		pgprot_val(prot) &= ~(_PAGE_PRESENT | _PAGE_RW | _PAGE_DIRTY);
-+	prot = pgprot_clear_protnone_bits(prot);
-+	set_pte_atomic(ptep, pfn_pte(pte_pfn(pte), prot));
-+
-+	return 0;
-+}
-+
- void __kernel_map_pages(struct page *page, int numpages, int enable)
- {
-+	unsigned long addr = (unsigned long)page_address(page);
-+
- 	if (PageHighMem(page))
- 		return;
- 	if (!enable) {
-@@ -2708,14 +2697,14 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
- 	}
- 
- 	/*
--	 * The return value is ignored as the calls cannot fail.
--	 * Large pages for identity mappings are not used at boot time
--	 * and hence no memory allocations during large page split.
-+	 * This runs in any context the page allocator does, without locks.
-+	 * The allocator owns these pages, so nothing else changes their PTEs,
-+	 * and with debug_pagealloc the direct map has only 4K pages (see
-+	 * probe_page_size_mask()), so their page tables are never split or
-+	 * collapsed.
+-	 * Take the mmap write lock on init_mm to:
+-	 * - Avoid a use-after-free if raced by ptdump (which takes its own
+-	 *   write lock on init_mm).
+-	 * - Serialise concurrent CPA walkers.
++	 * Take the mmap write lock on init_mm to avoid a use-after-free if
++	 * there is a race with
++	 * - ptdump (which takes its own write lock on init_mm)
++	 * - text poking (which takes the read lock around vmalloc_to_page())
  	 */
--	if (enable)
--		__set_pages_p(page, numpages, CPA_REQ_DEBUG_PAGEALLOC);
--	else
--		__set_pages_np(page, numpages, CPA_REQ_DEBUG_PAGEALLOC);
-+	apply_to_existing_page_range(&init_mm, addr, numpages * PAGE_SIZE,
-+				     kernel_map_pte, &enable);
- 
- 	/*
- 	 * We should perform an IPI and flush all tlbs, but that can
+ 	scoped_guard(mmap_write_lock, &init_mm) {
+ 		guard(spinlock)(&cpa_lock);
 
 -- 
 2.53.0
