@@ -1,49 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795691968;
-	b=PLsvn7PXUK+KflaStWT8be20Mhh5lpvu2gnHuAkfsPFV/8LhJ1KJm1ogmVXFSppTrmjn
-	 Duqn3d7cBaeE3AFNuE5+km42C4OWOPu+CHHAKbwyiFGBQ9FyyMJFGhdw+lD85TY1znNi+
-	 8POBNDSCjybUEVDpktdIVy4LgUjNfGRqhS/KjBYJKSnGEsEpTYgX/YrYCsF66cbVCGvom
-	 G5g5C02ikrtsO52Z5pmeAbwl3khn4y2JsNmIMwGIYeeNVi3HOpii3DUNqRmlZ7Tc87Ji/
-	 3MdFIigOv9XaVYSkSn8AEGpliVM8/70vF68VCeusyrZYlagAdi5txsZdauVq+dYp6YA==
+	t=1795691978;
+	b=X+zj1KU8Sp8WbjmfgQTfGcMrYKShgTqaYHaRw28S3iiXh5pToSyKXbfIOqwXDTmEZ3Bc
+	 JkGGS9OZZ2C+671S/n5Tq1eAXfBgGnF6cAZ3yMtp77btNxZq9cB+HX3/YGtIHFDc+E/jZ
+	 Gb27JimceYVtztzE8ov8JGNmt75tTO/brrTfmbBaximfXvitMs2lPQMEOLQeoAGUm8wY/
+	 uPRzXBrnBxS53iiJs1sBZa5cVg8N6epani/PkGHx80zUsDaTA/3PDATCJ5NuldAQMtDxl
+	 vhcU0swhNVUCRmVUW/9Ru28O5vBt8Fv34lNl5lkYDTlDwLffJX2nOrFyNdCQporGiiQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795691968;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795691978;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=9cPWUjHIPI7LtCSNqYYvsVdQiH3MUbUDgs7gRvdWWiI=;
-	b=DpPq6ikJ0KqcriuI3Re6tfOge5k7Qq+UIDwbXVSRdgCCoLTm/UVmnc7bIX221YUTQcbX
-	 rMrwZ1h5RQdaVphwWo0PacVa52dEKFXj8S/txwfaiouqyfENcKzEnIwvKc8h6tAF+q3PF
-	 U8TtEEF2LEmGn2kStq8C//J6wrySrChHuis6lddvvrp3PARL0RUtlRjs7h/2UvzneW8Vr
-	 nCtGLIEV1IzN25B+ExDKGUKo/1DE1yG9657Sr5iG8TZg51tGyjKHFq6QhyxSZv7n09JVm
-	 tmO3pBRddTwYx5XaXCbGcUVTrj8tiXBg0WVs81HQdghkEYGD8jFZIopRYrXhSyFMqMw==
+	bh=6IUAESVFtsidcpD6OicOHeScwyTIg4rQEjzbtezfzqA=;
+	b=zMT0ZB2iZ/4DJIS4r0mUp8gjA9PcLLQFy27CH7BskJvR86w+f8Sc+Nk2mtj8cLR870us
+	 Ft/jgnz16H1qjYU40PnpTasOJb30FJNqJY/4FCFeAEujTYU/HH5KZbVBWvU//Mjb5zNFn
+	 3cDj7Be5Fh5/d2tzBguZ/OBx67a4A104j0d/9N5MX3WRaceEfWrxtBNVfgBR5VFp9B6s5
+	 RzH9PLD8GRtRDzrz/XjChZ9uDDLvXF6DkTy32vUm8PsfNe1HXixEnP6BKs4TRyWbIs5Qn
+	 kmKZWlSWiT0pk7kykXeOuHelKVwPmxX3eZk28EwU0BrvTWqh6sv85YrCbmt+cl8bQRA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="N6q86/Uu";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PzgtvDcA;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F7B3606A32A;
-	Thu, 26 Nov 2026 11:19:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C11F606A321;
+	Thu, 26 Nov 2026 11:19:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N6q86/Uu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38AB1F000C6;
-	Thu, 26 Nov 2026 11:19:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PzgtvDcA
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D211F00A03;
+	Thu, 26 Nov 2026 11:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795691968;
-	bh=9cPWUjHIPI7LtCSNqYYvsVdQiH3MUbUDgs7gRvdWWiI=;
+	s=k20260515; t=1795691977;
+	bh=6IUAESVFtsidcpD6OicOHeScwyTIg4rQEjzbtezfzqA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=N6q86/UuKdbMrBdtERhjhVFw0CbAJ4clSdTmUchWL6RgFVkEFE3mEFyjySuZ/PEVC
-	 rUCd6Kq2go9A79rGKv9HgKqGK83C2clZ6aUkNYsA29a1Wo0vuxFjA1XROwrOgbp8xw
-	 aOL75eZCeV1YUWJizVWuqhiRYrNriruvGv6qFzQV16MzEVZyn/pOqMpQzhn0BETYu1
-	 Pw/fxf1OEmACLN0sONM/NixOOFWiGvIiGavxH1woaBbI73/XNSn75AXasiZb0IIKd0
-	 HqmQAy3YxyZej2Z4YIxY5NMru1NNVtgYbxwMHf1zAj+lpMo3vwasqVbinhwzpc4VDC
-	 dZfOgF0XejigQ==
+	b=PzgtvDcA4yy/D2Uepj3A4ekmgkoMVvK8vCHb6UdANFhGAR3OBnrXkvAS3r9CqvP2I
+	 eDmwCIrTD3P98wMkVnY3W85BeGo+ZeBhcoHLlCd12HdFjujk8Zaf5uhR8BV51AOM9P
+	 oW6Xtzx0AUymGG49kFi+8vJRbIFAGKIoVzVQwMCXSTZexmCClqXB7irUaJOvnH7AT5
+	 H8yglHbC98pbN4quyuAGcNaw3RNs1KOwrdkUjWO3r1r/5ZIYpv9vJVR16CKt6bfdWC
+	 KH8ca4HCAeD7eXntGrPQqRIQieHY1E0JUb0HMs7NmNLeElY0r6qD2n6VSHz7fdgu6N
+	 3KyI5zsbNkYeQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:14:44 +0200
-Subject: [PATCH RFC v2 31/54] mm/pageattr: introduce
- cpa_flush_tlb_kernel_range()
+Date: Thu, 26 Nov 2026 13:14:45 +0200
+Subject: [PATCH RFC v2 32/54] asm-generic: add an empty pageattr.h
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-31-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-32-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -83,62 +82,45 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-Many architectures that implement set_memory_*() APIs flush the TLB after a
-page table update with flush_tlb_kernel_range() for the range of the
-request.
+linux/pageattr.h includes asm/pageattr.h for the overrides of the CPA
+hooks. An architecture that is fine with all the defaults has nothing to
+put there.
 
-Add cpa_flush_tlb_kernel_range() helper for their arch_cpa_flush() hooks.
+Add an empty asm-generic/pageattr.h and make it mandatory, so that such an
+architecture does not need an empty header of its own.
 
-When to flush and whether to flush more than the request stays up to the
-architecture.
-
-LoongArch, ARM, powerpc, riscv and arm64 will use it when they switch to
-the CPA core.
+LoongArch, ARM and powerpc will pick up the asm-generic/pageattr.h when
+they switch to the CPA core.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- include/linux/pageattr.h | 1 +
- mm/pageattr.c            | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ include/asm-generic/Kbuild     | 1 +
+ include/asm-generic/pageattr.h | 5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/include/linux/pageattr.h b/include/linux/pageattr.h
-index 25f04e61ee85..091408ad328f 100644
---- a/include/linux/pageattr.h
-+++ b/include/linux/pageattr.h
-@@ -65,6 +65,7 @@ static inline unsigned long cpa_addr(struct cpa_data *cpa, unsigned long idx)
- 
- int cpa_process_fault(struct cpa_data *cpa);
- int cpa_change_alias(struct cpa_data *cpa, struct cpa_data *alias);
-+void cpa_flush_tlb_kernel_range(struct cpa_data *cpa);
- 
- int change_page_attr(struct cpa_data *cpa);
- 
-diff --git a/mm/pageattr.c b/mm/pageattr.c
-index dcece32ebad2..852e0989dac9 100644
---- a/mm/pageattr.c
-+++ b/mm/pageattr.c
-@@ -14,6 +14,8 @@
- #include <linux/vmalloc.h>
- #include <linux/set_memory.h>
- 
-+#include <asm/tlbflush.h>
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index b7a388bef6ea..fd9fb2c3260b 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -42,6 +42,7 @@ mandatory-y += mmu_context.h
+ mandatory-y += module.h
+ mandatory-y += module.lds.h
+ mandatory-y += msi.h
++mandatory-y += pageattr.h
+ mandatory-y += pci.h
+ mandatory-y += percpu.h
+ mandatory-y += percpu_types.h
+diff --git a/include/asm-generic/pageattr.h b/include/asm-generic/pageattr.h
+new file mode 100644
+index 000000000000..07bf3b0e84a0
+--- /dev/null
++++ b/include/asm-generic/pageattr.h
+@@ -0,0 +1,5 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_GENERIC_PAGEATTR_H
++#define __ASM_GENERIC_PAGEATTR_H
 +
- /*
-  * Serialize CPA using cpa_lock so that:
-  * - concurrent requests don't split or change the same large mapping at the
-@@ -482,6 +484,12 @@ int change_page_attr_noflush(struct cpa_data *cpa)
- 	return ret;
- }
- 
-+void cpa_flush_tlb_kernel_range(struct cpa_data *cpa)
-+{
-+	flush_tlb_kernel_range(cpa->addr,
-+			       cpa->addr + cpa->numpages * PAGE_SIZE);
-+}
-+
- int cpa_change_alias(struct cpa_data *cpa, struct cpa_data *alias)
- {
- 	int ret;
++#endif /* __ASM_GENERIC_PAGEATTR_H */
 
 -- 
 2.53.0
