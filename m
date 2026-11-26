@@ -1,105 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.222
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795705745;
-	b=4LmtiOZmxW/81xvVhXQ2dT0CANjyd42l2+MKhfSZhsEqCUUAYi7CmQEJIA2f47z2S04O
-	 30Ez3aqkjsEDEslpa9fdWQPBUtSrCrf1NLhYyNbPFaG6/TUfCGpAWIKCLo3N7sCC+Yr0r
-	 VSzO0+EftbsyCcW8roUo1oFi5sNU8XLqB0jWWz/18ZPyTWQPCTSpnCcujpSnHgYP7MHq5
-	 ry0PWMqEqpGXKyds+JNmAdtXm5rCBJllXITqNLFoSqbReaO6AzHpV4+37KFugT+vH63sk
-	 JjlkebB7XMdSrISlbMx49edLMSkw2pkKhj87xZd0heOa6P63CX+t5kGdEx+MldZeFWw==
+	t=1795706703;
+	b=t9WQsAupclit2xAgDvvAjwfdWKKaGiKsqlwt7xdEyp6l7l2Wl+QBpXsPS0n0GjwAlLxc
+	 ovx6B/7Kz/EYSPt9i2t1MLoZMUl8gdX3H4F3iKccYeZa1g91Jd/5yL1V2oDMidmu6jNRI
+	 Jv4kNoFBhLDdyJLXG/oKn7hOV2Gjoh3UKkAnL7F7txwBGyZ9LlCtOGUNIYuGMWeg1pJsa
+	 9IhCpBZuFomKmVWxWze5awunoAB4OxjMKs9evktiXR0IAPj6dcN9jCI1TwKWio51b7ZC4
+	 tmme3rXkGtQmxQgTMTiXW2rwai5to14WaVT176XGGp8VSgiip9Stu728E2ycWmf4dzQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795705745;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=qa1Fr1ic+7dw5K+GkYsqx2aXPhAv1AnGBqdarsMvPfQ=;
-	b=KWdO4n/G7o8rLc1MlukktZXBFeCvaKIvmF0bo8TuwyVkPNZOBtDz/FT2CZqkNWri54ed
-	 PVrv9xa3vPRfZTrjWOF7ca5pN2YYidL7gsqz7Qe/HlF174tGUIm6UeFr3pQmAwrwbjszW
-	 a2zd/5zCzc/4kAwYLO3bH8thJzMYRYPpqpamJNneWW0kT0FGwMuyOxI8DOWLeK6rUjto1
-	 23jWzrC6e7vDwYjCjIKbZFP2zr2DDtgeA6YqMuVxPvbdSQ+XfJuyJIlOIopbcRRBLcgnX
-	 UobVfG4Gj9VEPIUke42YG2JgO3VebjcgleZt1NaijCOOdNbN4wU0diYihSYYuCVxiAg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795706703;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=WaGhGP18N1e5WQjSL7Kf13XBuOe/Lyl+VKElqyiI+RE=;
+	b=On55IKP6ljkCjV5uLf3DvFa20vOfnVK8D3ZcsFhjb+l3Yyua88bZPZGPZo9FI2+R3/TU
+	 S2oTN9bXLA8kpu+1jbjFTFUrikxu7uZMAoc80EpspIUr23pGdGj1s5iuHvGWRl0B9CvPH
+	 pTVVdn43pyeny/Q0J9vkbsqDRuGiuz/argLNBF/TJT7ygor1m1JCdFP8fkoLLO1IfwAgi
+	 RoA5639wVq51ewUtYcRPeu+3Q8t7hzUy0ZrFN9oDT+JEnJ1axQ8H1GmosIk+5GG2yu4b4
+	 3T+hZLI4HV6OF0rRo1QWJOuiDhHUzoGkYHt055N/Mh1/oYSgLzo4pO556ytWcW9vwWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iiitd.ac.in;
-	spf=pass smtp.mailfrom=iiitd.ac.in;
-	dkim=pass header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=B6xSaKdB;
-	arc=none smtp.remote-ip=209.85.215.173
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=dVVGBgUe;
+	arc=none smtp.remote-ip=95.215.58.222
+Received: from mta1.migadu.com (out-222.mta1.migadu.com [95.215.58.222])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54137606A323
-	for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 15:09:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 54137606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iiitd.ac.in
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iiitd.ac.in
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19B9C606A32C
+	for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 15:25:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19B9C606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=iiitd.ac.in header.i=@iiitd.ac.in header.a=rsa-sha256 header.s=google header.b=B6xSaKdB
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-cdb2e0062bbso2824531a12.1
-        for <linux-s390@vger.kernel.org>; Thu, 26 Nov 2026 07:09:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=iiitd.ac.in; s=google; t=1795705744; x=1796310544; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qa1Fr1ic+7dw5K+GkYsqx2aXPhAv1AnGBqdarsMvPfQ=;
-        b=B6xSaKdB9GurxyEl5XPkhgRx383fZevVQduVZmC86MWv382bjsTEtHbvVGgHN4Cznn
-         4JSZJ81ag+eMbef5qkmG1EHTwPt1/D4GYkbNYl+b20Pv4J4wnJQGVnq40kjtElZ5UCnE
-         yxT0xLW5tIIGRUC1T6ZTZzJz2XBXnuo3V4r3Q=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795705744; x=1796310544;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qa1Fr1ic+7dw5K+GkYsqx2aXPhAv1AnGBqdarsMvPfQ=;
-        b=XiiUx/6I6Hj4FvHZDciFxJdNaHdmuF2WURVhHDe6aXTTmRUSwZS9DnEtMJLgvQKvx2
-         T+fnzebxxGPRED6eJURJj8nl6S2m7P7IjPSQQGCV4TKk73jqQgLL4KPGzQdHquhqSHG3
-         oiZE5fqel7tKqJ9oAyp9t8o2qGR4wJMo+MKOioOEJSTqgFfHtEvjpBXyVusVDm55oSmG
-         5ycpg4W8GKwVjoT8GYlxWf2v9sVm77nu2T8uXZV3AcU5hxhVGiaTY0BHGwo/d3oaWt3v
-         xNnKUBPv0tfSIfcHzMao/g4cVK9SO/TksahpITTw+hsb9EdcMuSv3jzVVq/rEH0GxeBZ
-         V8aA==
-X-Forwarded-Encrypted: i=1; AL+hErEp1rN9i3VSFNqF3UNxIfY0HqTlNcR3ZEbwxRkRK9Pe/YUggel97+33UunUkrRtE91u4re5nJYs8Lbu@vger.kernel.org
-X-Gm-Message-State: APuU4Z+9+XlQfoFDKKEfuM9g6qRTvMjPhZ1kTAbVsp4CT3olg7pArsU4
-	zdE+Dc3Ct190yE5QAT7NXP3dydmITOeXihP3IsMDPztqbPsdzNd5a6skqI2wZS2c8HI=
-X-Gm-Gg: AZFdTZc2G8cEGzSDd4D6WXWnvdTOD1jf5JcyMhd1OiXzxELik984ao+9qIpjWAFtItA
-	3lmFVrecabxJEeRuQWKVp37YOcubGbeAUr5sL30udjcIwWOnup1SIGQNg6JLILct4X9Aq95ggkg
-	32FOhQ9GprtUe54kLks/ApDSnRA3SasNLQ0thKuvhmX1+HcBZgE/6pr1JETPPzncRKivBQ45cQE
-	Ql5rq/oox+PEVLW7fNKZ0d0DCDtaPswjoo3T2bkkBurPlfCkkczxt2dvBVkhAdSmqSlBein5Cdq
-	81lQe38w1U3P4jKUofK5Qz5e+BJMQGBkIrBx3m4ZnJKMnx9k51LDFMRChZchNY5WmgghIqXN3ag
-	0IX4DQv6k8f9Zjfok+nCU4iW6id6PxIAEkqwkuYg04I8zEMJt+kWUb/8FTbfSBsQuvnX8Oy1p/b
-	v093qJL6abM1wcifb6GBD4xshEKbp5AIsM897lHHBWzSgBfbKPmfmUECykWMzrFfatowgBZd1W/
-	ze8E/B86GSqkLOtuAs5uqSOOLnSrOZ1svdhAXJ+dBcJMsfcB/HgbHSkrskfP+AkpK4PSYaN5eQS
-	ZO38wvh8OuGimF2mkP90t+Jl+JsREjG6JrXuseKksZ+sQHqBoB+zscPSxh+2mw20Xlx9beB/ibQ
-	QNMf20TNsxkF6j4pmrYt20MQxQJwvEdDqIcvU7tJNzTqQM224zOE8ANyTCVkaAXF8ae+Oh9JO3J
-	MBj0WPAMGf1g==
-X-Received: by 2002:a17:90b:2792:b0:3a4:ca46:840f with SMTP id 98e67ed59e1d1-3b41c8e172amr19036608a91.8.1795705743643;
-        Thu, 26 Nov 2026 07:09:03 -0800 (PST)
-Received: from iiitd-S2600STB.iiitd.edu.in ([103.25.231.160])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b41abb1b66sm34512681a91.1.2026.11.26.07.08.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 07:09:03 -0800 (PST)
-From: Piyus Kedia <piyus@iiitd.ac.in>
-To: wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com
-Cc: netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	kapil@presceralabs.ai,
-	stable@vger.kernel.org,
-	sashiko-reviews@lists.linux.dev
-Subject: Re: [PATCH net v3] net/smc: drop the connection when the peer's failover cursor is impossible
-Date: Thu, 26 Nov 2026 20:38:56 +0530
-Message-Id: <20261126150856.2116458-1-piyus@iiitd.ac.in>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <sashiko-outbox-233843@kernel.org>
-References: <sashiko-outbox-233843@kernel.org>
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=dVVGBgUe
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=e8n4p5I4AJEqksbOANyj0Uvx8iI2baqGaT4jyvFlF3s=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1795706700; v=1; x=1796311500;
+ b=dVVGBgUe9owodYdGtln7dPUN0WIk3zQGtK7GCZTw6lfdipbYqFHMw0LFhVZI8JKiHj+WsVSd
+ rbidA0agbBLiw9bFTKrdjACzbkA/wZ3FPqDUSunPEUSfUSar+tGgjt4oTqTDIZE0KadgDSWuLpd
+ BbL4GL+aNZDp2IMQHMncHFDg=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id e28c61dcd929e842;
+	Thu, 26 Nov 2026 15:24:58 +0000
+X-Mizu-Trace-ID: e28c61dcd929e842
+X-Migadu-Flow: FLOW_OUT
+Date: Thu, 26 Nov 2026 07:24:42 -0800
+From: Shakeel Butt <shakeel.butt@linux.dev>
+To: "Harry Yoo (Meta)" <harry@kernel.org>
+Cc: Vlastimil Babka <vbabka@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Johannes Weiner <hannes@cmpxchg.org>, Michal Hocko <mhocko@kernel.org>, 
+	Roman Gushchin <roman.gushchin@linux.dev>, Hao Li <hao.li@linux.dev>, Christoph Lameter <cl@gentwo.org>, 
+	David Rientjes <rientjes@google.com>, Muchun Song <muchun.song@linux.dev>, Hao Ge <hao.ge@linux.dev>, 
+	Pedro Falcato <pfalcato@suse.de>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	kernel-team@meta.com, "Liam R. Howlett" <liam@infradead.org>, 
+	Alice Ryhl <aliceryhl@google.com>, Andrew Ballance <andrewjballance@gmail.com>, 
+	Matthew Wilcox <willy@infradead.org>, linux-fsdevel@vger.kernel.org, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	"David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Jiayuan Chen <jiayuan.chen@linux.dev>, netdev@vger.kernel.org, 
+	Kees Cook <kees@kernel.org>, David Hildenbrand <david@kernel.org>, 
+	Lorenzo Stoakes <ljs@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Robin Murphy <robin.murphy@arm.com>, 
+	"Joerg Roedel (AMD)" <joro@8bytes.org>, Amir Goldstein <amir73il@gmail.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	linux-security-module@vger.kernel.org, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Eric Dumazet <edumazet@kernel.org>, maple-tree@lists.infradead.org, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Jason Xing <kerneljasonxing@gmail.com>, 
+	Willem de Bruijn <willemb@google.com>, Mina Almasry <almasrymina@google.com>, 
+	=?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
+	Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
+	Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt <rostedt@goodmis.org>, 
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
+	Valentin Schneider <vschneid@redhat.com>, K Prateek Nayak <kprateek.nayak@amd.com>, 
+	Anshuman Khandual <anshuman.khandual@arm.com>, linux-arm-kernel@lists.infradead.org, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, linuxppc-dev@lists.ozlabs.org, 
+	Niklas Schnelle <schnelle@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Chen-Yu Tsai <wens@kernel.org>, 
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, iommu@lists.linux.dev, 
+	linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev, linux-um@lists.infradead.org, 
+	cgroups@vger.kernel.org
+Subject: Re: [PATCH slab/for-next v2 00/14] mm/slab: mandate SLAB_MAY_ACCOUNT
+ for __GFP_ACCOUNT allocations to avoid wasting memory for slab metadata
+Message-ID: <20261126152250.GB738059@shakeel.butt@linux.dev>
+References: <20261125-memalloc-prof-dont-waste-slabobj-ext-metadata-v2-0-7c680f02a734@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -109,58 +100,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261125-memalloc-prof-dont-waste-slabobj-ext-metadata-v2-0-7c680f02a734@kernel.org>
 
-Thank you - all three findings are right, and each mechanism was read in
-the tree before acting on it.  v4 is posted separately.
+On Wed, Nov 25, 2026 at 09:37:01PM +0000, Harry Yoo (Meta) wrote:
+> TL;DR
+> -----
+> 
+> The purpose of this series is to convert existing slab users that
+> specify __GFP_ACCOUNT on allocations to specify SLAB_MAY_ACCOUNT on
+> cache creation, to reduce memory waste for slab metadata with
+> CONFIG_MEMCG=y && CONFIG_MEM_ALLOC_PROFILING=y.
+> 
+[...]
+> 
+> Signed-off-by: Harry Yoo (Meta) <harry@kernel.org>
 
-[High] premature cursor rewind before abort check
+For the series:
 
-Correct, and this is the one that mattered most.  v3 ran the check inside
-the fix-up block and returned 0 from there, by which point
+Acked-by: Shakeel Butt <shakeel.butt@linux.dev>
 
-	smc_curs_copy(&conn->tx_curs_sent, &conn->tx_curs_fin, conn);
-	smc_curs_copy(&conn->local_tx_ctrl.prod, &fin, conn);
-
-had already run, so the connection was left with prod behind
-local_rx_ctrl.cons and peer_rmbe_space still holding the credit the forged
-message produced - the atomic_set() that recalculates it is below the
-block I returned from.  And the tx path tests conn->killed and
-local_rx_ctrl.conn_state_flags.peer_conn_abort, not out_of_sync or the
-local_tx_ctrl flag v3 set, so a send under lock_sock() could reach
-smc_tx_rdma_writes() before abort_work got the socket lock.
-
-v4 validates before anything is rewound and drops the connection with the
-cursors as it found them.
-
-[High] incomplete peer consumer cursor validation
-
-Right on all three counts.
-
-The bound is now the bytes that were SENT and not yet confirmed - the
-distance between snapshots of tx_curs_fin and tx_curs_sent - rather than
-sndbuf_desc->len - sndbuf_space.  As you say, that counter covers the
-PREPARED bytes, so v3 would have advanced the cursors over data still
-sitting in sndbuf.
-
-cons.count and the difference are both bounded by peer_rmbe_size now.  v3
-left that to smc_curs_add()'s single subtraction, which is exactly as much
-as you describe: with sndbuf_desc->len larger than peer_rmbe_size, a
-difference in between passed and left prod.count outside the RMBE.  Below
-peer_rmbe_size the repair is exact - prod starts at fin and the difference
-is their distance, so prod lands on cons rather than behind it, which also
-closes the "halts sending" case in your third point.
-
-[Medium] false-positive abort racing tx completion
-
-Right, and it is the same line that caused it.  smc_cdc_tx_handler()
-credits sndbuf_space before updating local_tx_ctrl_fin, and
-smc_switch_cursor() holds only send_lock, so an honest completion between
-the two reads gave a diff computed from the pre-completion cursor and an
-unconfirmed from the post-completion counter.  Comparing two cursor
-differences removes the mismatch: both come from snapshots taken together,
-and neither is an atomic counter the other path updates first.
-
-Tested on 7.3.1 with KASAN; net/smc/smc_core.o builds clean.
-
-pw-bot: cr
