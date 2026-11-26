@@ -1,48 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795691959;
-	b=en2k61Tzz9CNcqRR3URGeO0l9sd7TbV/QYSHCOH2nTrcamR2XQe/7zUWc21ajHpufrbi
-	 Z6InFsEpCQfIGfHV9baO0CMYUUMY6Dejpp2dEl7/K7+BpTqEXlHCYiic2XS7mReLYD+yu
-	 O7oEKKBNiQOrUM8owKYcK8QcIN/erZH33CTbM/Pa+Lbq4yDw4At8CLkk+HdEQzKGAnsWK
-	 gr7q0fcNPDYGGnjS98jlIcnCZN0+qkhdrOy3enZDjo9lG7lSyB+6WdWc/ZdJStZK+HPkw
-	 XYT75IW3exICT22XXcv0FD3zZZ9rb6SYgzuyXNSBSWTtG39JYavaj+f+5vfno2M9+tw==
+	t=1795691968;
+	b=PLsvn7PXUK+KflaStWT8be20Mhh5lpvu2gnHuAkfsPFV/8LhJ1KJm1ogmVXFSppTrmjn
+	 Duqn3d7cBaeE3AFNuE5+km42C4OWOPu+CHHAKbwyiFGBQ9FyyMJFGhdw+lD85TY1znNi+
+	 8POBNDSCjybUEVDpktdIVy4LgUjNfGRqhS/KjBYJKSnGEsEpTYgX/YrYCsF66cbVCGvom
+	 G5g5C02ikrtsO52Z5pmeAbwl3khn4y2JsNmIMwGIYeeNVi3HOpii3DUNqRmlZ7Tc87Ji/
+	 3MdFIigOv9XaVYSkSn8AEGpliVM8/70vF68VCeusyrZYlagAdi5txsZdauVq+dYp6YA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795691959;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795691968;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=iLAnEU4rO4fcnrHELtjeHX6slJhEFWQGHKKApZ60Fc4=;
-	b=4HarAPpcpzqbR+hL8ifDQ87wTP0HV8rnHq5zhOaFoQZZmdNHaFCExxrV7z7YoDB/9rGe
-	 r7qoS3ffE+R7Hqxy5pZJuQEWdt3hALwjqfaU6jK1IPuBn0VAfmXx/Nx095u7RfIh2Nm9R
-	 eno7yj5MFf3Dt8TQS+R1X+0kehYm05pjdbUZZLOwIPljSgPZoYPICZ+P8nSEPL+wSHDhj
-	 lAcIrItLdqh0syZCyCJ0y1eEj7KGqUNLWhJWbm8oBZJvQHMIy+LE704AkO6Ca6OGEw19N
-	 80U1WDxDLl5u7DH53/p7B2pSlFBD6zT+MuSFfGdy4r1nTnDeISSM0kV10OWN+j3aDMg==
+	bh=9cPWUjHIPI7LtCSNqYYvsVdQiH3MUbUDgs7gRvdWWiI=;
+	b=DpPq6ikJ0KqcriuI3Re6tfOge5k7Qq+UIDwbXVSRdgCCoLTm/UVmnc7bIX221YUTQcbX
+	 rMrwZ1h5RQdaVphwWo0PacVa52dEKFXj8S/txwfaiouqyfENcKzEnIwvKc8h6tAF+q3PF
+	 U8TtEEF2LEmGn2kStq8C//J6wrySrChHuis6lddvvrp3PARL0RUtlRjs7h/2UvzneW8Vr
+	 nCtGLIEV1IzN25B+ExDKGUKo/1DE1yG9657Sr5iG8TZg51tGyjKHFq6QhyxSZv7n09JVm
+	 tmO3pBRddTwYx5XaXCbGcUVTrj8tiXBg0WVs81HQdghkEYGD8jFZIopRYrXhSyFMqMw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aNsQFQQz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="N6q86/Uu";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5AF5606A31C;
-	Thu, 26 Nov 2026 11:19:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F7B3606A32A;
+	Thu, 26 Nov 2026 11:19:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aNsQFQQz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E54D71F000E1;
-	Thu, 26 Nov 2026 11:19:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N6q86/Uu
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38AB1F000C6;
+	Thu, 26 Nov 2026 11:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795691959;
-	bh=iLAnEU4rO4fcnrHELtjeHX6slJhEFWQGHKKApZ60Fc4=;
+	s=k20260515; t=1795691968;
+	bh=9cPWUjHIPI7LtCSNqYYvsVdQiH3MUbUDgs7gRvdWWiI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=aNsQFQQzIyU0oDJ6kE0wDY/5N+D85rsC9dcGR3vVr338d3zGkmN0dsXGVVuSFEAV8
-	 oTEYZLgMqucU1Fu7hhNNp/yLJzWYpeHiF/7r8JvCBa8kZDoKstZEw4H7kbnI8aQh6D
-	 9CGAgzkzR1AfUB4pvPo49Bt8QOYpoZYaq4xYpvAR4p1L/0Cl24BbGBQoGwoU63qyx1
-	 qwE75UrJ6O6rFWOFt+DxjdIIVM//Pf5zleYvK1o/QM84bMS+qpeAgXizRKQL+2xJOH
-	 KyRei3fbOJDs84xcMc7o5ASUM5N6XBvC9Wqd9KXD76MdAopEEzyl/DShKPBPkL6klm
-	 xsi3RfrDsbWdg==
+	b=N6q86/UuKdbMrBdtERhjhVFw0CbAJ4clSdTmUchWL6RgFVkEFE3mEFyjySuZ/PEVC
+	 rUCd6Kq2go9A79rGKv9HgKqGK83C2clZ6aUkNYsA29a1Wo0vuxFjA1XROwrOgbp8xw
+	 aOL75eZCeV1YUWJizVWuqhiRYrNriruvGv6qFzQV16MzEVZyn/pOqMpQzhn0BETYu1
+	 Pw/fxf1OEmACLN0sONM/NixOOFWiGvIiGavxH1woaBbI73/XNSn75AXasiZb0IIKd0
+	 HqmQAy3YxyZej2Z4YIxY5NMru1NNVtgYbxwMHf1zAj+lpMo3vwasqVbinhwzpc4VDC
+	 dZfOgF0XejigQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 26 Nov 2026 13:14:43 +0200
-Subject: [PATCH RFC v2 30/54] mm/pageattr: introduce arch_cpa_can_split()
+Date: Thu, 26 Nov 2026 13:14:44 +0200
+Subject: [PATCH RFC v2 31/54] mm/pageattr: introduce
+ cpa_flush_tlb_kernel_range()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261126-generic-set-memory-v0-1-v2-30-723f1e33c3d8@kernel.org>
+Message-Id: <20261126-generic-set-memory-v0-1-v2-31-723f1e33c3d8@kernel.org>
 References: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 In-Reply-To: <20261126-generic-set-memory-v0-1-v2-0-723f1e33c3d8@kernel.org>
 To: linux-mm@kvack.org
@@ -82,90 +83,62 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, x86@kernel.org
 X-Mailer: b4 0.16.1-dev
 
-Currently CPA core presumes that the split of a large mapping is always
-possible. After deciding to split a large mapping, core drops the locks,
-allocates a new page table and calls arch_cpa_split_leaf().
+Many architectures that implement set_memory_*() APIs flush the TLB after a
+page table update with flush_tlb_kernel_range() for the range of the
+request.
 
-If an architecture does not support splitting large mappings, the only way
-for it to inform the core is to fail arch_cpa_split_leaf().
+Add cpa_flush_tlb_kernel_range() helper for their arch_cpa_flush() hooks.
 
-arch_cpa_split_leaf() only updates the page tables, and normally shouldn't
-fail. A failure there means something went terribly wrong, so having it
-check if splits are supported at all would mix capability and corner case
-checks.
+When to flush and whether to flush more than the request stays up to the
+architecture.
 
-Besides, if an architecture does not support splitting, the locks and
-allocation dance would be there for nothing.
-
-Add arch_cpa_can_split() and fail a request that needs a split the
-architecture cannot do before the allocation, with a warning.
-
-By default an architecture cannot split large mappings.
-
-An architecture that can split must override both arch_cpa_can_split() and
-arch_cpa_split_leaf().
-
-Since x86 can split all large mappings, hardwire its override of
-arch_cpa_can_split() to true.
+LoongArch, ARM, powerpc, riscv and arm64 will use it when they switch to
+the CPA core.
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/x86/include/asm/pageattr.h | 7 ++++++-
- include/linux/pageattr.h        | 8 +++++++-
- mm/pageattr.c                   | 3 +++
- 3 files changed, 16 insertions(+), 2 deletions(-)
+ include/linux/pageattr.h | 1 +
+ mm/pageattr.c            | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/arch/x86/include/asm/pageattr.h b/arch/x86/include/asm/pageattr.h
-index dea7141c3713..8a3e2a35211d 100644
---- a/arch/x86/include/asm/pageattr.h
-+++ b/arch/x86/include/asm/pageattr.h
-@@ -14,7 +14,12 @@ pgprot_t arch_cpa_new_prot(struct cpa_data *cpa, struct cpa_leaf *leaf);
- 
- int arch_cpa_split_leaf(struct cpa_data *cpa, struct cpa_leaf *leaf,
- 			void *table);
--#define arch_cpa_split_leaf arch_cpa_split_leaf
-+static inline bool arch_cpa_can_split(struct cpa_data *cpa,
-+				      struct cpa_leaf *leaf)
-+{
-+	return true;
-+}
-+#define arch_cpa_can_split arch_cpa_can_split
- 
- int arch_cpa_process_fault(struct cpa_data *cpa);
- #define arch_cpa_process_fault arch_cpa_process_fault
 diff --git a/include/linux/pageattr.h b/include/linux/pageattr.h
-index f8b6b17e0b0b..25f04e61ee85 100644
+index 25f04e61ee85..091408ad328f 100644
 --- a/include/linux/pageattr.h
 +++ b/include/linux/pageattr.h
-@@ -96,7 +96,13 @@ static inline pgprot_t arch_cpa_new_prot(struct cpa_data *cpa,
- }
- #endif
+@@ -65,6 +65,7 @@ static inline unsigned long cpa_addr(struct cpa_data *cpa, unsigned long idx)
  
--#ifndef arch_cpa_split_leaf
-+#ifndef arch_cpa_can_split
-+static inline bool arch_cpa_can_split(struct cpa_data *cpa,
-+				      struct cpa_leaf *leaf)
-+{
-+	return false;
-+}
-+
- static inline int arch_cpa_split_leaf(struct cpa_data *cpa,
- 				      struct cpa_leaf *leaf, void *table)
- {
+ int cpa_process_fault(struct cpa_data *cpa);
+ int cpa_change_alias(struct cpa_data *cpa, struct cpa_data *alias);
++void cpa_flush_tlb_kernel_range(struct cpa_data *cpa);
+ 
+ int change_page_attr(struct cpa_data *cpa);
+ 
 diff --git a/mm/pageattr.c b/mm/pageattr.c
-index 6fb89632b679..dcece32ebad2 100644
+index dcece32ebad2..852e0989dac9 100644
 --- a/mm/pageattr.c
 +++ b/mm/pageattr.c
-@@ -421,6 +421,9 @@ static int __change_page_attr(struct cpa_data *cpa)
- 	/*
- 	 * We have to split the large page:
- 	 */
-+	if (WARN_ON_ONCE(!arch_cpa_can_split(cpa, &leaf)))
-+		return -EINVAL;
+@@ -14,6 +14,8 @@
+ #include <linux/vmalloc.h>
+ #include <linux/set_memory.h>
+ 
++#include <asm/tlbflush.h>
 +
- 	ret = split_large_page(cpa, &leaf);
- 	if (!ret)
- 		goto repeat;
+ /*
+  * Serialize CPA using cpa_lock so that:
+  * - concurrent requests don't split or change the same large mapping at the
+@@ -482,6 +484,12 @@ int change_page_attr_noflush(struct cpa_data *cpa)
+ 	return ret;
+ }
+ 
++void cpa_flush_tlb_kernel_range(struct cpa_data *cpa)
++{
++	flush_tlb_kernel_range(cpa->addr,
++			       cpa->addr + cpa->numpages * PAGE_SIZE);
++}
++
+ int cpa_change_alias(struct cpa_data *cpa, struct cpa_data *alias)
+ {
+ 	int ret;
 
 -- 
 2.53.0
