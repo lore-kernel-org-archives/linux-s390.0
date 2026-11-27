@@ -1,83 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1795789454;
-	b=dYoVvmrUktxBh3eNUpomWUWsOrQCRKQQb6xw8j++bAOKkEQbWsyupifx2s5vQ9UnIhpY
-	 WwZifXQxIBGpOJ6yclJzFgghesVl/OkCTjXS/CEoj+AZl/F5agfgIYA2XEi2WkB/ihcNT
-	 gNce1QoFaghTJ2CMpw/B+EOhO1sXHarvwPWBjaVtw5CGvaJQ0Ms2F6qb4u48on2aZCaoX
-	 lMcUE8aEI1mR4KeJ7IgtMSzELWwrLD4FgVofghcjW4Iqy1iEwyntsRi60qL3q4pcsZzmC
-	 A3x4mD7CdiTK89g+t+ywHKI2qvqzQo2RG45axRRC4lvBRstTQgsjXmD8hE+h31vUo5g==
+	b=OMdz5MrABnsfHPPlaiZ8v+nU9xMrI8RxylTcG2N6LjVjr2Ml1ErF6MjkXkQhttdUNx4N
+	 JORrQPZWyRXkjkDYtXJXJ+K0StU+5TbbWf9uRJPYSp3kQwpRu803JZaDnD0MZgiHABGU0
+	 Qbsc/SXyrIBa0S6guksJpYg7hcV47iSWh2jUiFqsU3TS14Mn582MgxSYszHDdhuN+MgPg
+	 zPWeIwg7Lz3BuHkqr4zdJ3rNafkyJACMle+9vIRYRmH0PYBDqFx58BsMZOsLHkUzmCIX/
+	 a6lVBRCiPT89r8hB3pBz9JP5aVOxZ/TG7MuQFkKE7rI2hEXCpd+1qptlB9tqa/7AO/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795789454;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-TM-AS-GCONF:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
+	 In-Reply-To:To:Cc:X-Mailer:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
 	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=bpe0L+Ovicxjt0pkeM4hUG6GDwexetxJ0+15mm22iys=;
-	b=uzwLfJQ+kyoJWOZDB45/RhILImis3sokHbe/Y0L9q5cXPVT44kxxZYm/OdXlHds9163o
-	 F7jvDqk8bVvTEvEda11IcDt/2zVwXBta5cUlB9so5N7mchoGlVyrH/hIsuRuu06ECFRQQ
-	 Gj7XtM6cDDK7cF8D0+Q70ijdtW/PUvaHi3Tyqi2YKxo/OfI6aM0BYSDKtZ7TPifC992K4
-	 M4aBdJBdCV+GnrW+2sqeRBMiE734GHcyidhi8IZ0vrWu22Lv5PtQn4rt3LwPBCbEmWeCj
-	 wHBfz749w5RjlilbxYq0ht1K80FH9YwLiWyjhW/lF/wJK9D+fsCW9D+F2mi3Ks856mg==
+	bh=PV44T8ur1TFKL3igXILAG6jtbzhafYyhUFqzNQqf76g=;
+	b=N2XNox3ZuIxlnGL1W3CVrnOW5WLEqKxPWFLs4NfxNvNqGe+X66HSDqh44mLM7PGQw7I4
+	 4LK4rq57aIaj5YrPVWDSUsG/iYhHxTyutpOulLLOkgyog1hmTzv/fNfNXopodKz384DeO
+	 t9hUWkQ3CQZuJtB5PzfhgIj8rPeotKPb6xqHEnsnF19XheZpBluNor1LzufZWunTNciNF
+	 JkGWReUDdFnrD/8T3hPhJTKU1pfywoXBlPFSnOHG3CIfkTOwvtogoHKlh7yEdqOgmeSzw
+	 8IqgSeLBiXd7G8DjbZJhU5zybpvdWNw60Mm6gaJg4GCtpevcERQkoi4szahM0BNWLDQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=KpzwlV59;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=S7ENffRM;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 346DC606A69E;
-	Fri, 27 Nov 2026 14:24:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 346DC606A69E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C12F606A68E;
+	Fri, 27 Nov 2026 14:24:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C12F606A68E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=KpzwlV59
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE4l8F1650375;
-	Fri, 27 Nov 2026 14:23:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=S7ENffRM
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE4sTK3266007;
+	Fri, 27 Nov 2026 14:23:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=bpe0L+
-	Ovicxjt0pkeM4hUG6GDwexetxJ0+15mm22iys=; b=KpzwlV59Hdwn+MRIxhEHE4
-	ed7u6ayz+jf9NDWV2M4bi6n4JLDNmUML6mSCZcMbRSbBpuAR73X1AS0DSBtMfBYz
-	0AgqKDBUOVcwPX7oRYjku4TdXjJVox4hZwOSU4GHK2lbB88SiUUFosBmn/2gpC+h
-	3Pw6aiY0r+pCmtgI4/E7wGtahIYIBx3bvqCRSubxiRfXK4BggXPAjxL6lyvFuMbi
-	Mlyz15pMjh2m3xYGm6I0ZO8g9RG80hb5Lqi4C1YDaUQZe2bsyncV0OocGJ4jzuV2
-	Q8gHejZ/F1BOTtBOpU8Z36zGhG/R+4De7CNaBjtM5zCPF4Qy3gi4xb+18D6aNcKQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=PV44T8
+	ur1TFKL3igXILAG6jtbzhafYyhUFqzNQqf76g=; b=S7ENffRMBa/ZiHGkVI8fbU
+	/icRHOA7tFUwNJc6jNjeiQThOMeK142jafdtpR4wD65BxWA78vIREWF4ePRuyxeC
+	zl+WuVwDjS30tiPc6etjZWdWhLsbYY7JQt6pWxqYwrYVb824R/sxZBBeFAWJBVif
+	2o+VYLrjlppX6yzINC9qDPlirc47RXTD92/i8tOt5hJoh8hn6DG6B2VnM7tWcD5c
+	i4vAaqiRGpacsOn4GQLzr2MKuGQ/5/XWOFj6wstl9uNzbfrMZCHNbdCmxEslUIx6
+	f+V1XTWsthA9MKjKO0KMzJ5P95IHkFmDl00QQLQKxORy9PlSvwMixjPaeKZKHrfA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34g3p7hn-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34g1ne1f-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 14:23:23 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE4IY0861624;
-	Fri, 27 Nov 2026 14:23:22 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j6mjg4d55-1
+	Fri, 27 Nov 2026 14:23:26 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE4EQr3999005;
+	Fri, 27 Nov 2026 14:23:25 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j6x3h2etn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 14:23:22 +0000 (GMT)
+	Fri, 27 Nov 2026 14:23:25 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ARENIZ851118544
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ARENKM833161648
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Nov 2026 14:23:18 GMT
+	Fri, 27 Nov 2026 14:23:20 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1DF7B2006B;
-	Fri, 27 Nov 2026 14:23:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5BC222005A;
+	Fri, 27 Nov 2026 14:23:20 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D0DE20063;
-	Fri, 27 Nov 2026 14:23:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EDE142004B;
+	Fri, 27 Nov 2026 14:23:19 +0000 (GMT)
 Received: from a46lp73.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Nov 2026 14:23:17 +0000 (GMT)
+	Fri, 27 Nov 2026 14:23:19 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
-Date: Fri, 27 Nov 2026 15:22:12 +0100
-Subject: [PATCH v4 09/25] KVM: arm64: Prepare sys_regs.c for sharing with
- s390
+Date: Fri, 27 Nov 2026 15:22:16 +0100
+Subject: [PATCH v4 13/25] s390: Read/write ARM system registers
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -89,7 +88,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261127-sysreg-v4-9-a6318d18aab5@linux.ibm.com>
+Message-Id: <20261127-sysreg-v4-13-a6318d18aab5@linux.ibm.com>
 References: <20261127-sysreg-v4-0-a6318d18aab5@linux.ibm.com>
 In-Reply-To: <20261127-sysreg-v4-0-a6318d18aab5@linux.ibm.com>
 To: Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
@@ -118,130 +117,210 @@ Cc: linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
         linux-s390@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=SoQFe/O0 c=1 sm=1 tr=0 ts=6b09925b cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: YGrosWFQmISWJP1HNQHsmHKUsPnpqSOp
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfX93wcRpGmzsuI
+ AZb6YHctnUAsqfIV6pQ3G6vaeslP1tMWktZeLtNbFbRf8Z6JLhlIGP31UX9WngmQRpXqawQ6CFR
+ KNPM9GNtAdNJ5AcYquI0lVVMrwPgKcc=
+X-Proofpoint-GUID: YGrosWFQmISWJP1HNQHsmHKUsPnpqSOp
+X-Authority-Analysis: v=2.4 cv=c8M+0h9l c=1 sm=1 tr=0 ts=6b09925e cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=9-t8X3E59gj7HnmGAIQA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfXztHrbNQ9+1t4
- 4txgJpRaYo0ZVD8vBSlrF8IcY+0yWQA3tzxh+HVhi1Oj+dT+5DhsqFiM5s8aWRqeDzJ/coWVu6+
- KW70gnY64icxAMNeDu7pAUH/GIuuSe0=
-X-Proofpoint-ORIG-GUID: gIql_6EavJQIWXsp3f6GBHwMaMhvl1kW
-X-Proofpoint-GUID: gIql_6EavJQIWXsp3f6GBHwMaMhvl1kW
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfX/BAhUjvWZ3KT
- jwWFAOBE0yL/sVlo3yNm4anfr1+S4U8t7qivCsdHBwtG4djKJ02jcu9ADHRNtP3zE4TY/3R3x5I
- mAj1qkRlXCqyjSMTGO5MTJL+mS9QOn85+oseVZubmYN5qjzliO2+Z6bIMq5sTIiy9JKyS37l5x9
- 8gCuTO7CWZavUdvZGLnSJ4m6pLzvP3IRBnv/kEYq75J6f4pQRpLpJnU+4P2DMYDoXREKLiacYRo
- UNNTgxHZMwGRkXm0J4eMBolvdO9z5r6S/tHPhaA2zANzFpDz3W35LWNKv9tGPBzQuIsg0bcRcq/
- dPiDJ3dVTVdqjki6QZ2mvdYcMCY+7ostPIwrTg+b/Gtsubgt+PEG1I7wb/nNAkOxEItqkTdZeyd
- UIqcZVpDdnEsL7VlJN+uu+6WzUVnzH+OD6zjEMd1nSkjXz5jOHyihy7PKGhFyyvlBiR3LOTR5o1
- kefn0FHyTEnbaQjsrhQ==
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=7LwJKZnqmkLqLE65SeQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfXzBz61+UwdUTp
+ 8dhsUF0/SjkChr1v7NJQUxYfAH49hQ8b9iRgf+YAEc+nvqKfe2tTe1TfuzZWUnoLgPJIV5L4ZAA
+ KzcFOU2QOMfQx4k/Vj7xYlqGICIo0wA7tOG0JzmQj2aV+ivCZfPyp2MsJ0IjM1EOmX+CpNysbZ4
+ 9dey6Yec7fhtpDBI28swa5yVBItwjx4k+WfdblVquWT4UXB9IdaERPZmLi7u3DiCfGjqIuLtpSd
+ vAx5m9WjRmJOoUMWzAiF7kqOusEU8rwHFXV5aqzOnKYhwpmf3UztHPRBaiiimaT7otQAuYxIKAc
+ XPOHbKH7d+oFusa9sPGBpZ8lqHerSdU1FxIIwt3OfDQ+8GG6TWXM4kFHBQVKc4SMP/qLQ2GFE4r
+ G6I5tQMoDi9AThDKzb/snYSQbTmPJLfx8D2cZJrsFqQZgb6r2STHSve7bvrJ5EsE1oj44GNclLa
+ M8+DPftV2B5PYPYjPIQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-27_02,2026-11-27_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0 adultscore=0
- lowpriorityscore=0 clxscore=1015 malwarescore=0 impostorscore=0 phishscore=0
+ impostorscore=0 clxscore=1015 malwarescore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 phishscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611270056
 
-Prepare sharing of sys_regs.c with s390 by moving
-reset_{vm,vcpu}_ftr_id_regs just before the UAPI definitions. Also, move
-kvm_handle_cp14_load_store to other cp functions. This small refactoring
-allows to have less shared sections.
+Introduce Extract Arm System Register and Set Arm System Register to
+enable s390 hosts to read and write system registers for arm64 guests.
+The new instructions use the new RIE_H instruction format. Add assembler
+macros to create instructions in RIE_H format manually. Add Support for
+disassembling the new instructions.
 
 Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/arm64/kvm/sys_regs.c | 52 +++++++++++++++++++++++++----------------------
- 1 file changed, 28 insertions(+), 24 deletions(-)
+ arch/s390/include/asm/sae-asm.h | 45 +++++++++++++++++++++++++++
+ arch/s390/include/asm/sae.h     | 67 +++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kernel/dis.c          |  1 +
+ arch/s390/tools/opcodes.txt     |  2 ++
+ 4 files changed, 115 insertions(+)
 
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index ac78ca0ba59c..abc49d4968f6 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -4885,12 +4885,6 @@ static bool check_sysreg_table(const struct sys_reg_desc *table, unsigned int n,
- 	return true;
- }
+diff --git a/arch/s390/include/asm/sae-asm.h b/arch/s390/include/asm/sae-asm.h
+new file mode 100644
+index 000000000000..a1abb07b5a77
+--- /dev/null
++++ b/arch/s390/include/asm/sae-asm.h
+@@ -0,0 +1,45 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_S390_SAE_ASM_H
++#define __ASM_S390_SAE_ASM_H
++
++#ifndef __ASM_S390_SAE_H
++#error only <asm/sae.h> can be included directly
++#endif
++
++#include <asm/insn-common-asm.h>
++
++#ifdef __ASSEMBLER__
++
++/*
++ * INSN_RIE_H - RIE-h instruction format
++ *
++ * RIE-h format: <insn> R1, R3, I2, M4
++ *    +--------+----+----+----+-----------------+----+--------+
++ *    | OpCode | R1 |////| R3 |        I2       | M4 | Opcode |
++ *    +--------+----+----+----+-----------------+----+--------+
++ *    0        8    12   16   20                36   40      47
++ */
++.macro	INSN_RIE_H	opc, gr1, gr3, imm2, m4
++	GR_NUM	r1, \gr1
++	GR_NUM	r3, \gr3
++	ASSERT_U16	\opc
++	ASSERT_U16	\imm2
++	ASSERT_U4	\m4
++	.byte	(\opc & 0xff00) >> 8
++	.byte	r1 << 4
++	.byte	(r3 << 4) | ((\imm2 & 0xf000) >> 12)
++	.byte	((\imm2 & 0x0ff0) >> 4)
++	.byte	((\imm2 & 0x000f) << 4) | (\m4 & 0xf)
++	.byte	\opc & 0xff
++.endm
++
++.macro	SASR	r1, r3, i2, m4
++	INSN_RIE_H 0xed99, \r1, \r3, \i2, \m4
++.endm
++
++.macro	EASR	r1, r3, i2, m4
++	INSN_RIE_H 0xed9b, \r1, \r3, \i2, \m4
++.endm
++
++#endif /* __ASSEMBLER__ */
++#endif /* __ASM_S390_SAE_ASM_H */
+diff --git a/arch/s390/include/asm/sae.h b/arch/s390/include/asm/sae.h
+index 26d89fae0836..cac4fbf58e88 100644
+--- a/arch/s390/include/asm/sae.h
++++ b/arch/s390/include/asm/sae.h
+@@ -4,6 +4,7 @@
  
--int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
--{
--	kvm_inject_undefined(vcpu);
--	return 1;
--}
--
- static void perform_access(struct kvm_vcpu *vcpu,
- 			   struct sys_reg_params *params,
- 			   const struct sys_reg_desc *r)
-@@ -4918,6 +4912,12 @@ static void perform_access(struct kvm_vcpu *vcpu,
- 		kvm_incr_pc(vcpu);
- }
+ #include <linux/linkage.h>
+ #include <linux/types.h>
++#include <asm/sae-asm.h>
  
-+int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
+ #ifndef __ASSEMBLER__
+ 
+@@ -12,6 +13,72 @@ asmlinkage void sae(phys_addr_t sae_block_phys);
+ 
+ #include <linux/io.h>
+ #include <asm/kvm_host_arm64_types.h>
++#include <asm/insn-common-asm-emit.h>
++
++asm(".include \"asm/sae-asm.h\"\n");
++
++#define _SAE_ASR_REG_SHIFT	5
++#define SASR_FLAG_INITIALIZED  0x8
++#define EASR_FLAG_SA           0x8
++
++/**
++ * sasr() - Set Arm System Register
++ * @arm_reg: ARM system register identifier; compile-time constant
++ * @val: Value to set
++ * @save_area: Pointer to SAE save area
++ * @flags: Operation flags; compile-time constant
++ *
++ * Sets an ARM system register value.
++ */
++static __always_inline void sasr(unsigned int arm_reg, u64 val,
++				 struct kvm_sae_save_area *save_area,
++				 u64 flags)
 +{
-+	kvm_inject_undefined(vcpu);
-+	return 1;
++	struct kvm_sae_block *sdo = phys_to_virt(save_area->sdo);
++	u16 reg = arm_reg >> _SAE_ASR_REG_SHIFT;
++
++	/*
++	 * SASR expects an U16 for imm2 but s390 inline asm can only provide S16 values
++	 * via the K modifier. Convert i2 to unsigned by and-ing with 0xffff
++	 */
++	asm_inline volatile(
++		"	SASR	%[r1],%[r3],%[i2] & 0xffff,%[m4]\n"
++		: "+m" (*save_area), "+m" (*sdo)
++		: [r1] "d" (val),
++		  [r3] "a" (save_area), [i2] "K" (reg), [m4] "I" (flags)
++	);
 +}
 +
- /*
-  * emulate_cp --  tries to match a sys_reg access in a handling table, and
-  *                call the corresponding trap handler.
-@@ -5370,25 +5370,9 @@ void kvm_sys_regs_create_debugfs(struct kvm *kvm)
- 			    &sr_resx_fops);
- }
- 
--static void reset_vm_ftr_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *reg)
--{
--	u32 id = reg_to_encoding(reg);
--	struct kvm *kvm = vcpu->kvm;
--
--	if (test_bit(KVM_ARCH_FLAG_ID_REGS_INITIALIZED, &kvm->arch.flags))
--		return;
--
--	kvm_set_vm_id_reg(kvm, id, reg->reset(vcpu, reg));
--}
--
-+static void reset_vm_ftr_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *reg);
- static void reset_vcpu_ftr_id_reg(struct kvm_vcpu *vcpu,
--				  const struct sys_reg_desc *reg)
--{
--	if (kvm_vcpu_initialized(vcpu))
--		return;
--
--	reg->reset(vcpu, reg);
--}
-+				  const struct sys_reg_desc *reg);
++/**
++ * easr() - Extract Arm System Register
++ * @arm_reg: ARM system register identifier; compile-time constant
++ * @save_area: Pointer to SAE save area
++ * @flags: Operation flags; compile-time constant
++ *
++ * Reads an ARM system register value.
++ *
++ * Return: Register value
++ */
++static __always_inline u64 easr(unsigned int arm_reg,
++				const struct kvm_sae_save_area *save_area,
++				u64 flags)
++{
++	struct kvm_sae_block *sdo = phys_to_virt(save_area->sdo);
++	u16 reg = arm_reg >> _SAE_ASR_REG_SHIFT;
++	u64 val;
++
++	/*
++	 * EASR expects an U16 for imm2 but s390 inline asm can only provide S16 values
++	 * via the K modifier. Convert i2 to unsigned by and-ing with 0xffff
++	 */
++	asm_inline volatile(
++		"	EASR	%[r1],%[r3],%[i2] & 0xffff,%[m4]\n"
++		: [r1] "=d" (val)
++		: "m" (*save_area),
++		  "m" (*sdo), [r3] "a" (save_area), [i2] "K" (reg), [m4] "I" (flags)
++	);
++	return val;
++}
  
  /**
-  * kvm_reset_sys_regs - sets system registers to reset value
-@@ -5462,6 +5446,26 @@ int kvm_handle_sys_reg(struct kvm_vcpu *vcpu)
- 	return 1;
- }
- 
-+static void reset_vm_ftr_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *reg)
-+{
-+	u32 id = reg_to_encoding(reg);
-+	struct kvm *kvm = vcpu->kvm;
-+
-+	if (test_bit(KVM_ARCH_FLAG_ID_REGS_INITIALIZED, &kvm->arch.flags))
-+		return;
-+
-+	kvm_set_vm_id_reg(kvm, id, reg->reset(vcpu, reg));
-+}
-+
-+static void reset_vcpu_ftr_id_reg(struct kvm_vcpu *vcpu,
-+				  const struct sys_reg_desc *reg)
-+{
-+	if (kvm_vcpu_initialized(vcpu))
-+		return;
-+
-+	reg->reset(vcpu, reg);
-+}
-+
- /******************************************************************************
-  * Userspace API
-  *****************************************************************************/
+  * stiasrm() - STore and Invalidate Arm System Register Multiple
+diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
+index d2d299ba8b86..065264667db3 100644
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -208,6 +208,7 @@ static const unsigned char formats[][6] = {
+ 	[INSTR_RIE_RUI0]     = { R_8, I16_16, U4_12, 0, 0, 0 },
+ 	[INSTR_RIE_RUPI]     = { R_8, I8_32, U4_12, J16_16, 0, 0 },
+ 	[INSTR_RIE_RUPU]     = { R_8, U8_32, U4_12, J16_16, 0, 0 },
++	[INSTR_RIE_R0RUU]    = { R_8, R_16, U16_20, U4_36, 0, 0 },
+ 	[INSTR_RIL_RI]	     = { R_8, I32_16, 0, 0, 0, 0 },
+ 	[INSTR_RIL_RP]	     = { R_8, J32_16, 0, 0, 0, 0 },
+ 	[INSTR_RIL_RU]	     = { R_8, U32_16, 0, 0, 0, 0 },
+diff --git a/arch/s390/tools/opcodes.txt b/arch/s390/tools/opcodes.txt
+index 0e4773c94af0..22fb9c500a56 100644
+--- a/arch/s390/tools/opcodes.txt
++++ b/arch/s390/tools/opcodes.txt
+@@ -1255,6 +1255,8 @@ ed64	ley	RXY_FRRD
+ ed65	ldy	RXY_FRRD
+ ed66	stey	RXY_FRRD
+ ed67	stdy	RXY_FRRD
++ed99	sasr	RIE_R0RUU
++ed9b	easr	RIE_R0RUU
+ eda8	czdt	RSL_LRDFU
+ eda9	czxt	RSL_LRDFU
+ edaa	cdzt	RSL_LRDFU
 
 -- 
 2.56.1
