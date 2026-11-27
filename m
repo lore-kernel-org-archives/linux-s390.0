@@ -1,82 +1,117 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795778808;
-	b=Jm4ZN3krkoV/+tVH0p8HavTHNzD4o6+B5q2RFubv/oXj1ibOdVPdTVjAf6/NxlfoeYGR
-	 s/bD0NzQ+VAKD6rW8VXCO/iZ6uuuR/1V2tpY5TRBtgzjiS++7KvRbnM3tRBSELFSaX/GY
-	 LHTqQdciBeg6dig2LYGDU+bb4WG8TfytYpR1yIm+VPInxYLdlJ771vLJLG3nUUx8/3qcI
-	 SPjgP4rnnxTb9zsRPDtngzzV/OxJCp5yYTJd94Lo1KGILIwmoS/dyU6GMFWrGhExNKaDB
-	 rJOIEmK/YoUaAuN89gD67UCiUXMN9dUqoDejagZovYmsCAXObevkXY4YPE3JhqVpxJA==
+	t=1795785312;
+	b=jh6EvzFDcOB7tPqsX7Yvmbf4yS+W5SkPts/PJ3oXZpTBF3gRRQLqKECxjh43EoYCcufI
+	 LwkaWHEcQ5e912zKrcH136O/h5jJdfuj/NcFA/VlOv7FP1bDDzIbwD+BQSLVYuX9ggt8f
+	 tRyBDzo5Gi/UqJ0siakJBvNZxRNDrqLJRxkb0nk+n04RPryTOL4F9fJnQlKE5qekOQkrD
+	 urhf1gXqceT/aeMl8VFfeBp9xQDi4LgfuCgAgX4h1piO8EED6iAlujBwq8qhwakpmjolA
+	 lfZsb1jNLecklrZJYN6R6Sgk+ONVIZ5SpVdRIEIXNJkVcOhxTKNKAUOkbE7rS6Hl+XQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795778808;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795785312;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=boD5RlH8ApXGUznUsv+SqEnFrkMWJRS4tA6AxVcHlxc=;
-	b=z3bOXAC5qZUB+c5+Ep89mTZIB2Vi08fYNZGz1uBTxEnOAjVyW6ZBsB+0c48AjHklddHL
-	 mG394l8bqKy2edBD78684vdw86sK9NKXAaYtxc8f/j4Q1q+qaHgJ4sptTTgoY7eiSNsBV
-	 WI8cIN9uk94gOpf6XaxGpkwQnUgc/MxV/ozsGxpRjmP7b2VX1+u8hEUc5XwKBKUD0xUh5
-	 gNcvxpaGt/HoopO8gCYYsff/mRiPJUP+7GvGrHsD9vmF0H4AgOwTj0zEJ00XItzLHEDIb
-	 BZlwyCwMjUCmOWLJXsj/09IUcRCQDLVnKM+hagwFRMTHjzujwObu0EGkvJk2iyZm5iQ==
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-Reinject:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=g9Ph1lEpYYg+Jn1hnAK3NFg3pmxAgdYKSsFE1n9J8BI=;
+	b=jymsQkNI10fY6YKf49sNM9r6O/ANdNbrhtQ1ZkiZubg1gyYUvqG4NLoi7T1GcodBcr1v
+	 SzvfOsnc1DbwdB9gH0OJSTX47RPgV3XT1pa7PwtwzZOlJWG6wxaM4uxe2FTS4+DwLA5vv
+	 Bzfvcb72SQIU8uUd8hk+D96nEYDaa8q/a30P57STBCsLKKO0bzVIfChPuM1zTBU+b4SFf
+	 2Vjq/o6oSlZt+ppXl9Ys7/vv60cks0ITRoe5GMePfqX2Y8MsAkOKIy0KG1xPUdx421k6c
+	 GNtSFZXbdDGuT1SEghhpYOFItw7bsbidTvlgocgXtXCtfMPWIdLkj0eInwA3bzrVKwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=VzyyEHA7;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=oIrIDIY+;
 	arc=none smtp.remote-ip=148.163.158.5
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B49F3606A31E;
-	Fri, 27 Nov 2026 11:26:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B49F3606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68266606A321;
+	Fri, 27 Nov 2026 13:15:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68266606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=VzyyEHA7
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARB4sFu1654505;
-	Fri, 27 Nov 2026 11:26:19 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=oIrIDIY+
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARD54K13148909;
+	Fri, 27 Nov 2026 13:14:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=boD5Rl
-	H8ApXGUznUsv+SqEnFrkMWJRS4tA6AxVcHlxc=; b=VzyyEHA7Q4Go9plQRPQyCA
-	t3gcyzLR98/aMfbDw+SI3kuYzhSnTIFF/nNWze0gZyEWPAg+KdJRpD62w6OTH6WS
-	B9zQiTV93+D5UVGnk+CPLysPzjz/58LlhFBJvl445a40ttdcUW3o25ltWLyVaJbl
-	UZNvhP714cFuJ/JQo8ml5YYgmpYU/rZl/qBAs8083gMLQfQCntFJOaTsAHkqYN0n
-	MWPps+jubcZ0bMjx4tk45narszkq5DnR1+eDvsvAlBgkY1zFSnkea5TEYDLYhLuL
-	VS9j7x3zq3LfULBwNwOfLPfmMOYyt8IwQVVIbSZEqYRNct3mfC/RqCJE7l2N5juA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=g9Ph1l
+	EpYYg+Jn1hnAK3NFg3pmxAgdYKSsFE1n9J8BI=; b=oIrIDIY+xLHHlcm1zb69fv
+	GMNWR7eBTAkNWPKYQKDsLDzgEhaP8so7NShzKMhCBrmlqzxv843BWjGiM4oql7d9
+	xVAWm4K/zc5slnQTEeaY3sstLQMf+w1DPccfeyD+NZ9F0qT0r/Aq7eZvVwBQq9iR
+	tUvH5Dl/e01EVGw1lQiaNOi+nFwaT4W357ico7tZmpVLZqpv+ikgFFIsyuUEJ4lv
+	E+f+D+KoxmOPZ0eKLiRXJaDAG2PeyoicwbdTsRY9040adK0jXIkYfM57Kl4U12j7
+	HfG5Xu0+kU2GsMsVxd8d9N2OOsJlaaKaI7Uq7hJaIgDqJDGC4UNYwdwm2wc41CQQ
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34p4vmbd-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34g1n5ts-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 11:26:19 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARAoPxB652939;
-	Fri, 27 Nov 2026 11:26:18 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j6mjg3v79-1
+	Fri, 27 Nov 2026 13:14:39 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARCnDol1100426;
+	Fri, 27 Nov 2026 13:14:39 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j6rhckb0a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 11:26:18 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ARBQDsl51315168
+	Fri, 27 Nov 2026 13:14:39 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ARDEZ1a30278294
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Nov 2026 11:26:13 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3A2322006E;
-	Fri, 27 Nov 2026 11:26:13 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B289F20065;
-	Fri, 27 Nov 2026 11:26:02 +0000 (GMT)
-Received: from [9.111.71.154] (unknown [9.111.71.154])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Nov 2026 11:26:02 +0000 (GMT)
-Message-ID: <968e660a-2d9c-444d-a4d2-b4b359152ded@linux.ibm.com>
-Date: Fri, 27 Nov 2026 12:26:02 +0100
+	Fri, 27 Nov 2026 13:14:35 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 219DA2004D;
+	Fri, 27 Nov 2026 13:14:35 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8DFB92004E;
+	Fri, 27 Nov 2026 13:14:33 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.111.82.22])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 27 Nov 2026 13:14:33 +0000 (GMT)
+Date: Fri, 27 Nov 2026 14:14:31 +0100
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Zi Yan <ziy@nvidia.com>
+Cc: David Hildenbrand <david@kernel.org>,
+        Baolin Wang
+ <baolin.wang@linux.alibaba.com>,
+        "Liam R. Howlett" <liam@infradead.org>,
+        Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
+        Dev
+ Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+        Lance Yang
+ <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
+        Kiryl Shutsemau
+ <kas@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>,
+        Rik van Riel
+ <riel@surriel.com>, Vlastimil Babka <vbabka@kernel.org>,
+        Harry Yoo
+ <harry@kernel.org>, Jann Horn <jannh@google.com>,
+        Kyle Zeng
+ <kylebot@openai.com>,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
+        linux-s390@vger.kernel.org, Jason Gunthorpe
+ <jgg@ziepe.ca>
+Subject: Re: [PATCH for 7.4-rc2+ 4/7] s390/mm: always clear
+ _SEGMENT_ENTRY_READ in pmdp_invalidate()
+Message-ID: <20261127141431.4c3c2b2b@thinkpad-T15>
+In-Reply-To: <20261015-anon_vma_uaf_fix-v1-4-7b977303b42b@nvidia.com>
+References: <20261015-anon_vma_uaf_fix-v1-0-7b977303b42b@nvidia.com>
+	<20261015-anon_vma_uaf_fix-v1-4-7b977303b42b@nvidia.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,131 +121,102 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] KVM: s390: selftests: Add a test for nested guests
- in ESA mode
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Yvan Janssens <yvanj@cyber.gent>
-Cc: David Hildenbrand <david@kernel.org>, Eric Farman <farman@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>, Shuah Khan <shuah@kernel.org>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261125165604.3074595-1-yvanj@cyber.gent>
- <20261125165604.3074595-3-yvanj@cyber.gent>
- <20261126153745.399d7f3d@p-imbrenda>
- <a5b3119b-4986-411f-a03a-06b411c07c73@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <a5b3119b-4986-411f-a03a-06b411c07c73@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDA0NCBTYWx0ZWRfX5vQOjm1ek2ZL
- s+UVENn/3Au39jAtps8QCVKjBvOoa7rNDZaOXiI00Gqo6s7td3NbXLzrNlAeLaQuQHidQ6MrI1i
- J1f0OAGLlQqwYGJk1lf95Z9teFycqQU=
-X-Proofpoint-GUID: uivynPu8bwZQGjlllkqKWYeTVpAaqmXu
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDA0NCBTYWx0ZWRfX6bxWDyj5lwaT
- shOlb37U2yaFzi3ElHPmql5CEYVxKSIB6kHuZrfbw/YaSNRBdsUrhwfGEx/bBEKU8E91/bzsog9
- QMvG5u93YOZCwHmazBFVNgpHa1LRGCs1zvCZ4Ls15EpXujwVVW6AXuQ87IAuUKBD9NGQr5fM+Y6
- zwtXcJQ/jmnUGCYl+G/4yivKAYDqEJNdzm0uDT1C91tbO7AtbtcwTN3XwolmhN7iI0HsF4adKpt
- qZzVWMNiWt4O+SLsvp1ux0lu+39618kphHfb+CWrFcAOW3D73ZEZ/Fut2irpwxXjko3SDtTd0AI
- M8a8nKLECG1J7oBz3AcE/5LN2dJhIf6xd5qWG470g/DXwHS86Zc0OamcA8BAjiOq8IQJ6/aMmzI
- e5mzt2waJk737uQbtrjluoHRV46mNp6LMqOMqhR8PJidzCRasLDXr9mF+WSUjkHkobvQ/NEs4m4
- AQ4PgSHyv3ZtjGjgIgg==
-X-Proofpoint-ORIG-GUID: aok3soQnR9xwrEFU24aJxSgV6A8Bc200
-X-Authority-Analysis: v=2.4 cv=QabzLcbv c=1 sm=1 tr=0 ts=6b0968db cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=iT8M5YjzDwDgK0uH:21 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22
- a=7tadYCu9qubQoYwvGvMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: FeLowTyogOlHUnJfBR_xou9lqiAF_CMx
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDA1MiBTYWx0ZWRfX4M209SkPbL/+
+ k08Lj+ZiToxKEUtkfQyo5s/KDbFjbNj1bTKYgyAbu+miQQlryq5UfjuQvbq11JyfaWzhyzgUhq8
+ H9c1T0ulS11ryjHb1Kybw3/eQh8f8qQ=
+X-Proofpoint-GUID: vhiax2KLb9rM44fc03ndO3pMxE3yegDi
+X-Authority-Analysis: v=2.4 cv=c8M+0h9l c=1 sm=1 tr=0 ts=6b098240 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=Ikd4Dj_1AAAA:8
+ a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8 a=VwQbUJbxAAAA:8 a=jawjUyVw3NHo_kiyCjgA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDA1MiBTYWx0ZWRfX3t/itx/F+v7t
+ h/ee1jM5erlFfsjIU6YSrmIguY6Ayym1x1uIVW2Y8711jl72iFE/5ayGtoMq5hd2nBrjV0idY3s
+ 0JsLLeCeQW6STOu760KEXuf49Vp3nnM1kelrDvCncmdnZ2pjIvXmjENMA4kPH36xyV43purtLzg
+ dGKcR4W3Eq0l2MUxLwnReQuxI+3ecMPPGc90hpPo+xL9hnDdu7Vn4WYvlhhup+5eUHhOfzr5oO+
+ LykciOx9XF+CHLLWWJLbJDGTLUk9q4T9os2GCrIaYgIXfACd4CrzYto5bs+4aQP6u5czPhjv0I/
+ zw1Iefdi1sMKavdPAEWIv0W3cJdXoVY78eu/y4o6KMp9LOiTYCVdjJYFwfk2PxOvku7nZsFS+Ah
+ qZUNU6pronN79Bu0g1JNdQ+whX+H84qd13cjuqz87nrtwjmAChgZBgw4DWh5tW0LUUGpLWrmXfc
+ fMzM6pIqloGyImQDDsQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-27_02,2026-11-26_02,2025-10-01_01
+ definitions=2026-11-27_02,2026-11-27_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0
- bulkscore=0 priorityscore=1501 clxscore=1015 malwarescore=0 impostorscore=0
+ impostorscore=0 clxscore=1011 malwarescore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 phishscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611270044
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611270052
 
-On 11/27/26 8:56 AM, Christian Borntraeger wrote:
-> Am 26.11.26 um 15:37 schrieb Claudio Imbrenda:
->> On Wed, 25 Nov 2026 17:56:03 +0100
->> Yvan Janssens <yvanj@cyber.gent> wrote:
->>
->>> Run a nested guest from a state description without the z/Architecture
->>> flag, with KVM_CAP_S390_VSIE_ESAMODE enabled, and let it execute STORE
->>> FACILITY LIST EXTENDED twice. vsie intercepts the first one of every SIE
->>> entry to shadow the facility list guest 2 designates and then has the
->>> instruction repeated.
->>>
->>> The test checks that the second doubleword of the PSW field, which is not
->>> part of an ESA/390 PSW, comes back unchanged, that the PSW points behind
->>> the last instruction, and that the first instruction stored the
->>> designated list. What the second instruction stored is printed for
->>> diagnosis.
->>>
->>> The test is skipped without the capability, without interpretive
->>> execution for the guest (SIEF2) and without facility 7 in the guest's
->>> model.
->>
->> which KVM ioctls are you testing here?
->>
->> are you sure that this is the right place for this test? my impression
->> is that this would be done more cleanly as a kvm-unit-test
-> 
-> We are explicitely testing 2 levels of SIE here and one level is a private
-> "hypervisor". I think this would require some changes in kvm-unit-test/snippets.
-> So in general I an fine with taking that via selftests.
-> 
-> Janosch, any concerns and opinions?
+On Thu, 15 Oct 2026 14:13:04 -0400
+Zi Yan <ziy@nvidia.com> wrote:
 
-Yeah, looks like a selftest to me
+> pmdp_invalidate() sets _SEGMENT_ENTRY_INVALID, but on s390 that bit
+> alone also marks an old (not young) PMD, which is still a valid mapping
+> that GUP-fast follows. Without CONFIG_PAGE_TABLE_CHECK, an invalidated
+> PMD is therefore not pmd_protnone(), so GUP-fast can grab a reference on
+> the folio and, as the PMD value doesn't change until the caller
+> finishes, the recheck after taking the reference passes too.
+> 
+> Code that invalidates a PMD and then decides, from the folio refcount,
+> whether it may drop the mapping relies on GUP-fast backing off from an
+> invalidated PMD, like it does from a cleared one. x86, arm64 and powerpc
+> already make GUP-fast reject invalidated PMDs.
+> 
+> With CONFIG_PAGE_TABLE_CHECK, pmdp_invalidate() already clears
+> _SEGMENT_ENTRY_READ, which makes the entry pmd_protnone(), so GUP-fast
+> does not follow it. Do that unconditionally. As noted in commit
+> 7b4dde5e40ad6 ("s390/pgtable: Add s390 support for page table check"),
+> an invalidated PMD that is pmd_protnone() is fine for the remaining
+> pmd_protnone() users, which run under the page table lock or are
+> lockless walkers that should not follow it anyway.
+> 
+> Assisted-by: LLM
+> Signed-off-by: Zi Yan <ziy@nvidia.com>
+> To: Alexander Gordeev <agordeev@linux.ibm.com>
+> To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> To: Heiko Carstens <hca@linux.ibm.com>
+> To: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Jason Gunthorpe <jgg@nvidia.com>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: Peter Xu <peterx@redhat.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> ---
+>  arch/s390/include/asm/pgtable.h | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 2d5c2ab06de98..fe1ba746203ab 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -1781,10 +1781,14 @@ static inline pmd_t pmdp_invalidate(struct vm_area_struct *vma,
+>  	pmd_t pmd = *pmdp;
+>  
+>  	VM_WARN_ON_ONCE(!pmd_present(pmd));
+> +	/*
+> +	 * _SEGMENT_ENTRY_INVALID alone also marks an old (not young) entry,
+> +	 * which lockless walkers like GUP-fast may follow. Clear
+> +	 * _SEGMENT_ENTRY_READ too, so the invalidated entry is pmd_protnone()
+> +	 * and is not followed, and page table check does not count it.
+> +	 */
+>  	pmd = set_pmd_bit(pmd, __pgprot(_SEGMENT_ENTRY_INVALID));
+> -#ifdef CONFIG_PAGE_TABLE_CHECK
+>  	pmd = clear_pmd_bit(pmd, __pgprot(_SEGMENT_ENTRY_READ));
+> -#endif
+>  	page_table_check_pmd_set(vma->vm_mm, addr, pmdp, pmd);
+>  	pmd = pmdp_xchg_direct(vma->vm_mm, addr, pmdp, pmd);
+>  	return pmd;
+
+Thanks, looks good to me, and I especially like the comment. As David said,
+pmdp_invalidate() does not have reasonable semantics, and I think this makes
+it a bit more clear, at least for s390.
+
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
