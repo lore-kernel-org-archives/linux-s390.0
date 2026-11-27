@@ -1,82 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1795789456;
-	b=0L5+NECqnWd3juEVmv4Cb7N/kE/Jjioqr+U8vyZvf7VfVdJi8Cc3hBOg4BoPGNncQK54
-	 Ii+1YVZEV4havjf8avS13UYHEoykEtVCh4rS1KXP+PapwB/u+FLsD3LUtIlHfxtA6IJIL
-	 Sh51gpLM2aniLMXiyNSNA2w5x03Euf3h2AVk9d2L2SB3kdiadKipyb0oaIzsIgmmYE142
-	 w5KooWgOAL9BbuEbZO8OlbxZQtx357dfOAQO9hgEVCehAUSbfoasyxvw45YV7N8YXIrNj
-	 EhzkTkx6fjfsoNjpFLEeAW36t60hVJpukgBHa/d2OduhBPJ6xSlPXE19Ekg27BbUAHQ==
+	b=V1fmLabadDLddfWjqKbOLAX/Wg9am9/3br7uWnPYLFaLYEKKwEz+kkUBuUi7fKVJmA+q
+	 eXpoJE5ntIkYDQ22F4WSI89opfotiOf5jeJaFHzXNq5/uK9heEZnixquIy9Symvd0g8YS
+	 PI84m/4plRchFVTOqfdLgfTud5j7R5srUP0F2hfPVwzuAgdk1HWMkQtZ8DmKPe6yWEJak
+	 e4vHMFpUIsj9iEWQCYqJrX7Yy6Cc5NFXMrZlXRcGOdSoCmgF6vTVDKRRZobtxPtImOINY
+	 NxjP5UZ9fksA14gRh0Hx3KqYvvw06lwH0kEcWUhYFkkmVp5lJAXgvw2m6zzavP9F1bQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795789456;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 In-Reply-To:To:Cc:X-Mailer:X-TM-AS-GCONF:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
 	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=0LekkFwRdKFJr5OMmSpf/kgWw3QfDNXDLDKIR7iSPPo=;
-	b=Rx/auBYev0azA8RNhSs2fmhl7lojORdh7koAs6G8zaUHAonxumMyDtRasfZDt+UXPDLA
-	 cpNp1slh21cwSljcmBQW6QD4yeIWbrEuxzrWCNg+7DveTF2H5YcIioZEX/0HO5OBGhDlQ
-	 1mauPhH1TTYega2eCSW3C/acwlwZdxU9gf2Dr8ccDY38U6sg1DomRYL6QSaZMTEX9HY4b
-	 E0Tir0NOusGimoUwGbcACydO1MjmXuEhdNnvcCKIQYiC4RkD0+rAh1ZkguXLqnmQrEtSI
-	 VaGe2WEdMXVj6wJuOPVt4SQ/XmT59h2Oup4dEdOCCwsCsCo5ZDxWMOZlTjFdooYbqWg==
+	bh=0Gg4zuT6AiBWh3LG4JIbuUEdqH1HS3sIw9Cgmfy/DQ4=;
+	b=ikXSObVRKteGBLRe3UG7Ns6Ct7zuyDfwuxz2K/WIbcDcJ5KstQC7PKdCKc1ktsTHoA/M
+	 vLBp89da/YTEkK9p07ksPqHM/JvOhPKbuV/AZTQ9S9z8v2+daWbW09guUMfNw4k0XgEZ8
+	 pGuQJtN5etjXmkmYSTWgGxYhV4gcB+rpkUoXIp9PhXSXyQyvlxf4utotd7hJwjvDfIaCa
+	 hEydNGtpVFDmg6iZUxS+kmd8yvlG8jIM0yUZeQ1ittOB3I0zXjmTrdnWtunXTRYzAu8mS
+	 jHhY/qNkprjlFIvoFjlQ1nte/Wek/+uc164xBrFMyuDJyv6EZIySuZpJQo91vABfdkw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=iAgdWp9c;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=prxjRVIu;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D4CF606B1AD;
-	Fri, 27 Nov 2026 14:24:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0D4CF606B1AD
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 048DC606B1B3;
+	Fri, 27 Nov 2026 14:24:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 048DC606B1B3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=iAgdWp9c
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE58DE3420095;
-	Fri, 27 Nov 2026 14:23:30 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=prxjRVIu
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE52722012307;
+	Fri, 27 Nov 2026 14:23:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0LekkF
-	wRdKFJr5OMmSpf/kgWw3QfDNXDLDKIR7iSPPo=; b=iAgdWp9cTjYkryBDBlkJuM
-	U1YfBEGIb7o2CzU1CExt/aKaKpYmELrxE1XlM4cTugJjoXjrzmWNFOhqdDJ2Xz4/
-	ndLiCjG6xymO123y/iLg7qlrXcHnvL1UB3n4A39Dfk2rQb2wC078TaTOfeXcQIEo
-	jVfF2lOBQi6Hf/ksApHvswCzERW7AjlIFMwY43O8oIW9lCgG4QPhd4FqaD0iFx1O
-	r1sz1yS+I/+YH7qyiZW985gxMNY93m1sAtdRXntybDoxV0a2Bd7dCScjLce3p5Zn
-	hU1/PaUjpsWpaiDGaX0FhbDmeqM8PPbFucM2gmS5w/ZgGId0Ai53Si7rlENxdwfg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=0Gg4zu
+	T6AiBWh3LG4JIbuUEdqH1HS3sIw9Cgmfy/DQ4=; b=prxjRVIuZO5d+GfYvhKEVr
+	1DFNCDulWiijZ6VNpLnqN84QFqSzPip82o3pvQrhnKjZKRmgY+2IEUsaDbTxqZcc
+	OFz+Nw69M9b0xMnuKmjkNH9cle9tTgLB9I2NBmu0ITYqY43sK+3IWWz4+0aPmoPA
+	6ElxWOZ4TZApQZAZNiA1DZumgEXKrNa4AMAbm+ELbfPvaFv9hr5UoFaniCT7sdvd
+	fGkrn2bM+jI26XH3vg6a2rkHB65jmHWlRBvOGf024StYaBbNVri8A+cZsM6o+JTO
+	ifq+nBFLe6vsO9sOfr8gk6EJdpRWiVHW5u1kCtUYFaZp/+JMgSEsKELIIwUNUe9w
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34fap8m8-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34p4w8j7-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 14:23:29 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE4IJZ3999029;
-	Fri, 27 Nov 2026 14:23:29 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j6x3h2eu7-1
+	Fri, 27 Nov 2026 14:23:34 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6ARE4IY7861624;
+	Fri, 27 Nov 2026 14:23:33 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j6mjg4d7c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 14:23:29 +0000 (GMT)
+	Fri, 27 Nov 2026 14:23:33 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ARENOR925232004
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6ARENOIu36700526
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 27 Nov 2026 14:23:24 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 15F3B2004B;
-	Fri, 27 Nov 2026 14:23:24 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BFB812004F;
+	Fri, 27 Nov 2026 14:23:21 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A991E2006C;
-	Fri, 27 Nov 2026 14:23:23 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4C3642006B;
+	Fri, 27 Nov 2026 14:23:21 +0000 (GMT)
 Received: from a46lp73.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Nov 2026 14:23:23 +0000 (GMT)
+	Fri, 27 Nov 2026 14:23:21 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
-Date: Fri, 27 Nov 2026 15:22:23 +0100
-Subject: [PATCH v4 20/25] KVM: s390: arm64: Use QAAF init save area
+Date: Fri, 27 Nov 2026 15:22:19 +0100
+Subject: [PATCH v4 16/25] KVM: s390: arm64: Verify machine feature set
+ before loading
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,7 +89,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261127-sysreg-v4-20-a6318d18aab5@linux.ibm.com>
+Message-Id: <20261127-sysreg-v4-16-a6318d18aab5@linux.ibm.com>
 References: <20261127-sysreg-v4-0-a6318d18aab5@linux.ibm.com>
 In-Reply-To: <20261127-sysreg-v4-0-a6318d18aab5@linux.ibm.com>
 To: Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
@@ -117,80 +118,82 @@ Cc: linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
         linux-s390@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfX969lkI/KxOG0
- fxPxXQsW5a1pADzxBQO7CHlwcdt9pSMpYzUuv9fRN76fHzHTEifgYCs3tiRrAitkOKo5LbTXt09
- yToNmvSNI2RlSa5eEEcvV7pAHOaO2RNX5H7xCGC3IVvYstILDKisSFC9rB0bWfFhAZWFI3D1E6K
- C4waGx8FcREw5yCdHBwR1nkJ+6fBpeG3Nm+bRgH9E2R2pi6PiAZ0u61OOWNOvfu3VqGbuJhbvKc
- Rzf+Z2orL0iJPRHUBA/9HnP6rfJ4PkX0L/qwN6GHO+/xh76nx8m1Z/2ga0eI5PwDnHEw4+CBq7N
- AB8Fkur9mdD0f4jhRlN7bsEXYs1a98XtSdqDK/gyv0xDXbsvjvbxLGfNpcpLFFxJzJpuEBpjK2+
- 0bIQ865lLXjq6CKMvdwbWl/a3fltqWqiJYp81P/ex54rN0DwP+Lc5SEo3OhLq6VTiY/XJfVrgq8
- R/+22yg6JGlSqE1XhUg==
-X-Proofpoint-ORIG-GUID: 9EZuR2zwNcaH2lTY3nOgD0HwW9O2e6cV
-X-Authority-Analysis: v=2.4 cv=U6QHnuru c=1 sm=1 tr=0 ts=6b099262 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfX5Fsg3NObXB5R
+ H7nalzylBRVIMrlKvZ17y6A+YDTIpsrrsEEZFpjrkNv7szbj3asBRAYzuLb/3g9+Df6EImnnd59
+ MKH/XgwdxWJNdR2eABeSgIUIZGlbAJg=
+X-Proofpoint-GUID: tqW4AcI5kuv2-X-FhJX6bKnX57uio5Nm
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfX3fnsg/co5dd1
+ RQbODBmbbuup+ESqPwjQrAMxQfwggEVvJmIPpH+wM44DsfiOIi3RXDYLhDThQjMPekODZE+3fnk
+ MVqdSkUBXVk+1RVqcZCa6WO1LcEZDJ6slNrRihf96jMR/8Utf0ALsIsfnq33EbmMBX45Nmf4Zro
+ nE+b41rC57NMeJ3sCPis+LtnTrwZ7JznA6PydU7btOCRCBVfizkjqSG8Rq1SY/Egrfz/CGuLmlP
+ B3GgNC2xEdGPwR/tswy0U1UKEpfETn4WO3q4YAFi8Y20WTr9mv3L97UagBcu5fi1GNAYc0RHJL/
+ seZe2yx8kB6k9xO6Ez8yC/8crlf0hBRiHrQFZ/DS308xia2w7VceuLpnykls2fWMHp52dfu+RyI
+ G70x3D6HPNpoUAugkxnO+KG+39aTnbSJkTt+gMRPHkpR9irt5b+JCOW/8V2ote1CBzAQ8bzA5En
+ Ns+QQX82FsFNv4uXPLA==
+X-Proofpoint-ORIG-GUID: tqW4AcI5kuv2-X-FhJX6bKnX57uio5Nm
+X-Authority-Analysis: v=2.4 cv=QabzLcbv c=1 sm=1 tr=0 ts=6b099266 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=4v_MITeQBDqVJkbHs2kA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 9EZuR2zwNcaH2lTY3nOgD0HwW9O2e6cV
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDA1NiBTYWx0ZWRfXywdAp5XkifOw
- MpTuFMjncpapVeP5AGU+Cwi80fLPq6l+N5tSnt8HxVrpWVsE5NKH/0OfHnSehGQVGKbI85aGOTI
- HuUQJH2GFyn1N6sCl0GCXbDwbrPoeFE=
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=AT7rqknK4rqI55-KZpcA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-27_02,2026-11-27_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 impostorscore=0
- clxscore=1015 bulkscore=0 suspectscore=0 adultscore=0 phishscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611270056
+ spamscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 adultscore=0
+ bulkscore=0 priorityscore=1501 clxscore=1015 malwarescore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611270056
 
-Use the (cached) result of QAAF fc2 (Generate Initial
-System-Registers-Save Area) to initialize the Save Area.
+Arm guests on s390 need more than the Arm Execution Facility alone. In
+addition, the PTFF time conversion functions are required. In addition
+the guest mapping relies on EDAT2 for large pages.
+
+Verify that these features are present before loading the kvm_arm64
+module. Every machine having the aef facility present should also
+support those. Print an error message if this is not the case.
 
 Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/kvm/arm64/arm.c   | 1 -
- arch/s390/kvm/arm64/reset.c | 5 +++++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ arch/s390/kvm/arm64/arm.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-index fb9c747de64c..8d3006837af5 100644
+index 62c2b45599b9..3af0b47b8377 100644
 --- a/arch/s390/kvm/arm64/arm.c
 +++ b/arch/s390/kvm/arm64/arm.c
-@@ -377,7 +377,6 @@ static int kvm_arch_vcpu_ioctl_vcpu_init(struct kvm_vcpu *vcpu,
- 	int ret;
+@@ -741,9 +741,28 @@ long kvm_arch_vcpu_unlocked_ioctl(struct file *filp, unsigned int ioctl,
+ 	return -ENOIOCTLCMD;
+ }
  
- 	sae_block->save_area = virt_to_phys(save_area);
--	save_area->sdo = virt_to_phys(sae_block);
- 
- 	ret = kvm_vcpu_set_target(vcpu, init);
- 	if (ret)
-diff --git a/arch/s390/kvm/arm64/reset.c b/arch/s390/kvm/arm64/reset.c
-index 9fba709975e2..b36f45f30b9b 100644
---- a/arch/s390/kvm/arm64/reset.c
-+++ b/arch/s390/kvm/arm64/reset.c
-@@ -3,6 +3,8 @@
- #include <linux/kvm_host.h>
- #include <linux/fpu.h>
- 
-+#include <asm/aef.h>
++static bool __init machine_supports_arm64_kvm(void)
++{
++	if (!sclp.has_aef || !aef_usable()) {
++		pr_info("ARM Execution Facility not available\n");
++		return false;
++	}
 +
- #include <arm64/kvm_emulate.h>
- #include <arm64/kvm_nested.h>
- #include <arm64/sys_regs.h>
-@@ -80,6 +82,9 @@ void kvm_reset_vcpu(struct kvm_vcpu *vcpu)
- 	if (loaded)
- 		vcpu_put(vcpu);
- 
-+	memcpy(&vcpu->arch.save_area, aef_gisrsa(), sizeof(vcpu->arch.save_area));
-+	vcpu->arch.save_area.sdo = virt_to_phys(&vcpu->arch.sae_block);
++	if (!ptff_query(PTFF_QAGTO) || !ptff_query(PTFF_QAGPT)) {
++		pr_err("No ARM time conversion functions available (unexpected machine feature set)\n");
++		return false;
++	}
++	if (!cpu_has_edat2()) {
++		pr_err("No EDAT2 facility available (unexpected machine feature set)\n");
++		return false;
++	}
 +
- 	kvm_reset_vcpu_core(vcpu);
- 	kvm_reset_sys_regs(vcpu);
++	return true;
++}
++
+ static int __init kvm_s390_arm64_init(void)
+ {
+-	if (!sclp.has_aef || !aef_usable())
++	if (!machine_supports_arm64_kvm())
+ 		return -ENODEV;
  
+ 	kvm_init_qaaf();
 
 -- 
 2.56.1
