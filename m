@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795793683;
-	b=wxqa1cIwDYc4Fqi9YVKUL+1+u1kIBwY92TtkMTcXzuw9xaXgl1KA4881jk2FEq2S3pwc
-	 CMs3Jhs+aC0cvgxYem83Cm4HmBk/v91THhVKF1HyoJvnszy7EaaSGDAJWg3pXPMlBded2
-	 uMyYtcMYZbYJx+VOY1pcZI1tN8qVtPN6BKAReO60MeyEvVTAzkwpWVsFcVP8WLS5ojXsi
-	 VNHZMc1ZaHBd5JNO+V3RHi6gkrUJzriV4KiFOpoJdtKQbTu3qCNZQXTI+Ag7ahagxKjG1
-	 mlYRvdoMhMDEQxt8XgLi/u0Pw8N/4Q/AQ/vtjkNAKFyzrd7wDim+7W69Z0vpv5LdUmg==
+	t=1795794467;
+	b=Y80GK5ogW3EOWLN9/jiwASYu/GI8+GfJeaHzT9AjlEcfv6f3t8qPucCBCwLosKncNgYt
+	 pduBGkXL5elqFyb+8QF4ZlObHAxkhAHRIem8ifnatSl8EJM9ikMXbXO4NiiOr+gdpNDvz
+	 VGoYXBo3lz36GZ2excSxN8fp73TLXGBOokG/xrC9oWJYejqB1U52Aee0dfF11UXg1N9e1
+	 jCNo+DZHYj/Waaaugl7S5kL3OQ2zZiDTZfnX9I4BxbbF4ZG2uXXeQUAqgw3Lc0IW3b2dy
+	 9fM0zZirIpr6av3lqLzprWbbrTBOwk4VIYHxA8o8WgCtBmySfohu6W7z9Z4q1MJNxiw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795793683;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795794467;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=dCxmJA+bOtAUrHZAkdzDbo5hhy+22EkKgE3jLjCcZjw=;
-	b=DFYJZ3Y69f7gSJHHQjIzw087n350B4wDfz0CfWeIl28lINJCmjcHoa6bzyS70a5KBpcD
-	 whpNwnqJgZPC+yF6QzZAtkWggT8ME8hVgHRkbKiWSN3mOvkxGTMfSHfp1bbGE7xGaWrE6
-	 7DSC6utS0SnzouiRD60DFlU+ui61vdHGHAZUk3QZE0ur7B2Fo4knwXvmzCfUR+aasKwyX
-	 1IRqeq3aKp5pcWGM869QLtsTXWHdHDvvXSVpDHgakVLPtYDHH6QMQj08d8mcdy+HB8jh1
-	 9XWjSj8X98iTSyV7wOsD4fppZUg3nCfD/ucyNVVEkdVkWtTBxcvR6FDEYcBYF4yEklw==
+	bh=aSmbULE+03ORV8Jj+AtWFlpiJlKWuzwupMhgFCcFbXg=;
+	b=AA21h0qM+V/wMA0sPQLGbmcCBxLibiXYzXMCF4EI0Hrq0eQEsSV2v5WicMMr3umQV7MA
+	 ESDLFM0/Xx711ZukPWDSgebdVAh4xCLZiB2lRxdrK8AbcCd01BpjNPbVhj2zQvOVrCmi1
+	 f+bDbHtJpxEK6NJG8MeKRhL9XbbyB0laA0VpJurIaa2KA357ywH3l3tw18PxwjbEIxSsm
+	 s0+X/7yij7n1QAmQQ5PTnuY1c/RirDA0Supma95mmabr3NxeMgOYG4v4ASxhqkeCVg4uQ
+	 cbtLjGQqwKF5ohsZftubtUCHS/oHMTPxkyP3BguZEiZQQKPsZgMCwSRRNGgnE1iUYAg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ooW7Rt2l;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n7AE6qah;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC32606A31C;
-	Fri, 27 Nov 2026 15:34:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC3D606A31C;
+	Fri, 27 Nov 2026 15:47:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ooW7Rt2l
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 720271F0089F;
-	Fri, 27 Nov 2026 15:34:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n7AE6qah
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2A521F00897;
+	Fri, 27 Nov 2026 15:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795793682;
-	bh=dCxmJA+bOtAUrHZAkdzDbo5hhy+22EkKgE3jLjCcZjw=;
+	s=k20260515; t=1795794466;
+	bh=aSmbULE+03ORV8Jj+AtWFlpiJlKWuzwupMhgFCcFbXg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ooW7Rt2l2Gj5sZD/ofrMPdrhCiiV4FIkO8Yga2VsB7ff/tQREgYIHBNH0AE/NCCD3
-	 2Z3tVRBULJnfKncMlOEmET15XGWw+4+BrSGzqJhs7LpQF2AafyVNySYKzLlxMA4slJ
-	 7i+pSTl6uV6W8zRhhNcXaUYolkWWeC8X9Y15R4wxIZ1L3XbLFUi+TIC6aadrtLk8aT
-	 0/fa6+RNHS0MYEMAQB6XdzHtovXXwRtahGej6YaGcTlFHD1Vj7xWn1yahp4VO+v6dJ
-	 WPoSGTROxaRFDl3SUehe3CZiTZkeitI6ggOQz6fabG8eG7QfhVKWads42kRczfUvz9
-	 3cFaSXbk4kTBQ==
-Message-ID: <sashiko-outbox-237754@kernel.org>
+	b=n7AE6qahp2ofq1wOF1fLz3T24VlD+lFPwfl011JR7drUDCU2SWzXsAdLiVMyfNZUq
+	 8VMc6nu5aXuoKQ7kJgeW8qdvHbOrxu0ReRywU0S+fOlJArQEODdVHvd3LiDzWzNxfr
+	 odUMVERuqnuZ0px7PE3duOPGcFut3Ck3YzxfM4+L57PGHRUsx3gfFvTPf1a6q2KXjC
+	 JVwRBVcMd5JU0sBiQ3kRJ6FMvvA2X+Vrn8iEaCft722V9Z2ehzIlk5rEGshbAKk6P1
+	 7qR82NYzmHJogEIg/nasLUUlt37Bk43yO1o88w4kDGUYfeMRaoPtxYvAw8qzm6RuNS
+	 QswGUEi+toE/A==
+Message-ID: <sashiko-outbox-237781@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 04/12] KVM: s390: Allocate page tables when CMMA is
- used
+Subject: Re: [PATCH v1 03/12] KVM: s390: Introduce gmap_enable_cmm()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261127150411.221072-5-imbrenda@linux.ibm.com>
+In-Reply-To: <20261127150411.221072-4-imbrenda@linux.ibm.com>
 References: <20261127150411.221072-1-imbrenda@linux.ibm.com>
- <20261127150411.221072-5-imbrenda@linux.ibm.com>
+ <20261127150411.221072-4-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 27 Nov 2026 15:34:42 +0000
+Date: Fri, 27 Nov 2026 15:47:45 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,96 +62,148 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [Medium] KVM: s390: premature GMAP_FLAG_USES_CMM publication in
-  gmap_enable_cmm()
+Thank you for your contribution! Sashiko AI review found 3 potential
+issues to consider:
+- [High] KVM: s390: missing vSIE unshadow in
+  gmap_enable_cmm_already_locked()
+- [Medium] KVM: s390: premature flag set in
+  gmap_enable_cmm_already_locked()
+- [Medium] KVM: s390: gmap_enable_cmm_already_locked() leaves hugepage
+  flags set
 --
 
-commit 4eafe3dbf444099ded4397c5a1073f2aff0effc2
+commit 0b86eaed62523c8498a79fd700936cedd248584a
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Allocate page tables when CMMA is used
+KVM: s390: Introduce gmap_enable_cmm()
 
-This commit calls gmap_enable_cmm() on the first ESSA intercept or
-KVM_S390_SET_CMMA_BITS ioctl to preallocate page tables and split large
-page mappings, and rejects KVM_S390_SET_CMMA_BITS on ucontrol VMs.
+This commit introduces gmap_enable_cmm_already_locked() and
+gmap_enable_cmm() to mark a gmap as using CMMA, split existing large page
+mappings, and pre-allocate 4K page tables across guest memslots on a best
+effort basis.
 
-> diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
-> index f22612a127c96..e66fec89ac788 100644
-> --- a/arch/s390/kvm/s390/priv.c
-> +++ b/arch/s390/kvm/s390/priv.c
-> @@ -1243,14 +1243,15 @@ static int handle_essa(struct kvm_vcpu *vcpu)
->  	if (!READ_ONCE(vcpu->kvm->arch.migration_mode)) {
->  		/*
->  		 * CMMA is enabled in the KVM settings, but is disabled in
-> -		 * the SIE block and in the mm_context, and we are not doing
-> -		 * a migration. Enable CMMA in the mm_context.
-> -		 * Since we need to take a write lock to write to the context
-> +		 * the SIE block and in the gmap, and we are not doing a
-> +		 * migration. Enable CMMA in the gmap.
-> +		 * Since we need to take a mutex to write to the gmap
->  		 * to avoid races with storage keys handling, we check if the
->  		 * value really needs to be written to; if the value is
->  		 * already correct, we do nothing and avoid the lock.
->  		 */
-> -		set_bit(GMAP_FLAG_USES_CMM, &vcpu->arch.gmap->flags);
-> +		if (!uses_cmm(vcpu->arch.gmap))
-> +			gmap_enable_cmm(vcpu->arch.mc, vcpu->arch.gmap);
->  		/*
->  		 * If we are here, we are supposed to have CMMA enabled in
->  		 * the SIE block. Enabling CMMA works on a per-CPU basis,
+> diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
+> index ef1243ad4e541..c7af1ad9f7c12 100644
+> --- a/arch/s390/kvm/gmap/gmap.c
+> +++ b/arch/s390/kvm/gmap/gmap.c
+> @@ -1527,3 +1527,51 @@ struct gmap *gmap_create_shadow(struct kvm_s390_mm=
+u_cache *mc, struct gmap *pare
+>  	}
+>  	return new;
+>  }
+> +
+> +#if KVM_S390_MANAGES_S390_GUEST
+> +/* Bail out for any allocation failure. This is only a best effort to al=
+locate all page tables. */
+> +void gmap_enable_cmm_already_locked(struct kvm_s390_mmu_cache *mc, struc=
+t gmap *gmap)
+> +{
+> +	struct kvm_memory_slot *ms;
+> +	struct kvm_memslots *slots;
+> +	gfn_t gfn, start, end;
+> +	union crste *crstep;
+> +	union pte *ptep;
+> +	int flags, bkt;
+> +
+> +	lockdep_assert_held(&gmap->kvm->srcu);
+> +	lockdep_assert_held(&gmap->kvm->slots_arch_lock);
+> +
+> +	if (uses_cmm(gmap))
+> +		return;
+> +
+> +	set_bit(GMAP_FLAG_USES_CMM, &gmap->flags);
 
 [Severity: Medium]
-Can a second vCPU observe uses_cmm(vcpu->arch.gmap) =3D=3D true before
-gmap_enable_cmm() has finished allocating page tables and splitting large
-pages?
+Should gmap_enable_cmm_already_locked() also clear
+GMAP_FLAG_ALLOW_HPAGE_1M and GMAP_FLAG_ALLOW_HPAGE_2G on gmap->flags?
 
-gmap_enable_cmm_already_locked() sets GMAP_FLAG_USES_CMM before walking
-the memslots:
+Because those flags remain set, any segment that does not keep a
+pre-allocated 4K page table (for instance, when a memslot is created or
+moved after CMMA is enabled, or when kvm_s390_mmu_cache_topup() fails
+mid-loop) will still satisfy gmap_1m_allowed() or gmap_2g_allowed() in
+gmap_link() and be mapped with 1M or 2G large pages, causing subsequent
+CMMA operations such as dat_set_cmma_bits() to fail with -EFBIG.
 
-arch/s390/kvm/gmap/gmap.c:gmap_enable_cmm_already_locked() {
-	if (uses_cmm(gmap))
-		return;
+> +
+> +	slots =3D kvm_memslots(gmap->kvm);
+> +	if (!slots || kvm_memslots_empty(slots))
+> +		return;
+> +
+> +	if (WARN_ON_ONCE(is_ucontrol(gmap)))
+> +		return;
 
-	set_bit(GMAP_FLAG_USES_CMM, &gmap->flags);
-	...
-	kvm_for_each_memslot(ms, bkt, slots) {
-		...
-		for (gfn =3D start; gfn < end; gfn +=3D _PAGE_ENTRIES) {
-			if (kvm_s390_mmu_cache_topup(mc))
-				return;
-			guard(write_lock)(&gmap->kvm->mmu_lock);
-			...
-			dat_entry_walk(mc, gfn, gmap->asce, flags, ...);
-		}
-	}
+[Severity: Medium]
+Does setting GMAP_FLAG_USES_CMM before the memslot walk allow concurrent
+callers of gmap_enable_cmm() to return early before page tables are
+allocated and large pages are split?
+
+CPU0                                    CPU1
+gmap_enable_cmm()
+  mutex_lock(&kvm->slots_arch_lock)
+  gmap_enable_cmm_already_locked()
+    set_bit(GMAP_FLAG_USES_CMM, ...)
+                                        gmap_enable_cmm()
+                                          if (uses_cmm(gmap))
+                                            return;  <-- skips lock
+    for (gfn =3D start; gfn < end; ...)
+      kvm_s390_mmu_cache_topup(mc)
+      dat_entry_walk(...)
+
+Because gmap_enable_cmm() checks uses_cmm(gmap) without holding
+slots_arch_lock, CPU1 observes GMAP_FLAG_USES_CMM while CPU0 is still
+splitting large pages and sleeping in kvm_s390_mmu_cache_topup().
+Setting the flag before the is_ucontrol(gmap) check also leaves
+GMAP_FLAG_USES_CMM set if is_ucontrol(gmap) triggers.
+
+> +
+> +	flags =3D DAT_WALK_ALLOC | DAT_WALK_SPLIT;
+> +
+> +	kvm_for_each_memslot(ms, bkt, slots) {
+> +		start =3D ALIGN(ms->base_gfn, _PAGE_ENTRIES);
+> +		end =3D ALIGN_DOWN(ms->base_gfn + ms->npages, _PAGE_ENTRIES);
+> +
+> +		for (gfn =3D start; gfn < end; gfn +=3D _PAGE_ENTRIES) {
+> +			if (kvm_s390_mmu_cache_topup(mc))
+> +				return;
+> +
+> +			guard(write_lock)(&gmap->kvm->mmu_lock);
+> +
+> +			if (uses_skeys(gmap))
+> +				flags |=3D DAT_WALK_USES_SKEYS;
+> +
+> +			dat_entry_walk(mc, gfn, gmap->asce, flags, TABLE_TYPE_PAGE_TABLE,
+> +				       &crstep, &ptep);
+> +		}
+> +	}
+> +}
+> +#endif /* KVM_S390_MANAGES_S390_GUEST */
+
+[Severity: High]
+Can splitting large pages via dat_entry_walk() with DAT_WALK_SPLIT leave
+stale 1M or 2G mappings in vSIE shadow gmaps?
+
+When _do_shadow_crste() shadows a 1M or 2G large page, it records the
+rmap entry in sg->host_to_rmap only at the 1M-aligned or 2G-aligned base
+GFN (f->gfn & mask) and sets s.fc1.vsie_notif on the large CRSTE.
+Unlike gmap_split_huge_pages() -> _gmap_split_crste(), which calls
+gmap_handle_vsie_unshadow_event() before splitting, dat_entry_walk()
+with DAT_WALK_SPLIT calls dat_split_crste() and dat_split_ste()
+directly, copying vsie_notif into all 4K PGSTEs without unshadowing sg:
+
+arch/s390/kvm/gmap/dat.c:dat_split_ste() {
+    ...
+			pgste_init.prefix_notif =3D old.s.fc1.prefix_notif;
+			pgste_init.vsie_notif =3D old.s.fc1.vsie_notif;
+			pgste_init.vsie_gmem =3D old.s.fc1.vsie_notif;
+    ...
 }
 
-Because both handle_essa() and gmap_enable_cmm() check uses_cmm()
-locklessly before taking slots_arch_lock, another vCPU intercepting on
-ESSA while the memslot walk is in progress can skip gmap_enable_cmm() and
-re-enter SIE with ECB2_CMMA enabled:
-
-CPU0                                  CPU1
-handle_essa()
-  gmap_enable_cmm()
-    mutex_lock(&slots_arch_lock)
-    gmap_enable_cmm_already_locked()
-      set_bit(GMAP_FLAG_USES_CMM, ...)
-                                      handle_essa()
-                                        if (!uses_cmm(...)) -> false
-                                        sie_block->ecb2 |=3D ECB2_CMMA
-                                        kvm_s390_retry_instr()
-                                        <re-enters SIE and runs ESSA
-                                         on unvisited segments>
-      kvm_for_each_memslot(...)
-        dat_entry_walk(...)
-
-CPU1 then executes ESSA in hardware on segments that still lack page
-tables or have unsplit large pages, triggering segment translation faults
-and faulting in backing hugepages.
+If a 4K subpage at a non-zero offset within that former large page is
+later unmapped or write-protected, _gmap_handle_vsie_unshadow_event()
+looks up that exact 4K GFN in sg->host_to_rmap, misses the rmap entry at
+the aligned base GFN, and leaves the stale large mapping active in
+sg->asce.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261127150411.2210=
-72-1-imbrenda@linux.ibm.com?part=3D4
+72-1-imbrenda@linux.ibm.com?part=3D3
