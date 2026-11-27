@@ -1,82 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795766179;
-	b=zxMh5xPqQdzUzOJwHE9TE6UR/h95HP09qhNzvq6iN79t/H4zRBnR86YzDyBX9CdDs1nm
-	 VdlDESYnIqSH8ub8U+aeZg+99J6DrbXflvL7BvZfUmgXbuv6N/9ExfcezGifl1o1IXSXW
-	 s+P2vggkdUc8Nx2OaYYGitSRZFzkZMQvfFXJJZ4MVAerfxuurEi24lMaCm51D2TUr1RlH
-	 cjzlchuHgKpXFOBkpnjYXoEOjMS3PjGyQDpUVF0aFhZVS2fvSKnW35VkxrsL+hkyz+b6P
-	 CqYQYqn0ddi5GjvS8nRWKv4ZMOGqYMUR9uqX7Nq/15faMrblSd/jcyhoZ9C+7UvZRKQ==
+	t=1795773110;
+	b=uZ7RZ6OpvYEXXJivmtFyKBc7u5K12XIcWQ4sD3KwmjmQKqTykYuJzgy1Ge3juqyDWmaS
+	 GKU8g4FWr7ogRNS/5lnqZH0H4nayiDhC0g5PAF6T1Uux0k0S57rzgtrDdepKl1OGsr7jQ
+	 Vit0Lnsnt1By//6qrbno0DSCF6mfLkec7AHKOGIWfLEZeQ8hHccON81JZxgvO2daCUs6p
+	 O6AHvtKo9qsilJuaci8qRcvTkpb9AgKUHLvnzs1b4J9HGmiJQXNv3hSiElJXHp0kYVa/d
+	 +SsLeM3R7FJBqR+5FIftmd1WlEitXkOzskUCfD5jufwx0+i4MSMkbDTdTrFhj3OPeUQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795766179;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795773110;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:MIME-Version:Content-Type:Content-Disposition:
+	 X-TM-AS-GCONF:X-Authority-Analysis:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
 	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=OEYhfHE9enXB01dk4tnqN0vlTTG+1RGB7DTIfMOnJPk=;
-	b=XVJ+3/5pUTVz9knVd87IPXoFUwByLqD19/pi453fPWp+6IRsBH5lR9qspDwDgtGuJXdU
-	 +fWDq8TgJEz9JM4jynFbHn6Y9h6CcQGsg+x2EMrDcVvnLfdEkL/RPC4LJudVIvX9/owmS
-	 QJSVfifB3iehhYtX4HxmrgSyUl5iwfzUst4S1mCO9QTrnbBULkMzfixO6yxOAkobEPUXF
-	 9e4cbCqmjon4mSpHi4ej1BbcH4j4K0t5S1K/9DxM7D7XHAPJW5BqEOE9v1sA+jYewMErA
-	 VKNfhVUdInNgpmPYf//cTvOwesPNKDmezvwJ8oWf/5M3kbHn7vHSx5ikQBmnqV4XE0g==
+	bh=NzweNjpRZGnTZ0R4HXeifJcRXkrYK3SG/ovnEkbKnAo=;
+	b=BnNr6PS34NGiD/B0I9MB1oQ72OUorNXiywnB3WYEL9KWuzPs4NA8GqaKSsZZPrKJBC7G
+	 2rRdB8tKlCnxE+DusOS8jJc227ejcO8utQd9ZeT89SVrEKdTRGOCh3N8VBFjO7QQb1mHC
+	 yvxkfcBhlpz+sbel5UaG2lZV0dUSOYG2YLmzhJ3W1ELoGtUdSpVngKTcyMkv+sHA/cYAp
+	 1f6gObZxlB6/J0UyM4jG2zsk8dYTDSeu4IwFu6vbDDjViNsmIpmOpfLNBv5/FWH264R0y
+	 WV23ag9gjb+j95zN7/Hrhi500gosA2q/BOgYmCCtO4jkZfdd63D3hXMoOfVNwMKrzJA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=B1ndN722;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Z+Rtr7vv;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73DFC606A337;
-	Fri, 27 Nov 2026 07:56:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73DFC606A337
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 198BA606A31E;
+	Fri, 27 Nov 2026 09:51:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 198BA606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=B1ndN722
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AR7YYcX2489398;
-	Fri, 27 Nov 2026 07:56:04 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Z+Rtr7vv
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AR7YesV2458177;
+	Fri, 27 Nov 2026 09:51:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=OEYhfH
-	E9enXB01dk4tnqN0vlTTG+1RGB7DTIfMOnJPk=; b=B1ndN722fjJ0mMyw6KUz82
-	jaUpjgTbdnrUuaYQywOSf+KIrDaS6q3J6UiR1+NDE6Agw7cUmF9bR4vnXY8dMg+R
-	7eEeLND1iQTf9ElBhcm/y/E9TzlC2d3m3H7zVEiZkAuSMY6/pAIsP5GACzUIHn02
-	cKg32D1SIMalEf40npdurK4ruElbWOWcIdssTBeqAWb35B+ykzP5bU26X0QmHGz4
-	melKJgw4vqMVlQomZtJRNUk7BRMSc7x/7KWqjxHE40OZiOHizhDHymphPDj3B5cs
-	LZAhbZfjzWhKf5engoOrwxPQS61PivIqKydQI/QhlY3pW7pHD8LYB+Nw81r2xAtA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34fkvseq-1
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=NzweNjpRZGnTZ0R4HXeifJcRXkrYK3SG/ovnEkbKnAo=; b=Z+Rtr7vv
+	kE09QzWyL1mhoBsPhajif6gCuQ9dHo2QADMQ07wj1klHrKD4espBGx5//bC1U3S2
+	1yEFV6ehXiQ/zI6PApSBhK7yzeKzs2cH0nRK/OJIxBbVxScrTp0bMQ1pL9XsGILy
+	PDQn2j0sHTMYVsrAv4lc4BiDSLGGplelB0ArlxiyGJ44Ag0XV9ZfsHAmg7mdlXD8
+	w6r5astYRLk2fl3YJP1T2QsJq9DxssKetvoIs+3P3DmV9yu5mWtz+8nq3RAZRCxu
+	OL/IfafJdiDqTWC5kr+WAVxf/lYTTCtw2/M96XCcsHxqaQZ3ULkyedQ3Dp0IELNk
+	5QNwyE9G7F0ytw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4j34gvmh9k-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 07:56:03 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AR7JPu72384584;
-	Fri, 27 Nov 2026 07:56:02 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4j5kfa9dgn-1
+	Fri, 27 Nov 2026 09:51:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6AR7JMdR2811038;
+	Fri, 27 Nov 2026 09:51:43 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4j5uxx8awq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Nov 2026 07:56:02 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AR7twHc31523454
+	Fri, 27 Nov 2026 09:51:43 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6AR9pdDr42926362
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Nov 2026 07:55:58 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4EEE32004F;
-	Fri, 27 Nov 2026 07:55:58 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A825B20043;
-	Fri, 27 Nov 2026 07:55:57 +0000 (GMT)
-Received: from [9.68.16.159] (unknown [9.68.16.159])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Nov 2026 07:55:57 +0000 (GMT)
-Message-ID: <a5b3119b-4986-411f-a03a-06b411c07c73@linux.ibm.com>
-Date: Fri, 27 Nov 2026 08:56:15 +0100
+	Fri, 27 Nov 2026 09:51:39 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 207AD2004B;
+	Fri, 27 Nov 2026 09:51:39 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F405D20049;
+	Fri, 27 Nov 2026 09:51:38 +0000 (GMT)
+Received: from tuxmaker (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 27 Nov 2026 09:51:38 +0000 (GMT)
+Date: Fri, 27 Nov 2026 10:51:36 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 7.4-rc5
+Message-ID: <20261127095136.2292357A6b-agordeev@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,87 +89,103 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] KVM: s390: selftests: Add a test for nested guests
- in ESA mode
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Yvan Janssens <yvanj@cyber.gent>
-Cc: Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>, Shuah Khan <shuah@kernel.org>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261125165604.3074595-1-yvanj@cyber.gent>
- <20261125165604.3074595-3-yvanj@cyber.gent>
- <20261126153745.399d7f3d@p-imbrenda>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20261126153745.399d7f3d@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDAzMCBTYWx0ZWRfX1g1BOUViKCG4
- g9mA6Aoimal4HQUEX3bz8cO/n7fzKFBtbBsJZW4NSiQsDlNzIdxLEP5O0KxFED250pcg1DlTCL4
- tKApZGai6hvwtY2K9DSjhBhM20dv7CmWnluy2R0Xplet4r/IvOkhnfmfIDw6yFgg5yW+GZtPqp6
- Qw2EEH4OeUoKmzWKMve41ZyMwDDWOtubJkpe0geD5LWRqWDikPmK4AS6/tJqtXAd5IgEfpr6WUu
- nqICesrdszUibque086OezrGfno1lMkC20jYBjIGzkfXOWz8jO9Fmn0DKAxiF2C5guQkklRn3jL
- oXd/EiCoLQ9f7W/Vh5MnK59Hx4NozSiCyBMsqPZ7zWwQNSY1XgEaCNf5SxtcQtKD3QxejZBrI0O
- HoEMy4WO490I0p/3unaAweDjurL5wEZa8n5EGm2S9yHJbPO+wgJ73usnTW9icG3r0IH/oTdG0Dq
- uey38MV3RDK9+l/Rp8A==
-X-Proofpoint-ORIG-GUID: uIk6UMpsRra3qNZBI-f1678No4fJoybG
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDAzMCBTYWx0ZWRfXwduMPYmc14aj
- owOipU12odRnvP8JyMnC4lB1jE9P0TvushfJpIaVllV70LnVIFRzmGPTP50V545XOrzn+eYUFvC
- 4ne3nxCYIQ4F3TPiGLxIYiSCd8P7fWs=
-X-Authority-Analysis: v=2.4 cv=A9z5rKWG c=1 sm=1 tr=0 ts=6b093793 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=iT8M5YjzDwDgK0uH:21 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22
- a=21vj9_bZOuehJTMdBT0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 4MZ0hf_mp1c0CHUnFMQLlcN2CV9_6kdS
+X-Authority-Analysis: v=2.4 cv=CYCdd7rl c=1 sm=1 tr=0 ts=6b0952af cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=lpGbSgCZW7Kyy4ZyuYwA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDAzOCBTYWx0ZWRfX5BwRfrtzqRXQ
+ 4xrkQVCB8foqLey/SvV/K2OUqS6BeqC5ptzIsYcNyPiDnlibpq0OlWIbr+XgCjHNAI3FcGc8ukC
+ iIfKPYbH230QwTGDDykJWAoCsz+zzIo=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDAzOCBTYWx0ZWRfX73KGZO2uL0rT
+ oeN5FXEbg47Q++PtMOnGDOMxnkbfEWjOvaJj8igTMBAkdvcd/tIGADRX6M4PIqPiJS6qTPPFuTc
+ ghddiuHQjCilrlxPOWDNf6mJsDeteuoxQN6f0hzbMBiN45xFvAU4pyUlZtO3pSshgIAoMvCElSV
+ kwZb6uAySHUrTllch9k1PnINauPQwiEMBwBfS1ys+9DWYou6y3Fx2fM77U7wYYxH/Jk6Kxia3/n
+ prkUuGVCAlFjy3Taib8uXRF7FJlJ38QJ0e9g6wRHTBWd3xstc9uvY3V/Y5qA2fAI9XisVuil/Ym
+ 8sx4fNzgZBhmWtJeonDFjVLP+S0LEFfadLaAneMJEuQVG3GfiFrpdjFg1ULwyJkek7HzV4m/nZy
+ 1Oxwr8tDejwLu5ZA9qI692QrIU4yRJmW0P7Yzma8dwDHvxCoj+VMOHvvmA0BI6Xc7V9WT1jO8HL
+ Fquq41prcWsqS8wKedA==
+X-Proofpoint-ORIG-GUID: ACK3LkuYB7PVTIURBEgxlM64cMlVEjbc
+X-Proofpoint-GUID: ACK3LkuYB7PVTIURBEgxlM64cMlVEjbc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-27_01,2026-11-26_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 adultscore=0 phishscore=0 priorityscore=1501 impostorscore=0
- bulkscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611270030
+ phishscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
+ clxscore=1015 spamscore=0 bulkscore=0 impostorscore=0 adultscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
+ definitions=main-2611270038
 
-Am 26.11.26 um 15:37 schrieb Claudio Imbrenda:
-> On Wed, 25 Nov 2026 17:56:03 +0100
-> Yvan Janssens <yvanj@cyber.gent> wrote:
-> 
->> Run a nested guest from a state description without the z/Architecture
->> flag, with KVM_CAP_S390_VSIE_ESAMODE enabled, and let it execute STORE
->> FACILITY LIST EXTENDED twice. vsie intercepts the first one of every SIE
->> entry to shadow the facility list guest 2 designates and then has the
->> instruction repeated.
->>
->> The test checks that the second doubleword of the PSW field, which is not
->> part of an ESA/390 PSW, comes back unchanged, that the PSW points behind
->> the last instruction, and that the first instruction stored the
->> designated list. What the second instruction stored is printed for
->> diagnosis.
->>
->> The test is skipped without the capability, without interpretive
->> execution for the guest (SIEF2) and without facility 7 in the guest's
->> model.
-> 
-> which KVM ioctls are you testing here?
-> 
-> are you sure that this is the right place for this test? my impression
-> is that this would be done more cleanly as a kvm-unit-test
+Hi Linus,
 
-We are explicitely testing 2 levels of SIE here and one level is a private
-"hypervisor". I think this would require some changes in kvm-unit-test/snippets.
-So in general I an fine with taking that via selftests.
+please pull s390 fixes for 7.4-rc5.
 
-Janosch, any concerns and opinions?
+Thanks,
+Alexander Gordeev
 
+The following changes since commit 64ee7f863655e67f26947420516daba4e232675d:
+
+  s390/dcssblk: Initialize device semaphore before sysfs registration (2026-11-05 17:54:25 +0100)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.4-3
+
+for you to fetch changes up to 23a04cb4f2bdbfc87fc4e1c15450e7f8cfc9842a:
+
+  s390/cert_store: Only allow the kernel to create cert_store_key keys (2026-11-23 15:15:58 +0100)
+
+----------------------------------------------------------------
+s390 fixes for 7.4-rc5
+
+- Fix in the cert_store code keyring locking, lifetime handling,
+  missing error and return code checks, several reference leaks
+  and potential use-after-free issues caused by unbalanced keyring
+  reference counting
+
+- Look up the cert_store keyring only in the user session keyring.
+  As result a foreign keyring named "cert_store", which a task may
+  have inherited, is no longer destroyed during refresh
+
+- Fix out-of-bounds reads in hash validation and in Verification
+  Certificate Entry (VCE) debug output, avoid copying uninitialized
+  DIAG 320 data to the debug area, and print the correct value of
+  max_vcxe_length
+
+- Allocate the cert_store keyring with a link restriction, so that
+  arbitrary keys cannot be linked into it
+
+- Allow only the kernel to create keys of type cert_store_key. This
+  prevents users from creating such keys with short descriptions,
+  which could disclose kernel heap memory via /proc/keys
+
+----------------------------------------------------------------
+Anastasia Eskova (2):
+      s390/cert_store: Allocate keyring with link restriction
+      s390/cert_store: Only allow the kernel to create cert_store_key keys
+
+Heiko Carstens (14):
+      s390/cert_store: Fix return code handling in invalidate_keyring_keys()
+      s390/cert_store: Fix potential use-after-free in invalidate_keyring_keys()
+      s390/cert_store: Check key_lookup() return code in invalidate_keyring_keys()
+      s390/cert_store: Unlink before invalidate in invalidate_keyring_keys()
+      s390/cert_store: Fix cs_keyring reference leak in fill_cs_keyring()
+      s390/cert_store: Fix potential use-after-free caused by find_cs_keyring()
+      s390/cert_store: Remove unnecessary static specifier in create_cs_keyring()
+      s390/cert_store: Fix error handling of get_user_session_keyring()
+      s390/cert_store: Fix keyring refcount handling in get_user_session_keyring()
+      s390/cert_store: Do not search the process keyrings for the cert_store keyring
+      s390/cert_store: Validate hash length in check_certificate_valid()
+      s390/cert_store: Fix max_vcxe_length output in pr_dbf_vcssb()
+      s390/cert_store: Fix out-of-bounds read in pr_dbf_vce()
+      s390/cert_store: Initialize ism array in query_diag320_subcodes()
+
+Jarkko Sakkinen (1):
+      s390/cert_store: Hold keyring->sem while reading the keyring
+
+ arch/s390/kernel/cert_store.c | 139 ++++++++++++++++++++++++++----------------
+ 1 file changed, 87 insertions(+), 52 deletions(-)
